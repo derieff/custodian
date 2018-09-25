@@ -281,7 +281,56 @@ if(isset($_GET["act"]))
 		$field = mysql_fetch_array($sql);
 
 		$fregdate=date("j M Y", strtotime($field['THROONLD_ReleaseDate']));
-		$atasan=($field['User_SPV2'])?$field['User_SPV2']:$field['User_SPV1'];
+		// $atasan=($field['User_SPV2'])?$field['User_SPV2']:$field['User_SPV1'];
+		$query = "SELECT u.User_ID, ra.RA_Name
+				  FROM M_Role_Approver ra
+				  LEFT JOIN M_Approver a
+					ON ra.RA_ID=a.Approver_RoleID
+				  LEFT JOIN M_User u
+					ON a.Approver_UserID=u.User_ID
+				  WHERE
+				  	(ra.RA_Name='Custodian' or ra.RA_Name='Section Head Custodian')
+					AND a.Approver_Delete_Time is NULL
+				  ";
+		$sql = mysql_query($query);
+		while($d = mysql_fetch_array($sql)){
+			$approvers[] = $d['User_ID'];  //Approval Untuk ke Custodian
+		}
+
+		if($field['tipe_dokumen'] == "ORIGINAL" OR $field['tipe_dokumen'] == "SOFTCOPY"){
+			$query = "SELECT u.User_ID, ra.RA_Name
+					  FROM M_Role_Approver ra
+					  LEFT JOIN M_Approver a
+						ON ra.RA_ID=a.Approver_RoleID
+					  LEFT JOIN M_User u
+						ON a.Approver_UserID=u.User_ID
+					  WHERE
+					  	ra.RA_Name='Custodian Head'
+						AND a.Approver_Delete_Time is NULL
+					  ";
+			$sql = mysql_query($query);
+			while($d = mysql_fetch_array($sql)){
+				$approvers[] = $d['User_ID'];  //Approval Untuk ke Custodian
+			}
+		// }elseif($field['tipe_dokumen'] == "HARDCOPY"){
+		}else{
+			if($field['kategori_permintaan'] != '3'){ //Jika kategori Permintaan 1 atau 2 / Peminjaman atau Pengolahan Dokumen, berarti dokumen asli
+				$query = "SELECT u.User_ID, ra.RA_Name
+						  FROM M_Role_Approver ra
+						  LEFT JOIN M_Approver a
+							ON ra.RA_ID=a.Approver_RoleID
+						  LEFT JOIN M_User u
+							ON a.Approver_UserID=u.User_ID
+						  WHERE
+						  	ra.RA_Name='Custodian Head'
+							AND a.Approver_Delete_Time is NULL
+						  ";
+				$sql = mysql_query($query);
+				while($d = mysql_fetch_array($sql)){
+					$approvers[] = $d['User_ID'];  //Approval Untuk ke Custodian
+				}
+			}
+		}
 
 		$ActionContent ="
 		<form name='add-detaildoc' method='post' action='$PHP_SELF' >
@@ -385,9 +434,11 @@ if(isset($_GET["act"]))
 
 		<table width='100%'>
 		<tr>
-			<td>
-				<input type='hidden' name='txtA_ApproverID[]' value='$atasan' readonly='true' class='readonly'/>
-			</td>
+			<td>";
+			foreach($approvers as $approver){
+				$ActionContent .="<input type='hidden' name='txtA_ApproverID[]' value='$approver' readonly='true' class='readonly'/>";
+			}
+			$ActionContent .="</td>
 		</tr>
 		<tr>";
 
