@@ -138,7 +138,7 @@ function mail_release_doc($relCode,$reminder=0){
 					</span><br />
 				</p>
 				</div>
-				<div style="margin: 0pt;font-family: \'lucida grande\',tahoma,verdana,arial,sans-serif;">Hormat Kami,<br />Departemen Custodian<br />PT Triputra Agro Persada
+				<div style="margin: 0pt;font-family: \'lucida grande\',tahoma,verdana,arial,sans-serif;margin-top:7%">Hormat Kami,<br />Departemen Custodian<br />PT Triputra Agro Persada
 				</div></td>           
 				</tr>
 			</tbody>
