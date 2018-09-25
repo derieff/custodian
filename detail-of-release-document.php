@@ -1,5 +1,5 @@
-<?PHP 
-/* 
+<?PHP
+/*
 =========================================================================================================================
 = Nama Project		: Custodian																							=
 = Versi				: 1.0																								=
@@ -10,30 +10,30 @@
 = Revisi			:																									=
 =========================================================================================================================
 */
-session_start(); 
+session_start();
 ?>
 <title>Custodian System | Detail Pengeluaran Dokumen</title>
 <head>
-<?PHP 
-include ("./config/config_db.php"); 
+<?PHP
+include ("./config/config_db.php");
 include ("./include/function.mail.reldoc.php");
 ?>
 <script language="JavaScript" type="text/JavaScript">
 // VALIDASI INPUT
 function validateInput(elem) {
 	var returnValue;
-	returnValue = true;							
+	returnValue = true;
 
 	var optTHROLD_Status = document.getElementById('optTHROLD_Status').selectedIndex;
 	var txtTHROLD_Reason = document.getElementById('txtTHROLD_Reason').value;
-		
+
 		if(optTHROLD_Status == 0) {
 			alert("Persetujuan Dokumen Belum Dipilih!");
 			returnValue = false;
 		}
-		
+
 		if(optTHROLD_Status == 2) {
-			if (txtTHROLD_Reason.replace(" ", "") == "") {	
+			if (txtTHROLD_Reason.replace(" ", "") == "") {
 				alert("Keterangan Persetujuan Harus Diisi Apabila Anda Menolak Dokumen Ini!");
 				returnValue = false;
 			}
@@ -48,7 +48,7 @@ function validateInput(elem) {
 if(!isset($_SESSION['User_ID'])) {
 	echo "<meta http-equiv='refresh' content='0; url=index.php?act=error'>";
 } else {
-	
+
 require_once "./include/template.inc";
 $page=new Template();
 $act=$_GET["act"];
@@ -57,50 +57,59 @@ $DocID=$_GET["id"];
 	// Cek apakah user berikut memiliki hak untuk approval
 	$cApp_query="SELECT DISTINCT dra.A_ApproverID
 			  	 FROM TH_ReleaseOfLegalDocument throld, M_Approval dra
-				 WHERE throld.THROLD_Delete_Time is NULL 
-				 AND dra.A_ApproverID='$_SESSION[User_ID]' 
-				 AND dra.A_Status='2' 
-				 AND dra.A_TransactionCode=throld.THROLD_ReleaseCode  
+				 WHERE throld.THROLD_Delete_Time is NULL
+				 AND dra.A_ApproverID='$_SESSION[User_ID]'
+				 AND dra.A_Status='2'
+				 AND dra.A_TransactionCode=throld.THROLD_ReleaseCode
 				 AND throld.THROLD_ID='$DocID'";
 	$cApp_sql=mysql_query($cApp_query);
 	$approver=mysql_num_rows($cApp_sql);
-		
+
 	if(($act=='approve')&&($approver=="1")) {
 $query = "SELECT DISTINCT throld.THROLD_ID, throld.THROLD_ReleaseCode, throld.THROLD_ReleaseDate, u.User_ID,
           u.User_FullName, c.Company_Name, throld.THROLD_Status, throld.THROLD_Information, thlold.THLOLD_UserID,
-		  dg.DocumentGroup_Name, dg.DocumentGroup_ID, throld.THROLD_Reason,c.Company_ID,thlold.THLOLD_LoanCategoryID
+		  dg.DocumentGroup_Name, dg.DocumentGroup_ID, throld.THROLD_Reason,c.Company_ID,thlold.THLOLD_LoanCategoryID,
+		  throld.THROLD_DocumentReceived
 		  	FROM TH_ReleaseOfLegalDocument throld, M_User u, M_Company c, M_Approval dra,
 				 M_DocumentGroup dg, TH_LoanOfLegalDocument thlold, TD_LoanOfLegalDocument tdlold
-			WHERE throld.THROLD_Delete_Time is NULL 
+			WHERE throld.THROLD_Delete_Time is NULL
 			AND throld.THROLD_THLOLD_Code=thlold.THLOLD_LoanCode
-			AND thlold.THLOLD_CompanyID=c.Company_ID 
-			AND throld.THROLD_UserID=u.User_ID 
-			AND dra.A_ApproverID='$_SESSION[User_ID]' 
-			AND dra.A_TransactionCode=throld.THROLD_ReleaseCode 
+			AND thlold.THLOLD_CompanyID=c.Company_ID
+			AND throld.THROLD_UserID=u.User_ID
+			AND dra.A_ApproverID='$_SESSION[User_ID]'
+			AND dra.A_TransactionCode=throld.THROLD_ReleaseCode
 			AND throld.THROLD_ID='$DocID'
 			AND thlold.THLOLD_DocumentGroupID=dg.DocumentGroup_ID";
 	}
 	else {
 $query = "SELECT DISTINCT throld.THROLD_ID, throld.THROLD_ReleaseCode, throld.THROLD_ReleaseDate, u.User_ID,
           u.User_FullName, c.Company_Name, throld.THROLD_Status, throld.THROLD_Information, thlold.THLOLD_UserID,
-		  dg.DocumentGroup_Name, dg.DocumentGroup_ID, throld.THROLD_Reason,c.Company_ID,thlold.THLOLD_LoanCategoryID
+		  dg.DocumentGroup_Name, dg.DocumentGroup_ID, throld.THROLD_Reason,c.Company_ID,thlold.THLOLD_LoanCategoryID,
+		  throld.THROLD_DocumentReceived
 		  	FROM TH_ReleaseOfLegalDocument throld, M_User u, M_Company c, M_Approval dra,
 				 M_DocumentGroup dg, TH_LoanOfLegalDocument thlold, TD_LoanOfLegalDocument tdlold
-			WHERE throld.THROLD_Delete_Time is NULL 
+			WHERE throld.THROLD_Delete_Time is NULL
 			AND throld.THROLD_THLOLD_Code=thlold.THLOLD_LoanCode
-			AND thlold.THLOLD_CompanyID=c.Company_ID 
-			AND throld.THROLD_UserID=u.User_ID 
-			AND dra.A_TransactionCode=throld.THROLD_ReleaseCode 
+			AND thlold.THLOLD_CompanyID=c.Company_ID
+			AND throld.THROLD_UserID=u.User_ID
+			AND dra.A_TransactionCode=throld.THROLD_ReleaseCode
 			AND throld.THROLD_ID='$DocID'
 			AND thlold.THLOLD_DocumentGroupID=dg.DocumentGroup_ID";
 	}
-	
+
 $sql = mysql_query($query);
 $arr = mysql_fetch_array($sql);
+
+$showFormKonfirmasiPenerimaanDokumen = 0;
+if( $arr['THROLD_DocumentReceived'] != 1 && $arr['THROLD_Status']=="accept" && ($arr['User_ID'] == $_SESSION['User_ID'])){ //Arief F - 21092018
+	//Jika user adalah pengaju (untuk mengonfirmasi dokumen sudah diteriim atau tidak)
+	$showFormKonfirmasiPenerimaanDokumen = 1;
+} //Arief F - 21092018
+
 $regdate=strtotime($arr['THROLD_ReleaseDate']);
 $fregdate=date("j M Y", $regdate);
 
-		// Cek apakah Staff Custodian atau bukan. 
+		// Cek apakah Staff Custodian atau bukan.
 		// Staff Custodian memiliki wewenang untuk print pengeluaran dokumen.
 		$cs_query = "SELECT *
 					 FROM M_DivisionDepartmentPosition ddp, M_Department d
@@ -112,7 +121,7 @@ $fregdate=date("j M Y", $regdate);
 
 $MainContent ="
 	<form name='app-doc' method='post' action='$PHP_SELF'>
-	<input name='optTHLOLAD_LoanCategoryID' type='hidden' value='$arr[THLOLD_LoanCategoryID]'>
+	<input name='optTHLOLD_LoanCategoryID' type='hidden' value='$arr[THLOLD_LoanCategoryID]'>
 	<table width='100%' id='mytable' class='stripeMe'>";
 	if(($act=='approve')&&($approver=="1"))
 		$MainContent .="<th colspan=3>Persetujuan Pengeluaran Dokumen</th>";
@@ -128,7 +137,7 @@ $MainContent .="
 		<td width='67%'>
 			<input name='txtTHROLD_ID' type='hidden' value='$arr[THROLD_ID]'/>
 			<input name='txtA_TransactionCode' type='hidden' value='$arr[THROLD_ReleaseCode]'/>
-			$arr[THROLD_ReleaseCode] 
+			$arr[THROLD_ReleaseCode]
 		</td>
 		<td width='3%'>
 			<a href='print-release-of-document.php?id=$arr[THROLD_ReleaseCode]' target='_blank'><img src='./images/icon-print.png'></a>
@@ -140,7 +149,7 @@ $MainContent .="
 		<td width='70%' colspan='2'>
 			<input name='txtTHROLD_ID' type='hidden' value='$arr[THROLD_ID]'/>
 			<input name='txtA_TransactionCode' type='hidden' value='$arr[THROLD_ReleaseCode]'/>
-			$arr[THROLD_ReleaseCode] 
+			$arr[THROLD_ReleaseCode]
 		</td>";
 }
 $MainContent .="
@@ -166,18 +175,18 @@ $MainContent .="
 		<td>Keterangan</td>
 		<td colspan='2'><pre>$arr[THROLD_Information]</pre></td>
 	</tr>";
-	
+
 	// APABILA MEMILIKI HAK UNTUK APPROVAL DOKUMEN
 	if(($act=='approve')&&($approver=="1")) {
-$MainContent .="	
+$MainContent .="
 	<tr>
 		<td>Persetujuan</td>
 		<td colspan='2'>
 			<select name='optTHROLD_Status' id='optTHROLD_Status'>
 				<option value='0'>--- Menunggu Persetujuan ---</option>";
-					$query1="SELECT * 
-								FROM M_DocumentRegistrationStatus 
-								WHERE (DRS_Name <> '' AND DRS_Name <> 'waiting') 
+					$query1="SELECT *
+								FROM M_DocumentRegistrationStatus
+								WHERE (DRS_Name <> '' AND DRS_Name <> 'waiting')
 								AND DRS_Delete_Time is NULL";
 					$sql1 = mysql_query($query1);
 					while ($field1=mysql_fetch_array($sql1)) {
@@ -202,10 +211,10 @@ $MainContent .="
 	else {
 $MainContent .="
 	<tr>
-		<td>Status Dokumen</td>		
+		<td>Status Dokumen</td>
 ";
 	if($arr[THROLD_Status]=="waiting") {
-		$query1="SELECT u.User_FullName 
+		$query1="SELECT u.User_FullName
 					FROM M_Approval dra, M_User u
 					WHERE dra.A_TransactionCode='$arr[THROLD_ReleaseCode]'
 					AND dra.A_Status='2'
@@ -223,6 +232,29 @@ $MainContent .="
 		<td>Alasan</td>
 		<td colspan='2'><pre>$arr[THROLD_Reason]</pre></td>
 	</tr>";
+	 //Tampil Form Penerimaan Dokumen
+		if( $showFormKonfirmasiPenerimaanDokumen == 1 ){ //Arief F - 21092018
+	$MainContent .="
+	<tr>
+		<td>Dokumen sudah diterima</td>
+		<td colspan='2'>
+			<select name='optTHROLD_DocumentReceived' id='optTHROLD_DocumentReceived'>
+				<option value='0'>--- Belum ---</option>
+				<option value='1'>Sudah</option>
+			</select>
+		</td>
+	</tr>"; //Arief F - 21092018
+		} //Arief F - 21092018
+
+		if($arr['THROLD_DocumentReceived'] == 1){ //Arief F - 21092018
+			$MainContent .="
+			<tr>
+				<td>Dokumen sudah diterima</td>
+				<td colspan='2'>
+					Sudah
+				</td>
+			</tr>"; //Arief F - 21092018
+		} //Arief F - 21092018
 	}
 	else if($arr[THROLD_Status]=="reject") {
 $MainContent .="
@@ -243,7 +275,7 @@ $MainContent .="
 $MainContent .="
 	</table>";
 
-	// DETAIL DOKUMEN LEGAL	
+	// DETAIL DOKUMEN LEGAL
 $MainContent .="
 	<div class='detail-title'>Daftar Dokumen</div>
 	<table width='100%' id='mytable' class='stripeMe'>
@@ -256,12 +288,12 @@ $MainContent .="
         <th>Keterangan</th>
         <th>Waktu Pengembalian</th>
     </tr>";
-	
+
 	$query = "SELECT tdrold.TDROLD_ID, tdlold.TDLOLD_ID, tdlold.TDLOLD_Code, dt.DocumentType_Name, dt.DocumentType_ID,
 				     dl.DL_NoDoc, dl.DL_ID,tdrold.TDROLD_Information, dl.DL_DocCode, tdrold.TDROLD_LeadTime
 				FROM TD_ReleaseOfLegalDocument tdrold, M_DocumentType dt, TD_LoanOfLegalDocument tdlold,
 					 M_DocumentLegal dl
-				WHERE tdrold.TDROLD_THROLD_ID='$DocID' 
+				WHERE tdrold.TDROLD_THROLD_ID='$DocID'
 				AND tdrold.TDROLD_Delete_Time IS NULL
 				AND tdlold.TDLOLD_DocCode=dl.DL_DocCode
 				AND tdrold.TDROLD_TDLOLD_ID=tdlold.TDLOLD_ID
@@ -302,7 +334,15 @@ $MainContent .="
 		<input name='cancel' type='submit' value='Batal' class='button'/>
 	</th>";
 	}
-$MainContent .="	
+	//Tampil Form Penerimaan Dokumen
+	if( $showFormKonfirmasiPenerimaanDokumen == 1 ){ //Arief F - 21092018
+$MainContent .="
+	<th colspan=9>
+		<input name='konfirmasi_penerimaandokumen' type='submit' value='Simpan' class='button' onclick='return validateInput(this);'/>
+		<input name='cancel' type='submit' value='Batal' class='button'/>
+	</th>"; //Arief F - 21092018
+	} //Arief F - 21092018
+$MainContent .="
 		</table></form>
 ";
 
@@ -312,12 +352,28 @@ if(isset($_POST[cancel])) {
 	echo "<meta http-equiv='refresh' content='0; url=home.php'>";
 }
 
+if(isset($_POST['konfirmasi_penerimaandokumen'])){
+	$txtTHROLD_ID=$_POST['txtTHROLD_ID'];
+	$optTHROLD_DocumentReceived=$_POST['optTHROLD_DocumentReceived'];
+
+	$query = "UPDATE TH_ReleaseOfLegalDocument
+				SET THROLD_DocumentReceived='$optTHROLD_DocumentReceived', THROLD_Update_UserID='$_SESSION[User_ID]', THROLD_Update_Time=sysdate()
+				WHERE THROLD_ID='$txtTHROLD_ID'
+				AND THROLD_Delete_Time IS NULL";
+	$sql = mysql_query($query);
+	if($sql){
+		echo "<meta http-equiv='refresh' content='0; url=detail-of-release-document.php?id=$txtTHROLD_ID'>";
+	}else{
+		$ActionContent .="<div class='warning'>Konfirmasi Penerimaan Dokumen Gagal. Terjadi kesalahan</div>";
+	}
+}
+
 if(isset($_POST[approval])) {
 	$A_TransactionCode=$_POST['txtA_TransactionCode'];
 	$A_ApproverID=$_SESSION['User_ID'];
 	$A_Status=$_POST['optTHROLD_Status'];
 	$THROLD_Reason=str_replace("<br>", "\n",$_POST['txtTHROLD_Reason']);
-				
+
 	// MENCARI TAHAP APPROVAL USER TERSEBUT
 	$query = "SELECT *
 				FROM M_Approval
@@ -327,9 +383,9 @@ if(isset($_POST[approval])) {
 	$arr = mysql_fetch_array($sql);
 	$step=$arr['A_Step'];
 	$AppDate=$arr['A_ApprovalDate'];
-	
+
 	if ($AppDate==NULL) {
-	
+
 	// MENCARI JUMLAH APPROVAL
 	$query = "SELECT MAX(A_Step) AS jStep
 				FROM M_Approval
@@ -337,7 +393,7 @@ if(isset($_POST[approval])) {
 	$sql = mysql_query($query);
 	$arr = mysql_fetch_array($sql);
 	$jStep=$arr['jStep'];
-	
+
 	// UPDATE APPROVAL
 	$query = "UPDATE M_Approval
 				SET A_Status='$A_Status', A_ApprovalDate=sysdate(), A_Update_UserID='$A_ApproverID',
@@ -345,7 +401,7 @@ if(isset($_POST[approval])) {
 				WHERE A_TransactionCode='$A_TransactionCode'
 				AND A_ApproverID='$A_ApproverID'";
 	$sql = mysql_query($query);
-	
+
 	// PROSES BILA "SETUJU"
 	if ($A_Status=='3') {
 		// CEK APAKAH MERUPAKAN APPROVAL FINAL
@@ -357,7 +413,7 @@ if(isset($_POST[approval])) {
 						AND A_Step='$nStep'";
 			if ($sql = mysql_query($query)){
 				mail_release_doc($A_TransactionCode);
-				echo "<meta http-equiv='refresh' content='0; url=home.php'>";			
+				echo "<meta http-equiv='refresh' content='0; url=home.php'>";
 			}
 		}
 		else {
@@ -366,7 +422,7 @@ if(isset($_POST[approval])) {
 						WHERE THROLD_ReleaseCode='$A_TransactionCode'
 						AND THROLD_Delete_Time IS NULL";
 			$sql = mysql_query($query);
-			
+
 			$regyear=date("Y");
 			$rmonth=date("n");
 
@@ -388,47 +444,47 @@ if(isset($_POST[approval])) {
 
 			// Cari Kode Perusahaan
 			$query = "SELECT *
-						FROM M_Company 
+						FROM M_Company
 						WHERE Company_ID='$_POST[txtCompany_ID]'";
 			$sql = mysql_query($query);
 			$field = mysql_fetch_array($sql);
 			$Company_Code=$field['Company_Code'];
-		
+
 			// Cari Kode Dokumen Grup
 			$query = "SELECT *
-						FROM M_DocumentGroup 
+						FROM M_DocumentGroup
 						WHERE DocumentGroup_ID ='$_POST[txtDL_GroupDocID]'";
 			$sql = mysql_query($query);
 			$field = mysql_fetch_array($sql);
 			$DocumentGroup_Code=$field['DocumentGroup_Code'];
-		
+
 			// Cari No Pengeluaran Dokumen Terakhir
-			$query = "SELECT MAX(CT_SeqNo) 
-						FROM M_CodeTransaction 
-						WHERE CT_Year='$regyear' 
+			$query = "SELECT MAX(CT_SeqNo)
+						FROM M_CodeTransaction
+						WHERE CT_Year='$regyear'
 						AND CT_Action='DOUT'
 						AND CT_GroupDocCode='$DocumentGroup_Code'
 						AND CT_Delete_Time is NULL";
 			$sql = mysql_query($query);
 			$field = mysql_fetch_array($sql);
-			
+
 			if($field[0]==NULL)
 				$maxnum=0;
 			else
-				$maxnum=$field[0];		
+				$maxnum=$field[0];
 			$nnum=$maxnum+1;
-			
+
 				// Mengubah Status Dokumen menjadi "DIPINJAM"
 				$txtDL_ID=$_POST['txtDL_ID'];
 				$txtTDROLD_TDLOLD_ID=$_POST['txtTDROLD_TDLOLD_ID'];
 				$jumlah=count($txtDL_ID);
-			
+
 				for($i=0;$i<$jumlah;$i++){
 					$newnum=str_pad($nnum,3,"0",STR_PAD_LEFT);
-					// Kode Pengeluaran Dokumen	
+					// Kode Pengeluaran Dokumen
 					$CT_Code="$newnum/DOUT/$Company_Code/$DocumentGroup_Code/$regmonth/$regyear";
-					
-					switch ($_POST[optTHLOLAD_LoanCategoryID]) {
+
+					switch ($_POST[optTHLOLD_LoanCategoryID]) {
 						case "1":
 							$docStatus="4";
 							$code="0";
@@ -442,22 +498,22 @@ if(isset($_POST[approval])) {
 							$code=NULL;
 							break;
 					}
-					
+
 					$query1 = "UPDATE M_DocumentLegal
 								SET DL_Status='$docStatus', DL_Update_UserID='$A_ApproverID', DL_Update_Time=sysdate()
 								WHERE DL_ID='$txtDL_ID[$i]'";
-								
-					$sql= "INSERT INTO M_CodeTransaction 
+
+					$sql= "INSERT INTO M_CodeTransaction
 								VALUES (NULL,'$CT_Code','$nnum','DOUT','$Company_Code','$DocumentGroup_Code',
 										'$rmonth','$regyear','$_SESSION[User_ID]',sysdate(),
 										'$_SESSION[User_ID]',sysdate(),NULL,NULL)";
-										
+
 					$sql1 = "UPDATE TD_ReleaseOfLegalDocument
 								SET TDROLD_Code='$CT_Code',TDROLD_ReturnCode='$code',
 									TDROLD_Update_Time=sysdate(),TDROLD_Update_UserID='$_SESSION[User_ID]'
 								WHERE TDROLD_THROLD_ID='$_POST[txtTHROLD_ID]'
 								AND TDROLD_TDLOLD_ID='$txtTDROLD_TDLOLD_ID[$i]'";
-										
+
 					$mysqli->query($query1);
 					$mysqli->query($sql);
 					$mysqli->query($sql1);
@@ -465,41 +521,41 @@ if(isset($_POST[approval])) {
 				}
 				mail_notif_release_doc($A_TransactionCode, $_POST['txtTHLOLD_UserID'], 3);
 				mail_notif_release_doc($A_TransactionCode, "cust0002", 3 );
-				
-				echo "<meta http-equiv='refresh' content='0; url=home.php'>";			
+
+				echo "<meta http-equiv='refresh' content='0; url=home.php'>";
 			}
-		}		
+		}
 	// PROSES BILA "TOLAK"
 	if ($A_Status=='4') {
 		$query = "UPDATE TH_ReleaseOfLegalDocument
 					SET THROLD_Status='reject', THROLD_Reason='$THROLD_Reason',
 						THROLD_Update_Time=sysdate(), THROLD_Update_UserID='$A_ApproverID'
 					WHERE THROLD_ReleaseCode='$A_TransactionCode'";
-		
+
 		$query1 = "UPDATE M_Approval
-					SET A_Delete_Time=sysdate(), A_Delete_UserID='$A_ApproverID', 
+					SET A_Delete_Time=sysdate(), A_Delete_UserID='$A_ApproverID',
 						A_Status='$A_Status'
 					WHERE A_TransactionCode='$A_TransactionCode'
 					AND A_Step>'$step'";
 		if (($sql = mysql_query($query)) && ($sql1 = mysql_query($query1))) {
 			$txtDL_ID=$_POST['txtDL_ID'];
 			$jumlah=count($txtDL_ID);
-					
+
 			for ($i=0;$i<$jumlah;$i++) {
 				$query = "UPDATE M_DocumentLegal
 						  SET DL_Status='1', DL_Update_UserID='$A_ApproverID', DL_Update_Time=sysdate()
-						  WHERE DL_ID='$txtDL_ID[$i]'";	
-				$mysqli->query($query);					
+						  WHERE DL_ID='$txtDL_ID[$i]'";
+				$mysqli->query($query);
 			}
 			mail_notif_release_doc($A_TransactionCode, $_POST['txtTHLOLD_UserID'], 4 );
 			mail_notif_release_doc($A_TransactionCode, $_POST['txtDL_RegUserID'], 4 );
-			echo "<meta http-equiv='refresh' content='0; url=home.php'>";	
+			echo "<meta http-equiv='refresh' content='0; url=home.php'>";
 		}
 	}
 	}
-	
+
 	else {
-		echo "<meta http-equiv='refresh' content='0; url=home.php'>";			
+		echo "<meta http-equiv='refresh' content='0; url=home.php'>";
 	}
 }
 

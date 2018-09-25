@@ -129,8 +129,13 @@ function mail_release_doc($relCode,$reminder=0){
 				</p>
 				<p><span style="margin-bottom: 15px; font-size: 13px;font-family: \'lucida grande\',tahoma,verdana,arial,sans-serif;">Untuk itu dimohon Bapak/Ibu dapat memberikan persetujuan pengeluaran dokumen di atas. Terima kasih.  </span><br />
 				</p>
-				<p align=center><span style="border: 1px solid green;padding: 5px;margin-bottom: 15px; font-size: 13px;font-family: \'lucida grande\',tahoma,verdana,arial,sans-serif;"><a target="_BLANK" href="http://'.$_SERVER['HTTP_HOST'].'/act.mail.reldoc.php?cfm='.$decrp->encrypt('accept').'&ati='.$decrp->encrypt($row->ARC_AID).'&rdm='.$decrp->encrypt($row->ARC_RandomCode).'">Setuju</a></span>
-				<span style="border: 1px solid green;padding: 5px;margin-bottom: 15px; font-size: 13px;font-family: \'lucida grande\',tahoma,verdana,arial,sans-serif;"><a target="_BLANK" href="http://'.$_SERVER['HTTP_HOST'].'/act.mail.reldoc.php?act='.$decrp->encrypt('reject').'&ati='.$decrp->encrypt($row->ARC_AID).'&rdm='.$decrp->encrypt($row->ARC_RandomCode).'">Tolak</a></span><br />
+				<p align=center>
+					<span style="border: 1px solid green;padding: 5px;margin-bottom: 15px; font-size: 13px;font-family: \'lucida grande\',tahoma,verdana,arial,sans-serif;background-color: rgb(196, 223, 155);color: white;float: left;margin-left: 15%;width: 20%;border-radius: 10px;">
+						<a target="_BLANK" style="color: white;" href="http://'.$_SERVER['HTTP_HOST'].'/act.mail.reldoc.php?cfm='.$decrp->encrypt('accept').'&ati='.$decrp->encrypt($row->ARC_AID).'&rdm='.$decrp->encrypt($row->ARC_RandomCode).'">Setuju</a>
+					</span>
+					<span style="border: 1px solid green;padding: 5px;margin-bottom: 15px; font-size: 13px;font-family: \'lucida grande\',tahoma,verdana,arial,sans-serif;background-color: rgb(196, 223, 155);color: white;float: right;margin-right: 15%;width: 20%;border-radius: 10px;">
+						<a target="_BLANK" style="color: white;" href="http://'.$_SERVER['HTTP_HOST'].'/act.mail.reldoc.php?act='.$decrp->encrypt('reject').'&ati='.$decrp->encrypt($row->ARC_AID).'&rdm='.$decrp->encrypt($row->ARC_RandomCode).'">Tolak</a>
+					</span><br />
 				</p>
 				</div>
 				<div style="margin: 0pt;font-family: \'lucida grande\',tahoma,verdana,arial,sans-serif;">Hormat Kami,<br />Departemen Custodian<br />PT Triputra Agro Persada
@@ -235,7 +240,7 @@ function mail_notif_release_doc($relCode, $User_ID, $status){
 	//$mail->AddAttachment("images/icon_addrow.png", "icon_addrow.png");  // optional name
 					
 		$ed_query="	SELECT DISTINCT Company_Name,DocumentCategory_Name,DocumentType_Name, 
-									DL_NoDoc,THROLD_Reason,THLOLD_UserID,User_FullName
+									DL_NoDoc,THROLD_Reason,THROLD_Information,THLOLD_UserID,User_FullName
 					FROM TH_ReleaseOfLegalDocument
 					LEFT JOIN TD_ReleaseOfLegalDocument
 						ON TDROLD_THROLD_ID=THROLD_ID
@@ -269,6 +274,7 @@ function mail_notif_release_doc($relCode, $User_ID, $status){
 							</TD>
 						</TR>';
 			$edNum=$edNum+1;
+			$info=$ed_arr->THROLD_Information;
 			$reason=$ed_arr->THROLD_Reason;
 			$regUser=$ed_arr->THLOLD_UserID;
 			$requester=$ed_arr->User_FullName;
@@ -285,7 +291,7 @@ function mail_notif_release_doc($relCode, $User_ID, $status){
 <tr>
 	<td width="458" align="justify" valign="top" style="font-size: 12px; font-family: \'lucida grande\',tahoma,verdana,arial,sans-serif;"><div style="margin-bottom: 15px; font-size: 13px">Yth '.$row->User_FullName.',</div>
 	<div style="margin-bottom: 15px">
-	<p><span style="margin-bottom: 15px; font-size: 13px; font-family: \'lucida grande\',tahoma,verdana,arial,sans-serif;">Bersama ini disampaikan bahwa pengeluaran dokumen (berdasarkan permintaan '.$requester.') dengan detail pengeluaran sebagai berikut :</span></p>
+	<p><span style="margin-bottom: 15px; font-size: 13px; font-family: \'lucida grande\',tahoma,verdana,arial,sans-serif;">Bersama ini disampaikan bahwa dokumen (berdasarkan permintaan '.$requester.' untuk tujuan '.$info.') dengan detail permintaan dokumen sebagai berikut :</span></p>
 	<p>
         <TABLE  width="458" >
 		<TR align="center"  style="border: 1px solid #ffe222; padding: 10px; background-color: #c4df9b; color: #333333; font-size: 12px; font-family: \'lucida grande\',tahoma,verdana,arial,sans-serif;">															

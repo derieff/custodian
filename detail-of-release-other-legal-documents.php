@@ -78,7 +78,7 @@ $query = "SELECT DISTINCT throold.THROOLD_ID, throold.THROOLD_ReleaseCode, throo
 			AND dra.A_ApproverID='$_SESSION[User_ID]'
 			AND dra.A_TransactionCode=throold.THROOLD_ReleaseCode
 			AND throold.THROOLD_ID='$DocID'
-			AND dg.DocumentGroup_ID='4'";
+			AND dg.DocumentGroup_ID='5'";
 	}
 	else {
 $query = "SELECT DISTINCT throold.THROOLD_ID, throold.THROOLD_ReleaseCode, throold.THROOLD_ReleaseDate, u.User_ID,
@@ -92,7 +92,7 @@ $query = "SELECT DISTINCT throold.THROOLD_ID, throold.THROOLD_ReleaseCode, throo
 			AND throold.THROOLD_UserID=u.User_ID
 			AND dra.A_TransactionCode=throold.THROOLD_ReleaseCode
 			AND throold.THROOLD_ID='$DocID'
-			AND dg.DocumentGroup_ID='4'";
+			AND dg.DocumentGroup_ID='5'";
 	}
 
 $sql = mysql_query($query);
@@ -112,12 +112,12 @@ $fregdate=date("j M Y", $regdate);
 
 $MainContent ="
 	<form name='app-doc' method='post' action='$PHP_SELF'>
-	<input name='optTHLOLAD_LoanCategoryID' type='hidden' value='$arr[THLOOLD_LoanCategoryID]'>
+	<input name='optTHLOOLD_LoanCategoryID' type='hidden' value='$arr[THLOOLD_LoanCategoryID]'>
 	<table width='100%' id='mytable' class='stripeMe'>";
 	if(($act=='approve')&&($approver=="1"))
-		$MainContent .="<th colspan=3>Persetujuan Pengeluaran Dokumen</th>";
+		$MainContent .="<th colspan=3>Persetujuan Pengeluaran Dokumen Lainnya (Legal)</th>";
 	else
-		$MainContent .="<th colspan=3>Pengeluaran Dokumen</th>";
+		$MainContent .="<th colspan=3>Pengeluaran Dokumen Lainnya (Legal)</th>";
 
 $MainContent .="
 	<tr>
@@ -441,7 +441,7 @@ if(isset($_POST[approval])) {
 					// Kode Pengeluaran Dokumen
 					$CT_Code="$newnum/DOUT/$Company_Code/$DocumentGroup_Code/$regmonth/$regyear";
 
-					switch ($_POST[optTHLOLAD_LoanCategoryID]) {
+					switch ($_POST[optTHLOOLD_LoanCategoryID]) {
 						case "1":
 							$docStatus="4";
 							$code="0";
