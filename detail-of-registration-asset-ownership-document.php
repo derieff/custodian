@@ -817,7 +817,12 @@ else if(isset($_POST[edit])) {
 							}
 						}
 
-						if ($i == $jStep) {
+						/************************************
+						* Nicholas - 26 Sept 2018			*
+						* Fix Bug skip approval				*
+						************************************/
+						
+						/*if ($i == $jStep) {
 							$query = "UPDATE TH_RegistrationOfAssetOwnershipDocument
 								SET THROAOD_Status='accept', THROAOD_Update_UserID='$A_ApproverID',
 									THROAOD_Update_Time=sysdate()
@@ -827,7 +832,7 @@ else if(isset($_POST[edit])) {
 								mail_notif_registration_doc($A_TransactionCode, $h_arr['THROAOD_UserID'], 3, 1 );
 								mail_notif_registration_doc($A_TransactionCode, "cust0002", 3, 1 );
 							}
-						}
+						}*/
 						break;
 					} else if ($result['RADS_StatusID'] == '2') {
 						//echo 'Step : ' . $i . ' => Kirim Email Notifikasi<br />';
@@ -853,7 +858,12 @@ else if(isset($_POST[edit])) {
 							}
 						}
 
-						if ($i == $jStep) {
+						/************************************
+						* Nicholas - 26 Sept 2018			*
+						* Fix Bug skip approval				*
+						************************************/
+						
+						/*if ($i == $jStep) {
 							$query = "UPDATE TH_RegistrationOfAssetOwnershipDocument
 								SET THROAOD_Status='accept', THROAOD_Update_UserID='$A_ApproverID',
 									THROAOD_Update_Time=sysdate()
@@ -863,7 +873,7 @@ else if(isset($_POST[edit])) {
 								mail_notif_registration_doc($A_TransactionCode, $h_arr['THROAOD_UserID'], 3, 1 );
 								mail_notif_registration_doc($A_TransactionCode, "cust0002", 3, 1 );
 							}
-						}
+						}*/
 					} else;
 				}
 				echo "<meta http-equiv='refresh' content='0; url=home.php'>";
