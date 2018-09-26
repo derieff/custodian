@@ -11,7 +11,7 @@
 */
 session_start();
 ?>
-<title>Custodian System | Pengeluaran Dokumen</title>
+<title>Custodian System | Pengeluaran Dokumen Lainnya (Di Luar Legal)</title>
 <head>
 <?PHP
 include ("./config/config_db.php");
@@ -148,7 +148,7 @@ if(isset($_GET["act"]))
 		$ActionContent ="
 		<form name='addRelDoc' method='post' action='$PHP_SELF'>
 		<table width='100%' id='mytable' class='stripeMe'>
-		<th colspan=3>Pengeluaran Dokumen</th>";
+		<th colspan=3>Pengeluaran Dokumen Lainnya (Di Luar Legal)</th>";
 
 		$query = "SELECT u.User_FullName as FullName, ddp.DDP_DeptID as DeptID, ddp.DDP_DivID as DivID,
 						 ddp.DDP_PosID as PosID, dp.Department_Name as DeptName, d.Division_Name as DivName,
@@ -281,12 +281,61 @@ if(isset($_GET["act"]))
 		$field = mysql_fetch_array($sql);
 
 		$fregdate=date("j M Y", strtotime($field['THROONLD_ReleaseDate']));
-		$atasan=($field['User_SPV2'])?$field['User_SPV2']:$field['User_SPV1'];
+		// $atasan=($field['User_SPV2'])?$field['User_SPV2']:$field['User_SPV1'];
+		$query = "SELECT u.User_ID, ra.RA_Name
+				  FROM M_Role_Approver ra
+				  LEFT JOIN M_Approver a
+					ON ra.RA_ID=a.Approver_RoleID
+				  LEFT JOIN M_User u
+					ON a.Approver_UserID=u.User_ID
+				  WHERE
+				  	(ra.RA_Name='Custodian' or ra.RA_Name='Section Head Custodian')
+					AND a.Approver_Delete_Time is NULL
+				  ";
+		$sql = mysql_query($query);
+		while($d = mysql_fetch_array($sql)){
+			$approvers[] = $d['User_ID'];  //Approval Untuk ke Custodian
+		}
+
+		if($field['tipe_dokumen'] == "ORIGINAL" OR $field['tipe_dokumen'] == "SOFTCOPY"){
+			$query = "SELECT u.User_ID, ra.RA_Name
+					  FROM M_Role_Approver ra
+					  LEFT JOIN M_Approver a
+						ON ra.RA_ID=a.Approver_RoleID
+					  LEFT JOIN M_User u
+						ON a.Approver_UserID=u.User_ID
+					  WHERE
+					  	ra.RA_Name='Custodian Head'
+						AND a.Approver_Delete_Time is NULL
+					  ";
+			$sql = mysql_query($query);
+			while($d = mysql_fetch_array($sql)){
+				$approvers[] = $d['User_ID'];  //Approval Untuk ke Custodian
+			}
+		// }elseif($field['tipe_dokumen'] == "HARDCOPY"){
+		}else{
+			if($field['kategori_permintaan'] != '3'){ //Jika kategori Permintaan 1 atau 2 / Peminjaman atau Pengolahan Dokumen, berarti dokumen asli
+				$query = "SELECT u.User_ID, ra.RA_Name
+						  FROM M_Role_Approver ra
+						  LEFT JOIN M_Approver a
+							ON ra.RA_ID=a.Approver_RoleID
+						  LEFT JOIN M_User u
+							ON a.Approver_UserID=u.User_ID
+						  WHERE
+						  	ra.RA_Name='Custodian Head'
+							AND a.Approver_Delete_Time is NULL
+						  ";
+				$sql = mysql_query($query);
+				while($d = mysql_fetch_array($sql)){
+					$approvers[] = $d['User_ID'];  //Approval Untuk ke Custodian
+				}
+			}
+		}
 
 		$ActionContent ="
 		<form name='add-detaildoc' method='post' action='$PHP_SELF' >
 		<table width='100%' id='mytable' class='stripeMe'>
-		<th colspan=3>Pengeluaran Dokumen</th>
+		<th colspan=3>Pengeluaran Dokumen Lainnya (Di Luar Legal)</th>
 		<tr>
 			<td width='30%'>Kode Pengeluaran</td>
 			<td width='70%'>
@@ -385,9 +434,11 @@ if(isset($_GET["act"]))
 
 		<table width='100%'>
 		<tr>
-			<td>
-				<input type='hidden' name='txtA_ApproverID[]' value='$atasan' readonly='true' class='readonly'/>
-			</td>
+			<td>";
+			foreach($approvers as $approver){
+				$ActionContent .="<input type='hidden' name='txtA_ApproverID[]' value='$approver' readonly='true' class='readonly'/>";
+			}
+			$ActionContent .="</td>
 		</tr>
 		<tr>";
 
@@ -474,7 +525,7 @@ if ($num==NULL) {
 		$MainContent .="
 		<tr>
 			<td class='center'>
-				<a href='detail-of-release-document.php?id=$field[THROONLD_ID]' class='underline'>$field[THROONLD_ReleaseCode]</a>
+				<a href='detail-of-release-other-non-legal-documents.php?id=$field[THROONLD_ID]' class='underline'>$field[THROONLD_ReleaseCode]</a>
 			</td>
 			<td class='center'>$fregdate</td>
 			<td class='center'>$field[User_FullName]</td>

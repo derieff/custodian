@@ -148,7 +148,7 @@ if(isset($_GET["act"]))
 		$ActionContent ="
 		<form name='addRelDoc' method='post' action='$PHP_SELF'>
 		<table width='100%' id='mytable' class='stripeMe'>
-		<th colspan=3>Pengeluaran Dokumen</th>";
+		<th colspan=3>Pengeluaran Dokumen Kepemilikan Aset</th>";
 
 		$query = "SELECT u.User_FullName as FullName, ddp.DDP_DeptID as DeptID, ddp.DDP_DivID as DivID,
 						 ddp.DDP_PosID as PosID, dp.Department_Name as DeptName, d.Division_Name as DivName,
@@ -338,7 +338,7 @@ if(isset($_GET["act"]))
 		$ActionContent ="
 		<form name='add-detaildoc' method='post' action='$PHP_SELF' >
 		<table width='100%' id='mytable' class='stripeMe'>
-		<th colspan=3>Pengeluaran Dokumen</th>
+		<th colspan=3>Pengeluaran Dokumen Kepemilikan Aset</th>
 		<tr>
 			<td width='30%'>Kode Pengeluaran</td>
 			<td width='70%'>

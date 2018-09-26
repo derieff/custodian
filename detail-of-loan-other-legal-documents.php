@@ -103,9 +103,9 @@ $MainContent ="
 <table width='100%' id='mytable' class='stripeMe'>";
 
 if(($act=='approve')&&($approver=="1"))
-	$MainContent .="<th colspan=3>Persetujuan Permohonan Permintaan Dokumen</th>";
+	$MainContent .="<th colspan=3>Persetujuan Permohonan Permintaan Dokumen Lainnya (Legal)</th>";
 else
-	$MainContent .="<th colspan=3>Permohonan Permintaan Dokumen</th>";
+	$MainContent .="<th colspan=3>Permohonan Permintaan Dokumen Lainnya (Legal)</th>";
 
 if ($arr['User_ID']==$_SESSION['User_ID']){
 	$MainContent .="
@@ -411,7 +411,7 @@ if(isset($_POST[approval])) {
 					* Nicholas - 24 Sept 2018			*
 					* Fix Bug skip approval				*
 					************************************/
-					
+
 					/*if ($i == $jStep) {
 						$query = "UPDATE TH_LoanOfOtherLegalDocuments
 							SET THLOOLD_Status='accept', THLOOLD_Update_UserID='$A_ApproverID',
@@ -452,7 +452,7 @@ if(isset($_POST[approval])) {
 					* Nicholas - 24 Sept 2018			*
 					* Fix Bug skip approval				*
 					************************************/
-					
+
 					/*if ($i == $jStep) {
 						$query = "UPDATE TH_LoanOfOtherLegalDocuments
 							SET THLOOLD_Status='accept', THLOOLD_Update_UserID='$A_ApproverID',

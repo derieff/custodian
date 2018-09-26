@@ -417,7 +417,7 @@ elseif($grup==5){ //Arief F - 14092018
 }
 
 elseif($grup==6){ //Arief F - 14092018
-	$query="SELECT DISTINCT thloold.THLOOLD_LoanCode, thloold.THLOOLD_Information, thloold.THLOOLD_LoanDate, u.User_FullName,
+	$query="SELECT DISTINCT thloonld.THLOONLD_LoanCode, thloonld.THLOONLD_Information, thloonld.THLOONLD_LoanDate, u.User_FullName,
 							c.Company_Name, lc.LoanCategory_Name
 			FROM TH_LoanOfOtherNonLegalDocuments thloonld, TD_LoanOfOtherNonLegalDocuments tdloonld,
 				 M_User u, M_Company c, M_LoanCategory lc
