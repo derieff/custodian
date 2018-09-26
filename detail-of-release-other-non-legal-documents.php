@@ -68,7 +68,8 @@ $DocID=$_GET["id"];
 	if(($act=='approve')&&($approver=="1")) {
 $query = "SELECT DISTINCT throonld.THROONLD_ID, throonld.THROONLD_ReleaseCode, throonld.THROONLD_ReleaseDate, u.User_ID,
           u.User_FullName, c.Company_Name, throonld.THROONLD_Status, throonld.THROONLD_Information, thloonld.THLOONLD_UserID,
-		  dg.DocumentGroup_Name, dg.DocumentGroup_ID, throonld.THROONLD_Reason,c.Company_ID,thloonld.THLOONLD_LoanCategoryID
+		  dg.DocumentGroup_Name, dg.DocumentGroup_ID, throonld.THROONLD_Reason,c.Company_ID,thloonld.THLOONLD_LoanCategoryID,
+		  THROONLD.THROONLD_DocumentReceived
 		  	FROM TH_ReleaseOfOtherNonLegalDocuments throonld, M_User u, M_Company c, M_Approval dra,
 				 M_DocumentGroup dg, TH_LoanOfOtherNonLegalDocuments thloonld, TD_LoanOfOtherNonLegalDocuments tdloonld
 			WHERE throonld.THROONLD_Delete_Time is NULL
@@ -83,7 +84,8 @@ $query = "SELECT DISTINCT throonld.THROONLD_ID, throonld.THROONLD_ReleaseCode, t
 	else {
 $query = "SELECT DISTINCT throonld.THROONLD_ID, throonld.THROONLD_ReleaseCode, throonld.THROONLD_ReleaseDate, u.User_ID,
           u.User_FullName, c.Company_Name, throonld.THROONLD_Status, throonld.THROONLD_Information, thloonld.THLOONLD_UserID,
-		  dg.DocumentGroup_Name, dg.DocumentGroup_ID, throonld.THROONLD_Reason,c.Company_ID,thloonld.THLOONLD_LoanCategoryID
+		  dg.DocumentGroup_Name, dg.DocumentGroup_ID, throonld.THROONLD_Reason,c.Company_ID,thloonld.THLOONLD_LoanCategoryID,
+		  THROONLD.THROONLD_DocumentReceived
 		  	FROM TH_ReleaseOfOtherNonLegalDocuments throonld, M_User u, M_Company c, M_Approval dra,
 				 M_DocumentGroup dg, TH_LoanOfOtherNonLegalDocuments thloonld, TD_LoanOfOtherNonLegalDocuments tdloonld
 			WHERE throonld.THROONLD_Delete_Time is NULL
@@ -97,6 +99,13 @@ $query = "SELECT DISTINCT throonld.THROONLD_ID, throonld.THROONLD_ReleaseCode, t
 
 $sql = mysql_query($query);
 $arr = mysql_fetch_array($sql);
+
+$showFormKonfirmasiPenerimaanDokumen = 0;
+if( $arr['THROONLD_DocumentReceived'] != 1 && $arr['THROONLD_Status']=="accept" && ($arr['User_ID'] == $_SESSION['User_ID'])){ //Arief F - 21092018
+	//Jika user adalah pengaju (untuk mengonfirmasi dokumen sudah diteriim atau tidak)
+	$showFormKonfirmasiPenerimaanDokumen = 1;
+} //Arief F - 21092018
+
 $regdate=strtotime($arr['THROONLD_ReleaseDate']);
 $fregdate=date("j M Y", $regdate);
 
@@ -223,6 +232,29 @@ $MainContent .="
 		<td>Alasan</td>
 		<td colspan='2'><pre>$arr[THROONLD_Reason]</pre></td>
 	</tr>";
+	//Tampil Form Penerimaan Dokumen
+		if( $showFormKonfirmasiPenerimaanDokumen == 1 ){ //Arief F - 21092018
+	$MainContent .="
+		<tr>
+			<td>Dokumen sudah diterima</td>
+			<td colspan='2'>
+				<select name='optTHROONLD_DocumentReceived' id='optTHROONLD_DocumentReceived'>
+					<option value='0'>--- Belum ---</option>
+					<option value='1'>Sudah</option>
+				</select>
+			</td>
+		</tr>"; //Arief F - 21092018
+		} //Arief F - 21092018
+
+		if($arr['THROONLD_DocumentReceived'] == 1){ //Arief F - 21092018
+			$MainContent .="
+			<tr>
+				<td>Dokumen sudah diterima</td>
+				<td colspan='2'>
+					Sudah
+				</td>
+			</tr>"; //Arief F - 21092018
+		} //Arief F - 21092018
 	}
 	else if($arr[THROONLD_Status]=="reject") {
 $MainContent .="
@@ -315,6 +347,14 @@ $MainContent .="
 		<input name='cancel' type='submit' value='Batal' class='button'/>
 	</th>";
 	}
+	//Tampil Form Penerimaan Dokumen
+	if( $showFormKonfirmasiPenerimaanDokumen == 1 ){ //Arief F - 21092018
+$MainContent .="
+	<th colspan=9>
+		<input name='konfirmasi_penerimaandokumen' type='submit' value='Simpan' class='button' onclick='return validateInput(this);'/>
+		<input name='cancel' type='submit' value='Batal' class='button'/>
+	</th>"; //Arief F - 21092018
+	} //Arief F - 21092018
 $MainContent .="
 		</table></form>
 ";
@@ -323,6 +363,22 @@ $MainContent .="
 /* ACTIONS */
 if(isset($_POST[cancel])) {
 	echo "<meta http-equiv='refresh' content='0; url=home.php'>";
+}
+
+if(isset($_POST['konfirmasi_penerimaandokumen'])){
+	$txtTHROONLD_ID=$_POST['txtTHROONLD_ID'];
+	$optTHROONLD_DocumentReceived=$_POST['optTHROONLD_DocumentReceived'];
+
+	$query = "UPDATE TH_ReleaseOfOtherNonLegalDocuments
+				SET THROONLD_DocumentReceived='$optTHROONLD_DocumentReceived', THROONLD_Update_UserID='$_SESSION[User_ID]', THROONLD_Update_Time=sysdate()
+				WHERE THROONLD_ID='$txtTHROONLD_ID'
+				AND THROONLD_Delete_Time IS NULL";
+	$sql = mysql_query($query);
+	if($sql){
+		echo "<meta http-equiv='refresh' content='0; url=detail-of-release-other-non-legal-documents.php?id=$txtTHROONLD_ID'>";
+	}else{
+		$ActionContent .="<div class='warning'>Konfirmasi Penerimaan Dokumen Gagal. Terjadi kesalahan</div>";
+	}
 }
 
 if(isset($_POST[approval])) {

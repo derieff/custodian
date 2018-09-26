@@ -68,7 +68,8 @@ $DocID=$_GET["id"];
 	if(($act=='approve')&&($approver=="1")) {
 $query = "SELECT DISTINCT thrlolad.THRLOLAD_ID, thrlolad.THRLOLAD_ReleaseCode, thrlolad.THRLOLAD_ReleaseDate, u.User_ID,
           				  u.User_FullName, c.Company_Name, thrlolad.THRLOLAD_Status, thrlolad.THRLOLAD_Information,
-		  				  thrlolad.THRLOLAD_Reason,c.Company_ID, thlolad.THLOLAD_UserID, thlolad.THLOLAD_LoanCategoryID
+		  				  thrlolad.THRLOLAD_Reason,c.Company_ID, thlolad.THLOLAD_UserID, thlolad.THLOLAD_LoanCategoryID,
+						  thrlolad.THRLOLAD_DocumentReceived
 		  FROM TH_ReleaseOfLandAcquisitionDocument thrlolad, M_User u, M_Company c, M_Approval dra,
 			   TH_LoanOfLandAcquisitionDocument thlolad, TD_LoanOfLandAcquisitionDocument tdlolad
 		  WHERE thrlolad.THRLOLAD_Delete_Time is NULL
@@ -82,7 +83,8 @@ $query = "SELECT DISTINCT thrlolad.THRLOLAD_ID, thrlolad.THRLOLAD_ReleaseCode, t
 	else {
 $query = "SELECT DISTINCT thrlolad.THRLOLAD_ID, thrlolad.THRLOLAD_ReleaseCode, thrlolad.THRLOLAD_ReleaseDate, u.User_ID,
           				  u.User_FullName, c.Company_Name, thrlolad.THRLOLAD_Status, thrlolad.THRLOLAD_Information,
-		  	         	  thrlolad.THRLOLAD_Reason,c.Company_ID, thlolad.THLOLAD_UserID, thlolad.THLOLAD_LoanCategoryID
+		  	         	  thrlolad.THRLOLAD_Reason,c.Company_ID, thlolad.THLOLAD_UserID, thlolad.THLOLAD_LoanCategoryID,
+						  thrlolad.THRLOLAD_DocumentReceived
 		  FROM TH_ReleaseOfLandAcquisitionDocument thrlolad, M_User u, M_Company c, M_Approval dra,
 		  	   TH_LoanOfLandAcquisitionDocument thlolad, TD_LoanOfLandAcquisitionDocument tdlolad
 		  WHERE thrlolad.THRLOLAD_Delete_Time is NULL
@@ -95,6 +97,13 @@ $query = "SELECT DISTINCT thrlolad.THRLOLAD_ID, thrlolad.THRLOLAD_ReleaseCode, t
 
 $sql = mysql_query($query);
 $arr = mysql_fetch_array($sql);
+
+$showFormKonfirmasiPenerimaanDokumen = 0;
+if( $arr['THRLOLAD_DocumentReceived'] != 1 && $arr['THRLOLAD_Status']=="accept" && ($arr['User_ID'] == $_SESSION['User_ID'])){ //Arief F - 21092018
+	//Jika user adalah pengaju (untuk mengonfirmasi dokumen sudah diteriim atau tidak)
+	$showFormKonfirmasiPenerimaanDokumen = 1;
+} //Arief F - 21092018
+
 $regdate=strtotime($arr['THRLOLAD_ReleaseDate']);
 $fregdate=date("j M Y", $regdate);
 
@@ -217,6 +226,29 @@ $MainContent .="
 		<td>Alasan</td>
 		<td colspan='2'><pre>$arr[THRLOLAD_Reason]</pre></td>
 	</tr>";
+	//Tampil Form Penerimaan Dokumen
+		if( $showFormKonfirmasiPenerimaanDokumen == 1 ){ //Arief F - 21092018
+	$MainContent .="
+		<tr>
+			<td>Dokumen sudah diterima</td>
+			<td colspan='2'>
+				<select name='optTHRLOLAD_DocumentReceived' id='optTHRLOLAD_DocumentReceived'>
+					<option value='0'>--- Belum ---</option>
+					<option value='1'>Sudah</option>
+				</select>
+			</td>
+		</tr>"; //Arief F - 21092018
+		} //Arief F - 21092018
+
+		if($arr['THRLOLAD_DocumentReceived'] == 1){ //Arief F - 21092018
+			$MainContent .="
+			<tr>
+				<td>Dokumen sudah diterima</td>
+				<td colspan='2'>
+					Sudah
+				</td>
+			</tr>"; //Arief F - 21092018
+		} //Arief F - 21092018
 	}
 	else if($arr[THRLOLAD_Status]=="reject") {
 $MainContent .="
@@ -309,6 +341,14 @@ $MainContent .="
 		<input name='cancel' type='submit' value='Batal' class='button'/>
 	</th>";
 	}
+	//Tampil Form Penerimaan Dokumen
+	if( $showFormKonfirmasiPenerimaanDokumen == 1 ){ //Arief F - 21092018
+$MainContent .="
+	<th colspan=9>
+		<input name='konfirmasi_penerimaandokumen' type='submit' value='Simpan' class='button' onclick='return validateInput(this);'/>
+		<input name='cancel' type='submit' value='Batal' class='button'/>
+	</th>"; //Arief F - 21092018
+	} //Arief F - 21092018
 $MainContent .="
 		</table></form>
 ";
@@ -317,6 +357,22 @@ $MainContent .="
 /* ACTIONS */
 if(isset($_POST[cancel])) {
 	echo "<meta http-equiv='refresh' content='0; url=home.php'>";
+}
+
+if(isset($_POST['konfirmasi_penerimaandokumen'])){
+	$txtTHRLOLAD_ID=$_POST['txtTHRLOLAD_ID'];
+	$optTHRLOLAD_DocumentReceived=$_POST['optTHRLOLAD_DocumentReceived'];
+
+	$query = "UPDATE TH_ReleaseOfLandAcquisitionDocument
+				SET THRLOLAD_DocumentReceived='$optTHRLOLAD_DocumentReceived', THRLOLAD_Update_UserID='$_SESSION[User_ID]', THRLOLAD_Update_Time=sysdate()
+				WHERE THRLOLAD_ID='$txtTHRLOLAD_ID'
+				AND THRLOLAD_Delete_Time IS NULL";
+	$sql = mysql_query($query);
+	if($sql){
+		echo "<meta http-equiv='refresh' content='0; url=detail-of-release-land-acquisition-document.php?id=$txtTHRLOLAD_ID'>";
+	}else{
+		$ActionContent .="<div class='warning'>Konfirmasi Penerimaan Dokumen Gagal. Terjadi kesalahan</div>";
+	}
 }
 
 if(isset($_POST[approval])) {
