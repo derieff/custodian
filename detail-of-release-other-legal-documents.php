@@ -102,7 +102,7 @@ $arr = mysql_fetch_array($sql);
 
 $showFormKonfirmasiPenerimaanDokumen = 0;
 if( $arr['THROOLD_DocumentReceived'] != 1 && $arr['THROOLD_Status']=="accept" && ($arr['User_ID'] == $_SESSION['User_ID'])){ //Arief F - 21092018
-	//Jika user adalah pengaju (untuk mengonfirmasi dokumen sudah diteriim atau tidak)
+	//Jika user adalah pengaju (untuk mengonfirmasi dokumen sudah diterima atau tidak)
 	$showFormKonfirmasiPenerimaanDokumen = 1;
 } //Arief F - 21092018
 
@@ -375,7 +375,7 @@ if(isset($_POST['konfirmasi_penerimaandokumen'])){
 				AND THROOLD_Delete_Time IS NULL";
 	$sql = mysql_query($query);
 	if($sql){
-		echo "<meta http-equiv='refresh' content='0; url=detail-of-release-land-acquisition-document.php?id=$txtTHROOLD_ID'>";
+		echo "<meta http-equiv='refresh' content='0; url=detail-of-other-legal-documents.php?id=$txtTHROOLD_ID'>";
 	}else{
 		$ActionContent .="<div class='warning'>Konfirmasi Penerimaan Dokumen Gagal. Terjadi kesalahan</div>";
 	}
