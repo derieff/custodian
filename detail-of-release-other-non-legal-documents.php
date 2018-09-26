@@ -369,7 +369,7 @@ if(isset($_POST['konfirmasi_penerimaandokumen'])){
 	$txtTHROONLD_ID=$_POST['txtTHROONLD_ID'];
 	$optTHROONLD_DocumentReceived=$_POST['optTHROONLD_DocumentReceived'];
 
-	$query = "UPDATE TH_ReleaseOfAssetOwnershipDocument
+	$query = "UPDATE TH_ReleaseOfOtherNonLegalDocuments
 				SET THROONLD_DocumentReceived='$optTHROONLD_DocumentReceived', THROONLD_Update_UserID='$_SESSION[User_ID]', THROONLD_Update_Time=sysdate()
 				WHERE THROONLD_ID='$txtTHROONLD_ID'
 				AND THROONLD_Delete_Time IS NULL";

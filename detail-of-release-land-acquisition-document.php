@@ -363,7 +363,7 @@ if(isset($_POST['konfirmasi_penerimaandokumen'])){
 	$txtTHRLOLAD_ID=$_POST['txtTHRLOLAD_ID'];
 	$optTHRLOLAD_DocumentReceived=$_POST['optTHRLOLAD_DocumentReceived'];
 
-	$query = "UPDATE TH_ReleaseOfAssetOwnershipDocument
+	$query = "UPDATE TH_ReleaseOfLandAcquisitionDocument
 				SET THRLOLAD_DocumentReceived='$optTHRLOLAD_DocumentReceived', THRLOLAD_Update_UserID='$_SESSION[User_ID]', THRLOLAD_Update_Time=sysdate()
 				WHERE THRLOLAD_ID='$txtTHRLOLAD_ID'
 				AND THRLOLAD_Delete_Time IS NULL";
