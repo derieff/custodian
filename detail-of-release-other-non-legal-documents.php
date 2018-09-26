@@ -375,6 +375,7 @@ if(isset($_POST['konfirmasi_penerimaandokumen'])){
 				AND THROONLD_Delete_Time IS NULL";
 	$sql = mysql_query($query);
 	if($sql){
+		mail_notif_reception_release_doc($_POST['txtA_TransactionCode'], "cust0002", 3 );
 		echo "<meta http-equiv='refresh' content='0; url=detail-of-release-other-non-legal-documents.php?id=$txtTHROONLD_ID'>";
 	}else{
 		$ActionContent .="<div class='warning'>Konfirmasi Penerimaan Dokumen Gagal. Terjadi kesalahan</div>";
