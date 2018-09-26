@@ -92,7 +92,7 @@ function validateInputDetail(elem) {
 			alert("Kode Dokumen pada baris ke-" + i + " Belum Terisi!");
 			returnValue = false;
 		}
-		else {
+		/*else {
 			<?php
  			$query = "SELECT *
 					  FROM M_DocumentAssetOwnership
@@ -116,7 +116,7 @@ function validateInputDetail(elem) {
 				alert("Kode Dokumen pada baris ke-" + i + " Salah Atau Dokumen Tidak Tersedia!");
 				returnValue = false;
 			}
-		}
+		}*/
 	}
 	return returnValue;
 }
@@ -758,6 +758,13 @@ elseif(isset($_POST['adddetail'])) {
 
 	for ($i=1 ; $i<=$count ; $i++) {
 		$txtTDLOAOD_DocumentCode=$_POST["txtTDLOAOD_DocumentCode".$i];
+		$query = "SELECT *
+				  FROM M_DocumentAssetOwnership
+				  WHERE DAO_Status ='1'";
+		$sql = mysql_query($query);
+		$num = mysql_num_rows($sql);
+
+		if ($num<=0) continue;
 		$txtTDLOAOD_Information=str_replace("<br>", "\n",$_POST["txtTDLOAOD_Information".$i]);
 
 		$sql1= "INSERT INTO TD_LoanOfAssetOwnershipDocument
@@ -861,6 +868,11 @@ elseif(isset($_POST['adddetail'])) {
 		mail_loan_doc($A_TransactionCode);
 	}
 
+	/************************************
+	* Nicholas - 26 Sept 2018			*
+	* Fix Bug skip approval				*
+	************************************/
+	/*
 	// MENCARI JUMLAH APPROVAL
 	$query = "SELECT MAX(A_Step) AS jStep
 		FROM M_Approval
@@ -932,22 +944,26 @@ elseif(isset($_POST['adddetail'])) {
 		// }
 	}
 
+	*/
 	/*$sql3= "UPDATE M_Approval
 			SET A_Status='2', A_Update_UserID='$_SESSION[User_ID]',A_Update_Time=sysdate()
 			WHERE A_TransactionCode ='$_POST[txtTDLOAOD_THLOAOD_LoanCode]'
 			AND A_Step='1'";*/
 
+	/*
 	$sql4= "UPDATE TH_LoanOfAssetOwnershipDocument
 		SET THLOAOD_Status='waiting', THLOAOD_Information='$txtTHLOAOD_Information',
 		THLOAOD_Update_UserID='$A_ApproverID',THLOAOD_Update_Time=sysdate()
 		WHERE THLOAOD_LoanCode='$A_TransactionCode'
 		AND THLOAOD_Delete_Time IS NULL";
 	$mysqli->query($sql4);
+	*/
 
 	/*if($mysqli->query($sql4)) {
 		// Kirim Email ke Approver 1
 		mail_loan_doc($_POST['txtTDLOAOD_THLOAOD_LoanCode']);
 	}*/
+	/**** END Nicholas 26 Sept 2018 ****/
 	echo "<meta http-equiv='refresh' content='0; url=loan-of-asset-ownership-document.php'>";
 }
 
