@@ -18,7 +18,7 @@ include_once ("./include/class.endencrp.php");
 function mail_loan_doc($loanCode,$reminder=0){
 	$mail = new PHPMailer();
 	$decrp = new custodian_encryp;
-	// $testing='TESTING';
+	$testing='TESTING';
 
 	$e_query ="	SELECT User_ID,User_FullName,User_Email,A_TransactionCode,
 					   ARC_AID,ARC_RandomCode,THLOONLD_Information,THLOONLD_LoanDate,THLOONLD_LoanCategoryID,
@@ -366,7 +366,7 @@ function mail_loan_doc($loanCode,$reminder=0){
 function mail_notif_loan_doc($loanCode, $User_ID, $status, $attr){
 	$mail = new PHPMailer();
 	$decrp = new custodian_encryp;
-	//$testing='TESTING';
+	$testing='TESTING';
 
 	$e_query="SELECT User_ID, User_FullName, User_Email
 			  FROM M_User
@@ -403,34 +403,12 @@ function mail_notif_loan_doc($loanCode, $User_ID, $status, $attr){
 	}
 	$mail->AddBcc('system.administrator@tap-agri.com');
 	//$mail->AddAttachment("images/icon_addrow.png", "icon_addrow.png");  // optional name
-
-		// $ed_query="	SELECT DISTINCT	Company_Name,THLOONLD_LoanCategoryID, DocumentCategory_Name,DocumentType_Name,
-		// 							DONL_NoDoc,DONL_RegTime,THLOONLD_Reason,THLOONLD_UserID,User_FullName,
-		// 							THLOONLD_Information,Company_ID, LoanCategory_Name,DocumentGroup_Name
-		// 			FROM TH_LoanOfOtherNonLegalDocuments
-		// 			LEFT JOIN TD_LoanOfOtherNonLegalDocuments
-		// 				ON TDLOONLD_THLOONLD_ID=THLOONLD_ID
-		// 			LEFT JOIN M_LoanCategory
-		// 				ON THLOONLD_LoanCategoryID = LoanCategory_ID
-		// 			LEFT JOIN M_DocumentGroup
-		// 				ON THLOONLD_DocumentGroupID=DocumentGroup_ID
-		// 			LEFT JOIN M_Company
-		// 				ON Company_ID=THLOONLD_CompanyID
-		// 			LEFT JOIN M_DocumentsOtherNonLegal
-		// 				ON TDLOONLD_DocCode=DONL_DocCode
-		// 			LEFT JOIN M_DocumentCategory
-		// 				ON DocumentCategory_ID=TDLOONLD_DocumentCategoryID
-		// 			LEFT JOIN M_DocumentType
-		// 				ON DocumentType_ID=DONL_TypeDocID
-		// 			LEFT JOIN M_User
-		// 				ON THLOONLD_UserID=User_ID
-		// 			WHERE THLOONLD_LoanCode='$loanCode'
-		// 			AND THLOONLD_Delete_Time IS NULL";
-
 		$ed_query="	SELECT DISTINCT	Company_Name,THLOONLD_LoanCategoryID,
 						THLOONLD_DocumentType, THLOONLD_DocumentWithWatermarkOrNot,
 						DONL_RegTime,THLOONLD_Reason,THLOONLD_UserID,User_FullName,
-						THLOONLD_Information,Company_ID, LoanCategory_Name
+						THLOONLD_Information,Company_ID, LoanCategory_Name,
+						Department_Name,
+						DONL_NamaDokumen, DONL_NoDokumen, DONL_TahunDokumen
 					FROM TH_LoanOfOtherNonLegalDocuments
 					LEFT JOIN TD_LoanOfOtherNonLegalDocuments
 						ON TDLOONLD_THLOONLD_ID=THLOONLD_ID
@@ -442,6 +420,8 @@ function mail_notif_loan_doc($loanCode, $User_ID, $status, $attr){
 						ON TDLOONLD_DocCode=DONL_DocCode
 					LEFT JOIN M_User
 						ON THLOONLD_UserID=User_ID
+					LEFT JOIN db_master.M_Department
+        				ON Department_Code=DONL_Dept_Code
 					WHERE THLOONLD_LoanCode='$loanCode'
 					AND THLOONLD_Delete_Time IS NULL";
 		$ed_handle = mysql_query($ed_query);
@@ -452,7 +432,10 @@ function mail_notif_loan_doc($loanCode, $User_ID, $status, $attr){
 						<TR  style=" font-size: 12px; font-family: \'lucida grande\',tahoma,verdana,arial,sans-serif;">
 							<TD align="center" valign="top">'.$edNum.'</TD>
 							<TD>'.$ed_arr->Company_Name.'<br />
-								Tgl. Terbit : '.date('d/m/Y H:i:s', strtotime($ed_arr->DONL_RegTime)).'
+								Departemen : '.$ed_arr->Department_Name.'<br />
+                                Nama Dokumen : '.$ed_arr->DONL_NamaDokumen.'<br />
+                                No. Dokumen : '.$ed_arr->DONL_NoDokumen.'<br />
+                                Tahun Dokumen : '.date('Y', strtotime($ed_arr->DONL_TahunDokumen)).'
 							</TD>
 						</TR>';
 			$edNum=$edNum+1;

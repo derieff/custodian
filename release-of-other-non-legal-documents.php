@@ -15,7 +15,7 @@ session_start();
 <head>
 <?PHP
 include ("./config/config_db.php");
-include ("./include/function.mail.reldoc.php");
+include ("./include/function.mail.reldoconl.php");
 ?>
 
 <script type="text/javascript" src="./js/datetimepicker.js"></script>
@@ -37,28 +37,29 @@ function validateInputHeader(elem) {
 	returnValue = true;
 	checkDocCode = 0;
 
-	var txtTHROONLD_THLOLD_Code = document.getElementById('txtTHROONLD_THLOLD_Code').value;
+	var txtTHROONLD_THLOONLD_Code = document.getElementById('txtTHROONLD_THLOONLD_Code').value;
 	var txtTHROONLD_UserID = document.getElementById('txtTHROONLD_UserID').value;
 
-		if (txtTHROONLD_THLOLD_Code.replace(" ", "") == "") {
+		if (txtTHROONLD_THLOONLD_Code.replace(" ", "") == "") {
 			alert("Kode Permintaan Dokumen Belum Terisi!");
 			returnValue = false;
 		}
 		else {
 			<?php
  			$query = "SELECT *
-					  FROM TH_LoanOfLegalDocument thlold,TD_LoanOfOtherNonLegalDocuments tdlold
-					  WHERE thlold.THLOLD_Delete_Time IS NULL
-					  AND thlold.THLOLD_Status='accept'
-					  AND tdlold.TDLOLD_THLOLD_ID=thlold.THLOLD_ID
-					  AND tdlold.TDLOLD_Response='0'";
+					  FROM TH_LoanOfOtherNonLegalDocuments thloonld,TD_LoanOfOtherNonLegalDocuments tdloonld
+					  WHERE thloonld.THLOONLD_Delete_Time IS NULL
+					  AND thloonld.THLOONLD_Status='accept'
+					  AND tdloonld.TDLOONLD_THLOONLD_ID=thloonld.THLOONLD_ID
+					  AND tdloonld.TDLOONLD_Response='0'";
  			$result = mysql_query($query);
 			while ($data = mysql_fetch_array($result)) {
-				$THLOLD_LoanCode = $data['THLOLD_LoanCode'];
+				$THLOONLD_LoanCode = $data['THLOONLD_LoanCode'];
 
-				$a = "if (txtTHROONLD_THLOLD_Code == '$THLOLD_LoanCode') {";
+				$a = "if (txtTHROONLD_THLOONLD_Code == '$THLOONLD_LoanCode') {";
 				$a .= "checkDocCode = 1; ";
-				$a .= "}";
+				$a .= "}
+";
 			echo $a;
 		 	}
 			?>
@@ -75,16 +76,16 @@ function validateInputDetail(elem) {
 	var returnValue;
 	returnValue = false;
 	var notcheck = true;
-	var TDLOLD_ID = document.getElementsByName('TDLOLD_ID[]');
-	var DL_DocCode = document.getElementsByName('DL_DocCode[]');
+	var TDLOONLD_ID = document.getElementsByName('TDLOONLD_ID[]');
+	var DONL_DocCode = document.getElementsByName('DONL_DocCode[]');
 	var txtTDROONLD_LeadTime = document.getElementsByName('txtTDROONLD_LeadTime[]');
 
-	for (var i = 0; i < TDLOLD_ID.length; i++){
-		if (TDLOLD_ID[i].checked) {
+	for (var i = 0; i < TDLOONLD_ID.length; i++){
+		if (TDLOONLD_ID[i].checked) {
 			if (txtTDROONLD_LeadTime[i].value.replace(/^\s+|\s+$/g,'') == "") {
 				returnValue = false;
 				notcheck = false;
-				alert("Tanggal Pengembalian Untuk Dokumen "+DL_DocCode[i].value+" Belum Ditentukan!");
+				alert("Tanggal Pengembalian Untuk Dokumen "+DONL_DocCode[i].value+" Belum Ditentukan!");
 			}
 			else {
 				returnValue = true;
@@ -107,12 +108,12 @@ function validateInputDetailx(elem) {
 	var returnValue;
 	returnValue = false;
 	var notcheck = true;
-	var TDLOLD_ID = document.getElementsByName('TDLOLD_ID[]');
-	var DL_DocCode = document.getElementsByName('DL_DocCode[]');
+	var TDLOONLD_ID = document.getElementsByName('TDLOONLD_ID[]');
+	var DONL_DocCode = document.getElementsByName('DONL_DocCode[]');
 	var txtTDROONLD_LeadTime = document.getElementsByName('txtTDROONLD_LeadTime[]');
 
-	for (var i = 0; i < TDLOLD_ID.length; i++){
-		if (TDLOLD_ID[i].checked) {
+	for (var i = 0; i < TDLOONLD_ID.length; i++){
+		if (TDLOONLD_ID[i].checked) {
 			returnValue = true;
 			notcheck = false;
 		}
@@ -202,7 +203,7 @@ if(isset($_GET["act"]))
 			<tr>
 				<td>Kode Permintaan Dokumen</td>
 				<td>
-					<input id='txtTHROONLD_THLOLD_Code' name='txtTHROONLD_THLOLD_Code' size='25' type='text' value='' readonly='readonly' onClick='javascript:showList();'/>
+					<input id='txtTHROONLD_THLOONLD_Code' name='txtTHROONLD_THLOONLD_Code' size='25' type='text' value='' readonly='readonly' onClick='javascript:showList();'/>
 				</td>
 			</tr>
 			<tr>
@@ -268,11 +269,11 @@ if(isset($_GET["act"]))
 					ON ddp.DDP_DeptID=dp.Department_ID
 				  LEFT JOIN M_Position p
 					ON ddp.DDP_PosID=p.Position_ID
-				  LEFT JOIN TH_LoanOfLegalDocument thlold
-					ON releaseHeader.THROONLD_THLOLD_Code=thlold.THLOLD_LoanCode
-					AND thlold.THLOLD_Delete_Time IS NULL
+				  LEFT JOIN TH_LoanOfOtherNonLegalDocuments thloonld
+					ON releaseHeader.THROONLD_THLOONLD_Code=thloonld.THLOONLD_LoanCode
+					AND thloonld.THLOONLD_Delete_Time IS NULL
 				  LEFT JOIN M_Company c
-					ON thlold.THLOLD_CompanyID=c.Company_ID
+					ON thloonld.THLOONLD_CompanyID=c.Company_ID
 				  LEFT JOIN M_DocumentGroup dg
 					ON dg.DocumentGroup_ID='6'
 				  WHERE releaseHeader.THROONLD_ReleaseCode='$code'
@@ -382,18 +383,24 @@ if(isset($_GET["act"]))
 
 		<div style='space'>&nbsp;</div>";
 
-		$query="SELECT tdlold.TDLOLD_ID, tdlold.TDLOLD_Code, dt.DocumentType_Name, dl.DL_NoDoc, dl.DL_DocCode,
-					   thlold.THLOLD_LoanCategoryID
-				FROM TD_LoanOfOtherNonLegalDocuments tdlold, TH_LoanOfLegalDocument thlold, TH_ReleaseOfOtherNonLegalDocuments throld,
-					 M_DocumentLegal dl, M_DocumentType dt
+		$query="SELECT tdloonld.TDLOONLD_ID, tdloonld.TDLOONLD_Code, donl.DONL_DocCode,
+					   mc.Company_Name, donl.DONL_NoDokumen,
+					   donl.DONL_NamaDokumen, donl.DONL_TahunDokumen,
+					   donl.DONL_Dept_Code, m_d.Department_Name,
+					   thloonld.THLOONLD_LoanCategoryID
+				FROM TD_LoanOfOtherNonLegalDocuments tdloonld, TH_LoanOfOtherNonLegalDocuments thloonld, TH_ReleaseOfOtherNonLegalDocuments throld,
+					 M_DocumentsOtherNonLegal donl
+				LEFT JOIN M_Company mc
+ 	  				ON donl.DONL_PT_ID=mc.Company_ID
+ 	  		  	LEFT JOIN db_master.M_Department m_d
+ 	  		  		ON donl.DONL_Dept_Code=m_d.Department_Code
 				WHERE throld.THROONLD_ReleaseCode='$code'
 				AND throld.THROONLD_Delete_Time IS NULL
-				AND throld.THROONLD_THLOLD_Code=thlold.THLOLD_LoanCode
-				AND thlold.THLOLD_ID=tdlold.TDLOLD_THLOLD_ID
-				AND tdlold.TDLOLD_Response='0'
-				AND tdlold.TDLOLD_Delete_Time IS NULL
-				AND dl.DL_DocCode=tdlold.TDLOLD_DocCode
-				AND dl.DL_TypeDocID=dt.DocumentType_ID";
+				AND throld.THROONLD_THLOONLD_Code=thloonld.THLOONLD_LoanCode
+				AND thloonld.THLOONLD_ID=tdloonld.TDLOONLD_THLOONLD_ID
+				AND tdloonld.TDLOONLD_Response='0'
+				AND tdloonld.TDLOONLD_Delete_Time IS NULL
+				AND donl.DONL_DocCode=tdloonld.TDLOONLD_DocCode";
 		$sql = mysql_query($query);
 		$i=0;
 
@@ -402,23 +409,31 @@ if(isset($_GET["act"]))
 		<tr>
 			<th></th>
 			<th>Kode Dokumen</th>
-			<th>Tipe Dokumen</th>
-			<th>Nomor Dokumen</th>
+			<th>PT</th>
+			<th>No. Dokumen</th>
+			<th>Nama Dokumen</th>
+			<th>Tahun Dokumen</th>
+			<th>Departemen</th>
 			<th>Keterangan</th>
 			<th>Waktu Pengembalian</th>
 		</tr>";
 
 		while ($arr=mysql_fetch_array($sql)) {
-			$LeadTime=($arr['THLOLD_LoanCategoryID']=="1")?date('m/d/Y',strtotime("+7 day", strtotime($field['THROONLD_ReleaseDate']))):"";
+			$LeadTime=($arr['THLOONLD_LoanCategoryID']=="1")?date('m/d/Y',strtotime("+7 day", strtotime($field['THROONLD_ReleaseDate']))):"";
 
 			$ActionContent .="
 			<tr>
 				<td class='center'>
-					<input id='TDLOLD_ID[]' name='TDLOLD_ID[]' type='checkbox' value='$arr[TDLOLD_ID]'>
+					<input id='TDLOONLD_ID[]' name='TDLOONLD_ID[]' type='checkbox' value='$arr[TDLOONLD_ID]'>
 				</td>
-				<td class='center'><input id='DL_DocCode[]' name='DL_DocCode[]' type='hidden' value='$arr[DL_DocCode]'>$arr[DL_DocCode]</td>
-				<td class='center'>$arr[DocumentType_Name]</td>
-				<td class='center'>$arr[DL_NoDoc]</td>
+				<td class='center'>
+					<input id='DONL_DocCode[]' name='DONL_DocCode[]' type='hidden' value='$arr[DONL_DocCode]'>$arr[DONL_DocCode]
+				</td>
+				<td class='center'>$arr[Company_Name]</td>
+				<td class='center'>$arr[DONL_NoDokumen]</td>
+				<td class='center'>$arr[DONL_NamaDokumen]</td>
+				<td class='center'>$arr[DONL_TahunDokumen]</td>
+				<td class='center'>$arr[Department_Name]</td>
 				<td class='center'>
 					<textarea id='txtTDROONLD_Information' name='txtTDROONLD_Information[]'></textarea>
 				</td>
@@ -427,7 +442,7 @@ if(isset($_GET["act"]))
 				</td>
 			</tr>";
 			$i++;
-			$loanType=$arr['THLOLD_LoanCategoryID'];
+			$loanType=$arr['THLOONLD_LoanCategoryID'];
 		}
 		$ActionContent .="
 		</table>
@@ -612,7 +627,7 @@ elseif(isset($_POST[addheader])) {
 
 	// Cari Kode Perusahaan
 	$query = "SELECT c.Company_Code
-			  FROM TH_LoanOfOtherLegalDocuments thloonld, M_Company c
+			  FROM TH_LoanOfOtherNonLegalDocuments thloonld, M_Company c
 			  WHERE thloonld.THLOONLD_LoanCode='$_POST[txtTHROONLD_THLOONLD_Code]'
 			  AND thloonld.THLOONLD_CompanyID=c.Company_ID";
 	$sql = mysql_query($query);
@@ -640,17 +655,17 @@ elseif(isset($_POST[addheader])) {
 
 	// Kode Pengeluaran Dokumen
 	$CT_Code="$newnum/OUT/$Company_Code/$DocumentGroup_Code/$regmonth/$regyear";
+	echo $CT_Code;
 
 	// Insert kode Pengeluaran dokumen baru
 	$sql= "INSERT INTO M_CodeTransaction
 		   VALUES (NULL,'$CT_Code','$nnum','OUT','$Company_Code','$DocumentGroup_Code','$rmonth','$regyear',
 				   '$_SESSION[User_ID]', sysdate(),'$_SESSION[User_ID]',sysdate(),NULL,NULL)";
-
 	if($mysqli->query($sql)) {
 		$info=str_replace("<br>", "\n",$_POST['txtTHROONLD_Information']);
 		//Insert Header Dokumen
 		$sql1= "INSERT INTO TH_ReleaseOfOtherNonLegalDocuments
-				VALUES (NULL,'$CT_Code',sysdate(),'$_SESSION[User_ID]','$_POST[txtTHROONLD_THLOLD_Code]',
+				VALUES (NULL,'$CT_Code',sysdate(),'$_SESSION[User_ID]','$_POST[txtTHROONLD_THLOONLD_Code]',
 					    '$info','0',NULL,NULL,'$_SESSION[User_ID]', sysdate(),NULL,NULL)";
 		if($mysqli->query($sql1)) {
 			echo "<meta http-equiv='refresh' content='0; url=release-of-other-non-legal-documents.php?act=adddetail&id=$CT_Code'>";
@@ -662,24 +677,24 @@ elseif(isset($_POST[addheader])) {
 }
 
 elseif(isset($_POST[adddetail])) {
-	$TDLOLD_ID=$_POST[TDLOLD_ID];
+	$TDLOONLD_ID=$_POST[TDLOONLD_ID];
 	$txtTHROONLD_Information=str_replace("<br>", "\n",$_POST[txtTHROONLD_Information]);
 	$txtTDROONLD_Information=str_replace("<br>", "\n",$_POST[txtTDROONLD_Information]);
 	$txtTDROONLD_LeadTime=$_POST[txtTDROONLD_LeadTime];
-	$sum=count($TDLOLD_ID);
+	$sum=count($TDLOONLD_ID);
 
 	for ($i=0 ; $i<$sum ; $i++) {
 		$TDROONLD_LeadTime=date('Y-m-d H:i:s', strtotime($txtTDROONLD_LeadTime[$i]));
 		if ($TDROONLD_LeadTime=="1970-01-01 08:00:00"){
 			$TDROONLD_LeadTime="";
 		}
-		$sql1= "INSERT INTO TH_ReleaseOfOtherNonLegalDocuments
-				VALUES (NULL,NULL,'$_POST[txtTDROONLD_THROONLD_ID]', '$TDLOLD_ID[$i]','$txtTDROONLD_Information[$i]',
+		$sql1= "INSERT INTO TD_ReleaseOfOtherNonLegalDocuments
+				VALUES (NULL,NULL,'$_POST[txtTDROONLD_THROONLD_ID]', '$TDLOONLD_ID[$i]','$txtTDROONLD_Information[$i]',
 						'$TDROONLD_LeadTime',NULL,'$_SESSION[User_ID]', sysdate(),'$_SESSION[User_ID]',
 						sysdate(),NULL,NULL)";
 		$sql2= "UPDATE TD_LoanOfOtherNonLegalDocuments
-				SET TDLOLD_Response='1', TDLOLD_Update_UserID='$_SESSION[User_ID]',TDLOLD_Update_Time=sysdate()
-				WHERE TDLOLD_ID='$TDLOLD_ID[$i]'";
+				SET TDLOONLD_Response='1', TDLOONLD_Update_UserID='$_SESSION[User_ID]',TDLOONLD_Update_Time=sysdate()
+				WHERE TDLOONLD_ID='$TDLOONLD_ID[$i]'";
 		$mysqli->query($sql1);
 		$mysqli->query($sql2);
 	}

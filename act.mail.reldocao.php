@@ -75,7 +75,7 @@ if(($_GET['cfm'])&&($_GET['ati'])&&($_GET['rdm'])) {
 								AND A_Step='$nStep'";
 					if ($sql = mysql_query($query)) {
 						// Kirim Email ke Approver selanjutnya
-						mail_release_doc($A_TransactionCode);
+						mail_release_doc($A_TransactionCode, 0);
 						echo "
 		<table border='0' align='center' cellpadding='0' cellspacing='0'>
 		<tbody>
@@ -277,7 +277,7 @@ if(($_GET['cfm'])&&($_GET['ati'])&&($_GET['rdm'])) {
 }
 if($_GET['act']) {
 	$act=$decrp->decrypt($_GET['act']);
-	
+
 	if ($act=='confirm'){
 		$userID=$decrp->decrypt($_GET['user']);
 		$docID=$decrp->decrypt($_GET['doc']);
