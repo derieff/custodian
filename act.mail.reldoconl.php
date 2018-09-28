@@ -278,7 +278,23 @@ if(($_GET['cfm'])&&($_GET['ati'])&&($_GET['rdm'])) {
 }
 if($_GET['act']) {
 	$act=$decrp->decrypt($_GET['act']);
-	if ($act=='reject'){
+	if ($act=='confirm'){
+		$userID=$decrp->decrypt($_GET['user']);
+		$docID=$decrp->decrypt($_GET['doc']);
+		$relCode=$decrp->decrypt($_GET['rel']);
+		$query = "UPDATE TH_ReleaseOfOtherNonLegalDocuments
+					SET THROONLD_DocumentReceived='1', THROONLD_Update_UserID='$userID', THROONLD_Update_Time=sysdate()
+					WHERE THROONLD_ID='$docID'
+					AND THROONLD_Delete_Time IS NULL";
+		$sql = mysql_query($query);
+		if($sql){
+			mail_notif_reception_release_doc($relCode, "cust0002", 3 );
+			echo "<meta http-equiv='refresh' content='0; url=detail-of-release-other-non-legal-documents.php?id=$docID'>";
+		}else{
+			$ActionContent .="<div class='warning'>Konfirmasi Penerimaan Dokumen Gagal. Terjadi kesalahan</div>";
+		}
+	}
+	else if ($act=='reject'){
 		$A_ID=$decrp->decrypt($_GET['ati']);
 		$ARC_RandomCode=$decrp->decrypt($_GET['rdm']);
 

@@ -127,7 +127,12 @@ if(($_GET['cfm'])&&($_GET['ati'])&&($_GET['rdm'])) {
 								}
 							}
 
-							if ($i == $jStep) {
+							/************************************
+							* Nicholas - 26 Sept 2018			*
+							* Fix Bug skip approval				*
+							************************************/
+							
+							/*if ($i == $jStep) {
 								$query = "UPDATE TH_LoanOfOtherLegalDocuments
 									SET THLOOLD_Status='accept', THLOOLD_Update_UserID='$A_ApproverID',
 								    	THLOOLD_Update_Time=sysdate()
@@ -137,7 +142,7 @@ if(($_GET['cfm'])&&($_GET['ati'])&&($_GET['rdm'])) {
 									mail_notif_loan_doc($A_TransactionCode, $h_arr['THLOOLD_UserID'], 3, 1 );
 									mail_notif_loan_doc($A_TransactionCode, "cust0002", 3, 1 );
 								}
-							}
+							}*/
 							break;
 						} else if ($result['RADS_StatusID'] == '2') {
 							//echo 'Step : ' . $i . ' => Kirim Email Notifikasi<br />';
@@ -163,7 +168,12 @@ if(($_GET['cfm'])&&($_GET['ati'])&&($_GET['rdm'])) {
 								}
 							}
 
-							if ($i == $jStep) {
+							/************************************
+							* Nicholas - 26 Sept 2018			*
+							* Fix Bug skip approval				*
+							************************************/
+							
+							/*if ($i == $jStep) {
 								$query = "UPDATE TH_LoanOfOtherLegalDocuments
 									SET THLOOLD_Status='accept', THLOOLD_Update_UserID='$A_ApproverID',
 								    	THLOOLD_Update_Time=sysdate()
@@ -174,7 +184,7 @@ if(($_GET['cfm'])&&($_GET['ati'])&&($_GET['rdm'])) {
 									mail_notif_loan_doc($A_TransactionCode, "cust0002", 3, 1 );
 									//mail_notif_loan_doc($A_TransactionCode, $result['A_ApproverID'], 3);
 								}
-							}
+							}*/
 						}
 					}
 

@@ -117,7 +117,12 @@ if(($_GET['cfm'])&&($_GET['ati'])&&($_GET['rdm'])) {
 								}
 							}
 
-							if ($i == $jStep) {
+							/************************************
+							* Nicholas - 26 Sept 2018			*
+							* Fix Bug skip approval				*
+							************************************/
+							
+							/*if ($i == $jStep) {
 								$query = "UPDATE TH_RegistrationOfAssetOwnershipDocument
 									SET THROAOD_Status='accept', THROAOD_Update_UserID='$A_ApproverID',
 										THROAOD_Update_Time=sysdate()
@@ -127,7 +132,7 @@ if(($_GET['cfm'])&&($_GET['ati'])&&($_GET['rdm'])) {
 									mail_notif_registration_doc($A_TransactionCode, $h_arr['THROAOD_UserID'], 3, 1 );
 									mail_notif_registration_doc($A_TransactionCode, "cust0002", 3, 1 );
 								}
-							}
+							}*/
 							break;
 						} else if ($result['RADS_StatusID'] == '2') {
 							$zquery = mysql_fetch_array(mysql_query("SELECT A_ApproverID FROM M_Approval WHERE A_TransactionCode='{$A_TransactionCode}' AND A_Step='$i'"));
@@ -152,7 +157,12 @@ if(($_GET['cfm'])&&($_GET['ati'])&&($_GET['rdm'])) {
 								}
 							}
 
-							if ($i == $jStep) {
+							/************************************
+							* Nicholas - 26 Sept 2018			*
+							* Fix Bug skip approval				*
+							************************************/
+							
+							/*if ($i == $jStep) {
 								$query = "UPDATE TH_RegistrationOfAssetOwnershipDocument
 									SET THROAOD_Status='accept', THROAOD_Update_UserID='$A_ApproverID',
 										THROAOD_Update_Time=sysdate()
@@ -162,7 +172,7 @@ if(($_GET['cfm'])&&($_GET['ati'])&&($_GET['rdm'])) {
 									mail_notif_registration_doc($A_TransactionCode, $h_arr['THROAOD_UserID'], 3, 1 );
 									mail_notif_registration_doc($A_TransactionCode, "cust0002", 3, 1 );
 								}
-							}
+							}*/
 						} else;
 					}
 

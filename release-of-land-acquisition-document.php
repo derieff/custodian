@@ -657,7 +657,7 @@ elseif(isset($_POST[addheader])) {
 		//Insert Header Dokumen
 		$sql1= "INSERT INTO TH_ReleaseOfLandAcquisitionDocument
 				VALUES (NULL,'$CT_Code',sysdate(),'$_SESSION[User_ID]','$_POST[txtTHRLOLAD_THLOLAD_Code]',
-					    '$info','0',NULL,'$_SESSION[User_ID]', sysdate(),NULL,NULL)";
+					    '$info','0',NULL,NULL,'$_SESSION[User_ID]', sysdate(),NULL,NULL)";
 		if($mysqli->query($sql1)) {
 			echo "<meta http-equiv='refresh' content='0; url=release-of-land-acquisition-document.php?act=adddetail&id=$CT_Code'>";
 		}
