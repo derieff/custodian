@@ -696,7 +696,7 @@ if(isset($_GET["act"]))
 			if (false !== $key) unset($newArray[$key]);
 
 			foreach ($newArray as $key => $value) {
-				$ActionContent .= "<input type='text' name='txtA_ApproverID[$key]' value='$value' readonly='true' class='readonly' />";
+				$ActionContent .= "<input type='hidden' name='txtA_ApproverID[$key]' value='$value' readonly='true' class='readonly' />";
 			}
 			/*while($obj=mysql_fetch_object($sql)){
 				$ActionContent .="

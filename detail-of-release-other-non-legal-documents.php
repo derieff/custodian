@@ -155,11 +155,11 @@ $MainContent .="
 	</tr>
 	<tr>
 		<td>Tanggal Pengeluaran</td>
-		<td colspan='2'><input name='txtDOL_RegTime' type='hidden' value='$arr[THROONLD_ReleaseDate]'>$fregdate</td>
+		<td colspan='2'><input name='txtDONL_RegTime' type='hidden' value='$arr[THROONLD_ReleaseDate]'>$fregdate</td>
 	</tr>
 	<tr>
 		<td>Dikeluarkan Oleh</td>
-		<td colspan='2'><input name='txtDOL_RegUserID' type='hidden' value='$arr[User_ID]'>
+		<td colspan='2'><input name='txtDONL_RegUserID' type='hidden' value='$arr[User_ID]'>
 		<input name='txtTHLOONLD_UserID' type='hidden' value='$arr[THLOONLD_UserID]'>$arr[User_FullName]</td>
 	</tr>
 	<tr>
@@ -168,7 +168,7 @@ $MainContent .="
 	</tr>
 	<tr>
 		<td>Grup Dokumen</td>
-		<td colspan='2'><input name='txtDOL_GroupDocID' type='hidden' value='$arr[DocumentGroup_ID]'>$arr[DocumentGroup_Name]</td>
+		<td colspan='2'><input name='txtDONL_GroupDocID' type='hidden' value='$arr[DocumentGroup_ID]'>$arr[DocumentGroup_Name]</td>
 	</tr>
 	<tr>
 		<td>Keterangan</td>
@@ -282,26 +282,29 @@ $MainContent .="
     	<th>No</th>
     	<th>Kode Permintaan Dokumen</th>
     	<th>Kode Dokumen</th>
-		<th>Kategori Dokumen</th>
-		<th>Nama Dokumen</th>
-		<th>Instansi Terkait</th>
+		<th>PT</th>
 		<th>No. Dokumen</th>
-		<th>Tgl. Terbit</th>
-		<th>Tgl. Berakhir</th>
+		<th>Nama Dokumen</th>
+		<th>Tahun Dokumen</th>
+		<th>Departemen</th>
         <th>Keterangan</th>
         <th>Waktu Pengembalian</th>
     </tr>";
 
 	$query = "SELECT tdroonld.TDROONLD_ID, tdloonld.TDLOONLD_ID, tdloonld.TDLOONLD_Code,
-				     dol.DOL_ID,tdroonld.TDROONLD_Information, dol.DOL_DocCode, tdroonld.TDROONLD_LeadTime,
-					 dol.DOL_NamaDokumen, dol.DOL_InstansiTerkait, dol.DOL_NoDokumen, tdroonld.TDROONLD_Information,
-					 dol.DOL_TglTerbit, dol.DOL_TglBerakhir, dc.DocumentCategory_ID, dc.DocumentCategory_Name
+				     donl.DONL_ID,tdroonld.TDROONLD_Information, donl.DONL_DocCode, tdroonld.TDROONLD_LeadTime,
+					 m_co.Company_Name, donl.DONL_NoDokumen,
+					 donl.DONL_NamaDokumen, donl.DONL_TahunDokumen,
+					 m_dept.Department_Name
 				FROM TD_ReleaseOfOtherNonLegalDocuments tdroonld, TD_LoanOfOtherNonLegalDocuments tdloonld,
-					 M_DocumentsOtherLegal dol, db_master.M_DocumentCategory dc
+					 M_DocumentsOtherNonLegal donl,
+					 db_master.M_Department m_dept, M_Company m_co
 				WHERE tdroonld.TDROONLD_THROONLD_ID='$DocID'
 				AND tdroonld.TDROONLD_Delete_Time IS NULL
-				AND tdloonld.TDLOONLD_DocCode=dol.DOL_DocCode
+				AND tdloonld.TDLOONLD_DocCode=donl.DONL_DocCode
 				AND tdroonld.TDROONLD_TDLOONLD_ID=tdloonld.TDLOONLD_ID
+				AND m_dept.Department_Code=donl.DONL_Dept_Code
+				AND m_co.Company_ID=donl.DONL_PT_ID
                 ";
 	$sql = mysql_query($query);
 	$no=1;
@@ -314,9 +317,6 @@ $MainContent .="
 			$fLeadTime=date("j M Y", $LeadTime);
 		}
 
-        $tgl_terbit=date("j M Y", strtotime($arr['DOL_TglTerbit']));
-        $tgl_berakhir=date("j M Y", strtotime($arr['DOL_TglBerakhir']));
-
 $MainContent .="
 		<tr>
 			<td class='center'>
@@ -325,13 +325,12 @@ $MainContent .="
 			<td class='center'>
 				<input name='txtTDROONLD_TDLOONLD_ID[]' type='hidden' value='$arr[TDLOONLD_ID]'>
 				<input name='txtTDLOONLD_Code[]' type='hidden' value='$arr[TDLOONLD_Code]'>$arr[TDLOONLD_Code]</td>
-			<td class='center'>$arr[DOL_DocCode]</td>
-			<td class='center'>$arr[DocumentCategory_Name]</td>
-			<td class='center'>$arr[DOL_NamaDokumen]</td>
-			<td class='center'>$arr[DOL_InstansiTerkait]</td>
-			<td class='center'>$arr[DOL_NoDokumen]</td>
-			<td class='center'>$tgl_terbit</td>
-			<td class='center'>$tgl_berakhir</td>
+			<td class='center'>$arr[DONL_DocCode]</td>
+			<td class='center'>$arr[Company_Name]</td>
+			<td class='center'>$arr[DONL_NoDokumen]</td>
+			<td class='center'>$arr[DONL_NamaDokumen]</td>
+			<td class='center'>$arr[DONL_TahunDokumen]</td>
+			<td class='center'>$arr[Department_Name]</td>
 			<td class='center'><pre>$arr[TDROONLD_Information]</pre></td>
 			<td class='center'>$fLeadTime</td>
 		</tr>
@@ -466,7 +465,7 @@ if(isset($_POST[approval])) {
 			// Cari Kode Dokumen Grup
 			$query = "SELECT *
 						FROM M_DocumentGroup
-						WHERE DocumentGroup_ID ='$_POST[txtDOL_GroupDocID]'";
+						WHERE DocumentGroup_ID ='$_POST[txtDONL_GroupDocID]'";
 			$sql = mysql_query($query);
 			$field = mysql_fetch_array($sql);
 			$DocumentGroup_Code=$field['DocumentGroup_Code'];
@@ -488,9 +487,9 @@ if(isset($_POST[approval])) {
 			$nnum=$maxnum+1;
 
 				// Mengubah Status Dokumen menjadi "DIPINJAM"
-				$txtDOL_ID=$_POST['txtDOL_ID'];
+				$txtDONL_ID=$_POST['txtDONL_ID'];
 				$txtTDROONLD_TDLOONLD_ID=$_POST['txtTDROONLD_TDLOONLD_ID'];
-				$jumlah=count($txtDOL_ID);
+				$jumlah=count($txtDONL_ID);
 
 				for($i=0;$i<$jumlah;$i++){
 					$newnum=str_pad($nnum,3,"0",STR_PAD_LEFT);
@@ -512,9 +511,9 @@ if(isset($_POST[approval])) {
 							break;
 					}
 
-					$query1 = "UPDATE M_DocumentsOtherLegal
-								SET DOL_Status='$docStatus', DOL_Update_UserID='$A_ApproverID', DOL_Update_Time=sysdate()
-								WHERE DOL_ID='$txtDOL_ID[$i]'";
+					$query1 = "UPDATE M_DocumentsOtherNonLegal
+								SET DONL_Status='$docStatus', DONL_Update_UserID='$A_ApproverID', DONL_Update_Time=sysdate()
+								WHERE DONL_ID='$txtDONL_ID[$i]'";
 
 					$sql= "INSERT INTO M_CodeTransaction
 								VALUES (NULL,'$CT_Code','$nnum','DOUT','$Company_Code','$DocumentGroup_Code',
@@ -551,17 +550,17 @@ if(isset($_POST[approval])) {
 					WHERE A_TransactionCode='$A_TransactionCode'
 					AND A_Step>'$step'";
 		if (($sql = mysql_query($query)) && ($sql1 = mysql_query($query1))) {
-			$txtDOL_ID=$_POST['txtDOL_ID'];
-			$jumlah=count($txtDOL_ID);
+			$txtDONL_ID=$_POST['txtDONL_ID'];
+			$jumlah=count($txtDONL_ID);
 
 			for ($i=0;$i<$jumlah;$i++) {
-				$query = "UPDATE M_DocumentsOtherLegal
-						  SET DOL_Status='1', DOL_Update_UserID='$A_ApproverID', DOL_Update_Time=sysdate()
-						  WHERE DOL_ID='$txtDOL_ID[$i]'";
+				$query = "UPDATE M_DocumentsOtherNonLegal
+						  SET DONL_Status='1', DONL_Update_UserID='$A_ApproverID', DONL_Update_Time=sysdate()
+						  WHERE DONL_ID='$txtDONL_ID[$i]'";
 				$mysqli->query($query);
 			}
 			mail_notif_release_doc($A_TransactionCode, $_POST['txtTHLOONLD_UserID'], 4 );
-			mail_notif_release_doc($A_TransactionCode, $_POST['txtDOL_RegUserID'], 4 );
+			mail_notif_release_doc($A_TransactionCode, $_POST['txtDONL_RegUserID'], 4 );
 			echo "<meta http-equiv='refresh' content='0; url=home.php'>";
 		}
 	}

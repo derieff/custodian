@@ -77,7 +77,7 @@ if(($_GET['cfm'])&&($_GET['ati'])&&($_GET['rdm'])) {
 					$qComp = "SELECT Company_Area FROM M_Company WHERE Company_ID = '{$h_arr['THLOOLD_CompanyID']}'";
 					$aComp = mysql_fetch_array(mysql_query($qComp));
 
-					if($h_arr['THLOOLD_DocumentType'] == "ORIGINAL" && $h_arr['THLOOLD_DocumentType'] == "SOFTCOPY"){
+					if($h_arr['THLOOLD_DocumentType'] == "ORIGINAL" or $h_arr['THLOOLD_DocumentType'] == "SOFTCOPY"){
 						$jenis = "17";
 					}elseif($h_arr['THLOOLD_DocumentType'] == "HARDCOPY"){
 						$jenis = "18";
@@ -131,7 +131,7 @@ if(($_GET['cfm'])&&($_GET['ati'])&&($_GET['rdm'])) {
 							* Nicholas - 26 Sept 2018			*
 							* Fix Bug skip approval				*
 							************************************/
-							
+
 							/*if ($i == $jStep) {
 								$query = "UPDATE TH_LoanOfOtherLegalDocuments
 									SET THLOOLD_Status='accept', THLOOLD_Update_UserID='$A_ApproverID',
@@ -172,7 +172,7 @@ if(($_GET['cfm'])&&($_GET['ati'])&&($_GET['rdm'])) {
 							* Nicholas - 26 Sept 2018			*
 							* Fix Bug skip approval				*
 							************************************/
-							
+
 							/*if ($i == $jStep) {
 								$query = "UPDATE TH_LoanOfOtherLegalDocuments
 									SET THLOOLD_Status='accept', THLOOLD_Update_UserID='$A_ApproverID',

@@ -375,6 +375,7 @@ if(isset($_POST['konfirmasi_penerimaandokumen'])){
 				AND THROOLD_Delete_Time IS NULL";
 	$sql = mysql_query($query);
 	if($sql){
+		mail_notif_reception_release_doc($_POST['txtA_TransactionCode'], $_SESSION['User_ID'], 3,1);
 		mail_notif_reception_release_doc($_POST['txtA_TransactionCode'], "cust0002", 3 );
 		echo "<meta http-equiv='refresh' content='0; url=detail-of-release-other-legal-documents.php?id=$txtTHROOLD_ID'>";
 	}else{

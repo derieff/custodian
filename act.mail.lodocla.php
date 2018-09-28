@@ -72,7 +72,7 @@ if(($_GET['cfm'])&&($_GET['ati'])&&($_GET['rdm'])) {
 					// else if ($h_arr['THLOLAD_LoanCategoryID'] == '3') { $jenis = '6'; }
 					// else;
 
-					if($h_arr['THLOLAD_DocumentType'] == "ORIGINAL" && $h_arr['THLOLAD_DocumentType'] == "SOFTCOPY"){ //Arief F - 05092018
+					if($h_arr['THLOLAD_DocumentType'] == "ORIGINAL" or $h_arr['THLOLAD_DocumentType'] == "SOFTCOPY"){ //Arief F - 05092018
 						$jenis = "11"; //Arief F - 05092018
 					}elseif($h_arr['THLOLAD_DocumentType'] == "HARDCOPY"){ //Arief F - 05092018
 						$jenis = "12"; //Arief F - 05092018
@@ -133,7 +133,7 @@ if(($_GET['cfm'])&&($_GET['ati'])&&($_GET['rdm'])) {
 							* Nicholas - 26 Sept 2018			*
 							* Fix Bug skip approval				*
 							************************************/
-							
+
 							/*if ($i == $jStep) {
 								$query = "UPDATE TH_LoanOfLandAcquisitionDocument
 									SET THLOLAD_Status='accept', THLOLAD_Update_UserID='$A_ApproverID',
@@ -174,7 +174,7 @@ if(($_GET['cfm'])&&($_GET['ati'])&&($_GET['rdm'])) {
 							* Nicholas - 26 Sept 2018			*
 							* Fix Bug skip approval				*
 							************************************/
-							
+
 							/*if ($i == $jStep) {
 								$query = "UPDATE TH_LoanOfLandAcquisitionDocument
 									SET THLOLAD_Status='accept', THLOLAD_Update_UserID='$A_ApproverID',
