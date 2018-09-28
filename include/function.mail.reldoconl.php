@@ -18,25 +18,25 @@ include_once ("./include/class.endencrp.php");
 function mail_release_doc($relCode,$reminder=0){
 	$mail = new PHPMailer();
 	$decrp = new custodian_encryp;
-	//$testing='TESTING';
+	$testing='TESTING';
 
 	$e_query="	SELECT  User_ID,User_FullName,User_Email,DocumentGroup_Name,A_TransactionCode,
-						ARC_AID,ARC_RandomCode,THROAOD_ReleaseDate
-				FROM TH_ReleaseOfAssetOwnershipDocument
-				LEFT JOIN TH_LoanOfAssetOwnershipDocument
-					ON THROAOD_THLOAOD_Code=THLOAOD_LoanCode
+						ARC_AID,ARC_RandomCode,THROONLD_ReleaseDate
+				FROM TH_ReleaseOfOtherNonLegalDocuments
+				LEFT JOIN TH_LoanOfOtherNonLegalDocuments
+					ON THROONLD_THLOONLD_Code=THLOONLD_LoanCode
 				LEFT JOIN M_Approval
-					ON THROAOD_ReleaseCode=A_TransactionCode
+					ON THROONLD_ReleaseCode=A_TransactionCode
 					AND A_Delete_Time IS NULL
 					AND A_Status='2'
 				LEFT JOIN M_DocumentGroup
-					ON DocumentGroup_ID='4'
+					ON DocumentGroup_ID='6'
 				LEFT JOIN M_User
 					ON A_ApproverID=User_ID
 				LEFT JOIN L_ApprovalRandomCode
 					ON ARC_AID=A_ID
-				WHERE THROAOD_ReleaseCode='$relCode'
-				AND THROAOD_Delete_Time IS NULL";
+				WHERE THROONLD_ReleaseCode='$relCode'
+				AND THROONLD_Delete_Time IS NULL";
 	$handle = mysql_query($e_query);
 	$row = mysql_fetch_object($handle);
 
@@ -60,34 +60,31 @@ function mail_release_doc($relCode,$reminder=0){
 	$mail->AddBcc('system.administrator@tap-agri.com');
 	//$mail->AddAttachment("images/icon_addrow.png", "icon_addrow.png");  // optional name
 
-		$ed_query="	SELECT DISTINCT Company_Name,
-						THROAOD_Reason,THLOAOD_UserID,User_FullName,
+		$ed_query="	SELECT DISTINCT Company_Name, TDLOONLD_DocCode,
+						THROONLD_Reason,THLOONLD_UserID,User_FullName,
 						db_master.M_Employee.Employee_Department,
 						db_master.M_Employee.Employee_Division,
-                        m_e.Employee_FullName nama_pemilik,
- 					    m_mk.MK_Name merk_kendaraan, DAO_NoPolisi,
- 					    DAO_STNK_StartDate, DAO_STNK_ExpiredDate
-					FROM TH_ReleaseOfAssetOwnershipDocument
-					LEFT JOIN TD_ReleaseOfAssetOwnershipDocument
-						ON TDROAOD_THROAOD_ID=THROAOD_ID
-					LEFT JOIN TH_LoanOfAssetOwnershipDocument
-						ON THLOAOD_LoanCode=THROAOD_THLOAOD_Code
-					LEFT JOIN TD_LoanOfAssetOwnershipDocument
-						ON TDROAOD_TDLOAOD_ID=TDLOAOD_ID
-					LEFT JOIN M_DocumentAssetOwnership
-						ON DAO_DocCode=TDLOAOD_DocCode
+						DONL_NamaDokumen, DONL_NoDokumen, DONL_TahunDokumen,
+                        Department_Name
+					FROM TH_ReleaseOfOtherNonLegalDocuments
+					LEFT JOIN TD_ReleaseOfOtherNonLegalDocuments
+						ON TDROONLD_THROONLD_ID=THROONLD_ID
+					LEFT JOIN TH_LoanOfOtherNonLegalDocuments
+						ON THLOONLD_LoanCode=THROONLD_THLOONLD_Code
+					LEFT JOIN TD_LoanOfOtherNonLegalDocuments
+						ON TDROONLD_TDLOONLD_ID=TDLOONLD_ID
+					LEFT JOIN M_DocumentsOtherNonLegal
+						ON DONL_DocCode=TDLOONLD_DocCode
 					LEFT JOIN M_Company
-						ON Company_ID=DAO_CompanyID
+						ON Company_ID=DONL_CompanyID
 					LEFT JOIN M_User
-						ON THLOAOD_UserID=User_ID
+						ON THLOONLD_UserID=User_ID
 				    LEFT JOIN db_master.M_Employee
 						ON M_User.User_ID = db_master.M_Employee.Employee_NIK
-                    LEFT JOIN db_master.M_MerkKendaraan m_mk
-                        ON DAO_MK_ID=m_mk.MK_ID
-                    LEFT JOIN db_master.M_Employee m_e
-                        ON DAO_Employee_NIK=m_e.Employee_NIK
-					WHERE THROAOD_ReleaseCode='$relCode'
-					AND THROAOD_Delete_Time IS NULL";
+					LEFT JOIN db_master.M_Department
+        				ON Department_Code=DONL_Dept_Code
+					WHERE THROONLD_ReleaseCode='$relCode'
+					AND THROONLD_Delete_Time IS NULL";
 		$ed_handle = mysql_query($ed_query);
 		$edNum=1;
 		while ($ed_arr = mysql_fetch_object($ed_handle)) {
@@ -96,11 +93,10 @@ function mail_release_doc($relCode,$reminder=0){
 						<TR  style=" font-size: 12px; font-family: \'lucida grande\',tahoma,verdana,arial,sans-serif;">
 							<TD align="center" valign="top">'.$edNum.'</TD>
 							<TD>'.$ed_arr->Company_Name.'<br />
-                                No. Polisi : '.$ed_arr->DAO_NoPolisi.'<br />
-                                Nama Pemilik : '.$ed_arr->nama_pemilik.'<br>
-                                Merk Kendaraan : '.$ed_arr->merk_kendaraan.'<br>
-                                Masa Berlaku STNK : '.date('d/m/Y', strtotime($ed_arr->DAO_STNK_StartDate)).' s/d
-                                '.date('d/m/Y', strtotime($ed_arr->DAO_STNK_ExpiredDate)).'
+								Departemen : '.$ed_arr->Department_Name.'<br />
+								Nama Dokumen : '.$ed_arr->DONL_NamaDokumen.'<br />
+								No. Dokumen : '.$ed_arr->DONL_NoDokumen.'<br />
+								Tahun Dokumen : '.date('Y', strtotime($ed_arr->DONL_TahunDokumen)).'
 							</TD>
 						</TR>';
 			$edNum=$edNum+1;
@@ -244,25 +240,26 @@ function mail_notif_release_doc($relCode, $User_ID, $status){
 	//$mail->AddAttachment("images/icon_addrow.png", "icon_addrow.png");  // optional name
 
 		$ed_query="	SELECT DISTINCT Company_Name,
-						THROAOD_Reason,THLOAOD_UserID,THROAOD_Information,THROAOD_ID,User_FullName,
-                        m_e.Employee_FullName nama_pemilik,
- 					    m_mk.MK_Name merk_kendaraan, DAO_NoPolisi,
- 					    DAO_STNK_StartDate, DAO_STNK_ExpiredDate
-					FROM TH_ReleaseOfAssetOwnershipDocument
-					LEFT JOIN TD_ReleaseOfAssetOwnershipDocument
-						ON TDROAOD_THROAOD_ID=THROAOD_ID
-					LEFT JOIN TH_LoanOfAssetOwnershipDocument
-						ON THLOAOD_LoanCode=THROAOD_THLOAOD_Code
-					LEFT JOIN TD_LoanOfAssetOwnershipDocument
-						ON TDROAOD_TDLOAOD_ID=TDLOAOD_ID
-					LEFT JOIN M_DocumentAssetOwnership
-						ON DAO_DocCode=TDLOAOD_DocCode
+						THROONLD_Reason,THLOONLD_UserID,THROONLD_Information,THROONLD_ID,User_FullName,
+						DONL_NamaDokumen, DONL_NoDokumen, DONL_TahunDokumen,
+                        Department_Name
+					FROM TH_ReleaseOfOtherNonLegalDocuments
+					LEFT JOIN TD_ReleaseOfOtherNonLegalDocuments
+						ON TDROONLD_THROONLD_ID=THROONLD_ID
+					LEFT JOIN TH_LoanOfOtherNonLegalDocuments
+						ON THLOONLD_LoanCode=THROONLD_THLOONLD_Code
+					LEFT JOIN TD_LoanOfOtherNonLegalDocuments
+						ON TDROONLD_TDLOONLD_ID=TDLOONLD_ID
+					LEFT JOIN M_DocumentsOtherNonLegal
+						ON DONL_DocCode=TDLOONLD_DocCode
 					LEFT JOIN M_Company
-						ON Company_ID=DAO_CompanyID
+						ON Company_ID=DONL_CompanyID
 					LEFT JOIN M_User
-						ON THLOAOD_UserID=User_ID
-					WHERE THROAOD_ReleaseCode='$relCode'
-					AND THROAOD_Delete_Time IS NULL";
+						ON THLOONLD_UserID=User_ID
+					LEFT JOIN db_master.M_Department
+        				ON Department_Code=DONL_Dept_Code
+					WHERE THROONLD_ReleaseCode='$relCode'
+					AND THROONLD_Delete_Time IS NULL";
 		$ed_handle = mysql_query($ed_query);
 		$edNum=1;
 		while ($ed_arr = mysql_fetch_object($ed_handle)) {
@@ -271,18 +268,17 @@ function mail_notif_release_doc($relCode, $User_ID, $status){
 						<TR  style=" font-size: 12px; font-family: \'lucida grande\',tahoma,verdana,arial,sans-serif;">
 							<TD align="center" valign="top">'.$edNum.'</TD>
 							<TD>'.$ed_arr->Company_Name.'<br />
-                                No. Polisi : '.$ed_arr->DAO_NoPolisi.'<br />
-                                Nama Pemilik : '.$ed_arr->nama_pemilik.'<br>
-                                Merk Kendaraan : '.$ed_arr->merk_kendaraan.'<br>
-                                Masa Berlaku STNK : '.date('d/m/Y', strtotime($ed_arr->DAO_STNK_StartDate)).' s/d
-                                '.date('d/m/Y', strtotime($ed_arr->DAO_STNK_ExpiredDate)).'
+								Departemen : '.$ed_arr->Department_Name.'<br />
+								Nama Dokumen : '.$ed_arr->DONL_NamaDokumen.'<br />
+								No. Dokumen : '.$ed_arr->DONL_NoDokumen.'<br />
+								Tahun Dokumen : '.date('Y', strtotime($ed_arr->DONL_TahunDokumen)).'
 							</TD>
 						</TR>';
 			$edNum=$edNum+1;
-			$info=$ed_arr->THROAOD_Information;
-			$docID=$ed_arr->THROAOD_ID;
-			$reason=$ed_arr->THROAOD_Reason;
-			$regUser=$ed_arr->THLOAOD_UserID;
+			$info=$ed_arr->THROONLD_Information;
+			$docID=$ed_arr->THROONLD_ID;
+			$reason=$ed_arr->THROONLD_Reason;
+			$regUser=$ed_arr->THLOONLD_UserID;
 			$requester=$ed_arr->User_FullName;
 		}
 		$bodyHeader .= '
@@ -447,26 +443,26 @@ function mail_notif_reception_release_doc($relCode, $User_ID, $status){
 	//$mail->AddAttachment("images/icon_addrow.png", "icon_addrow.png");  // optional name
 
 		$ed_query="	SELECT DISTINCT Company_Name,
-						THROAOD_Reason,THROAOD_DocumentType,THROAOD_Information,
-						THLOAOD_UserID,User_FullName,
-                        m_e.Employee_FullName nama_pemilik,
- 					    m_mk.MK_Name merk_kendaraan, DAO_NoPolisi,
- 					    DAO_STNK_StartDate, DAO_STNK_ExpiredDate
-					FROM TH_ReleaseOfAssetOwnershipDocument
-					LEFT JOIN TD_ReleaseOfAssetOwnershipDocument
-						ON TDROAOD_THROAOD_ID=THROAOD_ID
-					LEFT JOIN TH_LoanOfAssetOwnershipDocument
-						ON THLOAOD_LoanCode=THROAOD_THLOAOD_Code
-					LEFT JOIN TD_LoanOfAssetOwnershipDocument
-						ON TDROAOD_TDLOAOD_ID=TDLOAOD_ID
-					LEFT JOIN M_DocumentAssetOwnership
-						ON DAO_DocCode=TDLOAOD_DocCode
+						THROONLD_Reason,THLOONLD_UserID,THROONLD_Information,User_FullName,
+						DONL_NamaDokumen, DONL_NoDokumen, DONL_TahunDokumen,
+                        Department_Name
+					FROM TH_ReleaseOfOtherNonLegalDocuments
+					LEFT JOIN TD_ReleaseOfOtherNonLegalDocuments
+						ON TDROONLD_THROONLD_ID=THROONLD_ID
+					LEFT JOIN TH_LoanOfOtherNonLegalDocuments
+						ON THLOONLD_LoanCode=THROONLD_THLOONLD_Code
+					LEFT JOIN TD_LoanOfOtherNonLegalDocuments
+						ON TDROONLD_TDLOONLD_ID=TDLOONLD_ID
+					LEFT JOIN M_DocumentsOtherNonLegal
+						ON DONL_DocCode=TDLOONLD_DocCode
 					LEFT JOIN M_Company
-						ON Company_ID=DAO_CompanyID
+						ON Company_ID=DONL_CompanyID
 					LEFT JOIN M_User
-						ON THLOAOD_UserID=User_ID
-					WHERE THROAOD_ReleaseCode='$relCode'
-					AND THROAOD_Delete_Time IS NULL";
+						ON THLOONLD_UserID=User_ID
+					LEFT JOIN db_master.M_Department
+        				ON Department_Code=DONL_Dept_Code
+					WHERE THROONLD_ReleaseCode='$relCode'
+					AND THROONLD_Delete_Time IS NULL";
 		$ed_handle = mysql_query($ed_query);
 		$edNum=1;
 		while ($ed_arr = mysql_fetch_object($ed_handle)) {
@@ -475,18 +471,16 @@ function mail_notif_reception_release_doc($relCode, $User_ID, $status){
 						<TR  style=" font-size: 12px; font-family: \'lucida grande\',tahoma,verdana,arial,sans-serif;">
 							<TD align="center" valign="top">'.$edNum.'</TD>
 							<TD>'.$ed_arr->Company_Name.'<br />
-                                No. Polisi : '.$ed_arr->DAO_NoPolisi.'<br />
-                                Nama Pemilik : '.$ed_arr->nama_pemilik.'<br>
-                                Merk Kendaraan : '.$ed_arr->merk_kendaraan.'<br>
-                                Masa Berlaku STNK : '.date('d/m/Y', strtotime($ed_arr->DAO_STNK_StartDate)).' s/d
-                                '.date('d/m/Y', strtotime($ed_arr->DAO_STNK_ExpiredDate)).'
+								Departemen : '.$ed_arr->Department_Name.'<br />
+								Nama Dokumen : '.$ed_arr->DONL_NamaDokumen.'<br />
+								No. Dokumen : '.$ed_arr->DONL_NoDokumen.'<br />
+								Tahun Dokumen : '.date('Y', strtotime($ed_arr->DONL_TahunDokumen)).'
 							</TD>
 						</TR>';
 			$edNum=$edNum+1;
-			$info=$ed_arr->THROAOD_Information;
-			$docType=$ed_arr->THROAOD_DocumentType;
-			$reason=$ed_arr->THROAOD_Reason;
-			$regUser=$ed_arr->THLOAOD_UserID;
+			$info=$ed_arr->THROONLD_Information;
+			$reason=$ed_arr->THROONLD_Reason;
+			$regUser=$ed_arr->THLOONLD_UserID;
 			$requester=$ed_arr->User_FullName;
 		}
 		$bodyHeader .= '

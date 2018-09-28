@@ -252,7 +252,7 @@ if(isset($_GET["act"]))
 		<form name='add-doc' method='post' action='$PHP_SELF'>
 		<table width='100%' id='mytable' class='stripeMe'>
 		<tr>
-			<th colspan=3>Registrasi Dokumen</th>
+			<th colspan=3>Registrasi Dokumen Kepemilikan Aset</th>
 		</tr>";
 
 		$query = "SELECT u.User_FullName as FullName, ddp.DDP_DeptID as DeptID, ddp.DDP_DivID as DivID,
@@ -439,7 +439,7 @@ if(isset($_GET["act"]))
 		<form name='add-detaildoc' method='post' action='$PHP_SELF' >
 		<table width='100%' id='mytable' class='stripeMe'>
 		<tr>
-			<th colspan=3>Registrasi Dokumen</th>
+			<th colspan=3>Registrasi Dokumen Kepemilikan Aset</th>
 		</tr>
 		<tr>
 			<td width='30'>No Pendaftaran</td>
