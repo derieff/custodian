@@ -652,7 +652,7 @@ elseif(isset($_POST[addheader])) {
 
 	// Kode Pengeluaran Dokumen
 	$CT_Code="$newnum/OUT/$Company_Code/$DocumentGroup_Code/$regmonth/$regyear";
-
+	
 	// Insert kode Pengeluaran dokumen baru
 	$sql= "INSERT INTO M_CodeTransaction
 		   VALUES (NULL,'$CT_Code','$nnum','OUT','$Company_Code','$DocumentGroup_Code','$rmonth','$regyear',
@@ -663,7 +663,7 @@ elseif(isset($_POST[addheader])) {
 		//Insert Header Dokumen
 		$sql1= "INSERT INTO TH_ReleaseOfLegalDocument
 				VALUES (NULL,'$CT_Code',sysdate(),'$_SESSION[User_ID]','$_POST[txtTHROLD_THLOLD_Code]',
-					    '$info','0',NULL,'$_SESSION[User_ID]', sysdate(),NULL,NULL)";
+					    '$info','0',NULL,NULL,'$_SESSION[User_ID]', sysdate(),NULL,NULL)";
 		if($mysqli->query($sql1)) {
 			echo "<meta http-equiv='refresh' content='0; url=release-of-document.php?act=adddetail&id=$CT_Code'>";
 		}

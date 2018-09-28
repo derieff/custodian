@@ -241,7 +241,7 @@ function mail_notif_release_doc($relCode, $User_ID, $status){
 					
 		$ed_query="	SELECT DISTINCT Company_Name,DocumentCategory_Name,DocumentType_Name, 
 									DL_NoDoc,THROLD_Reason,THROLD_Information,
-									THLOLD_UserID,THLOLD_ID,User_FullName
+									THLOLD_UserID,THROLD_ID,User_FullName
 					FROM TH_ReleaseOfLegalDocument
 					LEFT JOIN TD_ReleaseOfLegalDocument
 						ON TDROLD_THROLD_ID=THROLD_ID

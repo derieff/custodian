@@ -85,7 +85,7 @@ $query = "SELECT DISTINCT throonld.THROONLD_ID, throonld.THROONLD_ReleaseCode, t
 $query = "SELECT DISTINCT throonld.THROONLD_ID, throonld.THROONLD_ReleaseCode, throonld.THROONLD_ReleaseDate, u.User_ID,
           u.User_FullName, c.Company_Name, throonld.THROONLD_Status, throonld.THROONLD_Information, thloonld.THLOONLD_UserID,
 		  dg.DocumentGroup_Name, dg.DocumentGroup_ID, throonld.THROONLD_Reason,c.Company_ID,thloonld.THLOONLD_LoanCategoryID,
-		  THROONLD.THROONLD_DocumentReceived
+		  throonld.THROONLD_DocumentReceived
 		  	FROM TH_ReleaseOfOtherNonLegalDocuments throonld, M_User u, M_Company c, M_Approval dra,
 				 M_DocumentGroup dg, TH_LoanOfOtherNonLegalDocuments thloonld, TD_LoanOfOtherNonLegalDocuments tdloonld
 			WHERE throonld.THROONLD_Delete_Time is NULL
@@ -96,7 +96,6 @@ $query = "SELECT DISTINCT throonld.THROONLD_ID, throonld.THROONLD_ReleaseCode, t
 			AND throonld.THROONLD_ID='$DocID'
 			AND dg.DocumentGroup_ID='6'";
 	}
-
 $sql = mysql_query($query);
 $arr = mysql_fetch_array($sql);
 

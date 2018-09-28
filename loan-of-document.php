@@ -441,7 +441,7 @@ if(isset($_GET["act"])) {
 				$ActionContent .= ucfirst(strtolower($field['THLOLD_DocumentType']));
 			}else{
 				if( $field['THLOLD_LoanCategoryID'] != '3') $ActionContent .= "Asli";
-				else $ActionContent .= "";
+				else $ActionContent .= "Hardcopy";
 			}
 			$ActionContent .="</td>
 		</tr>

@@ -92,7 +92,7 @@ function validateInputDetail(elem) {
 			alert("Kode Dokumen pada baris ke-" + i + " Belum Terisi!");
 			returnValue = false;
 		}
-		else {
+		/*else {
 			<?php
  			$query = "SELECT *
 					  FROM M_DocumentsOtherLegal
@@ -116,7 +116,7 @@ function validateInputDetail(elem) {
 				alert("Kode Dokumen pada baris ke-" + i + " Salah Atau Dokumen Tidak Tersedia!");
 				returnValue = false;
 			}
-		}
+		}*/
 	}
 	return returnValue;
 }

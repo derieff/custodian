@@ -376,7 +376,7 @@ if(isset($_POST['konfirmasi_penerimaandokumen'])){
 	$sql = mysql_query($query);
 	if($sql){
 		mail_notif_reception_release_doc($_POST['txtA_TransactionCode'], "cust0002", 3 );
-		echo "<meta http-equiv='refresh' content='0; url=detail-of-other-legal-documents.php?id=$txtTHROOLD_ID'>";
+		echo "<meta http-equiv='refresh' content='0; url=detail-of-release-other-legal-documents.php?id=$txtTHROOLD_ID'>";
 	}else{
 		$ActionContent .="<div class='warning'>Konfirmasi Penerimaan Dokumen Gagal. Terjadi kesalahan</div>";
 	}

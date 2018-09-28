@@ -288,7 +288,7 @@ if($_GET['act']) {
 		$sql = mysql_query($query);
 		if($sql){
 			mail_notif_reception_release_doc($relCode, "cust0002", 3 );
-			echo "<meta http-equiv='refresh' content='0; url=detail-of-release-other-legal-documents.php?id=$docID'>";
+			echo "<meta http-equiv='refresh' content='0; url=detail-of-release-document.php?id=$docID'>";
 		}else{
 			$ActionContent .="<div class='warning'>Konfirmasi Penerimaan Dokumen Gagal. Terjadi kesalahan</div>";
 		}
