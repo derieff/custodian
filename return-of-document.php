@@ -17,7 +17,11 @@ session_start();
 ?>
 <title>Custodian System | Pengembalian Dokumen</title>
 <head>
-<?PHP include ("./config/config_db.php"); ?>
+<?PHP 
+include ("./config/config_db.php");
+include_once ("./include/class.endencrp.php");
+$decrp = new custodian_encryp;
+ ?>
 
 <script language="JavaScript" type="text/JavaScript">
 function showList(n) {
@@ -30,6 +34,7 @@ function validateInputDetail(elem) {
 	var jrow = document.getElementById('countRow').value;
 
 	for (i = 1; i <= jrow; i++){
+		return true;
 		var txtTDRTOLD_DocCode = document.getElementById('txtTDRTOLD_DocCode' + i).value;
 		var checkDocCode = 0;
 		txtTDRTOLD_DocCode=txtTDRTOLD_DocCode.replace("\n","");

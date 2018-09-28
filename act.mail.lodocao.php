@@ -28,7 +28,6 @@ if(($_GET['cfm'])&&($_GET['ati'])&&($_GET['rdm'])) {
 			  FROM L_ApprovalRandomCode
 			  WHERE ARC_AID='$A_ID'
 			  AND ARC_RandomCode='$ARC_RandomCode'";
-	//echo $query;
 	$sql = mysql_query($query);
 	$num = mysql_num_rows($sql);
 
@@ -77,7 +76,7 @@ if(($_GET['cfm'])&&($_GET['ati'])&&($_GET['rdm'])) {
 					$qComp = "SELECT Company_Area FROM M_Company WHERE Company_ID = '{$h_arr['THLOAOD_CompanyID']}'";
 					$aComp = mysql_fetch_array(mysql_query($qComp));
 
-					if($h_arr['THLOAOD_DocumentType'] == "ORIGINAL" && $h_arr['THLOAOD_DocumentType'] == "SOFTCOPY"){
+					if($h_arr['THLOAOD_DocumentType'] == "ORIGINAL" or $h_arr['THLOAOD_DocumentType'] == "SOFTCOPY"){
 						$jenis = "14";
 					}elseif($h_arr['THLOAOD_DocumentType'] == "HARDCOPY"){
 						$jenis = "15";
@@ -131,7 +130,7 @@ if(($_GET['cfm'])&&($_GET['ati'])&&($_GET['rdm'])) {
 							* Nicholas - 26 Sept 2018			*
 							* Fix Bug skip approval				*
 							************************************/
-							
+
 							/*if ($i == $jStep) {
 								$query = "UPDATE TH_LoanOfAssetOwnershipDocument
 									SET THLOAOD_Status='accept', THLOAOD_Update_UserID='$A_ApproverID',
@@ -172,7 +171,7 @@ if(($_GET['cfm'])&&($_GET['ati'])&&($_GET['rdm'])) {
 							* Nicholas - 26 Sept 2018			*
 							* Fix Bug skip approval				*
 							************************************/
-							
+
 							/*if ($i == $jStep) {
 								$query = "UPDATE TH_LoanOfAssetOwnershipDocument
 									SET THLOAOD_Status='accept', THLOAOD_Update_UserID='$A_ApproverID',
@@ -187,7 +186,6 @@ if(($_GET['cfm'])&&($_GET['ati'])&&($_GET['rdm'])) {
 							}*/
 						}
 					}
-
 					echo "
 						<table border='0' align='center' cellpadding='0' cellspacing='0'>
 							<tbody>
@@ -434,7 +432,7 @@ if(!empty($_GET['act'])) {
 	}
 }
 
-if(isset($_POST[reject])) {
+if(isset($_POST['reject'])) {
 	$A_Status='4';
 	$A_ID=$_POST['A_ID'];
 	$ARC_RandomCode=$_POST['ARC_RandomCode'];

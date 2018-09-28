@@ -410,7 +410,7 @@ function mail_notif_release_doc($relCode, $User_ID, $status){
 	}
 }
 
-function mail_notif_reception_release_doc($relCode, $User_ID, $status){ 
+function mail_notif_reception_release_doc($relCode, $User_ID, $status,$acceptor=0){ 
 	$mail = new PHPMailer();
 	$decrp = new custodian_encryp;
 	//$testing='TESTING';
@@ -443,7 +443,8 @@ function mail_notif_reception_release_doc($relCode, $User_ID, $status){
 	//$mail->AddAttachment("images/icon_addrow.png", "icon_addrow.png");  // optional name
 					
 		$ed_query="	SELECT DISTINCT Company_Name,DocumentCategory_Name,DocumentType_Name, 
-									DL_NoDoc,THROLD_Reason,THROLD_Information,THLOLD_UserID,User_FullName
+									DL_NoDoc,THROLD_Reason,THROLD_Information,
+									THLOLD_UserID,THLOLD_DocumentType,User_FullName
 					FROM TH_ReleaseOfLegalDocument
 					LEFT JOIN TD_ReleaseOfLegalDocument
 						ON TDROLD_THROLD_ID=THROLD_ID
@@ -478,6 +479,7 @@ function mail_notif_reception_release_doc($relCode, $User_ID, $status){
 						</TR>';
 			$edNum=$edNum+1;
 			$info=$ed_arr->THROLD_Information;
+			$docType=$ed_arr->THLOLD_DocumentType;
 			$reason=$ed_arr->THROLD_Reason;
 			$regUser=$ed_arr->THLOLD_UserID;
 			$requester=$ed_arr->User_FullName;
@@ -493,23 +495,41 @@ function mail_notif_reception_release_doc($relCode, $User_ID, $status){
 <tbody>
 <tr>
 	<td width="458" align="justify" valign="top" style="font-size: 12px; font-family: \'lucida grande\',tahoma,verdana,arial,sans-serif;"><div style="margin-bottom: 15px; font-size: 13px">Yth '.$row->User_FullName.',</div>
-	<div style="margin-bottom: 15px">
-	<p><span style="margin-bottom: 15px; font-size: 13px; font-family: \'lucida grande\',tahoma,verdana,arial,sans-serif;">Bersama ini disampaikan bahwa dokumen (berdasarkan permintaan '.$requester.' untuk tujuan '.$info.') dengan detail permintaan dokumen sebagai berikut :</span></p>
-	<p>
+	<div style="margin-bottom: 15px">';
+	if($acceptor){
+		$bodyHeader .= '<p><span style="margin-bottom: 15px; font-size: 13px; font-family: \'lucida grande\',tahoma,verdana,arial,sans-serif;">Bersama ini disampaikan bahwa pengeluaran '.$docType.' dokumen (berdasarkan permintaan '.$requester.' untuk tujuan '.$info.') dengan detail permintaan dokumen sebagai berikut :</span></p>';
+	}
+	else{
+		$bodyHeader .= '<p><span style="margin-bottom: 15px; font-size: 13px; font-family: \'lucida grande\',tahoma,verdana,arial,sans-serif;">Bersama ini disampaikan bahwa dokumen (berdasarkan permintaan '.$requester.' untuk tujuan '.$info.') dengan detail permintaan dokumen sebagai berikut :</span></p>';
+	}
+	$bodyHeader .= '<p>
         <TABLE  width="458" >
 		<TR align="center"  style="border: 1px solid #ffe222; padding: 10px; background-color: #c4df9b; color: #333333; font-size: 12px; font-family: \'lucida grande\',tahoma,verdana,arial,sans-serif;">															
 			<TD width="10%"  style="font-size: 13px"><strong>No.</strong></TD>
 			<TD width="90%"  style="font-size: 13px"><strong>Keterangan Dokumen</strong></TD>
 		</TR>';
-$bodyFooter .= '				
-			</TABLE>
-		</p>
-		<p>
-			<span style="margin-bottom: 15px; font-size: 13px;font-family: \'lucida grande\',tahoma,verdana,arial,sans-serif;">
-				Telah diambil oleh user yang bersangkutan dari Custodian Departemen. Terima kasih. 
-			</span><br />
-		</p>
-		</div>';
+	if($acceptor){
+		$bodyFooter .= '				
+				</TABLE>
+			</p>
+			<p>
+				<span style="margin-bottom: 15px; font-size: 13px;font-family: \'lucida grande\',tahoma,verdana,arial,sans-serif;">
+					Telah diambil oleh user yang bersangkutan dari Custodian Departemen. Terima kasih. 
+				</span><br />
+			</p>
+			</div>';
+	}
+	else{
+		$bodyFooter .= '
+				</TABLE>
+			</p>
+			<p>
+				<span style="margin-bottom: 15px; font-size: 13px;font-family: \'lucida grande\',tahoma,verdana,arial,sans-serif;">
+					Telah diterima lengkap dan sesuai. Terima kasih. 
+				</span><br />
+			</p>
+			</div>';
+	}
 		$bodyFooter .= '
 				<div style="margin: 0pt;font-family: \'lucida grande\',tahoma,verdana,arial,sans-serif;">Hormat Kami,<br />Departemen Custodian<br />PT Triputra Agro Persada
 				</div></td>           

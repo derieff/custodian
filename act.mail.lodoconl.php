@@ -78,7 +78,7 @@ if(($_GET['cfm'])&&($_GET['ati'])&&($_GET['rdm'])) {
 					$qComp = "SELECT Company_Area FROM M_Company WHERE Company_ID = '{$h_arr['THLOONLD_CompanyID']}'";
 					$aComp = mysql_fetch_array(mysql_query($qComp));
 
-					if($h_arr['THLOONLD_DocumentType'] == "ORIGINAL" && $h_arr['THLOONLD_DocumentType'] == "SOFTCOPY"){
+					if($h_arr['THLOONLD_DocumentType'] == "ORIGINAL" or $h_arr['THLOONLD_DocumentType'] == "SOFTCOPY"){
 						$jenis = "20";
 					}elseif($h_arr['THLOONLD_DocumentType'] == "HARDCOPY"){
 						$jenis = "21";
@@ -132,7 +132,7 @@ if(($_GET['cfm'])&&($_GET['ati'])&&($_GET['rdm'])) {
 							* Nicholas - 26 Sept 2018			*
 							* Fix Bug skip approval				*
 							************************************/
-							
+
 							/*if ($i == $jStep) {
 								$query = "UPDATE TH_LoanOfOtherNonLegalDocuments
 									SET THLOONLD_Status='accept', THLOONLD_Update_UserID='$A_ApproverID',
@@ -173,7 +173,7 @@ if(($_GET['cfm'])&&($_GET['ati'])&&($_GET['rdm'])) {
 							* Nicholas - 26 Sept 2018			*
 							* Fix Bug skip approval				*
 							************************************/
-							
+
 							/*if ($i == $jStep) {
 								$query = "UPDATE TH_LoanOfOtherNonLegalDocuments
 									SET THLOONLD_Status='accept', THLOONLD_Update_UserID='$A_ApproverID',

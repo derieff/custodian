@@ -80,7 +80,7 @@ if(($_GET['cfm'])&&($_GET['ati'])&&($_GET['rdm'])) {
 					// else if ($h_arr['THLOLD_DocumentGroupID'] == '2' && $h_arr['THLOLD_LoanCategoryID'] == '3') { $jenis = '4'; }
 					// else;
 
-					if($h_arr['THLOLD_DocumentType'] == "ORIGINAL" && $h_arr['THLOLD_DocumentType'] == "SOFTCOPY"){ //Arief F - 05092018
+					if($h_arr['THLOLD_DocumentType'] == "ORIGINAL" or $h_arr['THLOLD_DocumentType'] == "SOFTCOPY"){ //Arief F - 05092018
 						$jenis = "8"; //Arief F - 05092018
 					}elseif($h_arr['THLOLD_DocumentType'] == "HARDCOPY"){ //Arief F - 05092018
 						$jenis = "9"; //Arief F - 05092018
@@ -141,7 +141,7 @@ if(($_GET['cfm'])&&($_GET['ati'])&&($_GET['rdm'])) {
 							* Nicholas - 26 Sept 2018			*
 							* Fix Bug skip approval				*
 							************************************/
-							
+
 							/*if ($i == $jStep) {
 								$query = "UPDATE TH_LoanOfLegalDocument
 									SET THLOLD_Status='accept', THLOLD_Update_UserID='$A_ApproverID',
@@ -182,7 +182,7 @@ if(($_GET['cfm'])&&($_GET['ati'])&&($_GET['rdm'])) {
 							* Nicholas - 26 Sept 2018			*
 							* Fix Bug skip approval				*
 							************************************/
-							
+
 							/*if ($i == $jStep) {
 								$query = "UPDATE TH_LoanOfLegalDocument
 									SET THLOLD_Status='accept', THLOLD_Update_UserID='$A_ApproverID',

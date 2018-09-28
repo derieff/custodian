@@ -864,9 +864,10 @@ elseif(isset($_POST['adddetail'])) {
 	$query = "UPDATE M_Approval
 		SET A_Status = '2', A_Update_UserID = '$A_ApproverID', A_Update_Time = sysdate()
 		WHERE A_TransactionCode = '$A_TransactionCode' AND A_Step = '1'";
-	if ($sql = mysql_query($query)) {
-		mail_loan_doc($A_TransactionCode);
-	}
+	$sql = mysql_query($query)
+	// if ($sql = mysql_query($query)) {
+	// 	mail_loan_doc($A_TransactionCode);
+	// }
 
 	/************************************
 	* Nicholas - 26 Sept 2018			*
@@ -950,19 +951,17 @@ elseif(isset($_POST['adddetail'])) {
 			WHERE A_TransactionCode ='$_POST[txtTDLOAOD_THLOAOD_LoanCode]'
 			AND A_Step='1'";*/
 
-	/*
 	$sql4= "UPDATE TH_LoanOfAssetOwnershipDocument
 		SET THLOAOD_Status='waiting', THLOAOD_Information='$txtTHLOAOD_Information',
 		THLOAOD_Update_UserID='$A_ApproverID',THLOAOD_Update_Time=sysdate()
 		WHERE THLOAOD_LoanCode='$A_TransactionCode'
 		AND THLOAOD_Delete_Time IS NULL";
 	$mysqli->query($sql4);
-	*/
 
-	/*if($mysqli->query($sql4)) {
+	if($mysqli->query($sql4)) {
 		// Kirim Email ke Approver 1
 		mail_loan_doc($_POST['txtTDLOAOD_THLOAOD_LoanCode']);
-	}*/
+	}
 	/**** END Nicholas 26 Sept 2018 ****/
 	echo "<meta http-equiv='refresh' content='0; url=loan-of-asset-ownership-document.php'>";
 }
