@@ -1,5 +1,5 @@
-<?PHP 
-/* 
+<?PHP
+/*
 =========================================================================================================================
 = Nama Project		: Custodian																							=
 = Versi				: 1.0.1																								=
@@ -11,7 +11,7 @@
 =		26/09/2012	: Perubahan Query (LEFT JOIN)																		=
 =========================================================================================================================
 */
-session_start(); 
+session_start();
 ?>
 <title>Custodian System | Pengembalian Dokumen Pembebasan Lahan</title>
 <head>
@@ -21,40 +21,45 @@ include ("./include/function.mail.retdocla.php");
 ?>
 
 <script language="JavaScript" type="text/JavaScript">
+function showList(n) {
+	var docGrup="3"; //Grup Dokumen Ganti Rugi Lahan
+	var txtKe = n;
+	sList = window.open("popupRelease.php?gID="+docGrup+"&txtKe="+txtKe+"", "Daftar_Pengeluaran_Dokumen", "width=800,height=500,scrollbars=yes,resizable=yes");
+}
 // VALIDASI INPUT BAGIAN DETAIL
 function validateInputDetail(elem) {
 	var jrow = document.getElementById('countRow').value;
-	
+
 	for (i = 1; i <= jrow; i++){
 		var txtTDRTOLAD_DocCode = document.getElementById('txtTDRTOLAD_DocCode' + i).value;
 		var checkDocCode = 0;
 		txtTDRTOLAD_DocCode=txtTDRTOLAD_DocCode.replace("\n","");
-		
-		if (txtTDRTOLAD_DocCode.replace(" ", "") == "")  {	
+
+		if (txtTDRTOLAD_DocCode.replace(" ", "") == "")  {
 			alert("Kode Dokumen pada baris ke-" + i + " Belum Terisi!");
 			returnValue = false;
 		}
 		else {
 			<?php
-				$query = "SELECT * 
-				  		  FROM TD_ReleaseOfLandAcquisitionDocument tdrlolad, 
+				$query = "SELECT *
+				  		  FROM TD_ReleaseOfLandAcquisitionDocument tdrlolad,
 						       TD_LoanOfLandAcquisitionDocument tdlolad, M_DocumentLandAcquisition dla
 				  		  WHERE tdrlolad.TDRLOLAD_TDLOLAD_ID=tdlolad.TDLOLAD_ID
 				  		  AND dla.DLA_Code=tdlolad.TDLOLAD_DocCode
 						  AND dla.DLA_Status='4'
 			   			  AND tdrlolad.TDRLOLAD_ReturnCode='0'";
 				$result = mysql_query($query);
-				while ($data = mysql_fetch_array($result)) { 
+				while ($data = mysql_fetch_array($result)) {
 					$TDLOLAD_DocCode = $data['TDLOLAD_DocCode'];
 					$a = "if (txtTDRTOLAD_DocCode == '$TDLOLAD_DocCode') {";
 					$a .= "checkDocCode = 1; ";
 					$a .= "}";
 					echo $a;
 	 			}
-			?> 
+			?>
 			if (checkDocCode == 0) {
 			alert("Kode Dokumen Yang Dikembalikan pada baris ke-" + i + " SALAH!");
-			returnValue = false;				
+			returnValue = false;
 			}
 		}
 	}
@@ -69,7 +74,7 @@ $path_parts=pathinfo($_SERVER['PHP_SELF']);
 if(!isset($_SESSION['User_ID']) || !(in_array ($path_parts['basename'],$_SESSION['Access_Page']))) {
 	echo "<meta http-equiv='refresh' content='0; url=index.php?act=error'>";
 } else {
-	
+
 require_once "./include/template.inc";
 $page=new Template();
 
@@ -82,24 +87,24 @@ if(isset($_GET["act"]))
 		<form name='add-detaildoc' method='post' action='$PHP_SELF'>
 		<table width='100%' id='mytable' class='stripeMe'>
 		<th colspan=3>Pengembalian Dokumen Pembebasan Lahan</th>";
-		
-		$query1="SELECT u.User_FullName as FullName, ddp.DDP_DeptID as DeptID, ddp.DDP_DivID as DivID, 
-						ddp.DDP_PosID as PosID, dp.Department_Name as DeptName, d.Division_Name as DivName, 
+
+		$query1="SELECT u.User_FullName as FullName, ddp.DDP_DeptID as DeptID, ddp.DDP_DivID as DivID,
+						ddp.DDP_PosID as PosID, dp.Department_Name as DeptName, d.Division_Name as DivName,
 						p.Position_Name as PosName,u.User_SPV1,u.User_SPV2
 				 FROM M_User u
 				 LEFT JOIN M_DivisionDepartmentPosition ddp
-					ON u.User_ID=ddp.DDP_UserID 
+					ON u.User_ID=ddp.DDP_UserID
 					AND ddp.DDP_Delete_Time is NULL
 				 LEFT JOIN M_Division d
-					ON ddp.DDP_DivID=d.Division_ID 
+					ON ddp.DDP_DivID=d.Division_ID
 				 LEFT JOIN M_Department dp
-					ON ddp.DDP_DeptID=dp.Department_ID 
-				 LEFT JOIN M_Position p 
-					ON ddp.DDP_PosID=p.Position_ID 
+					ON ddp.DDP_DeptID=dp.Department_ID
+				 LEFT JOIN M_Position p
+					ON ddp.DDP_PosID=p.Position_ID
 				 WHERE u.User_ID='$_SESSION[User_ID]'";
 		$sql1 = mysql_query($query1);
 		$field1 = mysql_fetch_array($sql1);
-		
+
 		$ActionContent .="
 		<tr>
 			<td width='30%'>Nama</td>
@@ -118,9 +123,9 @@ if(isset($_GET["act"]))
 			<td>$field1[PosName]</td>
 		</tr>
 		</table>
-		
+
 		<div style='space'>&nbsp;</div>
-		
+
 		<table width='100%' id='detail' class='stripeMe'>
 		<tr>
 			<th>Kode Dokumen</th>
@@ -128,14 +133,14 @@ if(isset($_GET["act"]))
 		</tr>
 		<tr>
 			<td>
-				<textarea name='txtTDRTOLAD_DocCode1' id='txtTDRTOLAD_DocCode1' cols='20' rows='1'></textarea>
+				<textarea name='txtTDRTOLAD_DocCode1' id='txtTDRTOLAD_DocCode1' cols='20' rows='1' readonly='readonly' onClick='javascript:showList(1);'></textarea>
 			</td>
 			<td>
 				<textarea name='txtTDRTOLAD_Information1' id='txtTDRTOLAD_Information1' cols='20' rows='1'></textarea>
 			</td>
 		</tr>
 		</table>
-		
+
 		<table width='100%'>
 		<th  class='bg-white'>
 			<input onclick='addRowToTable();' type='button' class='addrow'/>
@@ -143,21 +148,21 @@ if(isset($_GET["act"]))
 			<input type='hidden' value='1' id='countRow' name='countRow' />
 		</th>
 		</table>
-		
+
 		<table width='100%'>
 		<th>
 			<input name='adddetail' type='submit' value='Daftar' class='button' onclick='return validateInputDetail(this);'/>
 			<input name='cancel' type='submit' value='Batal' class='button'/>
 		</th>
 		</table>
-		
+
 		<div class='alertRed10px'>
 			PERINGATAN : <br>
 			Periksa Kembali Data Anda. Apabila Data Telah Disimpan, Anda Tidak Dapat Mengubahnya Lagi.
 		</div>
 		</form>";
 	}
-		
+
 	if($act=='detail') {
 		$id=$_GET['id'];
 		$query1 = "SELECT  tdrtolad.TDRTOLAD_ReturnCode, u.User_FullName, d.Division_Name, dp.Department_Name,
@@ -166,20 +171,20 @@ if(isset($_GET["act"]))
 				   LEFT JOIN M_User u
 						ON tdrtolad.TDRTOLAD_UserID=u.User_ID
 				   LEFT JOIN M_DivisionDepartmentPosition ddp
-						ON u.User_ID=ddp.DDP_UserID 
+						ON u.User_ID=ddp.DDP_UserID
 						AND ddp.DDP_Delete_Time is NULL
 				   LEFT JOIN M_Division d
-						ON ddp.DDP_DivID=d.Division_ID 
+						ON ddp.DDP_DivID=d.Division_ID
 				   LEFT JOIN M_Department dp
-						ON ddp.DDP_DeptID=dp.Department_ID 
-				   LEFT JOIN M_Position p 
-						ON ddp.DDP_PosID=p.Position_ID 
+						ON ddp.DDP_DeptID=dp.Department_ID
+				   LEFT JOIN M_Position p
+						ON ddp.DDP_PosID=p.Position_ID
 			       WHERE tdrtolad.TDRTOLAD_ReturnCode='$id'";
 		$sql1 = mysql_query($query1);
 		$field1 = mysql_fetch_array($sql1);
 		$fregdate=date('j M Y', strtotime($field1[TDRTOLAD_ReturnTime]));
 
-		
+
 		$ActionContent ="
 		<table width='100%' id='mytable' class='stripeMe'>
 		<th colspan=3>Pengembalian Dokumen Pembebasan Lahan</th>
@@ -225,11 +230,11 @@ if(isset($_GET["act"]))
 			<th>Ket Pengembalian</th>
 		</tr>";
 
-		$queryd = "SELECT dla.DLA_Code, c.Company_Name, dla.DLA_ID,tdrtolad.TDRTOLAD_Information, dla.DLA_Phase, 
-					      dla.DLA_Period, dla.DLA_DocDate, dla.DLA_Block, dla.DLA_Village,dla.DLA_Owner, 
+		$queryd = "SELECT dla.DLA_Code, c.Company_Name, dla.DLA_ID,tdrtolad.TDRTOLAD_Information, dla.DLA_Phase,
+					      dla.DLA_Period, dla.DLA_DocDate, dla.DLA_Block, dla.DLA_Village,dla.DLA_Owner,
 					 	  dla.DLA_Information
 					FROM TD_ReturnOfLandAcquisitionDocument tdrtolad, M_DocumentLandAcquisition dla, M_Company c
-					WHERE tdrtolad.TDRTOLAD_ReturnCode='$id' 
+					WHERE tdrtolad.TDRTOLAD_ReturnCode='$id'
 					AND tdrtolad.TDRTOLAD_Delete_Time IS NULL
 					AND tdrtolad.TDRTOLAD_DocCode=dla.DLA_Code
 					AND dla.DLA_CompanyID=c.Company_ID";
@@ -248,7 +253,7 @@ if(isset($_GET["act"]))
 				<td align='center'>$arrd[DLA_Village]</td>
 				<td align='center'>$arrd[DLA_Owner]</td>
 				<td align='center'><pre>$arrd[TDRTOLAD_Information]</pre></td>
-			</tr>";			
+			</tr>";
 		}
 		$ActionContent .="
 		</table>";
@@ -258,18 +263,18 @@ if(isset($_GET["act"]))
 // Menampilkan Dokumen
 $dataPerPage = 20;
 
-if(isset($_GET['page'])) 
+if(isset($_GET['page']))
     $noPage = $_GET['page'];
-else 
+else
 	$noPage = 1;
-	
+
 $offset = ($noPage - 1) * $dataPerPage;
 
 $query = "SELECT DISTINCT tdrtolad.TDRTOLAD_ID, tdrtolad.TDRTOLAD_ReturnCode, tdrtolad.TDRTOLAD_ReturnTime, u.User_FullName
 		  FROM TD_ReturnOfLandAcquisitionDocument tdrtolad, M_User u
-		  WHERE tdrtolad.TDRTOLAD_Delete_Time is NULL 
-		  AND tdrtolad.TDRTOLAD_UserID=u.User_ID 
-		  AND u.User_ID='$_SESSION[User_ID]' 
+		  WHERE tdrtolad.TDRTOLAD_Delete_Time is NULL
+		  AND tdrtolad.TDRTOLAD_UserID=u.User_ID
+		  AND u.User_ID='$_SESSION[User_ID]'
 		  ORDER BY tdrtolad.TDRTOLAD_ID DESC
 		  LIMIT $offset, $dataPerPage";
 $sql = mysql_query($query);
@@ -282,7 +287,7 @@ $MainContent ="
 	<th width='30%'>Tanggal Pengembalian</th>
 	<th width='40%'>Nama Penerima Dokumen</th>
 </tr>";
-	
+
 if ($num==NULL) {
 	$MainContent .="
 	<tr>
@@ -306,11 +311,11 @@ $MainContent .="
 	</table>
 ";
 
-$query1 ="SELECT DISTINCT tdrtolad.TDRTOLAD_ID, tdrtolad.TDRTOLAD_ReturnCode, tdrtolad.TDRTOLAD_ReturnTime, 
+$query1 ="SELECT DISTINCT tdrtolad.TDRTOLAD_ID, tdrtolad.TDRTOLAD_ReturnCode, tdrtolad.TDRTOLAD_ReturnTime,
 				 		  u.User_FullName
 		  FROM TD_ReturnOfLandAcquisitionDocument tdrtolad, M_User u
-		  WHERE tdrtolad.TDRTOLAD_Delete_Time is NULL 
-		  AND tdrtolad.TDRTOLAD_UserID=u.User_ID 
+		  WHERE tdrtolad.TDRTOLAD_Delete_Time is NULL
+		  AND tdrtolad.TDRTOLAD_UserID=u.User_ID
 		  AND u.User_ID='$_SESSION[User_ID]'";
 $sql1 = mysql_query($query1);
 $num1 = mysql_num_rows($sql1);
@@ -321,24 +326,24 @@ $jumPage = ceil($jumData/$dataPerPage);
 $prev=$noPage-1;
 $next=$noPage+1;
 
-if ($noPage > 1) 
+if ($noPage > 1)
 	$Pager.="<a href=$PHP_SELF?page=$prev>&lt;&lt; Prev</a> ";
 for($p=1; $p<=$jumPage; $p++) {
-    if ((($p>=$noPage-3) && ($p<=$noPage+3)) || ($p==1) || ($p== $jumPage)) {   
-    	if (($showPage == 1) && ($p != 2))  
-			$Pager.="..."; 
-        if (($showPage != ($jumPage - 1)) && ($p == $jumPage))  
+    if ((($p>=$noPage-3) && ($p<=$noPage+3)) || ($p==1) || ($p== $jumPage)) {
+    	if (($showPage == 1) && ($p != 2))
 			$Pager.="...";
-        if ($p == $noPage) 
+        if (($showPage != ($jumPage - 1)) && ($p == $jumPage))
+			$Pager.="...";
+        if ($p == $noPage)
 			$Pager.="<b><u>$p</b></u> ";
-        else 
+        else
 			$Pager.="<a href=$_SERVER[PHP_SELF]?page=$p>$p</a> ";
-        
-		$showPage = $p;          
+
+		$showPage = $p;
 	}
 }
 
-if ($noPage < $jumPage) 
+if ($noPage < $jumPage)
 	$Pager .= "<a href=$PHP_SELF?page=$next>Next &gt;&gt;</a> ";
 
 /* ACTIONS */
@@ -349,7 +354,7 @@ if(isset($_POST[cancel])) {
 elseif(isset($_POST[adddetail])) {
 	$regyear=date("Y");
 	$rmonth=date("n");
-	
+
 	// Mengubah Bulan ke Romawi
 	switch ($rmonth)	{
 		case 1: $regmonth="I"; break;
@@ -365,7 +370,7 @@ elseif(isset($_POST[adddetail])) {
 		case 11: $regmonth="XI"; break;
 		case 12: $regmonth="XII"; break;
 	}
-	
+
 	// Cari Kode Perusahaan $ Kode Grup Dokumen
 	$query = "SELECT c.Company_Code
 			  FROM M_DocumentLandAcquisition dla, M_Company c
@@ -377,30 +382,30 @@ elseif(isset($_POST[adddetail])) {
 	$DocumentGroup_Code='GRL';
 
 	// Cari No Registrasi Dokumen Terakhir
-	$query = "SELECT MAX(CT_SeqNo) 
-			  FROM M_CodeTransaction 
-			  WHERE CT_Year='$regyear' 
+	$query = "SELECT MAX(CT_SeqNo)
+			  FROM M_CodeTransaction
+			  WHERE CT_Year='$regyear'
 			  AND CT_Action='RETN'
 			  AND CT_GroupDocCode='$DocumentGroup_Code'
 			  AND CT_Delete_Time is NULL";
 	$sql = mysql_query($query);
 	$field = mysql_fetch_array($sql);
-	
+
 	if($field[0]==NULL)
 		$maxnum=0;
 	else
 		$maxnum=$field[0];
 	$nnum=$maxnum+1;
 	$newnum=str_pad($nnum,3,"0",STR_PAD_LEFT);
-	
-	// Kode Registrasi Dokumen	
+
+	// Kode Registrasi Dokumen
 	$CT_Code="$newnum/RETN/$Company_Code/$DocumentGroup_Code/$regmonth/$regyear";
-	
+
 	// Insert kode registrasi dokumen baru
-	$sql= "INSERT INTO M_CodeTransaction 
+	$sql= "INSERT INTO M_CodeTransaction
 		   VALUES (NULL,'$CT_Code','$nnum','RETN','$Company_Code','$DocumentGroup_Code','$rmonth','$regyear',
 				   '$_SESSION[User_ID]', sysdate(),'$_SESSION[User_ID]',sysdate(),NULL,NULL)";
-					
+
 	if($mysqli->query($sql)) {
 		$count=$_POST[countRow];
 
@@ -408,19 +413,19 @@ elseif(isset($_POST[adddetail])) {
 		for ($i=1 ; $i<=$count ; $i++) {
 			$txtTDRTOLAD_DocCode=str_replace("", "\n",$_POST["txtTDRTOLAD_DocCode".$i]);
 			$txtTDRTOLAD_Information=str_replace("<br>", "\n",$_POST["txtTDRTOLAD_Information".$i]);
-			
-			$sql1= "INSERT INTO TD_ReturnOfLandAcquisitionDocument 
+
+			$sql1= "INSERT INTO TD_ReturnOfLandAcquisitionDocument
 					VALUES (NULL,'$CT_Code','$txtTDRTOLAD_DocCode','$txtTDRTOLAD_Information',sysdate(),
 							'$_SESSION[User_ID]','$_SESSION[User_ID]', sysdate(),NULL,NULL)";
 			$mysqli->query($sql1);
-			
-			$sql2="UPDATE TD_ReleaseOfLandAcquisitionDocument tdrlolad, TD_LoanOfLandAcquisitionDocument tdlolad, 
+
+			$sql2="UPDATE TD_ReleaseOfLandAcquisitionDocument tdrlolad, TD_LoanOfLandAcquisitionDocument tdlolad,
 						  M_DocumentLandAcquisition dla, M_DocumentLandAcquisitionAttribute dlaa
-				   SET tdrlolad.TDRLOLAD_ReturnCode='$CT_Code', 
-				   	   tdrlolad.TDRLOLAD_Update_UserID='$_SESSION[User_ID]', 
+				   SET tdrlolad.TDRLOLAD_ReturnCode='$CT_Code',
+				   	   tdrlolad.TDRLOLAD_Update_UserID='$_SESSION[User_ID]',
 					   tdrlolad.TDRLOLAD_Update_Time=sysdate(),
 					   dla.DLA_Status='1',
-				   	   dla.DLA_Update_UserID='$_SESSION[User_ID]', 
+				   	   dla.DLA_Update_UserID='$_SESSION[User_ID]',
 					   dla.DLA_Update_Time=sysdate(),
 					   dlaa.DLAA_Status ='1',
 					   dlaa.DLAA_Update_Time=sysdate(),
@@ -450,7 +455,7 @@ function addRowToTable() {
 	document.getElementById('countRow').value = (document.getElementById('countRow').value*1) + 1;
 	var iteration = lastRow;
 	var row = tbl.insertRow(lastRow);
-						  
+
 	// KODE DOKUMEN
 	var cellOneSel = row.insertCell(0);
 	var el = document.createElement('textarea');
@@ -458,9 +463,11 @@ function addRowToTable() {
 	el.setAttribute("rows","1");
 	el.name = 'txtTDRTOLAD_DocCode' + iteration;
 	el.id = 'txtTDRTOLAD_DocCode' + iteration;
+	el.setAttribute("readonly","readonly"); //Arief F - 26092018
+	el.setAttribute("onClick", "javascript:showList("+iteration+");"); //Arief F - 26092018
 	el.size = '80';
 	cellOneSel.appendChild(el);
-	
+
 	// INFORMASI PENGEMBALIAN
 	var cellTwoSel = row.insertCell(1);
 	var el = document.createElement('textarea');
@@ -478,7 +485,7 @@ function removeRowFromTable() {
 	var lastRow = tbl.rows.length;
 	if(document.getElementById('countRow').value > 1)
 		document.getElementById('countRow').value -= 1;
-	if (lastRow > 2) 
+	if (lastRow > 2)
 		tbl.deleteRow(lastRow - 1);
 }
 </script>

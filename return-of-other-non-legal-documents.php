@@ -4,57 +4,49 @@
 = Nama Project		: Custodian																							=
 = Versi				: 1.1.1																								=
 = Disusun Oleh		: IT Support Application - PT Triputra Agro Persada													=
-= Developer			: Sabrina Ingrid Davita																				=
-= Dibuat Tanggal	:  4 Mei 2012																						=
-= Update Terakhir	: 26 Sep 2012																						=
+= Developer			: Outsource               																			=
+= Dibuat Tanggal	: 26 September 2018																					=
+= Update Terakhir	: -           																						=
 = Revisi			:																									=
-= 		23/05/2012	: Validasi keterangan dihilangkan. (OK)																=
-=					  Button "Cancel" untuk detail transaksi (OK)														=
-=		26/09/2012	: Perubahan Query (LEFT JOIN)																		=
 =========================================================================================================================
 */
 session_start();
 ?>
-<title>Custodian System | Pengembalian Dokumen</title>
+<title>Custodian System | Pengembalian Dokumen Lainnya (Di Luar Legal)</title>
 <head>
-<?PHP 
-include ("./config/config_db.php");
-include_once ("./include/class.endencrp.php");
-$decrp = new custodian_encryp;
- ?>
+<?PHP include ("./config/config_db.php"); ?>
 
 <script language="JavaScript" type="text/JavaScript">
 function showList(n) {
-	var docGrup="1"; //Grup Dokumen Legal/Lisensi
-    var txtKe = n;
-	sList = window.open("popupRelease.php?gID="+docGrup+"&txtKe="+txtKe, "Daftar_Pengeluaran_Dokumen", "width=800,height=500,scrollbars=yes,resizable=yes");
+	var docGrup="6"; //Grup Dokumen Lainnya (Legal)
+	var txtKe = n;
+	sList = window.open("popupRelease.php?gID="+docGrup+"&txtKe="+txtKe+"", "Daftar_Pengeluaran_Dokumen", "width=800,height=500,scrollbars=yes,resizable=yes");
 }
 // VALIDASI INPUT BAGIAN DETAIL
 function validateInputDetail(elem) {
 	var jrow = document.getElementById('countRow').value;
 
 	for (i = 1; i <= jrow; i++){
-		return true;
-		var txtTDRTOLD_DocCode = document.getElementById('txtTDRTOLD_DocCode' + i).value;
+		var txtTDRTOONLD_DocCode = document.getElementById('txtTDRTOONLD_DocCode' + i).value;
 		var checkDocCode = 0;
-		txtTDRTOLD_DocCode=txtTDRTOLD_DocCode.replace("\n","");
+		txtTDRTOONLD_DocCode=txtTDRTOONLD_DocCode.replace("\n","");
 
-		if (txtTDRTOLD_DocCode.replace(" ", "") == "")  {
+		if (txtTDRTOONLD_DocCode.replace(" ", "") == "")  {
 			alert("Kode Dokumen pada baris ke-" + i + " Belum Terisi!");
 			returnValue = false;
 		}
 		else {
 			<?php
  				$query = "SELECT *
-				  		  FROM TD_ReleaseOfLegalDocument tdrlold, TD_LoanOfLegalDocument tdlold, M_DocumentLegal dl
-				  		  WHERE tdrlold.TDROLD_TDLOLD_ID=tdlold.TDLOLD_ID
-				  		  AND dl.DL_DocCode=tdlold.TDLOLD_DocCode
-						  AND dl.DL_Status='4'
-			   			  AND tdrlold.TDROLD_ReturnCode='0'";
+				  		  FROM TD_ReleaseOfOtherNonLegalDocuments tdrloonld, TD_LoanOfOtherNonLegalDocuments tdloonld, M_DocumentsOtherNonLegal donl
+				  		  WHERE tdrloonld.TDROONLD_TDLOONLD_ID=tdloonld.TDLOONLD_ID
+				  		  AND donl.DONL_DocCode=tdloonld.TDLOONLD_DocCode
+						  AND donl.DONL_Status='4'
+			   			  AND tdrloonld.TDROONLD_ReturnCode='0'";
  				$result = mysql_query($query);
 				while ($data = mysql_fetch_array($result)) {
-					$TDLOLD_DocCode = $data['TDLOLD_DocCode'];
-					$a = "if (txtTDRTOLD_DocCode == '$TDLOLD_DocCode') {";
+					$TDLOONLD_DocCode = $data['TDLOONLD_DocCode'];
+					$a = "if (txtTDRTOONLD_DocCode == '$TDLOONLD_DocCode') {";
 					$a .= "checkDocCode = 1; ";
 					$a .= "}";
 				echo $a;
@@ -89,7 +81,7 @@ if(isset($_GET["act"]))
 		$ActionContent ="
 		<form name='add-detaildoc' method='post' action='$PHP_SELF'>
 		<table width='100%' id='mytable' class='stripeMe'>
-		<th colspan=3>Pengembalian Dokumen Legal / Lisensi</th>";
+		<th colspan=3>Pengembalian Dokumen Lainnya (Di Luar Legal)</th>";
 
 		$query1="SELECT u.User_FullName as FullName, ddp.DDP_DeptID as DeptID, ddp.DDP_DivID as DivID,
 						ddp.DDP_PosID as PosID, dp.Department_Name as DeptName, d.Division_Name as DivName,
@@ -136,10 +128,10 @@ if(isset($_GET["act"]))
 		</tr>
 		<tr>
 			<td>
-				<textarea name='txtTDRTOLD_DocCode1' id='txtTDRTOLD_DocCode1' cols='20' rows='1' readonly='readonly' onClick='javascript:showList(1);'></textarea>
+				<textarea name='txtTDRTOONLD_DocCode1' id='txtTDRTOONLD_DocCode1' cols='20' rows='1' readonly='readonly' onClick='javascript:showList(1);'></textarea>
 			</td>
 			<td>
-				<textarea name='txtTDRTOLD_Information1' id='txtTDRTOLD_Information1' cols='20' rows='1'></textarea>
+				<textarea name='txtTDRTOONLD_Information1' id='txtTDRTOONLD_Information1' cols='20' rows='1'></textarea>
 			</td>
 		</tr>
 		</table>
@@ -168,11 +160,11 @@ if(isset($_GET["act"]))
 
 	if($act=='detail') {
 		$id=$_GET['id'];
-		$query1 = "SELECT  tdrold.TDRTOLD_ReturnCode, u.User_FullName, d.Division_Name, dp.Department_Name,
-		    			   p.Position_Name, tdrold.TDRTOLD_ReturnTime
-			   	   FROM TD_ReturnOfLegalDocument tdrold
+		$query1 = "SELECT  tdronld.TDRTOONLD_ReturnCode, u.User_FullName, d.Division_Name, dp.Department_Name,
+		    			   p.Position_Name, tdronld.TDRTOONLD_ReturnTime
+			   	   FROM TD_ReturnOfOtherNonLegalDocuments tdronld
 				   LEFT JOIN M_User u
-						ON tdrold.TDRTOLD_UserID=u.User_ID
+						ON tdronld.TDRTOONLD_UserID=u.User_ID
 				   LEFT JOIN M_DivisionDepartmentPosition ddp
 						ON u.User_ID=ddp.DDP_UserID
 						AND ddp.DDP_Delete_Time is NULL
@@ -182,19 +174,19 @@ if(isset($_GET["act"]))
 						ON ddp.DDP_DeptID=dp.Department_ID
 				   LEFT JOIN M_Position p
 						ON ddp.DDP_PosID=p.Position_ID
-			       WHERE tdrold.TDRTOLD_ReturnCode='$id'";
+			       WHERE tdronld.TDRTOONLD_ReturnCode='$id'";
 		$sql1 = mysql_query($query1);
 		$field1 = mysql_fetch_array($sql1);
-		$fregdate=date('j M Y', strtotime($field1[TDRTOLD_ReturnTime]));
+		$fregdate=date('j M Y', strtotime($field1[TDRTOONLD_ReturnTime]));
 
 
 		$ActionContent ="
 		<table width='100%' id='mytable' class='stripeMe'>
-		<th colspan=3>Pengembalian Dokumen Legal / Lisensi</th>
+		<th colspan=3>Pengembalian Dokumen Lainnya (Di Luar Legal)</th>
 		<tr>
 			<td width='30%'>No Pengembalian</td>
-			<td width='67%'>$field1[TDRTOLD_ReturnCode]</td>
-			<td width='3%'><a href='print-return-of-document.php?id=$field1[TDRTOLD_ReturnCode]' target='_blank'><img src='./images/icon-print.png'></a>
+			<td width='67%'>$field1[TDRTOONLD_ReturnCode]</td>
+			<td width='3%'><a href='print-return-of-other-legal-documents.php?id=$field1[TDRTOONLD_ReturnCode]' target='_blank'><img src='./images/icon-print.png'></a>
 			</td>
 		</tr>
 		<tr>
@@ -228,29 +220,25 @@ if(isset($_GET["act"]))
 			<th>Keterangan</th>
 		</tr>";
 
-		$queryd = "SELECT dl.DL_DocCode, dt.DocumentType_Name, c.Company_Name, dg.DocumentGroup_Name,
-						  dc.DocumentCategory_Name, dl.DL_NoDoc, dl.DL_ID,tdrold.TDRTOLD_Information,
-					 	  di1.DocumentInformation1_Name, di2.DocumentInformation2_Name, dl.DL_Information3
-					FROM TD_ReturnOfLegalDocument tdrold, M_DocumentType dt,
-					 	 M_DocumentLegal dl, M_Company c, M_DocumentGroup dg, M_DocumentCategory dc,
-						 M_DocumentInformation1 di1, M_DocumentInformation2 di2
-					WHERE tdrold.TDRTOLD_ReturnCode='$id'
-					AND tdrold.TDRTOLD_Delete_Time IS NULL
-					AND tdrold.TDRTOLD_DocCode=dl.DL_DocCode
-					AND dl.DL_TypeDocID=dt.DocumentType_ID
-					AND dl.DL_CompanyID=c.Company_ID
-					AND dl.DL_GroupDocID=dg.DocumentGroup_ID
-					AND dl.DL_CategoryDocID=dc.DocumentCategory_ID
-					AND dl.DL_Information1=di1.DocumentInformation1_ID
-					AND dl.DL_Information2=di2.DocumentInformation2_ID";
+		$queryd = "SELECT donl.DONL_DocCode, dt.DocumentType_Name, c.Company_Name, dg.DocumentGroup_Name,
+						  dc.DocumentCategory_Name, donl.DONL_NoDoc, donl.DONL_ID,tdronld.TDRTOONLD_Information
+					FROM TD_ReturnOfOtherNonLegalDocuments tdronld, M_DocumentType dt,
+					 	 M_DocumentsOtherNonLegal donl, M_Company c, M_DocumentGroup dg, M_DocumentCategory dc
+					WHERE tdronld.TDRTOONLD_ReturnCode='$id'
+					AND tdronld.TDRTOONLD_Delete_Time IS NULL
+					AND tdronld.TDRTOONLD_DocCode=donl.DONL_DocCode
+					AND donl.DONL_TypeDocID=dt.DocumentType_ID
+					AND donl.DONL_CompanyID=c.Company_ID
+					AND donl.DONL_GroupDocID=dg.DocumentGroup_ID
+					AND donl.DONL_CategoryDocID=dc.DocumentCategory_ID";
 		$sqld = mysql_query($queryd);
 		while ($arrd = mysql_fetch_array($sqld)) {
 			$ActionContent .="
 			<tr>
-				<td align='center'>$arrd[DL_DocCode]</td>
-				<td align='center'>$arrd[DocumentType_Name] No $arrd[DL_NoDoc]</td>
+				<td align='center'>$arrd[DONL_DocCode]</td>
+				<td align='center'>$arrd[DocumentType_Name] No $arrd[DONL_NoDoc]</td>
 				<td align='center'>$arrd[Company_Name]</td>
-				<td align='center'><pre>$arrd[TDRTOLD_Information]</pre></td>
+				<td align='center'><pre>$arrd[TDRTOONLD_Information]</pre></td>
 			</tr>";
 		}
 		$ActionContent .="
@@ -268,13 +256,13 @@ else
 
 $offset = ($noPage - 1) * $dataPerPage;
 
-$query = "SELECT DISTINCT tdrtold.TDRTOLD_ID, tdrtold.TDRTOLD_ReturnCode, tdrtold.TDRTOLD_ReturnTime, u.User_FullName
-		  FROM TD_ReturnOfLegalDocument tdrtold, M_User u
-		  WHERE tdrtold.TDRTOLD_Delete_Time is NULL
-		  AND tdrtold.TDRTOLD_UserID=u.User_ID
+$query = "SELECT DISTINCT tdrtoold.TDRTOONLD_ID, tdrtoold.TDRTOONLD_ReturnCode, tdrtoold.TDRTOONLD_ReturnTime, u.User_FullName
+		  FROM TD_ReturnOfOtherNonLegalDocuments tdrtoold, M_User u
+		  WHERE tdrtoold.TDRTOONLD_Delete_Time is NULL
+		  AND tdrtoold.TDRTOONLD_UserID=u.User_ID
 		  AND u.User_ID='$_SESSION[User_ID]'
-		  GROUP BY tdrtold.TDRTOLD_ReturnCode
-		  ORDER BY tdrtold.TDRTOLD_ID DESC
+		  GROUP BY tdrtoold.TDRTOONLD_ReturnCode
+		  ORDER BY tdrtoold.TDRTOONLD_ID DESC
 		  LIMIT $offset, $dataPerPage";
 $sql = mysql_query($query);
 $num = mysql_num_rows($sql);
@@ -293,7 +281,7 @@ if ($num==NULL) {
 	</tr>";
 }else{
 	while ($field = mysql_fetch_array($sql)) {
-		$fregdate=date("j M Y", strtotime($field['TDRTOLD_ReturnTime']));
+		$fregdate=date("j M Y", strtotime($field['TDRTOONLD_ReturnTime']));
 
 		$MainContent .="
 		<tr>
@@ -309,10 +297,10 @@ $MainContent .="
 	</table>
 ";
 
-$query1 ="SELECT DISTINCT tdrtold.TDRTOLD_ID, tdrtold.TDRTOLD_ReturnCode, tdrtold.TDRTOLD_ReturnTime, u.User_FullName
-		  FROM TD_ReturnOfLegalDocument tdrtold, M_User u
-		  WHERE tdrtold.TDRTOLD_Delete_Time is NULL
-		  AND tdrtold.TDRTOLD_UserID=u.User_ID
+$query1 ="SELECT DISTINCT tdrtoold.TDRTOONLD_ID, tdrtoold.TDRTOONLD_ReturnCode, tdrtoold.TDRTOONLD_ReturnTime, u.User_FullName
+		  FROM TD_ReturnOfOtherNonLegalDocuments tdrtoold, M_User u
+		  WHERE tdrtoold.TDRTOONLD_Delete_Time is NULL
+		  AND tdrtoold.TDRTOONLD_UserID=u.User_ID
 		  AND u.User_ID='$_SESSION[User_ID]'";
 $sql1 = mysql_query($query1);
 $num1 = mysql_num_rows($sql1);
@@ -345,7 +333,7 @@ if ($noPage < $jumPage)
 
 /* ACTIONS */
 if(isset($_POST[cancel])) {
-	echo "<meta http-equiv='refresh' content='0; url=return-of-document.php'>";
+	echo "<meta http-equiv='refresh' content='0; url=return-of-other-legal-documents.php'>";
 }
 
 elseif(isset($_POST[adddetail])) {
@@ -370,10 +358,10 @@ elseif(isset($_POST[adddetail])) {
 
 	// Cari Kode Perusahaan $ Kode Grup Dokumen
 	$query = "SELECT c.Company_Code, dg.DocumentGroup_Code
-			  FROM M_DocumentLegal dl, M_Company c, M_DocumentGroup dg
-			  WHERE dl.DL_DocCode='$_POST[txtTDRTOLD_DocCode1]'
-			  AND dl.DL_CompanyID=c.Company_ID
-			  AND dl.DL_GroupDocID=dg.DocumentGroup_ID";
+			  FROM M_DocumentsOtherNonLegal dl, M_Company c, M_DocumentGroup dg
+			  WHERE donl.DONL_DocCode='$_POST[txtTDRTOONLD_DocCode1]'
+			  AND donl.DONL_CompanyID=c.Company_ID
+			  AND donl.DONL_GroupDocID=dg.DocumentGroup_ID";
 	$sql = mysql_query($query);
 	$field = mysql_fetch_array($sql);
 	$Company_Code=$field['Company_Code'];
@@ -409,29 +397,29 @@ elseif(isset($_POST[adddetail])) {
 
 		//Insert Detail
 		for ($i=1 ; $i<=$count ; $i++) {
-			$txtTDRTOLD_DocCode=str_replace("", "\n",$_POST["txtTDRTOLD_DocCode".$i]);
-			$txtTDRTOLD_Information=str_replace("<br>", "\n",$_POST["txtTDRTOLD_Information".$i]);
+			$txtTDRTOONLD_DocCode=str_replace("", "\n",$_POST["txtTDRTOONLD_DocCode".$i]);
+			$txtTDRTOONLD_Information=str_replace("<br>", "\n",$_POST["txtTDRTOONLD_Information".$i]);
 
-			$sql1= "INSERT INTO TD_ReturnOfLegalDocument
-					VALUES (NULL,'$CT_Code','$txtTDRTOLD_DocCode','$txtTDRTOLD_Information',sysdate(),
+			$sql1= "INSERT INTO TD_ReturnOfOtherNonLegalDocuments
+					VALUES (NULL,'$CT_Code','$txtTDRTOONLD_DocCode','$txtTDRTOONLD_Information',sysdate(),
 							'$_SESSION[User_ID]','$_SESSION[User_ID]', sysdate(),NULL,NULL)";
 			$mysqli->query($sql1);
 
-			$sql2="UPDATE TD_ReleaseOfLegalDocument tdrlold, TD_LoanOfLegalDocument tdlold, M_DocumentLegal dl
-				   SET tdrlold.TDROLD_ReturnCode='$CT_Code',
-				   	   tdrlold.TDROLD_Update_UserID='$_SESSION[User_ID]',
-					   tdrlold.TDROLD_Update_Time=sysdate(),
-					   dl.DL_Status='1',
-				   	   dl.DL_Update_UserID='$_SESSION[User_ID]',
-					   dl.DL_Update_Time=sysdate()
-				   WHERE tdrlold.TDROLD_TDLOLD_ID=tdlold.TDLOLD_ID
-				   AND tdrlold.TDROLD_ReturnCode='0'
-				   AND tdlold.TDLOLD_DocCode='$txtTDRTOLD_DocCode'
-				   AND dl.DL_DocCode=tdlold.TDLOLD_DocCode";
+			$sql2="UPDATE TD_ReleaseOfOtherNonLegalDocuments tdrloonld, TD_LoanOfOtherNonLegalDocuments tdloonld, M_DocumentsOtherNonLegal donl
+				   SET tdrloonld.TDROONLD_ReturnCode='$CT_Code',
+				   	   tdrloonld.TDROONLD_Update_UserID='$_SESSION[User_ID]',
+					   tdrloonld.TDROONLD_Update_Time=sysdate(),
+					   donl.DONL_Status='1',
+				   	   donl.DONL_Update_UserID='$_SESSION[User_ID]',
+					   donl.DONL_Update_Time=sysdate()
+				   WHERE tdrloonld.TDROONLD_TDLOONLD_ID=tdloonld.TDLOONLD_ID
+				   AND tdrloonld.TDROONLD_ReturnCode='0'
+				   AND tdloonld.TDLOONLD_DocCode='$txtTDRTOONLD_DocCode'
+				   AND donl.DONL_DocCode=tdloonld.TDLOONLD_DocCode";
 			$mysqli->query($sql2);
 		}
 	}
-		echo "<meta http-equiv='refresh' content='0; url=return-of-document.php'>";
+		echo "<meta http-equiv='refresh' content='0; url=return-of-other-legal-documents.php'>";
 }
 
 $page->ActContent($ActionContent);
@@ -455,10 +443,10 @@ function addRowToTable() {
 	var el = document.createElement('textarea');
 	el.setAttribute("cols","20");
 	el.setAttribute("rows","1");
-	el.name = 'txtTDRTOLD_DocCode' + iteration;
-	el.id = 'txtTDRTOLD_DocCode' + iteration;
-	el.setAttribute("readonly","readonly"); //Arief F - 26092018
-	el.setAttribute("onClick", "javascript:showList("+iteration+");"); //Arief F - 26092018
+	el.name = 'txtTDRTOONLD_DocCode' + iteration;
+	el.id = 'txtTDRTOONLD_DocCode' + iteration;
+	el.setAttribute("readonly","readonly");
+	el.setAttribute("onClick", "javascript:showList("+iteration+");");
 	el.size = '80';
 	cellOneSel.appendChild(el);
 
@@ -467,8 +455,8 @@ function addRowToTable() {
 	var el = document.createElement('textarea');
 	el.setAttribute("cols","20");
 	el.setAttribute("rows","1");
-	el.name = 'txtTDRTOLD_Information' + iteration;
-	el.id = 'txtTDRTOLD_Information' + iteration;
+	el.name = 'txtTDRTOONLD_Information' + iteration;
+	el.id = 'txtTDRTOONLD_Information' + iteration;
 	el.size = '80';
 	cellTwoSel.appendChild(el);
 }
