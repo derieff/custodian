@@ -15,7 +15,10 @@ session_start();
 ?>
 <title>Custodian System | Pengembalian Dokumen Pembebasan Lahan</title>
 <head>
-<?PHP include ("./config/config_db.php"); ?>
+<?PHP 
+include ("./config/config_db.php");
+include ("./include/function.mail.retdocla.php"); 
+?>
 
 <script language="JavaScript" type="text/JavaScript">
 // VALIDASI INPUT BAGIAN DETAIL
