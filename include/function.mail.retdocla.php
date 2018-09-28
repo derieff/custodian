@@ -15,7 +15,7 @@ include_once('./phpmailer/class.html2text.inc.php');
 include_once ("./config/db_sql.php");
 include_once ("./include/class.endencrp.php");
 	
-function mail_ret_land_acquisition($docCode,$User_ID,$isSupervisor=0){
+function mail_ret_land_acquisition($docCode,$User_ID,$subordinateID=-1){
 	$mail = new PHPMailer();
 	$decrp = new custodian_encryp;
 
@@ -41,11 +41,11 @@ function mail_ret_land_acquisition($docCode,$User_ID,$isSupervisor=0){
 	$mail->AddBcc('system.administrator@tap-agri.com');
 
 		$ed_query="	SELECT Company_Name,DocumentCategory_Name,DocumentType_Name, 
-									DL_NoDoc,TDRTOLD_Information,
-									TDRTOLD_UserID,TDRTOLD_ID,User_FullName
-					FROM TD_ReturnOfLegalDocument
+									DL_NoDoc,TDRTOLAD_Information,
+									TDRTOLAD_UserID,TDRTOLAD_ID,User_FullName
+					FROM TD_ReturnOfLandAcquisitionDocument
 					LEFT JOIN M_DocumentLegal
-						ON DL_DocCode=TDRTOLD_DocCode
+						ON DL_DocCode=TDRTOLAD_DocCode
 					LEFT JOIN M_Company
 						ON Company_ID=DL_CompanyID
 					LEFT JOIN M_DocumentCategory
@@ -53,9 +53,9 @@ function mail_ret_land_acquisition($docCode,$User_ID,$isSupervisor=0){
 					LEFT JOIN M_DocumentType
 						ON DocumentType_ID=DL_TypeDocID
 					LEFT JOIN M_User
-						ON TDRTOLD_UserID=User_ID
-					WHERE TDRTOLD_ReturnCode='$docCode'
-					AND TDRTOLD_Delete_Time IS NULL";
+						ON TDRTOLAD_UserID=User_ID
+					WHERE TDRTOLAD_ReturnCode='$docCode'
+					AND TDRTOLAD_Delete_Time IS NULL";
 		$ed_handle = mysql_query($ed_query);	
 		$edNum=1;
 		$body="";
@@ -71,9 +71,9 @@ function mail_ret_land_acquisition($docCode,$User_ID,$isSupervisor=0){
 							</TD>
 						</TR>';
 			$edNum=$edNum+1;
-			$info=$ed_arr->TDRTOLD_Information;
-			$docID=$ed_arr->TDRTOLD_ID;
-			$regUser=$ed_arr->TDRTOLD_UserID;
+			$info=$ed_arr->TDRTOLAD_Information;
+			$docID=$ed_arr->TDRTOLAD_ID;
+			$regUser=$ed_arr->TDRTOLAD_UserID;
 			$requester=$ed_arr->User_FullName;
 		}
 		$bodyHeader = '	

@@ -289,6 +289,7 @@ if($_GET['act']) {
 					AND THROOLD_Delete_Time IS NULL";
 		$sql = mysql_query($query);
 		if($sql){
+			mail_notif_reception_release_doc($relCode, $userID, 3 ,1);
 			mail_notif_reception_release_doc($relCode, "cust0002", 3 );
 			echo "<meta http-equiv='refresh' content='0; url=detail-of-release-document.php?id=$docID'>";
 		}else{

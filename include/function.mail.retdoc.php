@@ -15,7 +15,7 @@ include_once('./phpmailer/class.html2text.inc.php');
 include_once ("./config/db_sql.php");
 include_once ("./include/class.endencrp.php");
 	
-function mail_ret_legal($docCode,$User_ID,$isSupervisor=0){
+function mail_ret_legal($docCode,$User_ID,$subordinateID=-1){
 	$mail = new PHPMailer();
 	$decrp = new custodian_encryp;
 
