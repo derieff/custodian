@@ -343,7 +343,7 @@ if(isset($_POST[approval])) {
 	$A_TransactionCode=$_POST['txtA_TransactionCode'];
 	$A_ApproverID=$_SESSION['User_ID'];
 	$A_Status=$_POST['optTHLOAOD_Status'];
-	$A_GroupDocID = $_POST['txtDAO_GroupDocID'];
+	$A_GroupDocID = '4';
 	$THLOAOD_Reason=str_replace("<br>", "\n", $_POST['txtTHLOAOD_Reason']);
 
 	// MENCARI TAHAP APPROVAL USER TERSEBUT
@@ -532,7 +532,7 @@ if(isset($_POST[approval])) {
 			// Cari Kode Dokumen Grup
 			$query = "SELECT *
 						FROM M_DocumentGroup
-						WHERE DocumentGroup_ID ='$_POST[txtDAO_GroupDocID]'";
+						WHERE DocumentGroup_ID ='4'";
 			$field = mysql_fetch_array(mysql_query($query));
 			$DocumentGroup_Code=$field['DocumentGroup_Code'];
 
