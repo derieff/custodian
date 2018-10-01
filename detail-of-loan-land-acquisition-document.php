@@ -268,7 +268,7 @@ $no=1;
 while ($arr = mysql_fetch_array($sql)) {
 	$fperdate=date("j M Y", strtotime($arr['DLA_Period']));
 	$fdocdate=date("j M Y", strtotime($arr['DLA_DocDate']));
-
+	
 	$MainContent .="
 	<tr>
 		<td class='center'>
