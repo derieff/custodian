@@ -18,6 +18,9 @@ include_once ("./include/class.endencrp.php");
 function mail_registration_doc($regCode,$reminder=0){
 	$mail = new PHPMailer();
 	$decrp = new custodian_encryp;
+	$body = "";
+	$bodyHeader = "";
+	$bodyFooter = "";
 	//$testing='TESTING';
 
 	$e_query="SELECT User_ID,
@@ -203,7 +206,7 @@ function mail_registration_doc($regCode,$reminder=0){
 		}
 
 			$bodyFooter .= '
-				<div style="margin: 0pt;font-family: \'lucida grande\',tahoma,verdana,arial,sans-serif;">Hormat Kami,<br />Departemen Custodian<br />PT Triputra Agro Persada
+				<div style="margin: 0pt;font-family: \'lucida grande\',tahoma,verdana,arial,sans-serif;margin-top:7%;">Hormat Kami,<br />Departemen Custodian<br />PT Triputra Agro Persada
 				</div></td>
 				</tr>
 			</tbody>
@@ -275,6 +278,9 @@ function mail_registration_doc($regCode,$reminder=0){
 function mail_notif_registration_doc($regCode, $User_ID, $status, $attr){
 	$mail = new PHPMailer();
 	$decrp = new custodian_encryp;
+	$body = "";
+	$bodyHeader = "";
+	$bodyFooter = "";
 	//$testing='TESTING';
 
 	$e_query="SELECT User_ID, User_FullName, User_Email
@@ -313,6 +319,8 @@ function mail_notif_registration_doc($regCode, $User_ID, $status, $attr){
 	//$mail->AddAttachment("images/icon_addrow.png", "icon_addrow.png");  // optional name
 
 		$ed_query="SELECT DISTINCT DocumentCategory_Name,
+						THROOLD_Reason,
+						THROOLD_UserID,
 						TDROOLD_NamaDokumen,
 						TDROOLD_InstansiTerkait,
 						TDROOLD_NoDokumen,
@@ -413,7 +421,7 @@ function mail_notif_registration_doc($regCode, $User_ID, $status, $attr){
 				</div>';
 	}
 		$bodyFooter .= '
-				<div style="margin: 0pt;font-family: \'lucida grande\',tahoma,verdana,arial,sans-serif;">Hormat Kami,<br />Departemen Custodian<br />PT Triputra Agro Persada
+				<div style="margin: 0pt;font-family: \'lucida grande\',tahoma,verdana,arial,sans-serif;margin-top:7%;">Hormat Kami,<br />Departemen Custodian<br />PT Triputra Agro Persada
 				</div></td>
 				</tr>
 			</tbody>

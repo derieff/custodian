@@ -374,6 +374,9 @@ function mail_loan_doc($loanCode,$reminder=0){
 function mail_notif_loan_doc($loanCode, $User_ID, $status, $attr){
 	$mail = new PHPMailer();
 	$decrp = new custodian_encryp;
+    $body='';
+    $bodyHeader='';
+    $bodyFooter='';
 	//$testing='TESTING';
 
 	$e_query="SELECT User_ID, User_FullName, User_Email
@@ -624,7 +627,7 @@ function mail_notif_loan_doc($loanCode, $User_ID, $status, $attr){
 		</TR>';
 
 		$bodyFooter .= '
-				<div style="margin: 0pt;font-family: \'lucida grande\',tahoma,verdana,arial,sans-serif;">Hormat Kami,<br />Departemen Custodian<br />PT Triputra Agro Persada
+				<div style="margin: 0pt;font-family: \'lucida grande\',tahoma,verdana,arial,sans-serif;margin-top:7%;">Hormat Kami,<br />Departemen Custodian<br />PT Triputra Agro Persada
 				</div></td>
 				</tr>
 			</tbody>

@@ -354,7 +354,7 @@ if(($_GET['cfm'])&&($_GET['ati'])&&($_GET['rdm'])) {
 							$arr = mysql_fetch_array($sql);
 							$DLIU_LocationCode=$arr['DL_Code'];
 
-							$step=$i+1;
+							//$step=$i+1;
 							$newnum=str_pad($nnum,4,"0",STR_PAD_LEFT);
 							$CD_Code="$newnum$Company_Code$DocumentGroup_Code$regmonth$regyear";
 							$sql2= "INSERT INTO M_CodeDocument
@@ -379,7 +379,7 @@ if(($_GET['cfm'])&&($_GET['ati'])&&($_GET['rdm'])) {
 											'$h_arr[THROOLD_DocumentGroupID]',
 											'$d_arr[TDROOLD_KategoriDokumenID]',
 											'$d_arr[TDROOLD_NamaDokumen]',
-											'$d_arr[txtTDROOLD_InstansiTerkait]',
+											'$d_arr[TDROOLD_InstansiTerkait]',
 											'$d_arr[TDROOLD_NoDokumen]',
 											'$d_arr[TDROOLD_TglTerbit]',
 											'$d_arr[TDROOLD_TglBerakhir]',

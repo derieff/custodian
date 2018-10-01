@@ -49,6 +49,7 @@ function pickonl(result, n) {
 </HEAD>
 <BODY>
 <?PHP
+$PHP_SELF=$_SERVER['PHP_SELF'];
 $grup=$_GET['gID'];
 $txtKe=$_GET['txtKe'];
 $dataPerPage = 20;
@@ -71,7 +72,7 @@ if($grup==1){
 			  */
 			  
 	$query="SELECT tdlold.TDLOLD_DocCode,dc.DocumentCategory_Name,
-				dt.DocumentType_Name,dl.DL_Instance,DATE_FORMAT(dl.DL_PubDate, '%j %M %Y') DL_PubDate,
+				dt.DocumentType_Name,dl.DL_Instance,DATE_FORMAT(dl.DL_PubDate, '%d %M %Y') DL_PubDate,
 				(SELECT COUNT(tdlold.TDLOLD_DocCode) Total
 					FROM TD_ReleaseOfLegalDocument tdrlold
 					INNER JOIN TD_LoanOfLegalDocument tdlold ON tdrlold.TDROLD_TDLOLD_ID=tdlold.TDLOLD_ID
@@ -145,7 +146,7 @@ if($grup==1){
 		<?PHP
 		if(isset($_GET['txtSearch'])) {
 			$query =   "SELECT tdlold.TDLOLD_DocCode,dc.DocumentCategory_Name,
-							dt.DocumentType_Name,dl.DL_Instance,DATE_FORMAT(dl.DL_PubDate, '%j %M %Y') DL_PubDate,
+							dt.DocumentType_Name,dl.DL_Instance,DATE_FORMAT(dl.DL_PubDate, '%d %M %Y') DL_PubDate,
 							(SELECT COUNT(tdlold.TDLOLD_DocCode) Total
 								FROM TD_ReleaseOfLegalDocument tdrlold
 								INNER JOIN TD_LoanOfLegalDocument tdlold ON tdrlold.TDROLD_TDLOLD_ID=tdlold.TDLOLD_ID
@@ -219,8 +220,8 @@ elseif($grup==3){
 			  AND dla.DLA_Code=tdlolad.TDLOLAD_DocCode
 			  AND dla.DLA_Status='4'
 			  AND tdrlolad.TDRLOLAD_ReturnCode='0'";*/
-	$query="SELECT tdlolad.TDLOLAD_DocCode,dla.DLA_Phase,DATE_FORMAT(dla.DLA_Period, '%j %M %Y') DLA_Period,
-				DATE_FORMAT(dla.DLA_DocDate, '%j %M %Y') DLA_DocDate,dla.DLA_Block,dla.DLA_Village,dla.DLA_Owner,
+	$query="SELECT tdlolad.TDLOLAD_DocCode,dla.DLA_Phase,DATE_FORMAT(dla.DLA_Period, '%d %M %Y') DLA_Period,
+				DATE_FORMAT(dla.DLA_DocDate, '%d %M %Y') DLA_DocDate,dla.DLA_Block,dla.DLA_Village,dla.DLA_Owner,
 				(SELECT COUNT(tdlolad.TDLOLAD_DocCode)
 					FROM TD_LoanOfLandAcquisitionDocument tdlolad
 					INNER JOIN TD_ReleaseOfLandAcquisitionDocument tdrlolad ON tdrlolad.TDRLOLAD_TDLOLAD_ID=tdlolad.TDLOLAD_ID
@@ -285,8 +286,8 @@ elseif($grup==3){
 		<tr>
 		<?PHP
 		if(isset($_GET['txtSearch'])) {
-			$query =   "SELECT tdlolad.TDLOLAD_DocCode,dla.DLA_Phase,DATE_FORMAT(dla.DLA_Period, '%j %M %Y') DLA_Period,
-							DATE_FORMAT(dla.DLA_DocDate, '%j %M %Y') DLA_DocDate,dla.DLA_Block,dla.DLA_Village,dla.DLA_Owner,
+			$query =   "SELECT tdlolad.TDLOLAD_DocCode,dla.DLA_Phase,DATE_FORMAT(dla.DLA_Period, '%d %M %Y') DLA_Period,
+							DATE_FORMAT(dla.DLA_DocDate, '%d %M %Y') DLA_DocDate,dla.DLA_Block,dla.DLA_Village,dla.DLA_Owner,
 							(SELECT COUNT(tdlolad.TDLOLAD_DocCode)
 								FROM TD_LoanOfLandAcquisitionDocument tdlolad
 								INNER JOIN TD_ReleaseOfLandAcquisitionDocument tdrlolad ON tdrlolad.TDRLOLAD_TDLOLAD_ID=tdlolad.TDLOLAD_ID
@@ -328,7 +329,7 @@ elseif($grup==3){
 		}
 
 		while ($arr=mysql_fetch_array($sql)){
-			$tgl_terbit=date("d M Y", strtotime($arr['DLA_RegTime']));
+			//$tgl_terbit=date("d M Y", strtotime($arr['DLA_RegTime']));
 			?>
 			<tr>
 				<td align='center'><u><a href="javascript:pickla('<?= $arr['TDLOLAD_DocCode'] ?>', '<?=$txtKe;?>')"><?= $arr['TDLOLAD_DocCode'] ?></a></u></td>
@@ -479,7 +480,7 @@ elseif($grup==4){
 		}
 
 		while ($arr=mysql_fetch_array($sql)){
-			$tgl_terbit=date("d M Y", strtotime($arr['DAO_RegTime']));
+			//$tgl_terbit=date("d M Y", strtotime($arr['DAO_RegTime']));
 
 			?>
 			<tr>
@@ -506,7 +507,7 @@ elseif($grup==5){
 			  AND dol.DOL_Status='4'
 			  AND tdrloold.TDROOLD_ReturnCode='0'";*/
 	$query="SELECT tdloold.TDLOOLD_DocCode, dc.DocumentCategory_Name,
-			  dol.DOL_NamaDokumen, dol.DOL_InstansiTerkait,dol.DOL_NoDokumen,DATE_FORMAT(dol.DOL_TglTerbit, '%j %M %Y') DOL_TglTerbit,
+			  dol.DOL_NamaDokumen, dol.DOL_InstansiTerkait,dol.DOL_NoDokumen,DATE_FORMAT(dol.DOL_TglTerbit, '%d %M %Y') DOL_TglTerbit,
 			  (SELECT COUNT(tdloold.TDLOOLD_ID) Total
 				FROM  TD_LoanOfOtherLegalDocuments tdloold
 				INNER JOIN TD_ReleaseOfOtherLegalDocuments tdrloold ON tdrloold.TDROOLD_TDLOOLD_ID=tdloold.TDLOOLD_ID
@@ -570,7 +571,7 @@ elseif($grup==5){
 		if($_POST) {
 			$search=$_POST['txtSearch'];
 			$query =   "SELECT tdloold.TDLOOLD_DocCode, dc.DocumentCategory_Name,
-						  dol.DOL_NamaDokumen, dol.DOL_InstansiTerkait,dol.DOL_NoDokumen,DATE_FORMAT(dol.DOL_TglTerbit, '%j %M %Y') DOL_TglTerbit,
+						  dol.DOL_NamaDokumen, dol.DOL_InstansiTerkait,dol.DOL_NoDokumen,DATE_FORMAT(dol.DOL_TglTerbit, '%d %M %Y') DOL_TglTerbit,
 						  (SELECT COUNT(tdloold.TDLOOLD_ID) Total
 							FROM  TD_LoanOfOtherLegalDocuments tdloold
 							INNER JOIN TD_ReleaseOfOtherLegalDocuments tdrloold ON tdrloold.TDROOLD_TDLOOLD_ID=tdloold.TDLOOLD_ID
@@ -609,7 +610,7 @@ elseif($grup==5){
 		}
 
 		while ($arr=mysql_fetch_array($sql)){
-			$tgl_terbit=date("d M Y", strtotime($arr['DOL_RegTime']));
+			//$tgl_terbit=date("d M Y", strtotime($arr['DOL_RegTime']));
 
 			?>
 			<tr>
@@ -742,7 +743,7 @@ elseif($grup==6){
 		}
 
 		while ($arr=mysql_fetch_array($sql)){
-			$tgl_terbit=date("d M Y", strtotime($arr['DONL_RegTime']));
+			//$tgl_terbit=date("d M Y", strtotime($arr['DONL_RegTime']));
 
 			?>
 			<tr>
