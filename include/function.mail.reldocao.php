@@ -454,7 +454,7 @@ function mail_notif_reception_release_doc($relCode, $User_ID, $status,$acceptor=
 
 		$ed_query="	SELECT DISTINCT Company_Name,
 						THROAOD_Reason,THROAOD_Information,
-						THROAOD_DocumentType,THLOAOD_UserID,User_FullName,
+						THLOAOD_UserID,User_FullName,
                         m_e.Employee_FullName nama_pemilik,
  					    m_mk.MK_Name merk_kendaraan, DAO_NoPolisi,
  					    DAO_STNK_StartDate, DAO_STNK_ExpiredDate
@@ -496,7 +496,6 @@ function mail_notif_reception_release_doc($relCode, $User_ID, $status,$acceptor=
 						</TR>';
 			$edNum=$edNum+1;
 			$info=$ed_arr->THROAOD_Information;
-			$docType=$ed_arr->THROAOD_DocumentType;
 			$reason=$ed_arr->THROAOD_Reason;
 			$regUser=$ed_arr->THLOAOD_UserID;
 			$requester=$ed_arr->User_FullName;
@@ -526,12 +525,12 @@ function mail_notif_reception_release_doc($relCode, $User_ID, $status,$acceptor=
 			<TD width="90%"  style="font-size: 13px"><strong>Keterangan Dokumen</strong></TD>
 		</TR>';
 	if($acceptor){
-		$bodyFooter .= '				
+		$bodyFooter .= '
 				</TABLE>
 			</p>
 			<p>
 				<span style="margin-bottom: 15px; font-size: 13px;font-family: \'lucida grande\',tahoma,verdana,arial,sans-serif;">
-					Telah diambil oleh user yang bersangkutan dari Custodian Departemen. Terima kasih. 
+					Telah diambil oleh user yang bersangkutan dari Custodian Departemen. Terima kasih.
 				</span><br />
 			</p>
 			</div>';
@@ -542,7 +541,7 @@ function mail_notif_reception_release_doc($relCode, $User_ID, $status,$acceptor=
 			</p>
 			<p>
 				<span style="margin-bottom: 15px; font-size: 13px;font-family: \'lucida grande\',tahoma,verdana,arial,sans-serif;">
-					Telah diterima lengkap dan sesuai. Terima kasih. 
+					Telah diterima lengkap dan sesuai. Terima kasih.
 				</span><br />
 			</p>
 			</div>';

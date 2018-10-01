@@ -457,7 +457,7 @@ if(isset($_GET["act"]))
 		<tr>
 			<td>";
 			foreach($approvers as $approver){
-				$ActionContent .="<input type='text' name='txtA_ApproverID[]' value='$approver' readonly='true' class='readonly'/>";
+				$ActionContent .="<input type='hidden' name='txtA_ApproverID[]' value='$approver' readonly='true' class='readonly'/>";
 			}
 			$ActionContent .="</td>
 		</tr>

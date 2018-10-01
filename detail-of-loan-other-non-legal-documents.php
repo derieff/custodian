@@ -520,7 +520,7 @@ if(isset($_POST[approval])) {
 					// Kode Permintaan Dokumen
 					$CT_Code="$newnum/DREQ/$Company_Code/$DocumentGroup_Code/$regmonth/$regyear";
 
-					switch ($_POST[optTHLOONLD_LoanCategoryID]) {
+					switch ($_POST['optTHLOONLD_LoanCategoryID']) {
 						case "1":
 							$docStatus="3";
 							break;
@@ -533,7 +533,7 @@ if(isset($_POST[approval])) {
 					}
 
 					$query1 = "UPDATE M_DocumentsOtherNonLegal
-								SET DONL_Status ='$docStatus',DONL_Update_Time=sysdate(),DONL_Update_UserID='$_SESSION[User_ID]'
+								SET DONL_Status ='$docStatus', DONL_Update_Time=sysdate(), DONL_Update_UserID='$_SESSION[User_ID]'
 								WHERE DONL_DocCode='$txtDONL_DocCode[$i]'";
 					$sql= "INSERT INTO M_CodeTransaction
 								VALUES (NULL,'$CT_Code','$nnum','DREQ','$Company_Code','$DocumentGroup_Code',

@@ -121,7 +121,7 @@ if(($_GET['cfm'])&&($_GET['ati'])&&($_GET['rdm'])) {
 							* Nicholas - 26 Sept 2018			*
 							* Fix Bug skip approval				*
 							************************************/
-							
+
 							/*if ($i == $jStep) {
 								$query = "UPDATE TH_RegistrationOfAssetOwnershipDocument
 									SET THROAOD_Status='accept', THROAOD_Update_UserID='$A_ApproverID',
@@ -161,7 +161,7 @@ if(($_GET['cfm'])&&($_GET['ati'])&&($_GET['rdm'])) {
 							* Nicholas - 26 Sept 2018			*
 							* Fix Bug skip approval				*
 							************************************/
-							
+
 							/*if ($i == $jStep) {
 								$query = "UPDATE TH_RegistrationOfAssetOwnershipDocument
 									SET THROAOD_Status='accept', THROAOD_Update_UserID='$A_ApproverID',
