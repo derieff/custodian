@@ -49,6 +49,7 @@ function pickonl(result, n) {
 </HEAD>
 <BODY>
 <?PHP
+$PHP_SELF=$_SERVER['PHP_SELF'];
 $grup=$_GET['gID'];
 $txtKe=$_GET['txtKe'];
 $dataPerPage = 20;
@@ -71,30 +72,38 @@ if($grup==1){
 			  */
 			  
 	$query="SELECT tdlold.TDLOLD_DocCode,dc.DocumentCategory_Name,
-				dt.DocumentType_Name,dl.DL_Instance,DATE_FORMAT(dl.DL_PubDate, '%j %M %Y') DL_PubDate,
+				dt.DocumentType_Name,dl.DL_Instance,DATE_FORMAT(dl.DL_PubDate, '%d %M %Y') DL_PubDate,
 				(SELECT COUNT(tdlold.TDLOLD_DocCode) Total
 					FROM TD_ReleaseOfLegalDocument tdrlold
-					LEFT JOIN TD_LoanOfLegalDocument tdlold ON tdrlold.TDROLD_TDLOLD_ID=tdlold.TDLOLD_ID
+					INNER JOIN TD_LoanOfLegalDocument tdlold ON tdrlold.TDROLD_TDLOLD_ID=tdlold.TDLOLD_ID
 					  AND tdlold.TDLOLD_Delete_Time IS NULL
-					LEFT JOIN M_DocumentLegal dl ON dl.DL_DocCode=tdlold.TDLOLD_DocCode 
+					INNER JOIN M_DocumentLegal dl ON dl.DL_DocCode=tdlold.TDLOLD_DocCode 
 					  AND dl.DL_Status='4' AND dl.DL_Delete_Time IS NULL
 					LEFT JOIN M_DocumentCategory dc	ON dl.DL_CategoryDocID=dc.DocumentCategory_ID
 					  AND dc.DocumentCategory_Delete_Time IS NULL
 					LEFT JOIN M_DocumentType dt ON dl.DL_TypeDocID=dt.DocumentType_ID
 					  AND dt.DocumentType_Delete_Time IS NULL
+					LEFT JOIN TD_ReturnOfLegalDocument tdrtold 
+						ON tdrtold.TDRTOLD_DocCode=tdlold.TDLOLD_DocCode
+						AND tdrtold.TDRTOLD_Delete_Time IS NULL
 					WHERE tdrlold.TDROLD_ReturnCode='0'
-					  AND tdrlold.TDROLD_Delete_Time IS NULL) Total
+						AND tdrtold.TDRTOLD_ID IS NULL
+						AND tdrlold.TDROLD_Delete_Time IS NULL) Total
 			FROM TD_ReleaseOfLegalDocument tdrlold
-			LEFT JOIN TD_LoanOfLegalDocument tdlold ON tdrlold.TDROLD_TDLOLD_ID=tdlold.TDLOLD_ID
+			INNER JOIN TD_LoanOfLegalDocument tdlold ON tdrlold.TDROLD_TDLOLD_ID=tdlold.TDLOLD_ID
 			  AND tdlold.TDLOLD_Delete_Time IS NULL
-			LEFT JOIN M_DocumentLegal dl ON dl.DL_DocCode=tdlold.TDLOLD_DocCode 
+			INNER JOIN M_DocumentLegal dl ON dl.DL_DocCode=tdlold.TDLOLD_DocCode 
 			  AND dl.DL_Status='4' AND dl.DL_Delete_Time IS NULL
 			LEFT JOIN M_DocumentCategory dc	ON dl.DL_CategoryDocID=dc.DocumentCategory_ID
 			  AND dc.DocumentCategory_Delete_Time IS NULL
 			LEFT JOIN M_DocumentType dt ON dl.DL_TypeDocID=dt.DocumentType_ID
 			  AND dt.DocumentType_Delete_Time IS NULL
+			LEFT JOIN TD_ReturnOfLegalDocument tdrtold 
+				ON tdrtold.TDRTOLD_DocCode=tdlold.TDLOLD_DocCode
+				AND tdrtold.TDRTOLD_Delete_Time IS NULL
 			WHERE tdrlold.TDROLD_ReturnCode='0'
-			  AND tdrlold.TDROLD_Delete_Time IS NULL
+				AND tdrtold.TDRTOLD_ID IS NULL
+				AND tdrlold.TDROLD_Delete_Time IS NULL
 			ORDER BY tdlold.TDLOLD_DocCode ASC
 			LIMIT ".($currPage*$dataPerPage).",$dataPerPage";
 	$sql = mysql_query($query);
@@ -137,46 +146,47 @@ if($grup==1){
 		<?PHP
 		if(isset($_GET['txtSearch'])) {
 			$query =   "SELECT tdlold.TDLOLD_DocCode,dc.DocumentCategory_Name,
-							dt.DocumentType_Name,dl.DL_Instance,DATE_FORMAT(dl.DL_PubDate, '%j %M %Y') DL_PubDate,
+							dt.DocumentType_Name,dl.DL_Instance,DATE_FORMAT(dl.DL_PubDate, '%d %M %Y') DL_PubDate,
 							(SELECT COUNT(tdlold.TDLOLD_DocCode) Total
 								FROM TD_ReleaseOfLegalDocument tdrlold
-								LEFT JOIN TD_LoanOfLegalDocument tdlold ON tdrlold.TDROLD_TDLOLD_ID=tdlold.TDLOLD_ID
+								INNER JOIN TD_LoanOfLegalDocument tdlold ON tdrlold.TDROLD_TDLOLD_ID=tdlold.TDLOLD_ID
 								  AND tdlold.TDLOLD_Delete_Time IS NULL
-								LEFT JOIN M_DocumentLegal dl ON dl.DL_DocCode=tdlold.TDLOLD_DocCode 
+								INNER JOIN M_DocumentLegal dl ON dl.DL_DocCode=tdlold.TDLOLD_DocCode 
 								  AND dl.DL_Status='4' AND dl.DL_Delete_Time IS NULL
 								LEFT JOIN M_DocumentCategory dc	ON dl.DL_CategoryDocID=dc.DocumentCategory_ID
 								  AND dc.DocumentCategory_Delete_Time IS NULL
 								LEFT JOIN M_DocumentType dt ON dl.DL_TypeDocID=dt.DocumentType_ID
 								  AND dt.DocumentType_Delete_Time IS NULL
+								LEFT JOIN TD_ReturnOfLegalDocument tdrtold 
+									ON tdrtold.TDRTOLD_DocCode=tdlold.TDLOLD_DocCode
+									AND tdrtold.TDRTOLD_Delete_Time IS NULL
 								WHERE tdrlold.TDROLD_ReturnCode='0'
-								  AND tdrlold.TDROLD_Delete_Time IS NULL
-								AND (
-									tdlold.TDLOLD_DocCode LIKE '%$search%'
-									OR dc.DocumentCategory_Name LIKE '%$search%'
-									OR dt.DocumentType_Name LIKE '%$search%'
-									OR dl.DL_Instance LIKE '%$search%'
-									OR DL_PubDate LIKE '%$search%'
-									OR MONTH(DL_PubDate) LIKE '%$search%'
-								))Total
+									AND tdrtold.TDRTOLD_ID IS NULL
+									AND tdrlold.TDROLD_Delete_Time IS NULL) Total
 						FROM TD_ReleaseOfLegalDocument tdrlold
-						LEFT JOIN TD_LoanOfLegalDocument tdlold ON tdrlold.TDROLD_TDLOLD_ID=tdlold.TDLOLD_ID
+						INNER JOIN TD_LoanOfLegalDocument tdlold ON tdrlold.TDROLD_TDLOLD_ID=tdlold.TDLOLD_ID
 						  AND tdlold.TDLOLD_Delete_Time IS NULL
-						LEFT JOIN M_DocumentLegal dl ON dl.DL_DocCode=tdlold.TDLOLD_DocCode 
+						INNER JOIN M_DocumentLegal dl ON dl.DL_DocCode=tdlold.TDLOLD_DocCode 
 						  AND dl.DL_Status='4' AND dl.DL_Delete_Time IS NULL
 						LEFT JOIN M_DocumentCategory dc	ON dl.DL_CategoryDocID=dc.DocumentCategory_ID
 						  AND dc.DocumentCategory_Delete_Time IS NULL
 						LEFT JOIN M_DocumentType dt ON dl.DL_TypeDocID=dt.DocumentType_ID
 						  AND dt.DocumentType_Delete_Time IS NULL
+						LEFT JOIN TD_ReturnOfLegalDocument tdrtold 
+							ON tdrtold.TDRTOLD_DocCode=tdlold.TDLOLD_DocCode
+							AND tdrtold.TDRTOLD_Delete_Time IS NULL
 						WHERE tdrlold.TDROLD_ReturnCode='0'
-						  AND tdrlold.TDROLD_Delete_Time IS NULL
-						AND (
-							tdlold.TDLOLD_DocCode LIKE '%$search%'
-							OR dc.DocumentCategory_Name LIKE '%$search%'
-							OR dt.DocumentType_Name LIKE '%$search%'
-							OR dl.DL_Instance LIKE '%$search%'
-							OR DL_PubDate LIKE '%$search%'
-							OR MONTH(DL_PubDate) LIKE '%$search%'
-						)
+							AND tdrtold.TDRTOLD_ID IS NULL
+							AND tdrlold.TDROLD_Delete_Time IS NULL
+						ORDER BY tdlold.TDLOLD_DocCode ASC
+							AND (
+								tdlold.TDLOLD_DocCode LIKE '%$search%'
+								OR dc.DocumentCategory_Name LIKE '%$search%'
+								OR dt.DocumentType_Name LIKE '%$search%'
+								OR dl.DL_Instance LIKE '%$search%'
+								OR DL_PubDate LIKE '%$search%'
+								OR MONTH(DL_PubDate) LIKE '%$search%'
+							)
 						ORDER BY tdlold.TDLOLD_DocCode ASC
 						LIMIT ".($currPage*$dataPerPage).",$dataPerPage";
 			$sql = mysql_query($query);
@@ -202,13 +212,39 @@ if($grup==1){
 }
 
 elseif($grup==3){
+	/* Query Arief
 	$query="SELECT *
 			  FROM TD_ReleaseOfLandAcquisitionDocument tdrlolad,
 				   TD_LoanOfLandAcquisitionDocument tdlolad, M_DocumentLandAcquisition dla
 			  WHERE tdrlolad.TDRLOLAD_TDLOLAD_ID=tdlolad.TDLOLAD_ID
 			  AND dla.DLA_Code=tdlolad.TDLOLAD_DocCode
 			  AND dla.DLA_Status='4'
-			  AND tdrlolad.TDRLOLAD_ReturnCode='0'";
+			  AND tdrlolad.TDRLOLAD_ReturnCode='0'";*/
+	$query="SELECT tdlolad.TDLOLAD_DocCode,dla.DLA_Phase,DATE_FORMAT(dla.DLA_Period, '%d %M %Y') DLA_Period,
+				DATE_FORMAT(dla.DLA_DocDate, '%d %M %Y') DLA_DocDate,dla.DLA_Block,dla.DLA_Village,dla.DLA_Owner,
+				(SELECT COUNT(tdlolad.TDLOLAD_DocCode)
+					FROM TD_LoanOfLandAcquisitionDocument tdlolad
+					INNER JOIN TD_ReleaseOfLandAcquisitionDocument tdrlolad ON tdrlolad.TDRLOLAD_TDLOLAD_ID=tdlolad.TDLOLAD_ID
+						AND tdrlolad.TDRLOLAD_ReturnCode='0' AND tdrlolad.TDRLOLAD_Delete_Time IS NULL
+					INNER JOIN M_DocumentLandAcquisition dla ON dla.DLA_Code=tdlolad.TDLOLAD_DocCode 
+						AND dla.DLA_Status='4' AND dla.DLA_Delete_Time IS NULL
+					LEFT JOIN TD_ReturnOfLandAcquisitionDocument tdrtolad
+						ON tdlolad.TDLOLAD_DocCode=tdrtolad.TDRTOLAD_DocCode
+						AND tdrtolad.TDRTOLAD_Delete_Time IS NULL
+					WHERE tdlolad.TDLOLAD_Delete_Time IS NULL
+						AND tdrtolad.TDRTOLAD_ID IS NULL) Total
+			FROM TD_LoanOfLandAcquisitionDocument tdlolad
+			INNER JOIN TD_ReleaseOfLandAcquisitionDocument tdrlolad ON tdrlolad.TDRLOLAD_TDLOLAD_ID=tdlolad.TDLOLAD_ID
+				AND tdrlolad.TDRLOLAD_ReturnCode='0' AND tdrlolad.TDRLOLAD_Delete_Time IS NULL
+			INNER JOIN M_DocumentLandAcquisition dla ON dla.DLA_Code=tdlolad.TDLOLAD_DocCode 
+				AND dla.DLA_Status='4' AND dla.DLA_Delete_Time IS NULL
+			LEFT JOIN TD_ReturnOfLandAcquisitionDocument tdrtolad
+				ON tdlolad.TDLOLAD_DocCode=tdrtolad.TDRTOLAD_DocCode
+				AND tdrtolad.TDRTOLAD_Delete_Time IS NULL
+			WHERE tdlolad.TDLOLAD_Delete_Time IS NULL
+				AND tdrtolad.TDRTOLAD_ID IS NULL
+			ORDER BY tdlolad.TDLOLAD_DocCode ASC
+			LIMIT ".($currPage*$dataPerPage).",$dataPerPage";
 	$sql = mysql_query($query);
 	$numRow = mysql_num_rows ($sql);
 	if ($numRow==0) {
@@ -227,43 +263,64 @@ elseif($grup==3){
 	else{
 		$h_sql=mysql_query($query);
 		$h_arr=mysql_fetch_array($h_sql);
-		echo "<form name='search' method='post' action='$PHP_SELF'>
-			  <div style='text-align:left; padding:10px 5px; margin-bottom :5px; background :#CCC;'>
-				<b>Pencarian :</b> <input name='txtSearch' id='txtSearch' type='text' size='25%'/>
-			  </div>
-			  </form>";
+		echo "<form name='search' method='get' action='$PHP_SELF'>
+				<input type='hidden' name='gID' value='$grup'/>
+				<input type='hidden' name='txtKe' value='$txtKe'/>
+				<input type='hidden' name='page' value='0'/>
+				<div style='text-align:left; padding:10px 5px; margin-bottom :5px; background :#CCC;'>
+					<b>Pencarian :</b> <input name='txtSearch' id='txtSearch' type='text' size='25%'/>
+				</div>
+			</form>";
 		?>
 
 		<table width="100%" border="1" cellspacing="0" cellpadding="0">
 		<tr>
-			<th width='25%'>No. Pengeluaran</th>
-			<th width='25%'>Jenis Dokumen</th>
-			<th width='25%'>No. Dokumen</th>
-			<th width='25%'>Tgl. Terbit</th>
+			<!--th width='25%'>No. Pengeluaran</th--> 	 	 	 	 	 	
+			<th width='14%'>Kode Dokumen</th>
+			<th width='14%'>Tahap GRL</th>
+			<th width='14%'>Periode GRL</th>
+			<th width='14%'>Tanggal Dokumen</th>
+			<th width='14%'>Blok</th>
+			<th width='14%'>Desa</th>
+			<th width='14%'>Pemilik</th>
 		<tr>
 		<?PHP
-		if($_POST) {
-			$search=$_POST['txtSearch'];
-			$query =   "SELECT DISTINCT thloaod.THLOAOD_LoanCode, thloaod.THLOAOD_Information, thloaod.THLOAOD_LoanDate, u.User_FullName,
-										c.Company_Name, lc.LoanCategory_Name
-						FROM TH_LoanOfAssetOwnershipDocument thloaod, TD_LoanOfAssetOwnershipDocument tdloaod,
-							 M_User u, M_Company c, M_LoanCategory lc
-						WHERE thloaod.THLOAOD_Delete_Time is NULL
-						AND thloaod.THLOAOD_CompanyID=c.Company_ID
-						AND thloaod.THLOAOD_UserID=u.User_ID
-						AND thloaod.THLOAOD_LoanCategoryID=lc.LoanCategory_ID
-						AND thloaod.THLOAOD_Status='accept'
-						AND tdloaod.TDLOAOD_THLOAOD_ID=thloaod.THLOAOD_ID
-						AND tdloaod.TDLOAOD_Response='0'
-						AND (
-							thloaod.THLOAOD_LoanCode LIKE '%$search%'
-							OR thloaod.THLOAOD_LoanDate LIKE '%$search%'
-							OR u.User_FullName LIKE '%$search%'
-							OR c.Company_Name LIKE '%$search%'
-							OR lc.LoanCategory_Name LIKE '%$search%'
-						)
-						ORDER BY thloaod.THLOAOD_LoanCode ASC
-						LIMIT 0,10";
+		if(isset($_GET['txtSearch'])) {
+			$query =   "SELECT tdlolad.TDLOLAD_DocCode,dla.DLA_Phase,DATE_FORMAT(dla.DLA_Period, '%d %M %Y') DLA_Period,
+							DATE_FORMAT(dla.DLA_DocDate, '%d %M %Y') DLA_DocDate,dla.DLA_Block,dla.DLA_Village,dla.DLA_Owner,
+							(SELECT COUNT(tdlolad.TDLOLAD_DocCode)
+								FROM TD_LoanOfLandAcquisitionDocument tdlolad
+								INNER JOIN TD_ReleaseOfLandAcquisitionDocument tdrlolad ON tdrlolad.TDRLOLAD_TDLOLAD_ID=tdlolad.TDLOLAD_ID
+									AND tdrlolad.TDRLOLAD_ReturnCode='0' AND tdrlolad.TDRLOLAD_Delete_Time IS NULL
+								INNER JOIN M_DocumentLandAcquisition dla ON dla.DLA_Code=tdlolad.TDLOLAD_DocCode 
+									AND dla.DLA_Status='4' AND dla.DLA_Delete_Time IS NULL
+								LEFT JOIN TD_ReturnOfLandAcquisitionDocument tdrtolad
+									ON tdlolad.TDLOLAD_DocCode=tdrtolad.TDRTOLAD_DocCode
+									AND tdrtolad.TDRTOLAD_Delete_Time IS NULL
+								WHERE tdlolad.TDLOLAD_Delete_Time IS NULL
+									AND tdrtolad.TDRTOLAD_ID IS NULL) Total
+						FROM TD_LoanOfLandAcquisitionDocument tdlolad
+						INNER JOIN TD_ReleaseOfLandAcquisitionDocument tdrlolad ON tdrlolad.TDRLOLAD_TDLOLAD_ID=tdlolad.TDLOLAD_ID
+							AND tdrlolad.TDRLOLAD_ReturnCode='0' AND tdrlolad.TDRLOLAD_Delete_Time IS NULL
+						INNER JOIN M_DocumentLandAcquisition dla ON dla.DLA_Code=tdlolad.TDLOLAD_DocCode 
+							AND dla.DLA_Status='4' AND dla.DLA_Delete_Time IS NULL
+						LEFT JOIN TD_ReturnOfLandAcquisitionDocument tdrtolad
+							ON tdlolad.TDLOLAD_DocCode=tdrtolad.TDRTOLAD_DocCode
+							AND tdrtolad.TDRTOLAD_Delete_Time IS NULL
+						WHERE tdlolad.TDLOLAD_Delete_Time IS NULL
+							AND tdrtolad.TDRTOLAD_ID IS NULL
+							AND (
+								tdlolad.TDLOLAD_DocCode LIKE '%$search%'
+								OR dla.DLA_Phase LIKE '%$search%'
+								OR MONTH(dla.DLA_Period) LIKE '%$search%'
+								OR dla.DLA_DocDate LIKE '%$search%'
+								OR MONTH(dla.DLA_DocDate) LIKE '%$search%'
+								OR dla.DLA_Block LIKE '%$search%'
+								OR dla.DLA_Village LIKE '%$search%'
+								OR dla.DLA_Owner LIKE '%$search%'
+							)
+						ORDER BY tdlolad.TDLOLAD_DocCode ASC
+						LIMIT ".($currPage*$dataPerPage).",$dataPerPage";
 			$sql = mysql_query($query);
 			$numSearch=mysql_num_rows($sql);
 			if ($numSearch==0){
@@ -272,13 +329,16 @@ elseif($grup==3){
 		}
 
 		while ($arr=mysql_fetch_array($sql)){
-			$tgl_terbit=date("d M Y", strtotime($arr['DLA_RegTime']));
+			//$tgl_terbit=date("d M Y", strtotime($arr['DLA_RegTime']));
 			?>
 			<tr>
-				<td align='center'><u><a href="javascript:pickla('<?= $arr['TDLOLD_DocCode'] ?>', '<?=$txtKe;?>')"><?= $arr['TDLOLD_DocCode'] ?></a></u></td>
-				<td align='center'><?= $loandate ?></td>
-				<td align='center'><?= $arr['DL_NoDoc'] ?></td>
-				<td align='center'><?= $tgl_terbit?></td>
+				<td align='center'><u><a href="javascript:pickla('<?= $arr['TDLOLAD_DocCode'] ?>', '<?=$txtKe;?>')"><?= $arr['TDLOLAD_DocCode'] ?></a></u></td>
+				<td align='center'><?= $arr['DLA_Phase'] ?></td>
+				<td align='center'><?= $arr['DLA_Period'] ?></td>
+				<td align='center'><?= $arr['DLA_DocDate'] ?></td>
+				<td align='center'><?= $arr['DLA_Block'] ?></td>
+				<td align='center'><?= $arr['DLA_Village'] ?></td>
+				<td align='center'><?= $arr['DLA_Owner'] ?></td>
 			</tr>
 			<?PHP
 		}
@@ -286,13 +346,46 @@ elseif($grup==3){
 }
 
 elseif($grup==4){
-	$query="SELECT *
+	/*$query="SELECT *
             #DL_NoDoc no_dokumen, DL_RegTime tgl_terbit_dokumen
               FROM TD_ReleaseOfAssetOwnershipDocument tdrloaod, TD_LoanOfAssetOwnershipDocument tdloaod, M_DocumentAssetOwnership dao
               WHERE tdrloaod.TDROAOD_TDLOAOD_ID=tdloaod.TDLOAOD_ID
               AND dao.DAO_DocCode=tdloaod.TDLOAOD_DocCode
               AND dao.DAO_Status='4'
-              AND tdrloaod.TDROAOD_ReturnCode='0'";
+              AND tdrloaod.TDROAOD_ReturnCode='0'";*/
+	$query="SELECT tdloaod.TDLOAOD_DocCode, m_e.Employee_FullName, m_mk.MK_Name, 
+			  dao.DAO_Type, dao.DAO_Jenis, dao.DAO_NoPolisi, dao.DAO_NoRangka, dao.DAO_NoMesin,
+			  (SELECT COUNT(tdloaod.TDLOAOD_DocCode) Total
+				FROM TD_LoanOfAssetOwnershipDocument tdloaod
+				INNER JOIN TD_ReleaseOfAssetOwnershipDocument tdrloaod ON tdrloaod.TDROAOD_TDLOAOD_ID=tdloaod.TDLOAOD_ID
+					AND tdrloaod.TDROAOD_ReturnCode='0'
+					AND tdrloaod.TDROAOD_Delete_Time IS NULL 
+				INNER JOIN M_DocumentAssetOwnership dao ON dao.DAO_DocCode=tdloaod.TDLOAOD_DocCode
+					AND dao.DAO_Status='4' 
+					AND dao.DAO_Delete_Time IS NULL
+				LEFT JOIN db_master.M_Employee m_e ON m_e.Employee_NIK=dao.DAO_Employee_NIK
+				LEFT JOIN db_master.M_MerkKendaraan m_mk ON m_mk.MK_ID=dao.DAO_MK_ID
+				  AND m_mk.MK_DeleteTime IS NULL
+				LEFT JOIN TD_ReturnOfAssetOwnershipDocument tdrtoaod ON tdloaod.TDLOAOD_DocCode=tdrtoaod.TDRTOAOD_DocCode
+				  AND tdrtoaod.TDRTOAOD_Delete_Time IS NULL
+				WHERE tdloaod.TDLOAOD_Delete_Time IS NULL
+				  AND tdrtoaod.TDRTOAOD_ID IS NULL) Total
+			FROM TD_LoanOfAssetOwnershipDocument tdloaod
+			INNER JOIN TD_ReleaseOfAssetOwnershipDocument tdrloaod ON tdrloaod.TDROAOD_TDLOAOD_ID=tdloaod.TDLOAOD_ID
+				AND tdrloaod.TDROAOD_ReturnCode='0'
+				AND tdrloaod.TDROAOD_Delete_Time IS NULL 
+			INNER JOIN M_DocumentAssetOwnership dao ON dao.DAO_DocCode=tdloaod.TDLOAOD_DocCode
+				AND dao.DAO_Status='4' 
+				AND dao.DAO_Delete_Time IS NULL
+			LEFT JOIN db_master.M_Employee m_e ON m_e.Employee_NIK=dao.DAO_Employee_NIK
+			LEFT JOIN db_master.M_MerkKendaraan m_mk ON m_mk.MK_ID=dao.DAO_MK_ID
+				AND m_mk.MK_DeleteTime IS NULL
+			LEFT JOIN TD_ReturnOfAssetOwnershipDocument tdrtoaod ON tdloaod.TDLOAOD_DocCode=tdrtoaod.TDRTOAOD_DocCode
+				AND tdrtoaod.TDRTOAOD_Delete_Time IS NULL
+			WHERE tdloaod.TDLOAOD_Delete_Time IS NULL
+				AND tdrtoaod.TDRTOAOD_ID IS NULL
+			ORDER BY tdloaod.TDLOAOD_DocCode ASC
+			LIMIT ".($currPage*$dataPerPage).",$dataPerPage";
 	$sql = mysql_query($query);
 	$numRow = mysql_num_rows ($sql);
 	if ($numRow==0) {
@@ -311,43 +404,74 @@ elseif($grup==4){
 	else{
 		$h_sql=mysql_query($query);
 		$h_arr=mysql_fetch_array($h_sql);
-		echo "<form name='search' method='post' action='$PHP_SELF'>
-			  <div style='text-align:left; padding:10px 5px; margin-bottom :5px; background :#CCC;'>
-				<b>Pencarian :</b> <input name='txtSearch' id='txtSearch' type='text' size='25%'/>
-			  </div>
-			  </form>";
+		echo "<form name='search' method='get' action='$PHP_SELF'>
+				<input type='hidden' name='gID' value='$grup'/>
+				<input type='hidden' name='txtKe' value='$txtKe'/>
+				<input type='hidden' name='page' value='0'/>
+				<div style='text-align:left; padding:10px 5px; margin-bottom :5px; background :#CCC;'>
+					<b>Pencarian :</b> <input name='txtSearch' id='txtSearch' type='text' size='25%'/>
+				</div>
+			</form>";
 		?>
 
 		<table width="100%" border="1" cellspacing="0" cellpadding="0">
 		<tr>
-			<th width='25%'>No. Pengeluaran</th>
-			<th width='25%'>Jenis Dokumen</th>
-			<th width='25%'>No. Dokumen</th>
-			<th width='25%'>Tgl. Terbit</th>
+			<!--th width='25%'>No. Pengeluaran</th-->
+			<th width='12.5%'>Kode Dokumen</th>
+			<th width='12.5%'>Nama Pemilik</th>
+			<th width='12.5%'>Merk Kendaraan</th>
+			<th width='12.5%'>Type</th>
+			<th width='12.5%'>Jenis</th>
+			<th width='12.5%'>No. Polisi</th>
+			<th width='12.5%'>No. Rangka</th>
+			<th width='12.5%'>No. Mesin</th>
 		<tr>
 		<?PHP
 		if($_POST) {
 			$search=$_POST['txtSearch'];
-			$query =   "SELECT DISTINCT thloaod.THLOAOD_LoanCode, thloaod.THLOAOD_Information, thloaod.THLOAOD_LoanDate, u.User_FullName,
-										c.Company_Name, lc.LoanCategory_Name
-						FROM TH_LoanOfAssetOwnershipDocument thloaod, TD_LoanOfAssetOwnershipDocument tdloaod,
-							 M_User u, M_Company c, M_LoanCategory lc
-						WHERE thloaod.THLOAOD_Delete_Time is NULL
-						AND thloaod.THLOAOD_CompanyID=c.Company_ID
-						AND thloaod.THLOAOD_UserID=u.User_ID
-						AND thloaod.THLOAOD_LoanCategoryID=lc.LoanCategory_ID
-						AND thloaod.THLOAOD_Status='accept'
-						AND tdloaod.TDLOAOD_THLOAOD_ID=thloaod.THLOAOD_ID
-						AND tdloaod.TDLOAOD_Response='0'
+			$query =   "SELECT tdloaod.TDLOAOD_DocCode, m_e.Employee_FullName, m_mk.MK_Name, 
+						  dao.DAO_Type, dao.DAO_Jenis, dao.DAO_NoPolisi, dao.DAO_NoRangka, dao.DAO_NoMesin,
+						  (SELECT COUNT(tdloaod.TDLOAOD_DocCode) Total
+							FROM TD_LoanOfAssetOwnershipDocument tdloaod
+							INNER JOIN TD_ReleaseOfAssetOwnershipDocument tdrloaod ON tdrloaod.TDROAOD_TDLOAOD_ID=tdloaod.TDLOAOD_ID
+								AND tdrloaod.TDROAOD_ReturnCode='0'
+								AND tdrloaod.TDROAOD_Delete_Time IS NULL 
+							INNER JOIN M_DocumentAssetOwnership dao ON dao.DAO_DocCode=tdloaod.TDLOAOD_DocCode
+								AND dao.DAO_Status='4' 
+								AND dao.DAO_Delete_Time IS NULL
+							LEFT JOIN db_master.M_Employee m_e ON m_e.Employee_NIK=dao.DAO_Employee_NIK
+							LEFT JOIN db_master.M_MerkKendaraan m_mk ON m_mk.MK_ID=dao.DAO_MK_ID
+							  AND m_mk.MK_DeleteTime IS NULL
+							LEFT JOIN TD_ReturnOfAssetOwnershipDocument tdrtoaod ON tdloaod.TDLOAOD_DocCode=tdrtoaod.TDRTOAOD_DocCode
+							  AND tdrtoaod.TDRTOAOD_Delete_Time IS NULL
+							WHERE tdloaod.TDLOAOD_Delete_Time IS NULL
+							  AND tdrtoaod.TDRTOAOD_ID IS NULL) Total
+						FROM TD_LoanOfAssetOwnershipDocument tdloaod
+						INNER JOIN TD_ReleaseOfAssetOwnershipDocument tdrloaod ON tdrloaod.TDROAOD_TDLOAOD_ID=tdloaod.TDLOAOD_ID
+							AND tdrloaod.TDROAOD_ReturnCode='0'
+							AND tdrloaod.TDROAOD_Delete_Time IS NULL 
+						INNER JOIN M_DocumentAssetOwnership dao ON dao.DAO_DocCode=tdloaod.TDLOAOD_DocCode
+							AND dao.DAO_Status='4' 
+							AND dao.DAO_Delete_Time IS NULL
+						LEFT JOIN db_master.M_Employee m_e ON m_e.Employee_NIK=dao.DAO_Employee_NIK
+						LEFT JOIN db_master.M_MerkKendaraan m_mk ON m_mk.MK_ID=dao.DAO_MK_ID
+							AND m_mk.MK_DeleteTime IS NULL
+						LEFT JOIN TD_ReturnOfAssetOwnershipDocument tdrtoaod ON tdloaod.TDLOAOD_DocCode=tdrtoaod.TDRTOAOD_DocCode
+							AND tdrtoaod.TDRTOAOD_Delete_Time IS NULL
+						WHERE tdloaod.TDLOAOD_Delete_Time IS NULL
+							AND tdrtoaod.TDRTOAOD_ID IS NULL
 						AND (
-							thloaod.THLOAOD_LoanCode LIKE '%$search%'
-							OR thloaod.THLOAOD_LoanDate LIKE '%$search%'
-							OR u.User_FullName LIKE '%$search%'
-							OR c.Company_Name LIKE '%$search%'
-							OR lc.LoanCategory_Name LIKE '%$search%'
+							tdloaod.TDLOAOD_DocCode LIKE '%$search%'
+							OR m_e.Employee_FullName LIKE '%$search%'
+							OR m_mk.MK_Name LIKE '%$search%'
+							OR dao.DAO_Type LIKE '%$search%'
+							OR dao.DAO_Jenis LIKE '%$search%'
+							OR dao.DAO_NoPolisi LIKE '%$search%'
+							OR dao.DAO_NoRangka LIKE '%$search%'
+							OR dao.DAO_NoMesin LIKE '%$search%'
 						)
-						ORDER BY thloaod.THLOAOD_LoanCode ASC
-						LIMIT 0,10";
+						ORDER BY tdloaod.TDLOAOD_DocCode ASC
+						LIMIT ".($currPage*$dataPerPage).",$dataPerPage";
 			$sql = mysql_query($query);
 			$numSearch=mysql_num_rows($sql);
 			if ($numSearch==0){
@@ -356,14 +480,18 @@ elseif($grup==4){
 		}
 
 		while ($arr=mysql_fetch_array($sql)){
-			$tgl_terbit=date("d M Y", strtotime($arr['DAO_RegTime']));
+			//$tgl_terbit=date("d M Y", strtotime($arr['DAO_RegTime']));
 
 			?>
 			<tr>
-				<td align='center'><u><a href="javascript:pickao('<?= $arr['THLOAOD_LoanCode'] ?>', '<?=$txtKe;?>')"><?= $arr['THLOAOD_LoanCode'] ?></a></u></td>
-				<td align='center'><?= $loandate ?></td>
-				<td align='center'><?= $arr['User_FullName'] ?></td>
-				<td align='center'><?= $tgl_terbit ?></td>
+				<td align='center'><u><a href="javascript:pickao('<?= $arr['TDLOAOD_DocCode'] ?>', '<?=$txtKe;?>')"><?= $arr['TDLOAOD_DocCode'] ?></a></u></td>
+				<td align='center'><?= $arr['Employee_FullName'] ?></td>
+				<td align='center'><?= $arr['MK_Name'] ?></td>
+				<td align='center'><?= $arr['DAO_Type'] ?></td>
+				<td align='center'><?= $arr['DAO_Jenis'] ?></td>
+				<td align='center'><?= $arr['DAO_NoPolisi'] ?></td>
+				<td align='center'><?= $arr['DAO_NoRangka'] ?></td>
+				<td align='center'><?= $arr['DAO_NoMesin'] ?></td>
 			</tr>
 			<?PHP
 		}
@@ -371,12 +499,36 @@ elseif($grup==4){
 }
 
 elseif($grup==5){
+	/* Query Arief
 	$query="SELECT *
 			  FROM TD_ReleaseOfOtherLegalDocuments tdrloold, TD_LoanOfOtherLegalDocuments tdloold, M_DocumentsOtherLegal dol
 			  WHERE tdrloold.TDROOLD_TDLOOLD_ID=tdloold.TDLOOLD_ID
 			  AND dol.DOL_DocCode=tdloold.TDLOOLD_DocCode
 			  AND dol.DOL_Status='4'
-			  AND tdrloold.TDROOLD_ReturnCode='0'";
+			  AND tdrloold.TDROOLD_ReturnCode='0'";*/
+	$query="SELECT tdloold.TDLOOLD_DocCode, dc.DocumentCategory_Name,
+			  dol.DOL_NamaDokumen, dol.DOL_InstansiTerkait,dol.DOL_NoDokumen,DATE_FORMAT(dol.DOL_TglTerbit, '%d %M %Y') DOL_TglTerbit,
+			  (SELECT COUNT(tdloold.TDLOOLD_ID) Total
+				FROM  TD_LoanOfOtherLegalDocuments tdloold
+				INNER JOIN TD_ReleaseOfOtherLegalDocuments tdrloold ON tdrloold.TDROOLD_TDLOOLD_ID=tdloold.TDLOOLD_ID
+				  AND tdrloold.TDROOLD_ReturnCode='0'
+				  AND tdrloold.TDROOLD_Delete_Time IS NULL
+				INNER JOIN M_DocumentsOtherLegal dol ON dol.DOL_DocCode=tdloold.TDLOOLD_DocCode
+				  AND dol.DOL_Status='4' AND dol.DOL_Delete_Time IS NULL
+				LEFT JOIN db_master.M_DocumentCategory dc ON dol.DOL_CategoryDocID=dc.DocumentCategory_ID
+				  AND dc.DocumentCategory_Delete_Time IS NULL
+				WHERE tdloold.TDLOOLD_Delete_Time IS NULL) Total
+			FROM  TD_LoanOfOtherLegalDocuments tdloold
+			INNER JOIN TD_ReleaseOfOtherLegalDocuments tdrloold ON tdrloold.TDROOLD_TDLOOLD_ID=tdloold.TDLOOLD_ID
+			  AND tdrloold.TDROOLD_ReturnCode='0'
+			  AND tdrloold.TDROOLD_Delete_Time IS NULL
+			INNER JOIN M_DocumentsOtherLegal dol ON dol.DOL_DocCode=tdloold.TDLOOLD_DocCode
+			  AND dol.DOL_Status='4' AND dol.DOL_Delete_Time IS NULL
+			LEFT JOIN db_master.M_DocumentCategory dc ON dol.DOL_CategoryDocID=dc.DocumentCategory_ID
+			  AND dc.DocumentCategory_Delete_Time IS NULL
+			WHERE tdloold.TDLOOLD_Delete_Time IS NULL
+			ORDER BY tdloold.TDLOOLD_DocCode ASC
+			LIMIT ".($currPage*$dataPerPage).",$dataPerPage"; 
 	$sql = mysql_query($query);
 	$numRow = mysql_num_rows ($sql);
 	if ($numRow==0) {
@@ -395,43 +547,61 @@ elseif($grup==5){
 	else{
 		$h_sql=mysql_query($query);
 		$h_arr=mysql_fetch_array($h_sql);
-		echo "<form name='search' method='post' action='$PHP_SELF'>
-			  <div style='text-align:left; padding:10px 5px; margin-bottom :5px; background :#CCC;'>
-				<b>Pencarian :</b> <input name='txtSearch' id='txtSearch' type='text' size='25%'/>
-			  </div>
-			  </form>";
+		echo "<form name='search' method='get' action='$PHP_SELF'>
+				<input type='hidden' name='gID' value='$grup'/>
+				<input type='hidden' name='txtKe' value='$txtKe'/>
+				<input type='hidden' name='page' value='0'/>
+				<div style='text-align:left; padding:10px 5px; margin-bottom :5px; background :#CCC;'>
+					<b>Pencarian :</b> <input name='txtSearch' id='txtSearch' type='text' size='25%'/>
+				</div>
+			</form>";
 		?>
 
 		<table width="100%" border="1" cellspacing="0" cellpadding="0">
 		<tr>
-			<th width='25%'>No. Pengeluaran</th>
-			<th width='25%'>Jenis Dokumen</th>
-			<th width='25%'>No. Dokumen</th>
-			<th width='25%'>Tgl. Terbit</th>
+			<!-- th width='25%'>No. Pengeluaran</th -->
+			<th width='16%'>Kode Dokumen</th>
+			<th width='16%'>Kategori Dokumen</th>
+			<th width='16%'>Nama Dokumen</th>
+			<th width='16%'>Instansi Terkait</th>
+			<th width='16%'>No. Dokumen</th>
+			<th width='16%'>Tanggal Terbit</th>
 		<tr>
 		<?PHP
 		if($_POST) {
 			$search=$_POST['txtSearch'];
-			$query =   "SELECT DISTINCT thloaod.THLOAOD_LoanCode, thloaod.THLOAOD_Information, thloaod.THLOAOD_LoanDate, u.User_FullName,
-										c.Company_Name, lc.LoanCategory_Name
-						FROM TH_LoanOfAssetOwnershipDocument thloaod, TD_LoanOfAssetOwnershipDocument tdloaod,
-							 M_User u, M_Company c, M_LoanCategory lc
-						WHERE thloaod.THLOAOD_Delete_Time is NULL
-						AND thloaod.THLOAOD_CompanyID=c.Company_ID
-						AND thloaod.THLOAOD_UserID=u.User_ID
-						AND thloaod.THLOAOD_LoanCategoryID=lc.LoanCategory_ID
-						AND thloaod.THLOAOD_Status='accept'
-						AND tdloaod.TDLOAOD_THLOAOD_ID=thloaod.THLOAOD_ID
-						AND tdloaod.TDLOAOD_Response='0'
+			$query =   "SELECT tdloold.TDLOOLD_DocCode, dc.DocumentCategory_Name,
+						  dol.DOL_NamaDokumen, dol.DOL_InstansiTerkait,dol.DOL_NoDokumen,DATE_FORMAT(dol.DOL_TglTerbit, '%d %M %Y') DOL_TglTerbit,
+						  (SELECT COUNT(tdloold.TDLOOLD_ID) Total
+							FROM  TD_LoanOfOtherLegalDocuments tdloold
+							INNER JOIN TD_ReleaseOfOtherLegalDocuments tdrloold ON tdrloold.TDROOLD_TDLOOLD_ID=tdloold.TDLOOLD_ID
+							  AND tdrloold.TDROOLD_ReturnCode='0'
+							  AND tdrloold.TDROOLD_Delete_Time IS NULL
+							INNER JOIN M_DocumentsOtherLegal dol ON dol.DOL_DocCode=tdloold.TDLOOLD_DocCode
+							  AND dol.DOL_Status='4' AND dol.DOL_Delete_Time IS NULL
+							LEFT JOIN db_master.M_DocumentCategory dc ON dol.DOL_CategoryDocID=dc.DocumentCategory_ID
+							  AND dc.DocumentCategory_Delete_Time IS NULL
+							WHERE tdloold.TDLOOLD_Delete_Time IS NULL) Total
+						FROM  TD_LoanOfOtherLegalDocuments tdloold
+						INNER JOIN TD_ReleaseOfOtherLegalDocuments tdrloold ON tdrloold.TDROOLD_TDLOOLD_ID=tdloold.TDLOOLD_ID
+						  AND tdrloold.TDROOLD_ReturnCode='0'
+						  AND tdrloold.TDROOLD_Delete_Time IS NULL
+						INNER JOIN M_DocumentsOtherLegal dol ON dol.DOL_DocCode=tdloold.TDLOOLD_DocCode
+						  AND dol.DOL_Status='4' AND dol.DOL_Delete_Time IS NULL
+						LEFT JOIN db_master.M_DocumentCategory dc ON dol.DOL_CategoryDocID=dc.DocumentCategory_ID
+						  AND dc.DocumentCategory_Delete_Time IS NULL
+						WHERE tdloold.TDLOOLD_Delete_Time IS NULL
 						AND (
-							thloaod.THLOAOD_LoanCode LIKE '%$search%'
-							OR thloaod.THLOAOD_LoanDate LIKE '%$search%'
-							OR u.User_FullName LIKE '%$search%'
-							OR c.Company_Name LIKE '%$search%'
-							OR lc.LoanCategory_Name LIKE '%$search%'
+							tdloold.TDLOOLD_DocCode LIKE '%$search%'
+							OR dc.DocumentCategory_Name LIKE '%$search%'
+							OR dol.DOL_NamaDokumen LIKE '%$search%'
+							OR dol.DOL_InstansiTerkait LIKE '%$search%'
+							OR dol.DOL_NoDokumen LIKE '%$search%'
+							OR dol.DOL_TglTerbit LIKE '%$search%'
+							OR MONTH(dol.DOL_TglTerbit) LIKE '%$search%'
 						)
-						ORDER BY thloaod.THLOAOD_LoanCode ASC
-						LIMIT 0,10";
+						ORDER BY tdloold.TDLOOLD_DocCode ASC
+						LIMIT ".($currPage*$dataPerPage).",$dataPerPage";
 			$sql = mysql_query($query);
 			$numSearch=mysql_num_rows($sql);
 			if ($numSearch==0){
@@ -440,14 +610,16 @@ elseif($grup==5){
 		}
 
 		while ($arr=mysql_fetch_array($sql)){
-			$tgl_terbit=date("d M Y", strtotime($arr['DOL_RegTime']));
+			//$tgl_terbit=date("d M Y", strtotime($arr['DOL_RegTime']));
 
 			?>
 			<tr>
-				<td align='center'><u><a href="javascript:pickol('<?= $arr['TDLOLD_DocCode'] ?>', '<?=$txtKe;?>')"><?= $arr['TDLOLD_DocCode'] ?></a></u></td>
-				<td align='center'><?= $loandate ?></td>
-				<td align='center'><?= $arr['DL_NoDoc'] ?></td>
-				<td align='center'><?= $tgl_terbit?></td>
+				<td align='center'><u><a href="javascript:pickol('<?= $arr['TDLOOLD_DocCode'] ?>', '<?=$txtKe;?>')"><?= $arr['TDLOOLD_DocCode'] ?></a></u></td>
+				<td align='center'><?= $arr['DocumentCategory_Name'] ?></td>
+				<td align='center'><?= $arr['DOL_NamaDokumen'] ?></td>
+				<td align='center'><?= $arr['DOL_InstansiTerkait'] ?></td>
+				<td align='center'><?= $arr['DOL_NoDokumen'] ?></td>
+				<td align='center'><?= $arr['DOL_TglTerbit'] ?></td>
 			</tr>
 			<?PHP
 		}
@@ -455,12 +627,39 @@ elseif($grup==5){
 }
 
 elseif($grup==6){
+	/* Query Arief
 	$query="SELECT *
 			  FROM TD_ReleaseOfOtherNonLegalDocuments tdrloonld, TD_LoanOfOtherNonLegalDocuments tdloonld, M_DocumentsOtherNonLegal donl
 			  WHERE tdrloonld.TDROONLD_TDLOONLD_ID=tdloonld.TDLOONLD_ID
 			  AND donl.DONL_DocCode=tdloonld.TDLOONLD_DocCode
 			  AND donl.DONL_Status='4'
-			  AND tdrloonld.TDROONLD_ReturnCode='0'";
+			  AND tdrloonld.TDROONLD_ReturnCode='0'";*/
+	$query="SELECT tdloonld.TDLOONLD_DocCode,mc.Company_Name,donl.DONL_NoDokumen,donl.DONL_NamaDokumen,donl.DONL_TahunDokumen,m_d.Department_Name,
+			  (SELECT COUNT(tdloonld.TDLOONLD_ID) Total
+				FROM TD_LoanOfOtherNonLegalDocuments tdloonld
+				INNER JOIN M_DocumentsOtherNonLegal donl ON donl.DONL_DocCode=tdloonld.TDLOONLD_DocCode
+				  AND donl.DONL_Status='4'
+				  AND donl.DONL_Delete_Time IS NULL
+				INNER JOIN M_Company mc ON donl.DONL_PT_ID=mc.Company_ID
+				  AND mc.Company_Delete_Time IS NULL
+				INNER JOIN TD_ReleaseOfOtherNonLegalDocuments tdrloonld ON tdrloonld.TDROONLD_TDLOONLD_ID=tdloonld.TDLOONLD_ID
+				  AND tdrloonld.TDROONLD_ReturnCode='0'
+				  AND tdrloonld.TDROONLD_Delete_Time IS NULL
+				LEFT JOIN db_master.M_Department m_d ON donl.DONL_Dept_Code=m_d.Department_Code
+				WHERE tdloonld.TDLOONLD_Delete_Time IS NULL) Total
+			FROM TD_LoanOfOtherNonLegalDocuments tdloonld
+			INNER JOIN M_DocumentsOtherNonLegal donl ON donl.DONL_DocCode=tdloonld.TDLOONLD_DocCode
+			  AND donl.DONL_Status='4'
+			  AND donl.DONL_Delete_Time IS NULL
+			INNER JOIN M_Company mc ON donl.DONL_PT_ID=mc.Company_ID
+			  AND mc.Company_Delete_Time IS NULL
+			INNER JOIN TD_ReleaseOfOtherNonLegalDocuments tdrloonld ON tdrloonld.TDROONLD_TDLOONLD_ID=tdloonld.TDLOONLD_ID
+			  AND tdrloonld.TDROONLD_ReturnCode='0'
+			  AND tdrloonld.TDROONLD_Delete_Time IS NULL
+			LEFT JOIN db_master.M_Department m_d ON donl.DONL_Dept_Code=m_d.Department_Code
+			WHERE tdloonld.TDLOONLD_Delete_Time IS NULL
+			ORDER BY tdloonld.TDLOONLD_DocCode ASC
+			LIMIT ".($currPage*$dataPerPage).",$dataPerPage";
 	$sql = mysql_query($query);
 	$numRow = mysql_num_rows ($sql);
 	if ($numRow==0) {
@@ -479,43 +678,63 @@ elseif($grup==6){
 	else{
 		$h_sql=mysql_query($query);
 		$h_arr=mysql_fetch_array($h_sql);
-		echo "<form name='search' method='post' action='$PHP_SELF'>
-			  <div style='text-align:left; padding:10px 5px; margin-bottom :5px; background :#CCC;'>
-				<b>Pencarian :</b> <input name='txtSearch' id='txtSearch' type='text' size='25%'/>
-			  </div>
-			  </form>";
+		echo "<form name='search' method='get' action='$PHP_SELF'>
+				<input type='hidden' name='gID' value='$grup'/>
+				<input type='hidden' name='txtKe' value='$txtKe'/>
+				<input type='hidden' name='page' value='0'/>
+				<div style='text-align:left; padding:10px 5px; margin-bottom :5px; background :#CCC;'>
+					<b>Pencarian :</b> <input name='txtSearch' id='txtSearch' type='text' size='25%'/>
+				</div>
+			</form>";
 		?>
 
 		<table width="100%" border="1" cellspacing="0" cellpadding="0">
 		<tr>
-			<th width='25%'>No. Pengeluaran</th>
-			<th width='25%'>Jenis Dokumen</th>
-			<th width='25%'>No. Dokumen</th>
-			<th width='25%'>Tgl. Terbit</th>
+			<!--th width='25%'>No. Pengeluaran</th-->
+			<th width='16%'>Kode Dokumen</th>
+			<th width='16%'>PT</th>
+			<th width='16%'>No. Dokumen</th>
+			<th width='16%'>Nama Dokumen</th>
+			<th width='16%'>Tahun Dokumen</th>
+			<th width='16%'>Departemen</th>
 		<tr>
 		<?PHP
 		if($_POST) {
 			$search=$_POST['txtSearch'];
-			$query =   "SELECT DISTINCT thloaod.THLOAOD_LoanCode, thloaod.THLOAOD_Information, thloaod.THLOAOD_LoanDate, u.User_FullName,
-										c.Company_Name, lc.LoanCategory_Name
-						FROM TH_LoanOfAssetOwnershipDocument thloaod, TD_LoanOfAssetOwnershipDocument tdloaod,
-							 M_User u, M_Company c, M_LoanCategory lc
-						WHERE thloaod.THLOAOD_Delete_Time is NULL
-						AND thloaod.THLOAOD_CompanyID=c.Company_ID
-						AND thloaod.THLOAOD_UserID=u.User_ID
-						AND thloaod.THLOAOD_LoanCategoryID=lc.LoanCategory_ID
-						AND thloaod.THLOAOD_Status='accept'
-						AND tdloaod.TDLOAOD_THLOAOD_ID=thloaod.THLOAOD_ID
-						AND tdloaod.TDLOAOD_Response='0'
+			$query =   "SELECT tdloonld.TDLOONLD_DocCode,mc.Company_Name,donl.DONL_NoDokumen,donl.DONL_NamaDokumen,donl.DONL_TahunDokumen,m_d.Department_Name,
+						  (SELECT COUNT(tdloonld.TDLOONLD_ID) Total
+							FROM TD_LoanOfOtherNonLegalDocuments tdloonld
+							INNER JOIN M_DocumentsOtherNonLegal donl ON donl.DONL_DocCode=tdloonld.TDLOONLD_DocCode
+							  AND donl.DONL_Status='4'
+							  AND donl.DONL_Delete_Time IS NULL
+							INNER JOIN M_Company mc ON donl.DONL_PT_ID=mc.Company_ID
+							  AND mc.Company_Delete_Time IS NULL
+							INNER JOIN TD_ReleaseOfOtherNonLegalDocuments tdrloonld ON tdrloonld.TDROONLD_TDLOONLD_ID=tdloonld.TDLOONLD_ID
+							  AND tdrloonld.TDROONLD_ReturnCode='0'
+							  AND tdrloonld.TDROONLD_Delete_Time IS NULL
+							LEFT JOIN db_master.M_Department m_d ON donl.DONL_Dept_Code=m_d.Department_Code
+							WHERE tdloonld.TDLOONLD_Delete_Time IS NULL) Total
+						FROM TD_LoanOfOtherNonLegalDocuments tdloonld
+						INNER JOIN M_DocumentsOtherNonLegal donl ON donl.DONL_DocCode=tdloonld.TDLOONLD_DocCode
+						  AND donl.DONL_Status='4'
+						  AND donl.DONL_Delete_Time IS NULL
+						INNER JOIN M_Company mc ON donl.DONL_PT_ID=mc.Company_ID
+						  AND mc.Company_Delete_Time IS NULL
+						INNER JOIN TD_ReleaseOfOtherNonLegalDocuments tdrloonld ON tdrloonld.TDROONLD_TDLOONLD_ID=tdloonld.TDLOONLD_ID
+						  AND tdrloonld.TDROONLD_ReturnCode='0'
+						  AND tdrloonld.TDROONLD_Delete_Time IS NULL
+						LEFT JOIN db_master.M_Department m_d ON donl.DONL_Dept_Code=m_d.Department_Code
+						WHERE tdloonld.TDLOONLD_Delete_Time IS NULL
 						AND (
-							thloaod.THLOAOD_LoanCode LIKE '%$search%'
-							OR thloaod.THLOAOD_LoanDate LIKE '%$search%'
-							OR u.User_FullName LIKE '%$search%'
-							OR c.Company_Name LIKE '%$search%'
-							OR lc.LoanCategory_Name LIKE '%$search%'
+							tdloonld.TDLOONLD_DocCode LIKE '%$search%'
+							OR mc.Company_Name LIKE '%$search%'
+							OR donl.DONL_NoDokumen LIKE '%$search%'
+							OR donl.DONL_NamaDokumen LIKE '%$search%'
+							OR donl.DONL_TahunDokumen LIKE '%$search%'
+							OR m_d.Department_Name
 						)
-						ORDER BY thloaod.THLOAOD_LoanCode ASC
-						LIMIT 0,10";
+						ORDER BY tdloonld.TDLOONLD_DocCode ASC
+						LIMIT ".($currPage*$dataPerPage).",$dataPerPage";
 			$sql = mysql_query($query);
 			$numSearch=mysql_num_rows($sql);
 			if ($numSearch==0){
@@ -524,7 +743,7 @@ elseif($grup==6){
 		}
 
 		while ($arr=mysql_fetch_array($sql)){
-			$tgl_terbit=date("d M Y", strtotime($arr['DONL_RegTime']));
+			//$tgl_terbit=date("d M Y", strtotime($arr['DONL_RegTime']));
 
 			?>
 			<tr>

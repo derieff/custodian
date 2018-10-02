@@ -240,8 +240,8 @@ function mail_notif_release_doc($relCode, $User_ID, $status){
 	//$mail->AddAttachment("images/icon_addrow.png", "icon_addrow.png");  // optional name
 
 		$ed_query="	SELECT DISTINCT Company_Name,
-						THROONLD_Reason,THLOONLD_UserID,THROONLD_Information,THROONLD_ID,User_FullName,
-						DONL_NamaDokumen, DONL_NoDokumen, DONL_TahunDokumen,
+						THROONLD_Reason,THLOONLD_UserID,THROONLD_Information,THROONLD_ID,THROONLD_DocumentType,
+						User_FullName,DONL_NamaDokumen, DONL_NoDokumen, DONL_TahunDokumen,
                         Department_Name
 					FROM TH_ReleaseOfOtherNonLegalDocuments
 					LEFT JOIN TD_ReleaseOfOtherNonLegalDocuments
@@ -276,6 +276,7 @@ function mail_notif_release_doc($relCode, $User_ID, $status){
 						</TR>';
 			$edNum=$edNum+1;
 			$info=$ed_arr->THROONLD_Information;
+			$docType=$ed_arr->THROONLD_DocumentType;
 			$docID=$ed_arr->THROONLD_ID;
 			$reason=$ed_arr->THROONLD_Reason;
 			$regUser=$ed_arr->THLOONLD_UserID;
@@ -292,9 +293,14 @@ function mail_notif_release_doc($relCode, $User_ID, $status){
 <tbody>
 <tr>
 	<td width="458" align="justify" valign="top" style="font-size: 12px; font-family: \'lucida grande\',tahoma,verdana,arial,sans-serif;"><div style="margin-bottom: 15px; font-size: 13px">Yth '.$row->User_FullName.',</div>
-	<div style="margin-bottom: 15px">
-	<p><span style="margin-bottom: 15px; font-size: 13px; font-family: \'lucida grande\',tahoma,verdana,arial,sans-serif;">Bersama ini disampaikan bahwa dokumen (berdasarkan permintaan '.$requester.' untuk tujuan '.$info.') dengan detail permintaan dokumen sebagai berikut :</span></p>
-	<p>
+	<div style="margin-bottom: 15px">';
+	if($acceptor){
+		$bodyHeader .= '<p><span style="margin-bottom: 15px; font-size: 13px; font-family: \'lucida grande\',tahoma,verdana,arial,sans-serif;">Bersama ini disampaikan bahwa pengeluaran '.$docType.' dokumen (berdasarkan permintaan '.$requester.' untuk tujuan '.$info.') dengan detail permintaan dokumen sebagai berikut :</span></p>';
+	}
+	else{
+		$bodyHeader .= '<p><span style="margin-bottom: 15px; font-size: 13px; font-family: \'lucida grande\',tahoma,verdana,arial,sans-serif;">Bersama ini disampaikan bahwa dokumen (berdasarkan permintaan '.$requester.' untuk tujuan '.$info.') dengan detail permintaan dokumen sebagai berikut :</span></p>';
+	}
+	$bodyHeader .= '<p>
         <TABLE  width="458" >
 		<TR align="center"  style="border: 1px solid #ffe222; padding: 10px; background-color: #c4df9b; color: #333333; font-size: 12px; font-family: \'lucida grande\',tahoma,verdana,arial,sans-serif;">
 			<TD width="10%"  style="font-size: 13px"><strong>No.</strong></TD>

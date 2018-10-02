@@ -318,6 +318,8 @@ function mail_notif_registration_doc($regCode, $User_ID, $status, $attr){
 	//$mail->AddAttachment("images/icon_addrow.png", "icon_addrow.png");  // optional name
 
 		$ed_query="	SELECT DISTINCT	Company_Name,
+						THROAOD_Reason,
+						THROAOD_UserID,
 						TDROAOD_NoPolisi,
 						m_mk.MK_Name merk_kendaraan,
 						m_e.Employee_FullName nama_pemilik,

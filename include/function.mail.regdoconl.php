@@ -198,7 +198,7 @@ function mail_registration_doc($regCode,$reminder=0){
 		}
 
 			$bodyFooter .= '
-				<div style="margin: 0pt;font-family: \'lucida grande\',tahoma,verdana,arial,sans-serif;">Hormat Kami,<br />Departemen Custodian<br />PT Triputra Agro Persada
+				<div style="margin: 0pt;font-family: \'lucida grande\',tahoma,verdana,arial,sans-serif;margin-top:7%;">Hormat Kami,<br />Departemen Custodian<br />PT Triputra Agro Persada
 				</div></td>
 				</tr>
 			</tbody>
@@ -310,8 +310,9 @@ function mail_notif_registration_doc($regCode, $User_ID, $status, $attr){
 	$mail->AddBcc('system.administrator@tap-agri.com');
 	//$mail->AddAttachment("images/icon_addrow.png", "icon_addrow.png");  // optional name
 
-		$ed_query="SELECT DISTINCT Company_Name, TDROONLD_NoDokumen, TDROONLD_NamaDokumen,
-						TDROONLD_TahunDokumen, Department_Name, User_FullName,
+		$ed_query="SELECT DISTINCT Company_Name,Department_Name, User_FullName,
+						THROONLD_Reason,THROONLD_UserID,
+						TDROONLD_NoDokumen, TDROONLD_NamaDokumen,TDROONLD_TahunDokumen,
 						db_master.M_Employee.Employee_Department,
 						db_master.M_Employee.Employee_Division
 					FROM TH_RegistrationOfOtherNonLegalDocuments
