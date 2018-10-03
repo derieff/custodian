@@ -15,7 +15,7 @@ include_once('./phpmailer/class.html2text.inc.php');
 include_once ("./config/db_sql.php");
 include_once ("./include/class.endencrp.php");
 	
-function mail_ret_other_legal($relCode,$User_ID,$docList,$userData,$subordinateID=-1){
+function mail_exp_asset_ownership($relCode,$User_ID,$docList,$userData,$subordinateID=-1){
 	$mail = new PHPMailer();
 	$decrp = new custodian_encryp;
 
@@ -37,23 +37,19 @@ function mail_ret_other_legal($relCode,$User_ID,$docList,$userData,$subordinateI
 	$mail->AddReplyTo('no-reply@tap-agri.com','Custodian');
 	$mail->From       = 'no-reply@tap-agri.com';
 	$mail->FromName   = 'Custodian System';
-	$mail->Subject  ='Notifikasi Pengembalian Dokumen '.$relCode;
+	$mail->Subject  ='Notifikasi Masa Berlaku Dokumen '.$relCode;
 	$mail->AddBcc('system.administrator@tap-agri.com');
-	$requester=ucwords(strtolower($userData["User_FullName"]));
-	$requester_dept=ucwords(strtolower($userData["Employee_Department"]));
-	$requester_div=ucwords(strtolower($userData["Employee_Division"]));
-	$documentGroupName=ucwords(strtolower($userData["DocumentGroup_Name"]));
 	$body="";
 	$docNum = count($docList);
 	for($i=0;$i<$docNum;$i++){
 		$body .= '<TR  style=" font-size: 12px; font-family: \'lucida grande\',tahoma,verdana,arial,sans-serif;">
 					<TD align="center" valign="top">'.($i+1).'</TD>
-					<TD>'.$docList[$i]["DOL_NamaDokumen"].'<br />
-						'.$docList[$i]["DocumentCategory_Name"].'<br />
-						'.$docList[$i]["DOL_InstansiTerkait"].'<br />
-						No. Dokumen : '.$docList[$i]["DOL_NoDokumen"].'<br />
-						Tgl. Terbit Dokumen: '.$docList[$i]["DOL_TglTerbit"].' s/d
-						'.$docList[$i]["DOL_TglBerakhir"].'
+					<TD>'.$docList[$i]["Company_Name"].'<br />
+						No. Polisi : '.$docList[$i]["DAO_NoPolisi"].'<br />
+						Nama Pemilik : '.$docList[$i]["Employee_FullName"].'<br>
+						Merk Kendaraan : '.$docList[$i]["MK_Name"].'<br>
+						Masa Berlaku STNK : '.$docList[$i]["STNKExpTime"].'<br>
+						Masa Berlaku Pajak : '.$docList[$i]["PajakExpTime"].'<br>
 					</TD>
 				</TR>';
 	}
@@ -69,43 +65,29 @@ function mail_ret_other_legal($relCode,$User_ID,$docList,$userData,$subordinateI
 	<tr>
 	<td width="458" align="justify" valign="top" style="font-size: 12px; font-family: \'lucida grande\',tahoma,verdana,arial,sans-serif;"><div style="margin-bottom: 15px; font-size: 13px">Yth '.$row->User_FullName.',</div>
 	<div style="margin-bottom: 15px">
-	<p><span style="margin-bottom: 15px; font-size: 13px; font-family: \'lucida grande\',tahoma,verdana,arial,sans-serif;">Bersama ini disampaikan bahwa dokumen '.$documentGroupName.' (berdasarkan permintaan <b>'.$requester.' / Dept : '.$requester_dept.' / Divisi : '.$requester_div.'</b>) dengan detail pengeluaran sebagai berikut, telah melewati batas waktu pengembalian :</span></p>
+	<p><span style="margin-bottom: 15px; font-size: 13px; font-family: \'lucida grande\',tahoma,verdana,arial,sans-serif;">Bersama ini disampaikan bahwa ada dokumen expired dengan detail sebagai berikut :</span></p>
 	<p>
 		<TABLE  width="458" >
 		<TR align="center"  style="border: 1px solid #ffe222; padding: 10px; background-color: #c4df9b; color: #333333; font-size: 12px; font-family: \'lucida grande\',tahoma,verdana,arial,sans-serif;">															
 			<TD width="10%"  style="font-size: 13px"><strong>No.</strong></TD>
 			<TD width="90%"  style="font-size: 13px"><strong>Keterangan Dokumen</strong></TD>
-		</TR>';	
-		$bodyFooter ='';
-		if($subordinateID==-1){
-			$bodyFooter = '				
-					</TABLE>
-				</p>
-				<p><span style="margin-bottom: 15px; font-size: 13px;font-family: \'lucida grande\',tahoma,verdana,arial,sans-serif;">Mohon kerjasamanya untuk melakukan pengembalian dokumen.<br /> Terima kasih.  </span><br />
-				</p>
-				<div style="margin: 0pt;font-family: \'lucida grande\',tahoma,verdana,arial,sans-serif;">Hormat Kami,<br />Departemen Custodian<br />PT Triputra Agro Persada
-				</div>
-				<p align=center style="margin-bottom: 7%;">
-					<span style="border: 1px solid green;padding: 5px;margin-bottom: 15px; font-size: 13px;font-family: \'lucida grande\',tahoma,verdana,arial,sans-serif;background-color: rgb(196, 223, 155);color: white;float: left;margin-left: 15%;width: 20%;border-radius: 10px;">
-						
-						<a target="_BLANK" style="color: white;" >Sudah Diterima</a>
-					</span>
-					<span style="border: 1px solid green;padding: 5px;margin-bottom: 15px; font-size: 13px;font-family: \'lucida grande\',tahoma,verdana,arial,sans-serif;background-color: rgb(196, 223, 155);color: white;float: right;margin-right: 15%;width: 20%;border-radius: 10px;">
-						<a target="_BLANK" style="color: white;" >Belum Diterima</a>
-					</span><br />
-				</p>
-				</div>';
-		}
-		else{
-			$bodyFooter = '				
-					</TABLE>
-				</p>
-				<p><span style="margin-bottom: 15px; font-size: 13px;font-family: \'lucida grande\',tahoma,verdana,arial,sans-serif;">Mohon kerjasamanya untuk menginformasikan '.$requester.'.<br /> Terima kasih.  </span><br />
-				</p>
-				<div style="margin: 0pt;font-family: \'lucida grande\',tahoma,verdana,arial,sans-serif;">Hormat Kami,<br />Departemen Custodian<br />PT Triputra Agro Persada
-				</div>
-				</div>';
-		}
+		</TR>';
+		$bodyFooter = '				
+				</TABLE>
+			</p>
+			<p><span style="margin-bottom: 15px; font-size: 13px;font-family: \'lucida grande\',tahoma,verdana,arial,sans-serif;">Mohon kerjasamanya untuk melakukan pembaharuan dokumen.<br /> Terima kasih.  </span><br />
+			</p>
+			<div style="margin: 0pt;font-family: \'lucida grande\',tahoma,verdana,arial,sans-serif;">Hormat Kami,<br />Departemen Custodian<br />PT Triputra Agro Persada
+			</div>
+			<p align=center style="margin-bottom: 7%;">
+				<span style="border: 1px solid green;padding: 5px;margin-bottom: 15px; font-size: 13px;font-family: \'lucida grande\',tahoma,verdana,arial,sans-serif;background-color: rgb(196, 223, 155);color: white;float: left;margin-left: 15%;width: 20%;border-radius: 10px;">
+					<a target="_BLANK" style="color: white;" >Setuju</a>
+				</span>
+				<span style="border: 1px solid green;padding: 5px;margin-bottom: 15px; font-size: 13px;font-family: \'lucida grande\',tahoma,verdana,arial,sans-serif;background-color: rgb(196, 223, 155);color: white;float: right;margin-right: 15%;width: 20%;border-radius: 10px;">
+					<a target="_BLANK" style="color: white;" >Tidak Setuju</a>
+				</span><br />
+			</p>
+			</div>';
 		$bodyFooter .= '
 				</td>           
 				</tr>
