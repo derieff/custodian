@@ -77,6 +77,87 @@ $act=$_GET["act"];
 if(isset($_GET["act"]))
 {
 	//Menambah Header / Dokumen Baru
+	if($act=='reason') {
+		$ActionContent ="
+		<form name='add-detaildoc' method='post' action='$PHP_SELF'>
+		<table width='100%' id='mytable' class='stripeMe'>
+		<th colspan=3>Pengembalian Dokumen Kepemilikan Aset</th>";
+
+		$query1="SELECT u.User_FullName as FullName, ddp.DDP_DeptID as DeptID, ddp.DDP_DivID as DivID,
+						ddp.DDP_PosID as PosID, dp.Department_Name as DeptName, d.Division_Name as DivName,
+						p.Position_Name as PosName,u.User_SPV1,u.User_SPV2
+				 FROM M_User u
+				 LEFT JOIN M_DivisionDepartmentPosition ddp
+					ON u.User_ID=ddp.DDP_UserID
+					AND ddp.DDP_Delete_Time is NULL
+				 LEFT JOIN M_Division d
+					ON ddp.DDP_DivID=d.Division_ID
+				 LEFT JOIN M_Department dp
+					ON ddp.DDP_DeptID=dp.Department_ID
+				 LEFT JOIN M_Position p
+					ON ddp.DDP_PosID=p.Position_ID
+				 WHERE u.User_ID='$_SESSION[User_ID]'";
+		$sql1 = mysql_query($query1);
+		$field1 = mysql_fetch_array($sql1);
+
+		$ActionContent .="
+		<tr>
+			<td width='30%'>Nama</td>
+			<td>$field1[FullName]</td>
+		</tr>
+		<tr>
+			<td>Divisi</td>
+			<td>$field1[DivName]</td>
+		</tr>
+		<tr>
+			<td>Departemen</td>
+			<td>$field1[DeptName]</td>
+		</tr>
+		<tr>
+			<td>Jabatan</td>
+			<td>$field1[PosName]</td>
+		</tr>
+		</table>
+
+		<div style='space'>&nbsp;</div>
+
+		<table width='100%' id='detail' class='stripeMe'>
+		<tr>
+			<th>Kode Dokumen</th>
+			<th>Alasan Keterlambatan</th>
+		</tr>
+		<tr>
+			<td>
+				<textarea name='txtTDRTOAOD_DocCode1' id='txtTDRTOAOD_DocCode1' cols='20' rows='1' readonly='readonly' onClick='javascript:showList(1);'></textarea>
+			</td>
+			<td>
+				<textarea name='txtTDRTOAOD_Information1' id='txtTDRTOAOD_Information1' cols='20' rows='1'></textarea>
+			</td>
+		</tr>
+		</table>
+
+		<table width='100%'>
+		<th  class='bg-white'>
+			<input onclick='addRowToTable();' type='button' class='addrow'/>
+			<input onclick='removeRowFromTable();' type='button' class='deleterow'/>
+			<input type='hidden' value='1' id='countRow' name='countRow' />
+		</th>
+		</table>
+
+		<table width='100%'>
+		<th>
+			<input name='adddetail' type='submit' value='Daftar' class='button' onclick='return validateInputDetail(this);'/>
+			<input name='cancel' type='submit' value='Batal' class='button'/>
+		</th>
+		</table>
+
+		<div class='alertRed10px'>
+			PERINGATAN : <br>
+			Periksa Kembali Data Anda. Apabila Data Telah Disimpan, Anda Tidak Dapat Mengubahnya Lagi.
+		</div>
+		</form>";
+	}
+	//Menambah Header / Dokumen Baru
 	if($act=='add') {
 		$ActionContent ="
 		<form name='add-detaildoc' method='post' action='$PHP_SELF'>

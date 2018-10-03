@@ -22,7 +22,7 @@ include ("./include/function.mail.retdocol.php");
 include ("./include/function.mail.retdoconl.php");
 
 $queryAssetOwnership = "SELECT tdroaod.TDROAOD_ID,FLOOR(DATEDIFF(tdroaod.TDROAOD_LeadTime,tdroaod.TDROAOD_Insert_Time)/7) ReminderLevel,
-							tdroaod.TDROAOD_Insert_UserID UserID,throaod.THROAOD_ReleaseCode RelCode,
+							tdroaod.TDROAOD_Insert_UserID UserID,throaod.THROAOD_ReleaseCode RelCode,mdao.DAO_DocCode DocCode,
 							DATE_FORMAT(tdroaod.TDROAOD_Insert_Time, '%d %M %Y') RelTime,
 							COALESCE(mu.User_SPV2,mu.User_SPV1,TDROAOD_Insert_UserID) SupervisorID,
 							DATE_FORMAT(mdao.DAO_STNK_StartDate, '%d %M %Y') DAO_STNK_StartDate,
@@ -60,7 +60,7 @@ $queryAssetOwnership = "SELECT tdroaod.TDROAOD_ID,FLOOR(DATEDIFF(tdroaod.TDROAOD
 							AND TDROAOD_LeadTime<=CURDATE()
 						ORDER BY throaod.THROAOD_ReleaseCode ASC";
 $sqlAssetOwnership = mysql_query($queryAssetOwnership);
-$queryLandAcquisition = "SELECT tdrlolad.TDRLOLAD_ID,tdrlolad.TDRLOLAD_Insert_UserID UserID,thrlolad.THRLOLAD_ReleaseCode RelCode,
+$queryLandAcquisition = "SELECT tdrlolad.TDRLOLAD_ID,tdrlolad.TDRLOLAD_Insert_UserID UserID,thrlolad.THRLOLAD_ReleaseCode RelCode,mdla.DLA_Code DocCode,
 								FLOOR(DATEDIFF(tdrlolad.TDRLOLAD_LeadTime,tdrlolad.TDRLOLAD_Insert_Time)/7) ReminderLevel,
 								DATE_FORMAT(tdrlolad.TDRLOLAD_Insert_Time, '%d %M %Y') RelTime,
 								COALESCE(mu.User_SPV2,mu.User_SPV1,tdrlolad.TDRLOLAD_Insert_UserID) SupervisorID,
@@ -94,7 +94,7 @@ $queryLandAcquisition = "SELECT tdrlolad.TDRLOLAD_ID,tdrlolad.TDRLOLAD_Insert_Us
 								AND CURDATE()>=TDRLOLAD_LeadTime
 							ORDER BY thrlolad.THRLOLAD_ReleaseCode ASC";
 $sqlLandAcquisition = mysql_query($queryLandAcquisition);
-$queryLegal = "SELECT tdrold.TDROLD_ID,tdrold.TDROLD_Insert_UserID UserID,
+$queryLegal = "SELECT tdrold.TDROLD_ID,tdrold.TDROLD_Insert_UserID UserID,mdl.DL_DocCode DocCode,
 					FLOOR(DATEDIFF(tdrold.TDROLD_LeadTime,tdrold.TDROLD_Insert_Time)/7) ReminderLevel,
 					throld.THROLD_ReleaseCode RelCode,DATE_FORMAT(tdrold.TDROLD_Insert_Time, '%d %M %Y') RelTime,
 					COALESCE(mu.User_SPV2,mu.User_SPV1,TDROLD_Insert_UserID) SupervisorID,
@@ -135,7 +135,7 @@ $queryLegal = "SELECT tdrold.TDROLD_ID,tdrold.TDROLD_Insert_UserID UserID,
 				LIMIT 0,1";
 $sqlLegal = mysql_query($queryLegal);
 $queryOtherLegal = "SELECT tdroold.TDROOLD_ID,FLOOR(DATEDIFF(tdroold.TDROOLD_LeadTime,tdroold.TDROOLD_Insert_Time)/7) ReminderLevel,
-						tdroold.TDROOLD_Insert_UserID UserID,throold.THROOLD_ReleaseCode RelCode,
+						tdroold.TDROOLD_Insert_UserID UserID,throold.THROOLD_ReleaseCode RelCode,mdol.DOL_DocCode DocCode,
 						DATE_FORMAT(tdroold.TDROOLD_Insert_Time, '%d %M %Y') RelTime,
 						COALESCE(mu.User_SPV2,mu.User_SPV1,TDROOLD_Insert_UserID) SupervisorID,
 						mdol.DOL_NamaDokumen,mdol.DOL_InstansiTerkait,mdol.DOL_NoDokumen,mdc.DocumentCategory_Name,
@@ -172,7 +172,7 @@ $queryOtherLegal = "SELECT tdroold.TDROOLD_ID,FLOOR(DATEDIFF(tdroold.TDROOLD_Lea
 					ORDER BY throold.THROOLD_ReleaseCode ASC";
 $sqlOtherLegal = mysql_query($queryOtherLegal);
 $queryOtherNonLegal = "SELECT tdroonld.TDROONLD_ID,FLOOR(DATEDIFF(tdroonld.TDROONLD_LeadTime,tdroonld.TDROONLD_Insert_Time)/7) ReminderLevel,
-							tdroonld.TDROONLD_Insert_UserID UserID,throonld.THROONLD_ReleaseCode RelCode,
+							tdroonld.TDROONLD_Insert_UserID UserID,throonld.THROONLD_ReleaseCode RelCode,mdonl.DONL_DocCode DocCode,
 							DATE_FORMAT(tdroonld.TDROONLD_Insert_Time, '%d %M %Y') RelTime,
 							COALESCE(mu.User_SPV2,mu.User_SPV1,TDROONLD_Insert_UserID) SupervisorID,
 							DATE_FORMAT(mdonl.DONL_TahunDokumen, '%d %M %Y') DONL_TahunDokumen,
@@ -219,7 +219,13 @@ $tempRel="";
 $listDoc=[];
 while ($dataAssetOwnership = mysql_fetch_array($sqlAssetOwnership)) {
 	if(isset($tempRel['RelCode'])&&$tempRel['RelCode']!=$dataAssetOwnership['RelCode']){
-		mail_ret_asset_ownership($tempRel['RelCode'],$tempRel['UserID'],$listDoc,$tempRel);
+		if($tempRel['ReminderLevel']>2){
+			mail_ret_asset_ownership($tempRel['RelCode'],$tempRel['UserID'],$listDoc,$tempRel,-1,1);
+		}
+		else{
+			$assetOwnershipIDs.=$tempRel['TDROAOD_ID'].",";
+			mail_ret_asset_ownership($tempRel['RelCode'],$tempRel['UserID'],$listDoc,$tempRel);
+		}
 		if($tempRel['ReminderLevel']>1&&$tempRel['SupervisorID']!=$tempRel['UserID']){
 			mail_ret_asset_ownership($tempRel['RelCode'],$tempRel['SupervisorID'],$listDoc,$tempRel,1);
 		}
@@ -228,8 +234,9 @@ while ($dataAssetOwnership = mysql_fetch_array($sqlAssetOwnership)) {
 		$listDoc=[];
 	}
 	$tempRel=$dataAssetOwnership;
-	$landAcquisitionIDs.=$dataAssetOwnership['TDROAOD_ID'];
 	array_push($listDoc,[
+		"DocCode"=>$dataAssetOwnership['DocCode'],
+		"TDROAOD_ID"=>$dataAssetOwnership['TDROAOD_ID'],
 		"Company_Name"=>$dataAssetOwnership['Company_Name'],
 		"DAO_NoPolisi"=>$dataAssetOwnership['DAO_NoPolisi'],
 		"OwnerName"=>$dataAssetOwnership['OwnerName'],
@@ -240,7 +247,13 @@ while ($dataAssetOwnership = mysql_fetch_array($sqlAssetOwnership)) {
 	]);
 }
 if(isset($tempRel['RelCode'])){
-	mail_ret_asset_ownership($tempRel['RelCode'],$tempRel['UserID'],$listDoc,$tempRel);
+	if($tempRel['ReminderLevel']>2){
+		mail_ret_asset_ownership($tempRel['RelCode'],$tempRel['UserID'],$listDoc,$tempRel,-1,1);
+	}
+	else{
+		$assetOwnershipIDs.=$tempRel['TDROAOD_ID'].",";
+		mail_ret_asset_ownership($tempRel['RelCode'],$tempRel['UserID'],$listDoc,$tempRel);
+	}
 	if($tempRel['ReminderLevel']>1&&$tempRel['SupervisorID']!=$tempRel['UserID']){
 		mail_ret_asset_ownership($tempRel['RelCode'],$tempRel['SupervisorID'],$listDoc,$tempRel,1);
 	}
@@ -261,8 +274,10 @@ while ($dataLandAcquisition = mysql_fetch_array($sqlLandAcquisition)) {
 		$listDoc=[];
 	}
 	$tempRel=$dataLandAcquisition;
-	$landAcquisitionIDs.=$dataLandAcquisition['TDRLOLAD_ID'];
+	$landAcquisitionIDs.=$dataLandAcquisition['TDRLOLAD_ID'].",";
 	array_push($listDoc,[
+		"DocCode"=>$dataLandAcquisition['DocCode'],
+		"TDRLOLAD_ID"=>$dataLandAcquisition['TDRLOLAD_ID'],
 		"Company_Name"=>$dataLandAcquisition['Company_Name'],
 		"DLA_Phase"=>$dataLandAcquisition['DLA_Phase'],
 		"DLA_Period"=>$dataLandAcquisition['DLA_Period'],
@@ -288,8 +303,14 @@ unset($listDoc);
 $listDoc=[];
 while ($dataLegal = mysql_fetch_array($sqlLegal)) {
 	if(isset($tempRel['RelCode'])&&$tempRel['RelCode']!=$dataLegal['RelCode']){
-		mail_ret_legal($tempRel['RelCode'],$tempRel['UserID'],$listDoc,$tempRel);
-		if($tempRel['ReminderLevel']>1&&$tempRel['SupervisorID']!=$tempRel['UserID']){
+		if($tempRel['ReminderLevel']>2){
+			mail_ret_legal($tempRel['RelCode'],$tempRel['UserID'],$listDoc,$tempRel,-1,1);
+		}
+		else{
+			$legalIDs.=$dataLegal['TDROLD_ID'].",";
+			mail_ret_legal($tempRel['RelCode'],$tempRel['UserID'],$listDoc,$tempRel);
+		}
+		if((int)$tempRel['ReminderLevel']>1&&$tempRel['SupervisorID']!=$tempRel['UserID']){
 			mail_ret_legal($tempRel['RelCode'],$tempRel['SupervisorID'],$listDoc,$tempRel,1);
 		}
 		$listDoc = null;
@@ -297,8 +318,9 @@ while ($dataLegal = mysql_fetch_array($sqlLegal)) {
 		$listDoc=[];
 	}
 	$tempRel=$dataLegal;
-	$legalIDs.=$dataLegal['TDROLD_ID'];
 	array_push($listDoc,[
+		"DocCode"=>$dataLegal['DocCode'],
+		"TDROLD_ID"=>$dataLegal['TDROLD_ID'],
 		"Company_Name"=>$dataLegal['Company_Name'],
 		"DocumentCategory_Name"=>$dataLegal['DocumentCategory_Name'],
 		"DocumentType_Name"=>$dataLegal['DocumentType_Name'],
@@ -307,7 +329,13 @@ while ($dataLegal = mysql_fetch_array($sqlLegal)) {
 	]);
 }
 if(isset($tempRel['RelCode'])){
-	mail_ret_legal($tempRel['RelCode'],$tempRel['UserID'],$listDoc,$tempRel);
+	if($tempRel['ReminderLevel']>2){
+		mail_ret_legal($tempRel['RelCode'],$tempRel['UserID'],$listDoc,$tempRel,-1,1);
+	}
+	else{
+		$legalIDs.=$dataLegal['TDROLD_ID'].",";
+		mail_ret_legal($tempRel['RelCode'],$tempRel['UserID'],$listDoc,$tempRel);
+	}
 	if($tempRel['ReminderLevel']>1&&$tempRel['SupervisorID']!=$tempRel['UserID']){
 		mail_ret_legal($tempRel['RelCode'],$tempRel['SupervisorID'],$listDoc,$tempRel,1);
 	}
@@ -319,7 +347,13 @@ unset($listDoc);
 $listDoc=[];
 while ($dataOtherLegal = mysql_fetch_array($sqlOtherLegal)) {
 	if(isset($tempRel['RelCode'])&&$tempRel['RelCode']!=$dataOtherLegal['RelCode']){
-		mail_ret_other_legal($tempRel['RelCode'],$tempRel['UserID'],$listDoc,$tempRel);
+		if($tempRel['ReminderLevel']>2){
+			mail_ret_other_legal($tempRel['RelCode'],$tempRel['UserID'],$listDoc,$tempRel,-1,1);
+		}
+		else{
+			$otherLegalIDs.=$dataOtherLegal['TDROOLD_ID'].",";
+			mail_ret_other_legal($tempRel['RelCode'],$tempRel['UserID'],$listDoc,$tempRel);
+		}
 		if($tempRel['ReminderLevel']>1&&$tempRel['SupervisorID']!=$tempRel['UserID']){
 			mail_ret_other_legal($tempRel['RelCode'],$tempRel['SupervisorID'],$listDoc,$tempRel,1);
 		}
@@ -328,8 +362,9 @@ while ($dataOtherLegal = mysql_fetch_array($sqlOtherLegal)) {
 		$listDoc=[];
 	}
 	$tempRel=$dataOtherLegal;
-	$legalIDs.=$dataOtherLegal['TDROOLD_ID'];
 	array_push($listDoc,[
+		"DocCode"=>$dataOtherLegal['DocCode'],
+		"TDROOLD_ID"=>$dataOtherLegal['TDROOLD_ID'],
 		"Company_Name"=>$dataOtherLegal['Company_Name'],
 		"DocumentCategory_Name"=>$dataOtherLegal['DocumentCategory_Name'],
 		"DOL_NamaDokumen"=>$dataOtherLegal['DOL_NamaDokumen'],
@@ -362,8 +397,10 @@ while ($dataOtherNonLegal = mysql_fetch_array($sqlOtherNonLegal)) {
 		$listDoc=[];
 	}
 	$tempRel=$dataOtherLegal;
-	$legalIDs.=$dataOtherLegal['TDROOLD_ID'];
+	$otherNonLegalIDs.=$dataOtherLegal['TDROOLD_ID'].",";
 	array_push($listDoc,[
+		"DocCode"=>$dataOtherLegal['DocCode'],
+		"TDROOLD_ID"=>$dataOtherLegal['TDROOLD_ID'],
 		"Company_Name"=>$dataOtherLegal['Company_Name'],
 		"Department_Name"=>$dataOtherLegal['Department_Name'],
 		"DONL_NamaDokumen"=>$dataOtherLegal['DONL_NamaDokumen'],
@@ -379,24 +416,6 @@ if(isset($tempRel['RelCode'])){
 	}
 }
 
-/*
-$tempRel="";
-while ($dataOtherLegal = mysql_fetch_array($sqlOtherLegal)) {
-	$otherLegalIDs.=$dataOtherLegal['TDROOLD_ID'];
-	mail_ret_other_legal($dataOtherLegal['RelCode'],$dataOtherLegal['UserID']);
-	if($dataOtherLegal['ReminderLevel']>1&&$dataOtherLegal['SupervisorID']!=$dataOtherLegal['UserID']){
-		mail_ret_other_legal($dataOtherLegal['RelCode'],$dataOtherLegal['SupervisorID'],1);
-	}
-}
-
-$tempRel="";
-while ($dataOtherNonLegal = mysql_fetch_array($sqlOtherNonLegal)) {
-	$otherNonLegalIDs.=$dataOtherNonLegal['TDROONLD_ID'];
-	mail_ret_other_non_legal($dataOtherNonLegal['RelCode'],$dataOtherNonLegal['UserID']);
-	if($dataOtherNonLegal['ReminderLevel']>1&&$dataOtherNonLegal['SupervisorID']!=$dataOtherNonLegal['UserID']){
-		mail_ret_other_non_legal($dataOtherNonLegal['RelCode'],$dataOtherNonLegal['SupervisorID'],1);
-	}
-}
 $assetOwnershipIDs = rtrim($assetOwnershipIDs,",");
 $landAcquisitionIDs = rtrim($landAcquisitionIDs,",");
 $legalIDs = rtrim($legalIDs,",");
@@ -412,10 +431,10 @@ $queryUpdateLandAcquisition = "UPDATE TD_ReleaseOfLandAcquisitionDocument SET TD
 								TDRLOLAD_Update_Time=NOW(),TDRLOLAD_Update_UserID='$updateUserID'
 								WHERE TDRLOLAD_ID IN (".$landAcquisitionIDs.")";
 $sqlUpdateLandAcquisition = mysql_query($queryUpdateLandAcquisition);
-$queryUpdateLandAcquisition = "UPDATE TD_ReleaseOfLegalDocument SET TDROLD_LeadTime=DATE_ADD(TDROLD_LeadTime,INTERVAL 7 DAY),
+$queryUpdateLegal = "UPDATE TD_ReleaseOfLegalDocument SET TDROLD_LeadTime=DATE_ADD(TDROLD_LeadTime,INTERVAL 7 DAY),
 								TDROLD_Update_Time=NOW(),TDROLD_Update_UserID='$updateUserID'
 								WHERE TDROLD_ID IN (".$legalIDs.")";
-$sqlUpdateLandAcquisition = mysql_query($queryUpdateLandAcquisition);
+$sqlUpdateLegal = mysql_query($queryUpdateLegal);
 $queryUpdateOtherLegal = "UPDATE TD_ReleaseOfOtherLegalDocuments SET TDROOLD_LeadTime=DATE_ADD(TDROOLD_LeadTime,INTERVAL 7 DAY),
 								TDROOLD_Update_Time=NOW(),TDROOLD_Update_UserID='$updateUserID'
 								WHERE TDROOLD_ID IN (".$otherLegalIDs.")";
@@ -423,5 +442,5 @@ $sqlUpdateOtherLegal = mysql_query($queryUpdateOtherLegal);
 $queryUpdateOtherNonLegal = "UPDATE TD_ReleaseOfOtherNonLegalDocuments SET TDROONLD_LeadTime=DATE_ADD(TDROONLD_LeadTime,INTERVAL 7 DAY),
 								TDROONLD_Update_Time=NOW(),TDROONLD_Update_UserID='$updateUserID'
 								WHERE TDROONLD_ID IN (".$otherNonLegalIDs.")";
-$sqlUpdateOtherNonLegal = mysql_query($queryUpdateOtherNonLegal);*/
+$sqlUpdateOtherNonLegal = mysql_query($queryUpdateOtherNonLegal);
 ?>
