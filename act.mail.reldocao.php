@@ -15,7 +15,7 @@ include ("./config/config_db.php");
 include ("./include/function.mail.reldocao.php");
 $decrp = new custodian_encryp;
 
-if(($_GET['cfm'])&&($_GET['ati'])&&($_GET['rdm'])) {
+if( !empty($_GET['cfm']) && !empty($_GET['ati']) && !empty($_GET['rdm']) ) {
 	$A_Status="3";
 	$A_ID=$decrp->decrypt($_GET['ati']);
 	$ARC_RandomCode=$decrp->decrypt($_GET['rdm']);
@@ -34,7 +34,7 @@ if(($_GET['cfm'])&&($_GET['ati'])&&($_GET['rdm'])) {
 				  WHERE A_ID='$A_ID'";
 		$sql = mysql_query($query);
 		$arr = mysql_fetch_array($sql);
-		$step=$arr[A_Step];
+		$step=$arr['A_Step'];
 		$AppDate=$arr['A_ApprovalDate'];
 		$A_TransactionCode=$arr['A_TransactionCode'];
 		$A_ApproverID=$arr['A_ApproverID'];
@@ -135,7 +135,7 @@ if(($_GET['cfm'])&&($_GET['ati'])&&($_GET['rdm'])) {
 						// Cari Kode Dokumen Grup
 						$query = "SELECT *
 									FROM M_DocumentGroup
-									WHERE DocumentGroup_ID ='$h_arr[THLOAOD_DocumentGroupID]'";
+									WHERE DocumentGroup_ID ='4'";
 						$sql = mysql_query($query);
 						$field = mysql_fetch_array($sql);
 						$DocumentGroup_Code=$field['DocumentGroup_Code'];
@@ -144,7 +144,7 @@ if(($_GET['cfm'])&&($_GET['ati'])&&($_GET['rdm'])) {
 						$query = "SELECT MAX(CD_SeqNo)
 									FROM M_CodeDocument
 									WHERE CD_Year='$regyear'
-									AND CT_Action='DOUT'
+									-- AND CT_Action='DOUT'
 									AND CD_GroupDocCode='$DocumentGroup_Code'
 									AND CD_CompanyCode='$Company_Code'
 									AND CD_Delete_Time is NULL";
@@ -275,7 +275,7 @@ if(($_GET['cfm'])&&($_GET['ati'])&&($_GET['rdm'])) {
 		</table>";
 	}
 }
-if($_GET['act']) {
+if(isset($_GET['act'])) {
 	$act=$decrp->decrypt($_GET['act']);
 
 	if ($act=='confirm'){
@@ -327,7 +327,7 @@ if($_GET['act']) {
 	}
 }
 
-if(isset($_POST[reject])) {
+if(isset($_POST['reject'])) {
 	$A_Status='4';
 	$A_ID=$_POST['A_ID'];
 	$ARC_RandomCode=$_POST['ARC_RandomCode'];
@@ -351,7 +351,7 @@ if(isset($_POST[reject])) {
 				  	  WHERE A_ID='$A_ID'";
 			$sql = mysql_query($query);
 			$arr = mysql_fetch_array($sql);
-			$step=$arr[A_Step];
+			$step=$arr['A_Step'];
 			$AppDate=$arr['A_ApprovalDate'];
 			$A_TransactionCode=$arr['A_TransactionCode'];
 			$A_ApproverID=$arr['A_ApproverID'];

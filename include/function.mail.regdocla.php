@@ -1,5 +1,5 @@
 <?PHP
-/* 
+/*
 =========================================================================================================================
 = Nama Project		: Custodian																							=
 = Versi				: 1.1.0																								=
@@ -15,14 +15,14 @@ include_once('./phpmailer/class.phpmailer.php');
 include_once('./phpmailer/class.html2text.inc.php');
 include_once ("./config/db_sql.php");
 include_once ("./include/class.endencrp.php");
-		
-function mail_registration_doc($regCode,$reminder=0){ 
+
+function mail_registration_doc($regCode,$reminder=0){
 	$mail = new PHPMailer();
 	$decrp = new custodian_encryp;
 	$body = "";
 	$bodyHeader = "";
 	$bodyFooter = "";
-	//$testing='TESTING';
+	$testing='TESTING';
 
 	$e_query ="	SELECT 	User_ID,User_FullName,User_Email,DocumentGroup_Name,A_TransactionCode,
 						ARC_AID,ARC_RandomCode,THRGOLAD_ID,THRGOLAD_RegistrationDate
@@ -41,8 +41,8 @@ function mail_registration_doc($regCode,$reminder=0){
 				AND THRGOLAD_Delete_Time IS NULL";
 	$handle = mysql_query($e_query);
 	$row = mysql_fetch_object($handle);
-	
-	// Cek apakah Staff Custodian atau bukan. 
+
+	// Cek apakah Staff Custodian atau bukan.
 	// Staff Custodian memiliki wewenang untuk print registrasi dokumen.
 	$cs_query = "SELECT *
 				 FROM M_DivisionDepartmentPosition ddp, M_Department d
@@ -79,8 +79,8 @@ function mail_registration_doc($regCode,$reminder=0){
 	}
 	$mail->AddBcc('system.administrator@tap-agri.com');
 	//$mail->AddAttachment("images/icon_addrow.png", "icon_addrow.png");  // optional name
-					
-		$ed_query="	SELECT DISTINCT TDRGOLAD_ID,Company_Name,THRGOLAD_Phase,THRGOLAD_Period,TDRGOLAD_Village,TDRGOLAD_Block,TDRGOLAD_Owner, 
+
+		$ed_query="	SELECT DISTINCT TDRGOLAD_ID,Company_Name,THRGOLAD_Phase,THRGOLAD_Period,TDRGOLAD_Village,TDRGOLAD_Block,TDRGOLAD_Owner,
 									TDRGOLAD_AreaStatement,TDRGOLAD_PlantTotalPrice,TDRGOLAD_GrandTotal,TDRGOLAD_DocDate,User_FullName,
 									db_master.M_Employee.Employee_Department,
 									db_master.M_Employee.Employee_Division
@@ -95,18 +95,18 @@ function mail_registration_doc($regCode,$reminder=0){
 						ON M_User.User_ID = db_master.M_Employee.Employee_NIK
 					WHERE THRGOLAD_RegistrationCode='$regCode'
 					AND THRGOLAD_Delete_Time IS NULL";
-		$ed_handle = mysql_query($ed_query);	
+		$ed_handle = mysql_query($ed_query);
 		$edNum=1;
 		while ($ed_arr = mysql_fetch_object($ed_handle)) {
-			
+
 		$TDRGOLAD_AreaStatement=number_format($ed_arr->TDRGOLAD_AreaStatement,2,'.',',');
 		$TDRGOLAD_PlantTotalPrice=number_format($ed_arr->TDRGOLAD_PlantTotalPrice,2,',','.');
 		$TDRGOLAD_GrandTotal=number_format($ed_arr->TDRGOLAD_GrandTotal,2,',','.');
 		$period=date("j M Y", strtotime($ed_arr->THRGOLAD_Period));
 		$DocDate=date("j M Y", strtotime($ed_arr->TDRGOLAD_DocDate));
-		
-		$body .= '				
-						<TR  style=" font-size: 12px; font-family: \'lucida grande\',tahoma,verdana,arial,sans-serif;">	
+
+		$body .= '
+						<TR  style=" font-size: 12px; font-family: \'lucida grande\',tahoma,verdana,arial,sans-serif;">
 							<TD align="center" valign="top">'.$edNum.'</TD>
 							<TD>'.$ed_arr->Company_Name.' - Tahap '.$ed_arr->THRGOLAD_Phase.'<br />
 								Periode GRL : '.$period.'<br />
@@ -118,9 +118,9 @@ function mail_registration_doc($regCode,$reminder=0){
 							<TD valign="top">';
 							$TDRGOLAD_ID=$ed_arr->TDRGOLAD_ID;
 							$dd_query="SELECT laa.LAA_Acronym
-			  					  	   FROM TD_RegistrationOfLandAcquisitionDocumentDetail tdrgoladd, 
+			  					  	   FROM TD_RegistrationOfLandAcquisitionDocumentDetail tdrgoladd,
 									   		M_LandAcquisitionAttribute laa
-									   WHERE tdrgoladd.TDRGOLADD_TDRGOLAD_ID='$TDRGOLAD_ID' 
+									   WHERE tdrgoladd.TDRGOLADD_TDRGOLAD_ID='$TDRGOLAD_ID'
 									   AND tdrgoladd.TDRGOLADD_Delete_Time IS NULL
 									   AND tdrgoladd.TDRGOLADD_AttributeStatusID='1'
 									   AND laa.LAA_ID=tdrgoladd.TDRGOLADD_AttibuteID";
@@ -128,15 +128,15 @@ function mail_registration_doc($regCode,$reminder=0){
 							while ($dd_arr=mysql_fetch_object($dd_sql)){
 								$body .= ''.$dd_arr->LAA_Acronym.'; ';
 							}
-		$body .= '			
-							</TD>									
+		$body .= '
+							</TD>
 						</TR>';
 			$edNum=$edNum+1;
 			$requester=ucwords(strtolower($ed_arr->User_FullName));
 			$requester_dept=ucwords(strtolower($ed_arr->Employee_Department));
 			$requester_div=ucwords(strtolower($ed_arr->Employee_Division));
 		}
-		$bodyHeader .= '	
+		$bodyHeader .= '
 	<table width="497" border="0" align="center" cellpadding="0" cellspacing="0">
 <tbody>
 <tr>
@@ -151,33 +151,33 @@ function mail_registration_doc($regCode,$reminder=0){
 	<p><span style="margin-bottom: 15px; font-size: 13px; font-family: \'lucida grande\',tahoma,verdana,arial,sans-serif;">Bersama ini disampaikan bahwa pendaftaran dokumen '.$row->DocumentGroup_Name.' oleh <b>'.$requester.' / Dept : '.$requester_dept.' / Divisi : '.$requester_div.'</b> dengan detail pendaftaran sebagai berikut, membutuhkan persetujuan Bapak/Ibu :</span></p>
 	<p>
         <TABLE  width="458" >
-		<TR align="center"  style="border: 1px solid #ffe222; padding: 10px; background-color: #c4df9b; color: #333333; font-size: 12px; font-family: \'lucida grande\',tahoma,verdana,arial,sans-serif;">															
+		<TR align="center"  style="border: 1px solid #ffe222; padding: 10px; background-color: #c4df9b; color: #333333; font-size: 12px; font-family: \'lucida grande\',tahoma,verdana,arial,sans-serif;">
 			<TD width="10%"  style="font-size: 13px"><strong>No.</strong></TD>
 			<TD width="70%"  style="font-size: 13px"><strong>Keterangan Dokumen</strong></TD>
 			<TD width="20%"  style="font-size: 13px"><strong>Kelengkapan</strong></TD>
 		</TR>';
-		
-		$bodyFooter .= '				
+
+		$bodyFooter .= '
                     </TABLE>
 				</p>
 				<p><span style="margin-bottom: 15px; font-size: 13px;font-family: \'lucida grande\',tahoma,verdana,arial,sans-serif;">Untuk itu dimohon Bapak/Ibu dapat memberikan persetujuan pendaftaran dokumen di atas. Terima kasih.  </span><br />
 				</p>
 				<p align=center>
-				<span style="border: 1px solid green;padding: 5px;margin-bottom: 15px; font-size: 13px;font-family: \'lucida grande\',tahoma,verdana,arial,sans-serif;background-color: rgb(196, 223, 155);color: white;float: left;margin-left: 12%;width: 20%;border-radius: 10px;"><a target="_BLANK" style="color: white;" href="http://'.$_SERVER['HTTP_HOST'].'/act.mail.regdocla.php?cfm='.$decrp->encrypt('accept').'&ati='.$decrp->encrypt($row->ARC_AID).'&rdm='.$decrp->encrypt($row->ARC_RandomCode).'">Setuju</a></span>';
+				<span style="border: 1px solid green;padding: 5px;margin-bottom: 15px; font-size: 13px;font-family: \'lucida grande\',tahoma,verdana,arial,sans-serif;background-color: rgb(196, 223, 155);color: white;float: left;margin-left: 12%;width: 20%;border-radius: 10px;"><a target="_BLANK" style="color: white;" href="http://'.$_SERVER['HTTP_HOST'].'/custodian/act.mail.regdocla.php?cfm='.$decrp->encrypt('accept').'&ati='.$decrp->encrypt($row->ARC_AID).'&rdm='.$decrp->encrypt($row->ARC_RandomCode).'">Setuju</a></span>';
 				if ($custodian==1){
 			$bodyFooter .= '
-				<span style="border: 1px solid green;padding: 5px;margin-bottom: 15px; font-size: 13px;font-family: \'lucida grande\',tahoma,verdana,arial,sans-serif;background-color: rgb(196, 223, 155);color: white;float: left;margin-left: 4%;margin-right:4%;width: 20%;border-radius: 10px;"><a target="_BLANK" href="http://'.$_SERVER['HTTP_HOST'].'/act.mail.regdocla.php?act='.$decrp->encrypt('reject').'&ati='.$decrp->encrypt($row->ARC_AID).'&rdm='.$decrp->encrypt($row->ARC_RandomCode).'">Tolak</a></span>
-				<span style="border: 1px solid green;padding: 5px;margin-bottom: 15px; font-size: 13px;font-family: \'lucida grande\',tahoma,verdana,arial,sans-serif;background-color: rgb(196, 223, 155);color: white;float: right;margin-right: 12%;width: 20%;border-radius: 10px;"><a target="_BLANK" style="color: white;" href="http://'.$_SERVER['HTTP_HOST'].'/detail-of-registration-land-acquisition-document.php?act='.$decrp->encrypt('approve').'&ati='.$decrp->encrypt($row->ARC_AID).'&rdm='.$decrp->encrypt($row->ARC_RandomCode).'&id='.$decrp->encrypt($row->THRGOLAD_ID).'">Revisi</a></span><br />';
+				<span style="border: 1px solid green;padding: 5px;margin-bottom: 15px; font-size: 13px;font-family: \'lucida grande\',tahoma,verdana,arial,sans-serif;background-color: rgb(196, 223, 155);color: white;float: left;margin-left: 4%;margin-right:4%;width: 20%;border-radius: 10px;"><a target="_BLANK" href="http://'.$_SERVER['HTTP_HOST'].'/custodian/act.mail.regdocla.php?act='.$decrp->encrypt('reject').'&ati='.$decrp->encrypt($row->ARC_AID).'&rdm='.$decrp->encrypt($row->ARC_RandomCode).'">Tolak</a></span>
+				<span style="border: 1px solid green;padding: 5px;margin-bottom: 15px; font-size: 13px;font-family: \'lucida grande\',tahoma,verdana,arial,sans-serif;background-color: rgb(196, 223, 155);color: white;float: right;margin-right: 12%;width: 20%;border-radius: 10px;"><a target="_BLANK" style="color: white;" href="http://'.$_SERVER['HTTP_HOST'].'/custodian/detail-of-registration-land-acquisition-document.php?act='.$decrp->encrypt('approve').'&ati='.$decrp->encrypt($row->ARC_AID).'&rdm='.$decrp->encrypt($row->ARC_RandomCode).'&id='.$decrp->encrypt($row->THRGOLAD_ID).'">Revisi</a></span><br />';
 				}
 				else {
 			$bodyFooter .= '
-				<span style="border: 1px solid green;padding: 5px;margin-bottom: 15px; font-size: 13px;font-family: \'lucida grande\',tahoma,verdana,arial,sans-serif;background-color: rgb(196, 223, 155);color: white;float: right;margin-right: 12%;width: 20%;border-radius: 10px;"><a target="_BLANK" href="http://'.$_SERVER['HTTP_HOST'].'/act.mail.regdocla.php?act='.$decrp->encrypt('reject').'&ati='.$decrp->encrypt($row->ARC_AID).'&rdm='.$decrp->encrypt($row->ARC_RandomCode).'">Tolak</a></span>
+				<span style="border: 1px solid green;padding: 5px;margin-bottom: 15px; font-size: 13px;font-family: \'lucida grande\',tahoma,verdana,arial,sans-serif;background-color: rgb(196, 223, 155);color: white;float: right;margin-right: 12%;width: 20%;border-radius: 10px;"><a target="_BLANK" href="http://'.$_SERVER['HTTP_HOST'].'/custodian/act.mail.regdocla.php?act='.$decrp->encrypt('reject').'&ati='.$decrp->encrypt($row->ARC_AID).'&rdm='.$decrp->encrypt($row->ARC_RandomCode).'">Tolak</a></span>
 				<br>';
 				}
 			$bodyFooter .= '
 				</p>
 				</div>';
-				
+
 		// approval history
 		$sql ="	SELECT user.User_FullName, emp.Employee_Department, emp.Employee_Division, app.A_ApprovalDate
 				FROM M_Approval app
@@ -197,25 +197,25 @@ function mail_registration_doc($regCode,$reminder=0){
 					Approval History :
 					<ol>
 				';
-		
+
 			while ($obj = mysql_fetch_object($sql_handle)) {
 					$bodyFooter .= '
-						<li><b>'.ucwords(strtolower($obj->User_FullName)).'</b><BR> 
-						Dept : '.ucwords(strtolower($obj->Employee_Department)).'<BR> 
-						Div : '.ucwords(strtolower($obj->Employee_Division)).'<BR> 
+						<li><b>'.ucwords(strtolower($obj->User_FullName)).'</b><BR>
+						Dept : '.ucwords(strtolower($obj->Employee_Department)).'<BR>
+						Div : '.ucwords(strtolower($obj->Employee_Division)).'<BR>
 						Tanggal Persetujuan : '.date('d/m/Y H:i:s', strtotime($obj->A_ApprovalDate)).'.</li>
 					';
 			}
-		
-			$bodyFooter .= '	
+
+			$bodyFooter .= '
 					</ol>
 				</p>
 				</div>';
-		}			
-				
+		}
+
 			$bodyFooter .= '
 				<div style="margin: 0pt;font-family: \'lucida grande\',tahoma,verdana,arial,sans-serif;margin-top:7%;">Hormat Kami,<br />Departemen Custodian<br />PT Triputra Agro Persada
-				</div></td>           
+				</div></td>
 				</tr>
 			</tbody>
 			</table>
@@ -227,8 +227,8 @@ function mail_registration_doc($regCode,$reminder=0){
 		</tr>
 	</tbody>
 </table>';
-		
-	$emailContent=$bodyHeader.$body.$bodyFooter;	
+
+	$emailContent=$bodyHeader.$body.$bodyFooter;
 	//echo $row->user_email.$body ;
 	$mail->ClearAddresses();
 	$mail->AddAddress($row->User_Email,$row->User_FullName);
@@ -237,7 +237,7 @@ function mail_registration_doc($regCode,$reminder=0){
 	$mail->AltBody = $h2t->get_text();
 	$mail->WordWrap   = 80; // set word wrap
 	$mail->MsgHTML($emailContent);
-	
+
 	/*
 	try {
 	  if ( !$mail->Send() ) {
@@ -256,7 +256,7 @@ function mail_registration_doc($regCode,$reminder=0){
 		//echo $thisError . ': ' . $value;
 	  }
 	}*/
-	
+
 	if(!$mail->Send()){
 		echo "
 		<table border='0' align='center' cellpadding='0' cellspacing='0'>
@@ -281,15 +281,15 @@ function mail_registration_doc($regCode,$reminder=0){
 		</tbody>
 		</table>";
 	}
-} 
+}
 
-function mail_notif_registration_doc($regCode, $User_ID, $status, $attr){ 
+function mail_notif_registration_doc($regCode, $User_ID, $status, $attr){
 	$mail = new PHPMailer();
 	$decrp = new custodian_encryp;
 	$body = "";
 	$bodyHeader = "";
 	$bodyFooter = "";
-	//$testing='TESTING';
+	$testing='TESTING';
 
 	$e_query="SELECT User_ID, User_FullName, User_Email
 			  FROM M_User
@@ -325,8 +325,8 @@ function mail_notif_registration_doc($regCode, $User_ID, $status, $attr){
 	}
 	$mail->AddBcc('system.administrator@tap-agri.com');
 	//$mail->AddAttachment("images/icon_addrow.png", "icon_addrow.png");  // optional name
-					
-		$ed_query="	SELECT DISTINCT Company_Name,THRGOLAD_Phase,THRGOLAD_Period,TDRGOLAD_Village,TDRGOLAD_Block,TDRGOLAD_Owner, 
+
+		$ed_query="	SELECT DISTINCT Company_Name,THRGOLAD_Phase,THRGOLAD_Period,TDRGOLAD_Village,TDRGOLAD_Block,TDRGOLAD_Owner,
 									TDRGOLAD_AreaStatement,TDRGOLAD_PlantTotalPrice,TDRGOLAD_GrandTotal,TDRGOLAD_DocDate,TDRGOLAD_ID,
 									THRGOLAD_RegStatusReason,THRGOLAD_UserID,User_FullName
 					FROM TH_RegistrationOfLandAcquisitionDocument
@@ -338,7 +338,7 @@ function mail_notif_registration_doc($regCode, $User_ID, $status, $attr){
 						ON THRGOLAD_UserID=User_ID
 					WHERE THRGOLAD_RegistrationCode='$regCode'
 					AND THRGOLAD_Delete_Time IS NULL";
-		$ed_handle = mysql_query($ed_query);	
+		$ed_handle = mysql_query($ed_query);
 		$edNum=1;
 		while ($ed_arr = mysql_fetch_object($ed_handle)) {
 			$TDRGOLAD_AreaStatement=number_format($ed_arr->TDRGOLAD_AreaStatement,2,'.',',');
@@ -346,9 +346,9 @@ function mail_notif_registration_doc($regCode, $User_ID, $status, $attr){
 			$TDRGOLAD_GrandTotal=number_format($ed_arr->TDRGOLAD_GrandTotal,2,',','.');
 			$period=date("j M Y", strtotime($ed_arr->THRGOLAD_Period));
 			$DocDate=date("j M Y", strtotime($ed_arr->TDRGOLAD_DocDate));
-			
-			$body .= '				
-						<TR  style=" font-size: 12px; font-family: \'lucida grande\',tahoma,verdana,arial,sans-serif;">	
+
+			$body .= '
+						<TR  style=" font-size: 12px; font-family: \'lucida grande\',tahoma,verdana,arial,sans-serif;">
 							<TD align="center" valign="top">'.$edNum.'</TD>
 							<TD>'.$ed_arr->Company_Name.' - Tahap '.$ed_arr->THRGOLAD_Phase.'<br />
 								Periode GRL : '.$period.'<br />
@@ -360,9 +360,9 @@ function mail_notif_registration_doc($regCode, $User_ID, $status, $attr){
 							<TD valign="top">';
 							$TDRGOLAD_ID=$ed_arr->TDRGOLAD_ID;
 							$dd_query="SELECT laa.LAA_Acronym
-			  					  	   FROM TD_RegistrationOfLandAcquisitionDocumentDetail tdrgoladd, 
+			  					  	   FROM TD_RegistrationOfLandAcquisitionDocumentDetail tdrgoladd,
 									   		M_LandAcquisitionAttribute laa
-									   WHERE tdrgoladd.TDRGOLADD_TDRGOLAD_ID='$TDRGOLAD_ID' 
+									   WHERE tdrgoladd.TDRGOLADD_TDRGOLAD_ID='$TDRGOLAD_ID'
 									   AND tdrgoladd.TDRGOLADD_Delete_Time IS NULL
 									   AND tdrgoladd.TDRGOLADD_AttributeStatusID='1'
 									   AND laa.LAA_ID=tdrgoladd.TDRGOLADD_AttibuteID";
@@ -370,15 +370,15 @@ function mail_notif_registration_doc($regCode, $User_ID, $status, $attr){
 							while ($dd_arr=mysql_fetch_object($dd_sql)){
 								$body .= ''.$dd_arr->LAA_Acronym.'; ';
 							}
-		$body .= '			
-							</TD>									
+		$body .= '
+							</TD>
 						</TR>';
 			$edNum=$edNum+1;
 			$reason=$ed_arr->THRGOLAD_RegStatusReason;
 			$regUser=$ed_arr->THRGOLAD_UserID;
 			$requester=$ed_arr->User_FullName;
 		}
-		$bodyHeader .= '	
+		$bodyHeader .= '
 	<table width="497" border="0" align="center" cellpadding="0" cellspacing="0">
 <tbody>
 <tr>
@@ -393,22 +393,22 @@ function mail_notif_registration_doc($regCode, $User_ID, $status, $attr){
 	<p><span style="margin-bottom: 15px; font-size: 13px; font-family: \'lucida grande\',tahoma,verdana,arial,sans-serif;">Bersama ini disampaikan bahwa pendaftaran dokumen oleh '.$requester.' dengan detail pendaftaran sebagai berikut :</span></p>
 	<p>
         <TABLE  width="458" >
-		<TR align="center"  style="border: 1px solid #ffe222; padding: 10px; background-color: #c4df9b; color: #333333; font-size: 12px; font-family: \'lucida grande\',tahoma,verdana,arial,sans-serif;">															
+		<TR align="center"  style="border: 1px solid #ffe222; padding: 10px; background-color: #c4df9b; color: #333333; font-size: 12px; font-family: \'lucida grande\',tahoma,verdana,arial,sans-serif;">
 			<TD width="10%"  style="font-size: 13px"><strong>No.</strong></TD>
 			<TD width="70%"  style="font-size: 13px"><strong>Keterangan Dokumen</strong></TD>
 			<TD width="20%"  style="font-size: 13px"><strong>Kelengkapan</strong></TD>
 		</TR>';
-		
-	if (($status=='3')&&($row->User_ID<>$regUser)){	
+
+	if (($status=='3')&&($row->User_ID<>$regUser)){
 		if ($attr == '1') {
-			$bodyFooter .= '				
+			$bodyFooter .= '
 	                    </TABLE>
 					</p>
 					<p><span style="margin-bottom: 15px; font-size: 13px;font-family: \'lucida grande\',tahoma,verdana,arial,sans-serif;">Dokumen di atas telah diserahkan dan disetujui oleh Departemen Custodian. Terima kasih.  </span><br />
 					</p>
 					</div>';
 		} else {
-			$bodyFooter .= '				
+			$bodyFooter .= '
 	                    </TABLE>
 					</p>
 					<p><span style="margin-bottom: 15px; font-size: 13px;font-family: \'lucida grande\',tahoma,verdana,arial,sans-serif;">Sedang dalam proses persetujuan dari Departemen Custodian. Terima kasih.  </span><br />
@@ -416,9 +416,9 @@ function mail_notif_registration_doc($regCode, $User_ID, $status, $attr){
 					</div>';
 		}
 	}
-	
-	if (($status=='3')&&($row->User_ID==$regUser)){	
-		$bodyFooter .= '				
+
+	if (($status=='3')&&($row->User_ID==$regUser)){
+		$bodyFooter .= '
                     </TABLE>
 				</p>
 				<p><span style="margin-bottom: 15px; font-size: 13px;font-family: \'lucida grande\',tahoma,verdana,arial,sans-serif;">Telah Disetujui. Untuk itu dimohon Bapak/Ibu dapat menyerahkan dokumen di atas bersama <u>Lembar Form Pendaftaran</u> ke Departemen Custodian. Terima kasih.  </span><br />
@@ -426,7 +426,7 @@ function mail_notif_registration_doc($regCode, $User_ID, $status, $attr){
 				</div>';
 	}
 	if (($status=='4')&&($row->User_ID==$regUser)){
-		$bodyFooter .= '				
+		$bodyFooter .= '
                     </TABLE>
 				</p>
 				<p><span style="margin-bottom: 15px; font-size: 13px;font-family: \'lucida grande\',tahoma,verdana,arial,sans-serif;">Telah Ditolak dengan alasan : '.$reason.'<br>Untuk itu dimohon Bapak/Ibu dapat memeriksa kembali dokumen di atas dan melakukan registrasi ulang. Terima kasih.  </span><br />
@@ -434,7 +434,7 @@ function mail_notif_registration_doc($regCode, $User_ID, $status, $attr){
 				</div>';
 	}
 	if (($status=='4')&&($row->User_ID<>$regUser)){
-		$bodyFooter .= '				
+		$bodyFooter .= '
                     </TABLE>
 				</p>
 				<p><span style="margin-bottom: 15px; font-size: 13px;font-family: \'lucida grande\',tahoma,verdana,arial,sans-serif;">Telah Ditolak dengan alasan : '.$reason.'<br>Terima kasih.  </span><br />
@@ -443,7 +443,7 @@ function mail_notif_registration_doc($regCode, $User_ID, $status, $attr){
 	}
 		$bodyFooter .= '
 				<div style="margin: 0pt;font-family: \'lucida grande\',tahoma,verdana,arial,sans-serif;margin-top:7%;">Hormat Kami,<br />Departemen Custodian<br />PT Triputra Agro Persada
-				</div></td>           
+				</div></td>
 				</tr>
 			</tbody>
 			</table>
@@ -455,8 +455,8 @@ function mail_notif_registration_doc($regCode, $User_ID, $status, $attr){
 		</tr>
 	</tbody>
 </table>';
-		
-	$emailContent=$bodyHeader.$body.$bodyFooter;		
+
+	$emailContent=$bodyHeader.$body.$bodyFooter;
 	//echo $row->user_email.$body ;
 	$mail->ClearAddresses();
 	$mail->AddAddress($row->User_Email,$row->User_FullName);
@@ -465,7 +465,7 @@ function mail_notif_registration_doc($regCode, $User_ID, $status, $attr){
 	$mail->AltBody = $h2t->get_text();
 	$mail->WordWrap   = 80; // set word wrap
 	$mail->MsgHTML($emailContent);
-	
+
 	/*
 	try {
 	  if ( !$mail->Send() ) {
@@ -484,7 +484,7 @@ function mail_notif_registration_doc($regCode, $User_ID, $status, $attr){
 		//echo $thisError . ': ' . $value;
 	  }
 	}*/
-	
+
 	if(!$mail->Send()){
 		echo "
 		<table border='0' align='center' cellpadding='0' cellspacing='0'>
@@ -509,6 +509,6 @@ function mail_notif_registration_doc($regCode, $User_ID, $status, $attr){
 		</tbody>
 		</table>";
 	}
-} 
+}
 
 ?>

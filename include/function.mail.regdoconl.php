@@ -18,7 +18,7 @@ include_once ("./include/class.endencrp.php");
 function mail_registration_doc($regCode,$reminder=0){
 	$mail = new PHPMailer();
 	$decrp = new custodian_encryp;
-	//$testing='TESTING';
+	$testing='TESTING';
 	$body = "";
 	$bodyHeader = "";
 	$bodyFooter = "";
@@ -72,9 +72,9 @@ function mail_registration_doc($regCode,$reminder=0){
 	$mail->FromName   = 'Custodian System';
 
 	if ($reminder){
-		$mail->Subject  ='[REMINDER] Persetujuan Pendaftaran Dokumen '.$regCode.'';
+		$mail->Subject  ='[REMINDER] '.$testing.' Persetujuan Pendaftaran Dokumen '.$regCode.'';
 	}else{
-		$mail->Subject  =' Persetujuan Pendaftaran Dokumen '.$regCode.'';
+		$mail->Subject  =''.$testing.' Persetujuan Pendaftaran Dokumen '.$regCode.'';
 	}
 	$mail->AddBcc('system.administrator@tap-agri.com');
 	//$mail->AddAttachment("images/icon_addrow.png", "icon_addrow.png");  // optional name
@@ -270,7 +270,7 @@ function mail_registration_doc($regCode,$reminder=0){
 function mail_notif_registration_doc($regCode, $User_ID, $status, $attr){
 	$mail = new PHPMailer();
 	$decrp = new custodian_encryp;
-	//$testing='TESTING';
+	$testing='TESTING';
 	$body = "";
 	$bodyHeader = "";
 	$bodyFooter = "";
@@ -302,10 +302,10 @@ function mail_notif_registration_doc($regCode, $User_ID, $status, $attr){
 	$mail->FromName   = 'Custodian System';
 
 	if ($status=='3'){
-		$mail->Subject  ='Notifikasi Proses Pendaftaran Dokumen '.$regCode;
+		$mail->Subject  =''.$testing.' Notifikasi Proses Pendaftaran Dokumen '.$regCode;
 	}
 	if ($status=='4'){
-		$mail->Subject  ='Notifikasi Proses Pendaftaran Dokumen '.$regCode;
+		$mail->Subject  =''.$testing.' Notifikasi Proses Pendaftaran Dokumen '.$regCode;
 	}
 	$mail->AddBcc('system.administrator@tap-agri.com');
 	//$mail->AddAttachment("images/icon_addrow.png", "icon_addrow.png");  // optional name

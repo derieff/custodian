@@ -14,7 +14,7 @@ include_once('./phpmailer/class.phpmailer.php');
 include_once('./phpmailer/class.html2text.inc.php');
 include_once ("./config/db_sql.php");
 include_once ("./include/class.endencrp.php");
-	
+
 function mail_exp_asset_ownership($docCode,$User_ID,$docList){
 	$mail = new PHPMailer();
 	$decrp = new custodian_encryp;
@@ -40,7 +40,7 @@ function mail_exp_asset_ownership($docCode,$User_ID,$docList){
 	$mail->AddReplyTo('no-reply@tap-agri.com','Custodian');
 	$mail->From       = 'no-reply@tap-agri.com';
 	$mail->FromName   = 'Custodian System';
-	$mail->Subject  ='Notifikasi Masa Berlaku Dokumen '.$relCode;
+	$mail->Subject  ='Notifikasi Masa Berlaku Dokumen '.$docCode;
 	$mail->AddBcc('system.administrator@tap-agri.com');
 	$docNum = count($docList);
 	for($i=0;$i<$docNum;$i++){
@@ -55,7 +55,7 @@ function mail_exp_asset_ownership($docCode,$User_ID,$docList){
 					</TD>
 				</TR>';
 	}
-	$bodyHeader = '	
+	$bodyHeader = '
 	<table width="497" border="0" align="center" cellpadding="0" cellspacing="0">
 	<tbody>
 	<tr>
@@ -70,11 +70,11 @@ function mail_exp_asset_ownership($docCode,$User_ID,$docList){
 	<p><span style="margin-bottom: 15px; font-size: 13px; font-family: \'lucida grande\',tahoma,verdana,arial,sans-serif;">Bersama ini disampaikan bahwa ada dokumen expired dengan detail sebagai berikut :</span></p>
 	<p>
 		<TABLE  width="458" >
-		<TR align="center"  style="border: 1px solid #ffe222; padding: 10px; background-color: #c4df9b; color: #333333; font-size: 12px; font-family: \'lucida grande\',tahoma,verdana,arial,sans-serif;">															
+		<TR align="center"  style="border: 1px solid #ffe222; padding: 10px; background-color: #c4df9b; color: #333333; font-size: 12px; font-family: \'lucida grande\',tahoma,verdana,arial,sans-serif;">
 			<TD width="10%"  style="font-size: 13px"><strong>No.</strong></TD>
 			<TD width="90%"  style="font-size: 13px"><strong>Keterangan Dokumen</strong></TD>
 		</TR>';
-		$bodyFooter = '				
+		$bodyFooter = '
 				</TABLE>
 			</p>
 			<p><span style="margin-bottom: 15px; font-size: 13px;font-family: \'lucida grande\',tahoma,verdana,arial,sans-serif;">Mohon kerjasamanya untuk melakukan pembaharuan dokumen.<br /> Terima kasih.  </span><br />
@@ -91,7 +91,7 @@ function mail_exp_asset_ownership($docCode,$User_ID,$docList){
 			</p>
 			</div>';
 		$bodyFooter .= '
-				</td>           
+				</td>
 				</tr>
 			</tbody>
 			</table>
@@ -103,8 +103,8 @@ function mail_exp_asset_ownership($docCode,$User_ID,$docList){
 		</tr>
 	</tbody>
 	</table>';
-		
-	$emailContent=$bodyHeader.$body.$bodyFooter;	
+
+	$emailContent=$bodyHeader.$body.$bodyFooter;
 	//echo $row->user_email.$body ;
 	$mail->ClearAddresses();
 	$mail->AddAddress($row->User_Email,$row->User_FullName);

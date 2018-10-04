@@ -53,7 +53,7 @@ if(($_GET['cfm'])&&($_GET['ati'])&&($_GET['rdm'])) {
 		$h_arr=mysql_fetch_array($h_sql);
 
 		if ($AppDate==NULL) {
-			
+
 			// MENCARI JUMLAH APPROVAL
 			$query = "SELECT MAX(A_Step) AS jStep
 						FROM M_Approval
@@ -281,6 +281,8 @@ if(($_GET['cfm'])&&($_GET['ati'])&&($_GET['rdm'])) {
 									AND CT_Delete_Time is NULL";
 						$sql = mysql_query($query);
 						$field = mysql_fetch_array($sql);
+
+						$DocumentGroup_Code = "DLNL";
 
 						if($field[0]==NULL)
 							$maxnum=0;

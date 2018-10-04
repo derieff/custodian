@@ -15,7 +15,7 @@ include ("./config/config_db.php");
 include ("./include/function.mail.reldoconl.php");
 $decrp = new custodian_encryp;
 
-if(($_GET['cfm'])&&($_GET['ati'])&&($_GET['rdm'])) {
+if( !empty($_GET['cfm']) && !empty($_GET['ati']) && !empty($_GET['rdm']) ) {
 	$A_Status="3";
 	$A_ID=$decrp->decrypt($_GET['ati']);
 	$ARC_RandomCode=$decrp->decrypt($_GET['rdm']);
@@ -144,7 +144,7 @@ if(($_GET['cfm'])&&($_GET['ati'])&&($_GET['rdm'])) {
 						$query = "SELECT MAX(CD_SeqNo)
 									FROM M_CodeDocument
 									WHERE CD_Year='$regyear'
-									AND CT_Action='DOUT'
+									-- AND CT_Action='DOUT'
 									AND CD_GroupDocCode='$DocumentGroup_Code'
 									AND CD_CompanyCode='$Company_Code'
 									AND CD_Delete_Time is NULL";

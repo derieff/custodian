@@ -18,7 +18,10 @@ include_once ("./include/class.endencrp.php");
 function mail_loan_doc($loanCode,$reminder=0){
 	$mail = new PHPMailer();
 	$decrp = new custodian_encryp;
-	// $testing='TESTING';
+	$testing='TESTING';
+	$body = "";
+	$bodyHeader = "";
+	$bodyFooter = "";
 
 	$e_query ="	SELECT User_ID,User_FullName,User_Email,A_TransactionCode,
 					   ARC_AID,ARC_RandomCode,THLOAOD_Information,THLOAOD_LoanDate,THLOAOD_LoanCategoryID,
@@ -166,10 +169,10 @@ function mail_loan_doc($loanCode,$reminder=0){
 				</p>
 				<p align=center>
 					<span style="border: 1px solid green;padding: 5px;margin-bottom: 15px; font-size: 13px;font-family: \'lucida grande\',tahoma,verdana,arial,sans-serif;background-color: rgb(196, 223, 155);color: white;float: left;margin-left: 15%;width: 20%;border-radius: 10px;">
-						<a target="_BLANK" style="color: white;" href="http://'.$_SERVER['HTTP_HOST'].'/act.mail.lodocao.php?cfm='.$decrp->encrypt('accept').'&ati='.$decrp->encrypt($row->ARC_AID).'&rdm='.$decrp->encrypt($row->ARC_RandomCode).'">Setuju</a>
+						<a target="_BLANK" style="color: white;" href="http://'.$_SERVER['HTTP_HOST'].'/custodian/act.mail.lodocao.php?cfm='.$decrp->encrypt('accept').'&ati='.$decrp->encrypt($row->ARC_AID).'&rdm='.$decrp->encrypt($row->ARC_RandomCode).'">Setuju</a>
 					</span>
 					<span style="border: 1px solid green;padding: 5px;margin-bottom: 15px; font-size: 13px;font-family: \'lucida grande\',tahoma,verdana,arial,sans-serif;background-color: rgb(196, 223, 155);color: white;float: right;margin-right: 15%;width: 20%;border-radius: 10px;">
-						<a target="_BLANK" style="color: white;" href="http://'.$_SERVER['HTTP_HOST'].'/act.mail.lodocao.php?act='.$decrp->encrypt('reject').'&ati='.$decrp->encrypt($row->ARC_AID).'&rdm='.$decrp->encrypt($row->ARC_RandomCode).'">Tolak</a>
+						<a target="_BLANK" style="color: white;" href="http://'.$_SERVER['HTTP_HOST'].'/custodian/act.mail.lodocao.php?act='.$decrp->encrypt('reject').'&ati='.$decrp->encrypt($row->ARC_AID).'&rdm='.$decrp->encrypt($row->ARC_RandomCode).'">Tolak</a>
 					</span><br />
 				</p>
 				</div>';
@@ -374,7 +377,10 @@ function mail_loan_doc($loanCode,$reminder=0){
 function mail_notif_loan_doc($loanCode, $User_ID, $status, $attr){
 	$mail = new PHPMailer();
 	$decrp = new custodian_encryp;
-	//$testing='TESTING';
+	$testing='TESTING';
+	$body = "";
+	$bodyHeader = "";
+	$bodyFooter = "";
 
 	$e_query="SELECT User_ID, User_FullName, User_Email
 			  FROM M_User
@@ -404,10 +410,10 @@ function mail_notif_loan_doc($loanCode, $User_ID, $status, $attr){
 	$mail->FromName   = 'Custodian System';
 
 	if ($status=='3'){
-		$mail->Subject  =''.$testing.'Notifikasi Proses Permintaan Dokumen '.$loanCode;
+		$mail->Subject  =''.$testing.' Notifikasi Proses Permintaan Dokumen '.$loanCode;
 	}
 	if ($status=='4'){
-		$mail->Subject  =''.$testing.'Notifikasi Proses Permintaan Dokumen '.$loanCode;
+		$mail->Subject  =''.$testing.' Notifikasi Proses Permintaan Dokumen '.$loanCode;
 	}
 	$mail->AddBcc('system.administrator@tap-agri.com');
 	//$mail->AddAttachment("images/icon_addrow.png", "icon_addrow.png");  // optional name
