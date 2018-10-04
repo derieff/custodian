@@ -19,5 +19,5 @@ function fix_session_register(){
 if (!function_exists('session_register')) fix_session_register();
 
 	session_register("version");
-	$_SESSION['version'] = '1.5.0';
+	$_SESSION['version'] = '2.0.0';
 ?>

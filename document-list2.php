@@ -1,5 +1,5 @@
-<?PHP 
-/* 
+<?PHP
+/*
 =========================================================================================================================
 = Nama Project		: Custodian																							=
 = Versi				: 1.2																								=
@@ -13,7 +13,7 @@
 = 		05/06/2012	: Penambahan Filter Tahap GRL (OK)																	=
 =========================================================================================================================
 */
-session_start(); 
+session_start();
 ?>
 <title>Custodian System | Pencarian</title>
 <?PHP include ("./config/config_db.php"); ?>
@@ -24,14 +24,14 @@ session_start();
 // VALIDASI INPUT PEMILIHAN GRUP DOKUMEN
 function validateInput(elem) {
 	var optTHROLD_DocumentGroupID = document.getElementById('optTHROLD_DocumentGroupID').selectedIndex;
-	
+
 	if(optTHROLD_DocumentGroupID == 0) {
 		alert("Grup Dokumen Belum Dipilih!");
 		return false;
 	}
 	else if(optTHROLD_DocumentGroupID == 3) {
 		var phase = document.getElementById('phase').value;
-		
+
 		if (phase.replace(" ", "") != "") {
 			if(isNaN(phase)){
 				alert ("Tahap Harus Berupa Angka [0-9]!");
@@ -45,10 +45,10 @@ function validateInput(elem) {
 // VALIDASI INPUT PEMILIHAN DOKUMEN YANG AKAN DICETAK BARCODE NYA
 function validateBarcodePrint(elem) {
 	var returnValue;
-	returnValue = false;							
+	returnValue = false;
 
 	var cBarcodePrint = document.getElementsByName('cBarcodePrint[]');
-		
+
 	for (var i = 0; i < cBarcodePrint.length; i++){
 		if (cBarcodePrint[i].checked) {
 			returnValue = true;
@@ -61,19 +61,31 @@ function validateBarcodePrint(elem) {
 	return returnValue;
 }
 
+// JQUERY UNTUK MENAMPILKAN TIPE DOKUMEN DARI KATEGORI DOKUMEN YANG DIPILIH
+function showType(){
+	var txtGrupID = document.getElementById('optFilterGrupDokumen').value;
+ 		$.post("jQuery.DocumentType.php", {
+			CategoryID: $('#optFilterGrupDokumen').val(),
+			GroupID: txtGrupID
+		}, function(response){
+
+			setTimeout("finishAjax('optFilterTipeDokumen', '"+escape(response)+"')", 400);
+		});
+}
+
 // MENAMPILKAN DETAIL FILTER
 function showFilterDetail() {
 	$.post("jQuery.TransactionListFilter.php", {
 		optTHROLD_DocumentGroupID : $('#optTHROLD_DocumentGroupID').val(),
 		optFilterHeader : $('#optFilterHeader').val()
 	}, function(response){
-		
+
 		setTimeout("finishAjax('optFilterDetail', '"+escape(response)+"')", 400);
 	});
 }
 function finishAjax(id, response){
   $('#'+id).html(unescape(response));
-} 
+}
 
 //MENAMPILKAN DAFTAR FASE BILA GRUP DOKUMEN ADALAH GRL
 function showFilter(){
@@ -100,13 +112,13 @@ function showType(){
 			CategoryID: $('#txtDL_CategoryDocID').val(),
 			GroupID: txtDL_GroupDocID
 		}, function(response){
-			
+
 			setTimeout("finishAjax('txtDL_TypeDocID', '"+escape(response)+"')", 400);
 		});
 }
 function finishAjax(id, response){
   $('#'+id).html(unescape(response));
-} 
+}
 
 // VALIDASI TANGGAL
 var dtCh= "/";
@@ -115,7 +127,7 @@ var maxYear=2100;
 
 function isInteger(s){
 	var i;
-    for (i = 0; i < s.length; i++){   
+    for (i = 0; i < s.length; i++){
         // Check that current character is number.
         var c = s.charAt(i);
         if (((c < "0") || (c > "9"))) return false;
@@ -129,7 +141,7 @@ function stripCharsInBag(s, bag){
     var returnString = "";
     // Search through string's characters one by one.
     // If character is not in bag, append to returnString.
-    for (i = 0; i < s.length; i++){   
+    for (i = 0; i < s.length; i++){
         var c = s.charAt(i);
         if (bag.indexOf(c) == -1) returnString += c;
     }
@@ -146,7 +158,7 @@ function DaysArray(n) {
 		this[i] = 31
 		if (i==4 || i==6 || i==9 || i==11) {this[i] = 30}
 		if (i==2) {this[i] = 29}
-   } 
+   }
    return this
 }
 
@@ -192,7 +204,7 @@ return true
 // VALIDASI BAGIAN DETAIL SAAT EDIT DOKUMEn
 function validateInputEdit(elem) {
 	var returnValue;
-	returnValue = true;				
+	returnValue = true;
 
 		var txtDL_CategoryDocID = document.getElementById('txtDL_CategoryDocID').selectedIndex;
 		var txtDL_TypeDocID = document.getElementById('txtDL_TypeDocID').selectedIndex;
@@ -204,7 +216,7 @@ function validateInputEdit(elem) {
 		var txtDL_Information2 = document.getElementById('txtDL_Information2').selectedIndex;
 		var Date1 = new Date(txtDL_RegDate);
 		var Date2 = new Date(txtDL_ExpDate);
-				
+
 		if(txtDL_CategoryDocID == 0) {
 			alert("Kategori Dokumen Belum Dipilih!");
 			returnValue = false;
@@ -213,24 +225,24 @@ function validateInputEdit(elem) {
 			alert("Tipe Dokumen Belum Dipilih!");
 			returnValue = false;
 		}
-		if (txtDL_Instance.replace(" ", "") == "")  {	
+		if (txtDL_Instance.replace(" ", "") == "")  {
 			alert("Nama Instansi Belum Terisi!");
 			returnValue = false;
 		}
-		if (txtDL_NoDoc.replace(" ", "") == "")  {	
+		if (txtDL_NoDoc.replace(" ", "") == "")  {
 			alert("Nomor Dokumen Belum Terisi!");
 			returnValue = false;
 		}
-		if (txtDL_RegDate.replace(" ", "") == "")  {	
+		if (txtDL_RegDate.replace(" ", "") == "")  {
 			alert("Tanggal Publikasi Belum Terisi!");
 			returnValue = false;
-		} 
-		if (txtDL_RegDate.replace(" ", "") != "")  {	
+		}
+		if (txtDL_RegDate.replace(" ", "") != "")  {
 			if (checkdate(txtDL_RegDate) == false) {
 				returnValue = false;
 			}
 		}
-		if (txtDL_ExpDate.replace(" ", "") != "")  {	
+		if (txtDL_ExpDate.replace(" ", "") != "")  {
 			if (checkdate(txtDL_ExpDate) == false) {
 				returnValue = false;
 			}
@@ -255,7 +267,7 @@ function validateInputEdit(elem) {
 // VALIDASI BAGIAN DETAIL SAAT EDIT DOKUMEn
 function validateInputEditLA(elem) {
 	var returnValue;
-	returnValue = true;				
+	returnValue = true;
 
 		var txtDLA_Phase = document.getElementById('txtDLA_Phase').value;
 		var txtDLA_Village = document.getElementById('txtDLA_Village').value;
@@ -263,37 +275,37 @@ function validateInputEditLA(elem) {
 		var txtDLA_Owner = document.getElementById('txtDLA_Owner').value;
 		var txtDLA_Period = document.getElementById('txtDLA_Period').value;
 		var txtDLA_DocDate = document.getElementById('txtDLA_DocDate').value;
-				
-		if (txtDLA_Phase.replace(" ", "") == "")  {	
+
+		if (txtDLA_Phase.replace(" ", "") == "")  {
 			alert("Tahap Pembebasan Lahan Belum Terisi!");
 			returnValue = false;
 		}
-		if (txtDLA_Village.replace(" ", "") == "")  {	
+		if (txtDLA_Village.replace(" ", "") == "")  {
 			alert("Nama Desa Belum Terisi!");
 			returnValue = false;
 		}
-		if (txtDLA_Block.replace(" ", "") == "")  {	
+		if (txtDLA_Block.replace(" ", "") == "")  {
 			alert("Blok Belum Terisi!");
 			returnValue = false;
-		} 
-		if (txtDLA_Owner.replace(" ", "") == "")  {	
+		}
+		if (txtDLA_Owner.replace(" ", "") == "")  {
 			alert("Nama Pemilik Belum Terisi!");
 			returnValue = false;
 		}
-		if (txtDLA_Period.replace(" ", "") == "")  {	
+		if (txtDLA_Period.replace(" ", "") == "")  {
 			alert("Periode Ganti Rugi Belum Terisi!");
 			returnValue = false;
 		}
-		if (txtDLA_Period.replace(" ", "") != "")  {	
+		if (txtDLA_Period.replace(" ", "") != "")  {
 			if (checkdate(txtDLA_Period) == false) {
 				returnValue = false;
 			}
 		}
-		if (txtDLA_DocDate.replace(" ", "") == "")  {	
+		if (txtDLA_DocDate.replace(" ", "") == "")  {
 			alert("Tanggal Dokumen Belum Terisi!");
 			returnValue = false;
 		}
-		if (txtDLA_DocDate.replace(" ", "") != "")  {	
+		if (txtDLA_DocDate.replace(" ", "") != "")  {
 			if (checkdate(txtDLA_DocDate) == false) {
 				returnValue = false;
 			}
@@ -316,31 +328,32 @@ $path_parts=pathinfo($_SERVER['PHP_SELF']);
 if(!isset($_SESSION['User_ID'])){
 	echo "<meta http-equiv='refresh' content='0; url=index.php?act=error'>";
 } else {
-	
+
 require_once "./include/template.inc";
 $page=new Template();
 
 $ActionContent ="
 	<form name='list' method='GET' action='document-list2.php'>
-	<table width='100%'>
+	<table width='100%' id='mytable' class='stripeMe'>
 	<tr>
-		<td width='14%'>Grup Dokumen</td>
-		<td width='1%'>:</td>
-		<td width='60%'>
+		<th colspan=4>Pencarian Dokumen</th>
+	</tr>
+	<!--<tr>
+		<td>Grup Dokumen</td>
+		<td>
 			<select name='optTHROLD_DocumentGroupID' id='optTHROLD_DocumentGroupID' onchange='showFilter();'>
 				<option value='0'>--- Pilih Grup ---</option>";
-				
-			$query = "SELECT * 
-					  FROM M_DocumentGroup 
+
+			/*$query = "SELECT *
+					  FROM M_DocumentGroup
 					  WHERE DocumentGroup_Delete_Time is NULL";
 			$sql = mysql_query($query);
-	
+
 			while ($field = mysql_fetch_object($sql) ){
-				
+
+$ActionContent .="<option value='".$field->DocumentGroup_ID."'>".$field->DocumentGroup_Name."</option>";
+}*/
 $ActionContent .="
-				<option value='".$field->DocumentGroup_ID."'>".$field->DocumentGroup_Name."</option>";
-			}
-$ActionContent .="	
 			</select>
 		</td>
 		<td width='25%'>
@@ -349,38 +362,157 @@ $ActionContent .="
 	</tr>
 	<tr>
 		<td>SEARCH</td>
-		<td>:</td>
-		<td colspan='2'>
+		<td>
 			<input name='txtSearch' type='text'/>
 		</td>
-	</tr>";
-	if (isset($_GET[filter])) {
-$ActionContent .="	
+	</tr>-->";
+	if (isset($_GET['filter'])) {
+$ActionContent .="
 	<tr>
-		<td>Filter</td>
-		<td>:</td>
-		<td colspan=4>
-			<select name='optFilterHeader' id='optFilterHeader' onchange='showFilterDetail(this.value);'>
-				<option value='0'>--- Pilih Grup Dokumen Terlebih Dahulu ---</option>
+		<td colspan='2'>FILTER</td>
+	</tr>
+	<tr>
+		<td>PT</td>
+		<td>
+			<select name='optFilterPT' id='optFilterPT'>
+				<option value='0'>-- Pilih PT --</option>";
+			$query = "SELECT Company_ID, Company_Name, Company_Code
+					  FROM M_Company
+					  WHERE Company_Delete_Time is NULL";
+			$sql = mysql_query($query);
+			while ($field = mysql_fetch_object($sql) ){
+
+$ActionContent .="
+	<option value='".$field->Company_ID."'>".$field->Company_Name."</option>";
+}
+$ActionContent .="
+			</select>
 		</td>
 	</tr>
 	<tr>
-		<td></td><td></td><td>
+		<td>GRUP DOKUMEN</td>
+		<td>
+			<select name='optFilterGrupDokumen' id='optFilterGrupDokumen'>
+				<option value='0'>-- Pilih Grup Dokumen --</option>";
+			$query = "SELECT DocumentGroup_ID, DocumentGroup_Name, DocumentGroup_Code
+					  FROM M_DocumentGroup
+					  WHERE DocumentGroup_Delete_Time is NULL";
+			$sql = mysql_query($query);
+			while ($field = mysql_fetch_object($sql) ){
+
+$ActionContent .="
+	<option value='".$field->DocumentGroup_ID."'>".$field->DocumentGroup_Name."</option>";
+}
+$ActionContent .="
+			</select>
+		</td>
+	</tr>
+	<tr>
+		<td>JENIS DOKUMEN</td>
+		<td>
+			<select name='optFilterJenisDokumen' id='optFilterJenisDokumen'>
+				<option value='0'>-- Pilih Jenis Dokumen --</option>
+			</select>
+		</td>
+	</tr>
+	<tr>
+		<td>TAHUN TERBIT DOKUMEN</td>
+		<td>
+			<select name='optFilterTahunTerbitDokumen' id='optFilterTahunTerbitDokumen'>
+				<option value='0'>-- Pilih Tahun Terbit Dokumen --</option>
+			</select>
+		</td>
+	</tr>
+	<tr>
+		<td>EXPIRED DATE DOKUMEN</td>
+		<td>
+			<select name='optFilterExpiredDateDokumen' id='optFilterExpiredDateDokumen'>
+				<option value='0'>-- Pilih Expired Date Dokumen --</option>
+			</select>
+		</td>
+	</tr>
+	<tr>
+		<td>PERMINTAAN DOKUMEN</td>
+		<td>
+			<select name='optFilterPermintaanDokumen' id='optFilterPermintaanDokumen'>
+				<option value='0'>-- Pilih Permintaan Dokumen --</option>
+			</select>
+		</td>
+	</tr>
+	<tr>
+		<td>PENDAFTARAN DOKUMEN</td>
+		<td>
+			<select name='optFilterPendaftaranDokumen' id='optFilterPendaftaranDokumen'>
+				<option value='0'>-- Pilih Pendaftaran Dokumen --</option>
+			</select>
+		</td>
+	</tr>
+	<tr>
+		<td>PEMINJAMAN DOKUMEN</td>
+		<td>
+			<select name='optFilterPeminjamanDokumen' id='optFilterPeminjamanDokumen'>
+				<option value='0'>-- Pilih Peminjaman Dokumen --</option>
+			</select>
+		</td>
+	</tr>
+	<tr>
+		<td>PENGOLAHAN DOKUMEN</td>
+		<td>
+			<select name='optFilterPengolahanDokumen' id='optFilterPengolahanDokumen'>
+				<option value='0'>-- Pilih Pengolahan Dokumen --</option>
+			</select>
+		</td>
+	</tr>
+	<tr>
+		<td>STATUS DOKUMEN</td>
+		<td>
+			<select name='optFilterStatusDokumen' id='optFilterStatusDokumen'>
+				<option value='0'>-- Pilih Status Dokumen --</option>
+			</select>
+		</td>
+	</tr>
+	<tr>
+		<td>PENDAFTAR DOKUMEN</td>
+		<td>
+			<select name='optFilterPendaftarDokumen' id='optFilterPendaftarDokumen'>
+				<option value='0'>-- Pilih Pendaftar Dokumen --</option>
+			</select>
+		</td>
+	</tr>
+	<!--<tr>
+		<td>Filter</td>
+		<td>
+			<select name='optFilterHeader' id='optFilterHeader' onchange='showFilterDetail(this.value);'>
+				<option value='0'>--- Pilih Grup Dokumen Terlebih Dahulu ---</option>
+			</select>
+		</td>
+	</tr>
+	<tr>
+		<td></td>
+		<td>
 			<select name='optFilterDetail' id='optFilterDetail' class='filter'>
 				<option value='0'>--- Pilih Filter Terlebih Dahulu ---</option>
 			</select>
 		</td>
 	</tr>
 	<tr>
-		<td></td><td></td><td>
+		<td></td>
+		<td>
 			<div id='optPhase' style='display:none;'>
 			Tahap GRL : <input type='text'  name='phase' id='phase' size='5'>
 			</div>
 		</td>
+	</tr>-->
+	<tr>
+		<th colspan='2'>
+			<input name='listdocument' type='submit' value='Cari' class='button' onclick='return validateInput(this);'/>
+			<input name='filter' type='submit' value='Filter' class='button'/>
+			<input name='export_to_excel' type='submit' value='&nbsp;Export to Excel&nbsp;' class='button-blue' />
+		</th>
 	</tr>
-";		
+";
 	}
-$ActionContent .="	
+$ActionContent .="
 	</table>
 	</form>
 ";
@@ -390,22 +522,22 @@ $ActionContent .="
 /* ====== */
 
 	if(isset($_GET[listdocument])) {
-		
+
 
 // Menampilkan Dokumen
 $dataPerPage = 20;
 
-if(isset($_GET['page'])) 
+if(isset($_GET['page']))
     $noPage = $_GET['page'];
-	
-else 
+
+else
 	$noPage = 1;
-	
+
 $offset = ($noPage - 1) * $dataPerPage;
-	if ($_GET[optTHROLD_DocumentGroupID]<>'3'){
+	if ($_GET['optTHROLD_DocumentGroupID'] ==  '1' or $_GET['optTHROLD_DocumentGroupID'] == '2'){
 		$query = "SELECT dl.DL_ID, dl.DL_DocCode, c.Company_Name, dc.DocumentCategory_Name,
 		dt.DocumentType_Name, dl.DL_PubDate, lds.LDS_Name, dg.DocumentGroup_Name
-		FROM 
+		FROM
 		M_DocumentLegal dl, M_Company c, M_DocumentCategory dc, M_DocumentType dt, M_LoanDetailStatus lds,
 		M_DocumentGroup dg, M_DocumentInformation1 di1, M_DocumentInformation2 di2, M_User u
 		WHERE
@@ -419,7 +551,7 @@ $offset = ($noPage - 1) * $dataPerPage;
 		AND dl.DL_Information1 = di1.DocumentInformation1_ID
 		AND dl.DL_Information2 = di2.DocumentInformation2_ID
 		AND dl.DL_Delete_Time IS NULL ";
-		
+
 		if ($_GET[txtSearch]) {
 			$search=$_GET['txtSearch'];
 			$query .="AND (
@@ -442,7 +574,7 @@ $offset = ($noPage - 1) * $dataPerPage;
 						OR dl.DL_NoDoc LIKE '%$search%'
 						OR dl.DL_PubDate LIKE '%$search%'
 						OR dl.DL_ExpDate LIKE '%$search%'
-					)";		
+					)";
 		}
 		elseif ($_GET[optFilterHeader]==1) {
 			$query .="AND dl.DL_CompanyID='$_GET[optFilterDetail]' ";
@@ -458,15 +590,15 @@ $offset = ($noPage - 1) * $dataPerPage;
 		}
 		$querylimit .="ORDER BY dl.DL_ID LIMIT $offset, $dataPerPage";
 	}
-	elseif ($_GET[optTHROLD_DocumentGroupID]=='3'){
+	elseif ($_GET['optTHROLD_DocumentGroupID']=='3'){
 		$query = "SELECT dla.DLA_ID, c.Company_Name, dla.DLA_Phase, dla.DLA_Period, dla.DLA_DocRevision, lds.LDS_Name,
-						 dla.DLA_Code 
+						 dla.DLA_Code
 				  FROM M_DocumentLandAcquisition dla, M_Company c, M_User u,  M_LoanDetailStatus lds
 				  WHERE c.Company_ID=dla.DLA_CompanyID
 				  AND dla.DLA_Delete_Time IS NULL
-				  AND dla.DLA_Status=lds.LDS_ID 
+				  AND dla.DLA_Status=lds.LDS_ID
 				  AND dla.DLA_RegUserID=u.User_ID ";
-		
+
 		if ($_GET[txtSearch]) {
 			$search=$_GET['txtSearch'];
 			$query .="AND (
@@ -480,20 +612,20 @@ $offset = ($noPage - 1) * $dataPerPage;
 						OR dla.DLA_Phase LIKE '%$search%'
 						OR dla.DLA_Period LIKE '%$search%'
 						OR dla.DLA_DocDate LIKE '%$search%'
-						OR dla.DLA_Block LIKE '%$search%' 
-						OR dla.DLA_Village LIKE '%$search%' 
+						OR dla.DLA_Block LIKE '%$search%'
+						OR dla.DLA_Village LIKE '%$search%'
 						OR dla.DLA_Owner LIKE '%$search%'
 						OR dla.DLA_Information LIKE '%$search%'
 						OR dla.DLA_AreaClass LIKE '%$search%'
 						OR dla.DLA_AreaStatement LIKE '%$search%'
 						OR dla.DLA_AreaPrice LIKE '%$search%'
 						OR dla.DLA_AreaTotalPrice LIKE '%$search%'
-						OR dla.DLA_PlantClass LIKE '%$search%'	
+						OR dla.DLA_PlantClass LIKE '%$search%'
 						OR dla.DLA_PlantQuantity LIKE '%$search%'
 						OR dla.DLA_PlantPrice LIKE '%$search%'
-						OR dla.DLA_PlantTotalPrice LIKE '%$search%'	
+						OR dla.DLA_PlantTotalPrice LIKE '%$search%'
 						OR dla.DLA_GrandTotal LIKE '%$search%'
-					)";		
+					)";
 		}
 		elseif ($_GET[optFilterHeader]==1) {
 			$query .="AND dla.DLA_CompanyID='$_GET[optFilterDetail]' ";
@@ -513,7 +645,7 @@ $num = mysql_num_rows($sql);
 $sqldg = mysql_query($queryAll);
 $arr = mysql_fetch_array($sqldg);
 //echo $queryAll;
-	if ($_GET[optTHROLD_DocumentGroupID]<>'3'){
+	if ($_GET['optTHROLD_DocumentGroupID'] == '1' or $_GET['optTHROLD_DocumentGroupID'] == '2'){
 		if ($num==NULL) {
 		$MainContent .="
 			<table width='100%' border='1' class='stripeMe'>
@@ -537,7 +669,7 @@ $arr = mysql_fetch_array($sqldg);
 			<form name='list' method='GET' target='_blank' action='print-document-barcode.php' onsubmit='return validateBarcodePrint(this);'>
 			<table width='100%' border='1' class='stripeMe'>
 			<tr>
-				<th colspan=8 align='center'>Daftar Dokumen $arr[DocumentGroup_Name]</th>
+				<th colspan='7' align='center'>Daftar Dokumen $arr[DocumentGroup_Name]</th>
 			</tr>
 			<tr>
 				<th>ID</th>
@@ -549,7 +681,7 @@ $arr = mysql_fetch_array($sqldg);
 				<th>Status</th>
 			</tr>
 		";
-		
+
 			while ($field = mysql_fetch_array($sql)) {
 		$MainContent .="
 			<tr>
@@ -569,11 +701,11 @@ $arr = mysql_fetch_array($sqldg);
 		$MainContent .="
 			</table>
 			</form>
-		";	
+		";
 		}
 	}
 
-	elseif ($_GET[optTHROLD_DocumentGroupID]=='3'){
+	elseif ($_GET['optTHROLD_DocumentGroupID']=='3'){
 		if ($num==NULL) {
 		$MainContent .="
 			<table width='100%' border='1' class='stripeMe'>
@@ -584,7 +716,7 @@ $arr = mysql_fetch_array($sqldg);
 				<th>Tahap</th>
 				<th>Periode</th>
 				<th>Revisi</th>
-				<th>Status</th>	
+				<th>Status</th>
 			</tr>
 			<tr>
 				<td colspan=8 align='center'>Belum Ada Data</td>
@@ -597,7 +729,7 @@ $arr = mysql_fetch_array($sqldg);
 			<form name='list' method='GET' action='print-land-acquisition-document-barcode.php' onsubmit='return validateBarcodePrint(this);' target='_blank'>
 			<table width='100%' border='1' class='stripeMe'>
 			<tr>
-				<th colspan=10 align='center'>Daftar Dokumen Pembebasan Lahan</th>
+				<th colspan='7' align='center'>Daftar Dokumen Pembebasan Lahan</th>
 			</tr>
 			<tr>
 				<th>ID</th>
@@ -606,10 +738,10 @@ $arr = mysql_fetch_array($sqldg);
 				<th>Tahap</th>
 				<th>Periode</th>
 				<th>Revisi</th>
-				<th>Status</th>	
+				<th>Status</th>
 			</tr>
 		";
-		
+
 			while ($field = mysql_fetch_array($sql)) {
 				$regdate=strtotime($field[3]);
 				$fregdate=date("j M Y", $regdate);
@@ -630,7 +762,7 @@ $arr = mysql_fetch_array($sqldg);
 		$MainContent .="
 			</table>
 			</form>
-		";	
+		";
 		}
 	}
 
@@ -647,24 +779,24 @@ $arr = mysql_fetch_array($sqldg);
 		$prev=$noPage-1;
 		$next=$noPage+1;
 
-		if ($noPage > 1) 
+		if ($noPage > 1)
 			$Pager.="<a href='$link&page=$prev'>&lt;&lt; Prev</a> ";
 		for($p=1; $p<=$jumPage; $p++) {
-			if ((($p>=$noPage-3) && ($p<=$noPage+3)) || ($p==1) || ($p== $jumPage)) {   
-				if (($showPage == 1) && ($p != 2))  
-					$Pager.="..."; 
-				if (($showPage != ($jumPage - 1)) && ($p == $jumPage))  
+			if ((($p>=$noPage-3) && ($p<=$noPage+3)) || ($p==1) || ($p== $jumPage)) {
+				if (($showPage == 1) && ($p != 2))
 					$Pager.="...";
-				if ($p == $noPage) 
+				if (($showPage != ($jumPage - 1)) && ($p == $jumPage))
+					$Pager.="...";
+				if ($p == $noPage)
 					$Pager.="<b><u>$p</b></u> ";
-				else 
+				else
 					$Pager.="<a href='$link&page=$p'>$p</a> ";
-				
-				$showPage = $p;          
+
+				$showPage = $p;
 			}
 		}
 
-		if ($noPage < $jumPage) 
+		if ($noPage < $jumPage)
 			$Pager .= "<a href='$link&page=$next'>Next &gt;&gt;</a> ";
 	}
 
@@ -675,9 +807,9 @@ $arr = mysql_fetch_array($sqldg);
 
 if($_GET["act"]){
 	$act=$_GET["act"];
-	
+
 	$ActionContent =" ";
-		// Cek apakah Staff Custodian atau bukan. 
+		// Cek apakah Staff Custodian atau bukan.
 		// Staff Custodian memiliki hak untuk upload softcopy & edit dokumen.
 		$query = "SELECT *
 		  	FROM M_DivisionDepartmentPosition ddp, M_Department d
@@ -686,8 +818,8 @@ if($_GET["act"]){
 			AND d.Department_Name LIKE '%Custodian%'";
 		$sql = mysql_query($query);
 		$custodian = mysql_num_rows($sql);
-		
-		// Cek apakah Administrator atau bukan. 
+
+		// Cek apakah Administrator atau bukan.
 		// Administrator memiliki hak untuk upload softcopy & edit dokumen.
 		$query = "SELECT *
 				  FROM M_UserRole
@@ -697,29 +829,29 @@ if($_GET["act"]){
 		$sql = mysql_query($query);
 		$admin = mysql_num_rows($sql);
 
-	
+
 	//Melihat Detail Dokumen Legal, License, Others
 	if(($act=='detail') || ($act=='edit') ){
 		$id=$_GET["id"];
-		$query = "SELECT dl.DL_DocCode,  
-						 u.User_FullName, 
-						 dl.DL_RegTime, 
+		$query = "SELECT dl.DL_DocCode,
+						 u.User_FullName,
+						 dl.DL_RegTime,
 						 c.Company_Name,
-						 c.Company_Code, 
+						 c.Company_Code,
 						 dc.DocumentCategory_ID,
-						 dc.DocumentCategory_Name,  
+						 dc.DocumentCategory_Name,
 						 dt.DocumentType_ID,
-						 dt.DocumentType_Name,  
-						 dl.DL_NoDoc, 
-						 dl.DL_PubDate, 
-						 dl.DL_ExpDate, 
-						 di1.DocumentInformation1_ID, 
-						 di1.DocumentInformation1_Name, 
-						 di2.DocumentInformation2_ID, 
-						 di2.DocumentInformation2_Name, 
-						 dl.DL_Information3, 
-						 dl.DL_Instance, 
-						 dl.DL_Location, 
+						 dt.DocumentType_Name,
+						 dl.DL_NoDoc,
+						 dl.DL_PubDate,
+						 dl.DL_ExpDate,
+						 di1.DocumentInformation1_ID,
+						 di1.DocumentInformation1_Name,
+						 di2.DocumentInformation2_ID,
+						 di2.DocumentInformation2_Name,
+						 dl.DL_Information3,
+						 dl.DL_Instance,
+						 dl.DL_Location,
 						 dl.DL_Softcopy,
 						 lds.LDS_Name,
 						 dg.DocumentGroup_Name,
@@ -739,7 +871,7 @@ if($_GET["act"]){
 		$sql = mysql_query($query);
 		$arr = mysql_fetch_array($sql);
 	}
-	if($act=='detail') {	
+	if($act=='detail') {
 		$regdate=strtotime($arr['DL_RegTime']);
 		$fregdate=date("j M Y", $regdate);
 		$pubdate=strtotime($arr['DL_PubDate']);
@@ -799,11 +931,11 @@ $MainContent ="
 	</tr>
 	<tr>
 		<td width='30%'>Keterangan 1</td>
-		<td width='70%'>$arr[DocumentInformation1_Name]</td>		
+		<td width='70%'>$arr[DocumentInformation1_Name]</td>
 	</tr>
 	<tr>
 		<td width='30%'>Keterangan 2</td>
-		<td width='70%'>$arr[DocumentInformation2_Name]</td>		
+		<td width='70%'>$arr[DocumentInformation2_Name]</td>
 	</tr>
 	<tr>
 		<td width='30%'>Keterangan 3</td>
@@ -815,14 +947,14 @@ $MainContent ="
 	</tr>
 	<tr>
 		<td width='30%'>Lokasi DoKumen</td>
-		<td width='70%'>$arr[DL_Location]</td>			
+		<td width='70%'>$arr[DL_Location]</td>
 	</tr>
 	<tr>
 		<td width='30%'>Status</td>
 		<td width='70%'>$arr[LDS_Name]</td>
 	</tr>";
 	if ((($custodian==1)||($admin=="1")) && ($arr['DL_Softcopy']<> NULL) ) {
-$MainContent .="		
+$MainContent .="
 	<tr>
 		<td width='30%'>Softcopy Dokumen</td>
 		<td width='70%'>
@@ -830,12 +962,12 @@ $MainContent .="
 		</td>
 	</tr>";
 	}
-$MainContent .="		
+$MainContent .="
 	</table>
 ";
 	}
-	
-	if(($act=='edit') && (($custodian==1)||($admin=="1"))){	
+
+	if(($act=='edit') && (($custodian==1)||($admin=="1"))){
 		$regdate=strtotime($arr['DL_RegTime']);
 		$fregdate=date("j M Y", $regdate);
 		$pubdate=strtotime($arr['DL_PubDate']);
@@ -880,13 +1012,13 @@ $MainContent ="
 
 				<select name='txtDL_CategoryDocID' id='txtDL_CategoryDocID' onchange='showType(this.value);'>
 					<option value='0'>--- Pilih Kategori Dokumen ---</option>";
-			$query5="SELECT DISTINCT dc.DocumentCategory_ID,dc.DocumentCategory_Name 
+			$query5="SELECT DISTINCT dc.DocumentCategory_ID,dc.DocumentCategory_Name
 					 FROM L_DocumentGroupCategoryType dgct, M_DocumentCategory dc
-					 WHERE dgct.DGCT_DocumentGroupID='$arr[DocumentGroup_ID]' 
+					 WHERE dgct.DGCT_DocumentGroupID='$arr[DocumentGroup_ID]'
 					 AND dgct.DGCT_DocumentCategoryID=dc.DocumentCategory_ID
 					 AND dgct.DGCT_Delete_Time is NULL";
 			$sql5 = mysql_query($query5);
-			
+
 			while ($field5=mysql_fetch_array($sql5)) {
 				if ($field5["DocumentCategory_ID"]=="$arr[DocumentCategory_ID]"){
 $MainContent .="
@@ -898,21 +1030,21 @@ $MainContent .="
 				}
 			}
 $MainContent .="
-			</select>				
+			</select>
 		</td>
 	<tr>
 		<td width='30%'>Tipe Dokumen</td>
 		<td>
 			<select name='txtDL_TypeDocID' id='txtDL_TypeDocID'>
 					<option value='0'>--- Pilih Kategori Dokumen Terlebih Dahulu ---</option>";
-			$query6="SELECT DISTINCT dt.DocumentType_ID,dt.DocumentType_Name 
+			$query6="SELECT DISTINCT dt.DocumentType_ID,dt.DocumentType_Name
 					 FROM L_DocumentGroupCategoryType dgct, M_DocumentType dt
-					 WHERE dgct.DGCT_DocumentGroupID='$arr[DocumentGroup_ID]' 
+					 WHERE dgct.DGCT_DocumentGroupID='$arr[DocumentGroup_ID]'
 					 AND dgct.DGCT_DocumentCategoryID='$arr[DocumentCategory_ID]'
 					 AND dgct.DGCT_DocumentTypeID=dt.DocumentType_ID
 					 AND dgct.DGCT_Delete_Time is NULL";
 			$sql6 = mysql_query($query6);
-			
+
 			while ($field6=mysql_fetch_array($sql6)) {
 				if ($field6["DocumentType_ID"]==$arr['DocumentType_ID']){
 $MainContent .="
@@ -924,7 +1056,7 @@ $MainContent .="
 				}
 			}
 $MainContent .="
-			</select>				
+			</select>
 		</td>
 	</tr>
 	<tr>
@@ -952,12 +1084,12 @@ $MainContent .="
 		<td width='70%'>
 				<select name='txtDL_Information1' id='txtDL_Information1'>
 					<option value='0'>--- Pilih Keterangan Dokumen 1 ---</option>";
-                 $query1 = "SELECT * 
-				 				FROM M_DocumentInformation1 
-								WHERE DocumentInformation1_Delete_Time is NULL 
+                 $query1 = "SELECT *
+				 				FROM M_DocumentInformation1
+								WHERE DocumentInformation1_Delete_Time is NULL
 								ORDER BY DocumentInformation1_ID";
                  $hasil1 = mysql_query($query1);
-				 
+
                  while ($data = mysql_fetch_array($hasil1))
                  {
 					 if ($data[0]==$arr[DocumentInformation1_ID]){
@@ -971,19 +1103,19 @@ $MainContent .="
                  }
 $MainContent .="
 				</select>
-		</td>		
+		</td>
 	</tr>
 	<tr>
 		<td width='30%'>Keterangan 2</td>
 		<td width='70%'>
 				<select name='txtDL_Information2' id='txtDL_Information2'>
 					<option value='0'>--- Pilih Keterangan Dokumen 2 ---</option>";
-                 $query1 = "SELECT * 
-				 				FROM M_DocumentInformation2 
-								WHERE DocumentInformation2_Delete_Time is NULL 
+                 $query1 = "SELECT *
+				 				FROM M_DocumentInformation2
+								WHERE DocumentInformation2_Delete_Time is NULL
 								ORDER BY DocumentInformation2_ID";
                  $hasil1 = mysql_query($query1);
-				 
+
                  while ($data = mysql_fetch_array($hasil1))
                  {
 					 if ($data[0]==$arr[DocumentInformation2_ID]){
@@ -997,7 +1129,7 @@ $MainContent .="
                  }
 $MainContent .="
 				</select>
-		<td>	
+		<td>
 	</tr>
 	<tr>
 		<td width='30%'>Keterangan 3</td>
@@ -1005,14 +1137,14 @@ $MainContent .="
 	</tr>
 	<tr>
 		<td width='30%'>Lokasi Dokumen</td>
-		<td width='70%'>$arr[DL_Location]</td>			
+		<td width='70%'>$arr[DL_Location]</td>
 	</tr>
 	<tr>
 		<td width='30%'>Status</td>
 		<td width='70%'>$arr[LDS_Name]</td>
 	</tr>";
 		if ((($custodian==1)||($admin=="1")) && ($arr['DL_Softcopy']==NULL) ) {
-$MainContent .="		
+$MainContent .="
 	<tr>
 		<td width='30%'>Upload Softcopy Dokumen</td>
 		<td width='70%'>
@@ -1021,9 +1153,9 @@ $MainContent .="
 		</td>
 	</tr>";
 		}
-		
+
 		elseif ((($custodian==1)||($admin=="1")) && ($arr['DL_Softcopy']<> NULL) ) {
-$MainContent .="		
+$MainContent .="
 	<tr>
 		<td width='30%'>Softcopy Dokumen</td>
 		<td width='70%'>
@@ -1037,19 +1169,19 @@ $MainContent .="
 $MainContent .="
 	<th colspan='2'>
 		<input name='edit' type='submit' value='Simpan' class='button' onclick='return validateInputEdit(this);'/>
-		<input name='cancel' type='submit' value='Batal' class='button'/>	
-	</th>		
+		<input name='cancel' type='submit' value='Batal' class='button'/>
+	</th>
 	</table>
 	</form>
 ";
 	}
-	
+
 	//Melihat Detail Dokumen Pembebasan Lahan
 	if(($act=='detailLA') || ($act=='editLA') ){
 		$id=$_GET["id"];
 		$query = "SELECT c.Company_Name,
-						 c.Company_Code, 
-						 dla.DLA_Phase,  
+						 c.Company_Code,
+						 dla.DLA_Phase,
 						 dla.DLA_Village,
 						 dla.DLA_Owner,
 						 dla.DLA_Block,
@@ -1066,8 +1198,8 @@ $MainContent .="
 						 dla.DLA_Period,
 						 dla.DLA_DocRevision,
 						 dla.DLA_Information,
-						 u.User_FullName, 
-						 dla.DLA_RegTime, 
+						 u.User_FullName,
+						 dla.DLA_RegTime,
 						 dla.DLA_Softcopy,
 						 dla.DLA_DocDate,
 						 dla.DLA_ID,
@@ -1083,7 +1215,7 @@ $MainContent .="
 		$arr = mysql_fetch_array($sql);
 		//echo $query;
 	}
-	if($act=='detailLA') {	
+	if($act=='detailLA') {
 		$regdate=strtotime($arr['DLA_RegTime']);
 		$fregdate=date("j M Y", $regdate);
 		$perdate=strtotime($arr['DLA_Period']);
@@ -1153,22 +1285,22 @@ $MainContent ="
 	</tr>
 	<tr>
 		<td width='30%'>Total</td>
-		<td width='70%'>Rp $TotalPrice</td>		
+		<td width='70%'>Rp $TotalPrice</td>
 	</tr>
 	<tr>
 		<td width='30%'>Keterangan</td>
-		<td width='70%'>$arr[DLA_Information]</td>		
+		<td width='70%'>$arr[DLA_Information]</td>
 	</tr>
 	<tr>
 		<td width='30%'>Lokasi Dokumen</td>
-		<td width='70%'>$arr[DLA_Location]</td>			
+		<td width='70%'>$arr[DLA_Location]</td>
 	</tr>
 	<tr>
 		<td width='30%'>Status</td>
 		<td width='70%'>$arr[LDS_Name]</td>
 	</tr>";
 	if ((($custodian==1)||($admin=="1")) && ($arr['DLA_Softcopy']<> NULL) ) {
-$MainContent .="		
+$MainContent .="
 	<tr>
 		<td width='30%'>Softcopy Dokumen</td>
 		<td width='70%'>
@@ -1176,9 +1308,9 @@ $MainContent .="
 		</td>
 	</tr>";
 	}
-$MainContent .="		
+$MainContent .="
 	</table>
-	
+
 	<table width='100%' class='stripeMe'>
 	<tr>
 		<th colspan='4'>Detail Dokumen</th>
@@ -1198,7 +1330,7 @@ $MainContent .="
 				 ORDER BY laa.LAA_ID";
 	$dDoc_sql=mysql_query($dDoc_query);
 	while ($dDoc_arr=mysql_fetch_array($dDoc_sql)){
-$MainContent .="			
+$MainContent .="
 	<tr>
 		<td align='center'>$dDoc_arr[DLAA_DocCode]</td>
 		<td>$dDoc_arr[LAA_Name]</td>
@@ -1206,12 +1338,12 @@ $MainContent .="
 	</tr>
 ";
 	}
-	
-$MainContent .="			
+
+$MainContent .="
 	</table>
 ";
 	}
-	
+
 	if(($act=='editLA') && (($custodian==1)||($admin=="1"))){
 		$regdate=strtotime($arr['DLA_RegTime']);
 		$fregdate=date("j M Y", $regdate);
@@ -1300,22 +1432,22 @@ $MainContent ="
 	</tr>
 	<tr>
 		<td width='30%'>Total</td>
-		<td width='70%'><input type='text' name='txtDLA_GrandTotal' id='txtDLA_GrandTotal' value='$arr[DLA_GrandTotal]' size='10' readonly='true' class='readonly-right'></td>		
+		<td width='70%'><input type='text' name='txtDLA_GrandTotal' id='txtDLA_GrandTotal' value='$arr[DLA_GrandTotal]' size='10' readonly='true' class='readonly-right'></td>
 	</tr>
 	<tr>
 		<td width='30%'>Keterangan</td>
-		<td width='70%'><textarea name='txtDLA_Information' id='txtDLA_Information' cols='50' rows='2'>$arr[DLA_Information]</textarea></td>		
+		<td width='70%'><textarea name='txtDLA_Information' id='txtDLA_Information' cols='50' rows='2'>$arr[DLA_Information]</textarea></td>
 	</tr>
 	<tr>
 		<td width='30%'>Lokasi Dokumen</td>
-		<td width='70%'><input type='hidden' name='txtDLA_Location' value='$arr[DLA_Location]'>$arr[DLA_Location]</td>			
+		<td width='70%'><input type='hidden' name='txtDLA_Location' value='$arr[DLA_Location]'>$arr[DLA_Location]</td>
 	</tr>
 	<tr>
 		<td width='30%'>Status</td>
 		<td width='70%'>$arr[LDS_Name]</td>
 	</tr>";
 		if ((($custodian==1)||($admin=="1")) && ($arr['DLA_Softcopy']==NULL) ) {
-$MainContent .="		
+$MainContent .="
 	<tr>
 		<td width='30%'>Upload Softcopy Dokumen</td>
 		<td width='70%'>
@@ -1324,9 +1456,9 @@ $MainContent .="
 		</td>
 	</tr>";
 		}
-		
+
 		elseif ((($custodian==1)||($admin=="1")) && ($arr['DLA_Softcopy']<> NULL) ) {
-$MainContent .="		
+$MainContent .="
 	<tr>
 		<td width='30%'>Softcopy Dokumen</td>
 		<td width='70%'>
@@ -1336,8 +1468,8 @@ $MainContent .="
 		</td>
 	</tr>";
 		}
-$MainContent .="		
-	</table>	
+$MainContent .="
+	</table>
 	<table width='100%' class='stripeMe'>
 	<tr>
 		<th colspan='5'>Detail Dokumen</th>
@@ -1357,7 +1489,7 @@ $MainContent .="
 				 ORDER BY laa.LAA_ID";
 	$dDoc_sql=mysql_query($dDoc_query);
 	while ($dDoc_arr=mysql_fetch_array($dDoc_sql)){
-$MainContent .="			
+$MainContent .="
 	<tr>
 		<td align='center'>$dDoc_arr[DLAA_DocCode]</td>
 		<td><input type='hidden' name='txtLAA_ID[]' id='txtLAA_ID[]' value='$dDoc_arr[LAA_ID]'>$dDoc_arr[LAA_Name]</td>
@@ -1369,39 +1501,39 @@ $MainContent .="
 		$s_sql=mysql_query($s_query);
 		while ($s_arr=mysql_fetch_array($s_sql)) {
 			if ($s_arr[LAAS_ID]==$dDoc_arr[LAAS_ID]) {
-$MainContent .="		
+$MainContent .="
 				<option value='$s_arr[LAAS_ID]' selected='selected'>$s_arr[LAAS_Name]</option>";
 			}
 			else {
-$MainContent .="		
+$MainContent .="
 				<option value='$s_arr[LAAS_ID]'>$s_arr[LAAS_Name]</option>";
 			}
 		}
-$MainContent .="	
-			</select>			
+$MainContent .="
+			</select>
 		</td>
 	</tr>
 ";
 	}
-	
+
 $MainContent .="
 	<th colspan='5'>
 		<input name='editLA' type='submit' value='Simpan' class='button' onclick='return validateInputEditLA(this);'/>
-		<input name='cancel' type='submit' value='Batal' class='button'/>	
-	</th>		
+		<input name='cancel' type='submit' value='Batal' class='button'/>
+	</th>
 	</table>
 	</form>
 ";
 	}
 
 
-/* ====== */	
+/* ====== */
 /* ACTION */
-/* ====== */	
-//print_r($_GET);die();	
+/* ====== */
+//print_r($_GET);die();
 if(isset($_POST[cancel])) {
 	echo "<meta http-equiv='refresh' content='0; url=document-list2.php'>";
-	
+
 }
 else if($_POST['edit']) {
 	$txtRegDate=date('Y-m-d H:i:s', strtotime($_POST['txtDL_RegDate']));
@@ -1420,7 +1552,7 @@ else if($_POST['edit']) {
 				  DL_Information2='$_POST[txtDL_Information2]',
 				  DL_Information3='$_POST[txtDL_Information3]',
 				  DL_Instance='$_POST[txtDL_Instance]',
-			  	  DL_Update_Time=sysdate(), 
+			  	  DL_Update_Time=sysdate(),
 			      DL_Update_UserID='$_SESSION[User_ID]'
 			  WHERE DL_DocCode='$_POST[DL_DocCode]'";
 	if ($mysqli->query($query))
@@ -1452,14 +1584,14 @@ else if($_POST['editLA']) {
 				  DLA_PlantTotalPrice='$_POST[txtDLA_PlantTotalPrice]',
 				  DLA_GrandTotal='$_POST[txtDLA_GrandTotal]',
 				  DLA_Information='$_POST[txtDLA_Information]',
-			  	  DLA_Update_Time=sysdate(), 
+			  	  DLA_Update_Time=sysdate(),
 			      DLA_Update_UserID='$_SESSION[User_ID]'
 			  WHERE DLA_ID='$_POST[txtDLA_ID]'";
 	if ($mysqli->query($query)) {
 		for ($i=0; $i<$jRow; $i++) {
 			$d_query="UPDATE M_DocumentLandAcquisitionAttribute
 					  SET DLAA_LAAS_ID='$optLAAS_ID[$i]',
-						  DLAA_Update_Time=sysdate(), 
+						  DLAA_Update_Time=sysdate(),
 						  DLAA_Update_UserID='$_SESSION[User_ID]'
 					  WHERE DLAA_DLA_ID='$_POST[txtDLA_ID]'
 					  AND DLAA_LAA_ID='$txtLAA_ID[$i]'
@@ -1476,7 +1608,7 @@ else if($_POST['upload']){
 	$DocumentGroup_Code=$_POST[DocumentGroup_Code];
 	$regdate=strtotime($_POST['DL_RegTime']);
 	$DL_RegTime=date("Y", $regdate);
-	
+
 	$uploaddir = "SOFTCOPY/$Company_Name/$DocumentGroup_Code/$DL_RegTime/";
 	if ( ! is_dir($uploaddir)) {
 		$oldumask = umask(0);
@@ -1487,22 +1619,22 @@ else if($_POST['upload']){
 		umask($oldumask);
 	}
 	$uploadFile = $_FILES['userfile'];
-	$extractFile = pathinfo($uploadFile['name']);		
+	$extractFile = pathinfo($uploadFile['name']);
 
 	$newName = $DL_DocCode.'.'.$extractFile['extension'];
-	$sameName = 0; 
+	$sameName = 0;
 	if ($handle = opendir("$uploaddir")) {
 		while (false !== ($file = readdir($handle))) {
 			if ($file==$newName) {
-				if(strpos($newName,$DL_DocCode) !== false)  {                           
-					$sameName++; // Tambah data file yang sama   
-					$newName = $DL_DocCode.'('.$sameName.')'.'.'.$extractFile['extension'];   
+				if(strpos($newName,$DL_DocCode) !== false)  {
+					$sameName++; // Tambah data file yang sama
+					$newName = $DL_DocCode.'('.$sameName.')'.'.'.$extractFile['extension'];
 				}
 			}
 		}
 		closedir($handle);
 	}
-	
+
 	if ($DocumentGroup_Code<>'GRL') {
 		$query="UPDATE M_DocumentLegal
 				SET DL_Softcopy='$uploaddir$newName',
@@ -1510,7 +1642,7 @@ else if($_POST['upload']){
 					DL_Update_Time=sysdate()
 				WHERE DL_DocCode='$DL_DocCode'";
 	}
-			
+
 	if ($mysqli->query($query)){
 		if(move_uploaded_file($uploadFile['tmp_name'],$uploaddir.$newName)){
 			echo "<meta http-equiv='refresh' content='0; url=document-list2.php?act=edit&id=$DL_DocCode'>";
@@ -1524,7 +1656,7 @@ else if($_POST['uploadLA']){
 	$DocumentGroup_Code='GRL';
 	$regdate=strtotime($_POST['DLA_RegTime']);
 	$RegTime=date("Y", $regdate);
-	
+
 	$uploaddir = "SOFTCOPY/$Company_Name/$DocumentGroup_Code/$RegTime/";
 	if ( ! is_dir($uploaddir)) {
 		$oldumask = umask(0);
@@ -1535,22 +1667,22 @@ else if($_POST['uploadLA']){
 		umask($oldumask);
 	}
 	$uploadFile = $_FILES['userfile'];
-	$extractFile = pathinfo($uploadFile['name']);		
+	$extractFile = pathinfo($uploadFile['name']);
 
-	$newName = $DLA_Location.'.'.$extractFile['extension'];	
-	$sameName = 0; 
+	$newName = $DLA_Location.'.'.$extractFile['extension'];
+	$sameName = 0;
 	if ($handle = opendir("$uploaddir")) {
 		while (false !== ($file = readdir($handle))) {
 			if ($file==$newName) {
-				if(strpos($newName,$DLA_Location) !== false)  {                           
-					$sameName++; // Tambah data file yang sama   
-					$newName = $DLA_Location.'('.$sameName.')'.'.'.$extractFile['extension'];   
+				if(strpos($newName,$DLA_Location) !== false)  {
+					$sameName++; // Tambah data file yang sama
+					$newName = $DLA_Location.'('.$sameName.')'.'.'.$extractFile['extension'];
 				}
 			}
 		}
 		closedir($handle);
 	}
-	
+
 	if ($DocumentGroup_Code=='GRL') {
 		$query="UPDATE M_DocumentLandAcquisition
 				SET DLA_Softcopy='$uploaddir$newName',
@@ -1558,7 +1690,7 @@ else if($_POST['uploadLA']){
 					DLA_Update_Time=sysdate()
 				WHERE DLA_ID='$DLA_ID'";
 	}
-			
+
 	if ($mysqli->query($query)){
 		if(move_uploaded_file($uploadFile['tmp_name'],$uploaddir.$newName)){
 			echo "<meta http-equiv='refresh' content='0; url=document-list2.php?act=editLA&id=$DLA_ID'>";

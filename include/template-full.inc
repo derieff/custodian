@@ -1,5 +1,5 @@
 <?PHP
-/* 
+/*
 =========================================================================================================================
 = Nama Project		: Custodian																							=
 = Versi				: 1.0																								=
@@ -11,7 +11,7 @@
 =========================================================================================================================
 */
 error_reporting(0);
-include ("./config/config_db.php"); 
+include ("./config/config_db.php");
 ?>
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml">
@@ -29,12 +29,12 @@ include ("./config/config_db.php");
    	$(".stripeMe tr:even").addClass("alt");
  	});
 //disable enter
-function stopRKey(evt) { 
-  var evt = (evt) ? evt : ((event) ? event : null); 
-  var node = (evt.target) ? evt.target : ((evt.srcElement) ? evt.srcElement : null); 
-  if ((evt.keyCode == 13) && (node.type=="text"))  {return false;} 
-} 
-document.onkeypress = stopRKey; 
+function stopRKey(evt) {
+  var evt = (evt) ? evt : ((event) ? event : null);
+  var node = (evt.target) ? evt.target : ((evt.srcElement) ? evt.srcElement : null);
+  if ((evt.keyCode == 13) && (node.type=="text"))  {return false;}
+}
+document.onkeypress = stopRKey;
 </script>
 </head>
 
@@ -43,7 +43,7 @@ document.onkeypress = stopRKey;
 class Template {
 	var $MainContent;
 	var $Warning;
-	
+
 	function Content($NewMainContent){
 	$this->MainContent=$NewMainContent;
 	}
@@ -66,7 +66,7 @@ class Template {
 		</div>
 	");
 	}
-	
+
 	function ShowContent() {
 	echo("
 		<div id='content'>
@@ -84,7 +84,7 @@ class Template {
 		<div id='footer'>
 			<div id='footer-inside'>
 				Version ".$_SESSION['version']."<br>
-				(C) 2012 PT Triputra Agro Persada.
+				(C) 2018 PT Triputra Agro Persada.
 			</div>
 		</div>
 	";
