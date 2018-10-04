@@ -84,7 +84,7 @@ class Template {
 		<div id='footer'>
 			<div id='footer-inside'>
 				Version ".$_SESSION['version']."<br>
-				(C) 2012 PT Triputra Agro Persada.
+				(C) 2018 PT Triputra Agro Persada.
 			</div>
 		</div>
 	";
