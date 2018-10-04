@@ -41,13 +41,9 @@ $queryAssetOwnership="SELECT mdao.DAO_DocCode DocCode,mdao.DAO_NoPolisi,ma.Appro
 							AND ma.Approver_Delete_Time IS NULL
 						WHERE mdao.DAO_Delete_Time IS NULL
 							AND (
-								(PERIOD_DIFF(DATE_FORMAT(mdao.DAO_STNK_ExpiredDate,'%Y%m'),DATE_FORMAT(CURDATE(),'%Y%m'))=1 
-									AND DAY(mdao.DAO_STNK_ExpiredDate)=DAY(CURDATE())
-								)
+								(DATE_SUB(mdao.DAO_STNK_ExpiredDate,INTERVAL 1 MONTH)=CURDATE())
 								OR 
-								(PERIOD_DIFF(DATE_FORMAT(mdao.DAO_Pajak_ExpiredDate,'%Y%m'),DATE_FORMAT(CURDATE(),'%Y%m'))=1 
-									AND DAY(mdao.DAO_Pajak_ExpiredDate)=DAY(CURDATE())
-								)
+								(DATE_SUB(mdao.DAO_Pajak_ExpiredDate,INTERVAL 1 MONTH)=CURDATE())
 							)
 						ORDER BY ma.Approver_UserID ASC";
 $sqlAssetOwnership = mysql_query($queryAssetOwnership);
