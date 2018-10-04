@@ -40,7 +40,7 @@ function mail_exp_legal($docCode,$User_ID,$docList){
 	$mail->AddReplyTo('no-reply@tap-agri.com','Custodian');
 	$mail->From       = 'no-reply@tap-agri.com';
 	$mail->FromName   = 'Custodian System';
-	$mail->Subject  ='Notifikasi  Masa Berlaku Dokumen '.$docCode;
+	$mail->Subject  ='Notifikasi Masa Berlaku Dokumen '.$docCode;
 	$mail->AddBcc('system.administrator@tap-agri.com');
 	$docNum = count($docList);
 	for($i=0;$i<$docNum;$i++){

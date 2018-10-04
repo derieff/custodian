@@ -15,9 +15,12 @@ include_once('./phpmailer/class.html2text.inc.php');
 include_once ("./config/db_sql.php");
 include_once ("./include/class.endencrp.php");
 	
-function mail_exp_asset_ownership($relCode,$User_ID,$docList,$userData,$subordinateID=-1){
+function mail_exp_asset_ownership($docCode,$User_ID,$docList){
 	$mail = new PHPMailer();
 	$decrp = new custodian_encryp;
+	$body = "";
+	$bodyHeader = "";
+	$bodyFooter = "";
 
 	$e_query="SELECT User_ID, User_FullName, User_Email
 			  FROM M_User
@@ -39,7 +42,6 @@ function mail_exp_asset_ownership($relCode,$User_ID,$docList,$userData,$subordin
 	$mail->FromName   = 'Custodian System';
 	$mail->Subject  ='Notifikasi Masa Berlaku Dokumen '.$relCode;
 	$mail->AddBcc('system.administrator@tap-agri.com');
-	$body="";
 	$docNum = count($docList);
 	for($i=0;$i<$docNum;$i++){
 		$body .= '<TR  style=" font-size: 12px; font-family: \'lucida grande\',tahoma,verdana,arial,sans-serif;">

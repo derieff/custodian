@@ -56,16 +56,19 @@ function showFilterDetail() {
 function finishAjax(id, response){
   $('#'+id).html(unescape(response));
 }
-
 //MENAMPILKAN DAFTAR FASE BILA GRUP DOKUMEN ADALAH GRL
 function showFilter(){
+	if(document.getElementById('optFilterHeader')!=null){
+		document.getElementById('optFilterHeader').innerHTML='';//reset opt(hapus semua pilihan)
+	}
+	//isi pilihan baru sesuai dengan group dokumen
 	if(document.getElementById('optTHROLD_DocumentGroupID').value=="1" || document.getElementById('optTHROLD_DocumentGroupID').value=="2"){ //Arief F - 18102018
 		document.getElementById('optPhase').style.display = "none";
 		document.getElementById('optFilterHeader').options[0]=new Option('--- Pilih Filter ---', '0');
 		document.getElementById('optFilterHeader').options[1]=new Option('Perusahaan', '1');
 		document.getElementById('optFilterHeader').options[2]=new Option('Kategori Dokumen', '2');
 		document.getElementById('optFilterHeader').options[3]=new Option('Tipe Dokumen', '3');
-		document.getElementById('optFilterHeader').options[4]=new Option('Status', '5');
+		document.getElementById('optFilterHeader').options[4]=new Option('Status', '4');
 	}else{ //Arief F - 18102018
 		if (document.getElementById('optTHROLD_DocumentGroupID').value=="3"){ //Arief F - 18102018
 			document.getElementById('optPhase').style.display = "inline";
@@ -551,41 +554,41 @@ $offset = ($noPage - 1) * $dataPerPage;
 			";
 			// echo $query.$groupby;
 		}
-		// else if ($_GET['optTransactionID']==3) {
-		// 	$query = "SELECT DISTINCT thrlolad.THRLOLAD_ID AS ID, thrlolad.THRLOLAD_ReleaseCode,
-		// 							  thrlolad.THRLOLAD_ReleaseDate, u.User_FullName, drs.DRS_Description
-		// 			  FROM TH_ReleaseOfLandAcquisitionDocument thrlolad, M_User u, TH_LoanOfLandAcquisitionDocument thlolad,
-		// 				   TD_ReleaseOfLandAcquisitionDocument tdrlolad, TD_LoanOfLandAcquisitionDocument tdlolad,
-		// 				   M_DocumentLandAcquisition dla, M_DocumentRegistrationStatus drs
-		// 			  WHERE thrlolad.THRLOLAD_Delete_Time is NULL
-		// 			  AND thrlolad.THRLOLAD_UserID=u.User_ID
-		// 			  AND thrlolad.THRLOLAD_THLOLAD_Code=thlolad.THLOLAD_LoanCode
-		// 			  AND tdlolad.TDLOLAD_THLOLAD_ID=thlolad.THLOLAD_ID
-		// 			  AND tdlolad.TDLOLAD_DocCode=dla.DLA_Code
-		// 			  AND thrlolad.THRLOLAD_Status=drs.DRS_Name ";
-		// 	if ($_GET['txtSearch']) {
-		// 		$search=$_GET['txtSearch'];
-		// 		$query .="AND (
-		// 					thrlolad.THRLOLAD_ReleaseCode LIKE '%$search%'
-		// 					OR u.User_FullName LIKE '%$search%'
-		// 				)";
-		// 	}
-		// }
-		// else if ($_GET['optTransactionID']==4) {
-		// 	$query = "SELECT DISTINCT tdrtolad.TDRTOLAD_ID AS ID, tdrtolad.TDRTOLAD_ReturnCode, tdrtolad.TDRTOLAD_ReturnTime,
-		// 							  u.User_FullName
-		// 			  FROM TD_ReturnOfLandAcquisitionDocument tdrtolad, M_User u, M_DocumentLandAcquisition dla
-		// 			  WHERE tdrtolad.TDRTOLAD_Delete_Time is NULL
-		// 			  AND tdrtolad.TDRTOLAD_UserID=u.User_ID
-		// 			  AND tdrtolad.TDRTOLAD_DocCode=dla.DLA_Code ";
-		// 	if ($_GET['txtSearch']) {
-		// 		$search=$_GET['txtSearch'];
-		// 		$query .="AND (
-		// 					tdrtolad.TDRTOLAD_ReturnCode LIKE '%$search%'
-		// 					OR u.User_FullName LIKE '%$search%'
-		// 				)";
-		// 	}
-		// }
+		else if ($_GET['optTransactionID']==3) {
+			$query = "SELECT DISTINCT thrloaod.THROAOD_ID AS ID, thrloaod.THROAOD_ReleaseCode,
+									  thrloaod.THROAOD_ReleaseDate, u.User_FullName, drs.DRS_Description
+					  FROM TH_ReleaseOfAssetOwnershipDocument thrloaod, M_User u, TH_LoanOfAssetOwnershipDocument thloaod,
+						   TD_ReleaseOfAssetOwnershipDocument tdrloaod, TD_LoanOfAssetOwnershipDocument tdloaod,
+						   M_DocumentAssetOwnership dao, M_DocumentRegistrationStatus drs
+					  WHERE thrloaod.THROAOD_Delete_Time is NULL
+					  AND thrloaod.THROAOD_UserID=u.User_ID
+					  AND thrloaod.THROAOD_THLOAOD_Code=thloaod.THLOAOD_LoanCode
+					  AND tdloaod.TDLOAOD_THLOAOD_ID=thloaod.THLOAOD_ID
+					  AND tdloaod.TDLOAOD_DocCode=dao.DAO_DocCode
+					  AND thrloaod.THROAOD_Status=drs.DRS_Name ";
+			if ($_GET['txtSearch']) {
+				$search=$_GET['txtSearch'];
+				$query .="AND (
+							thrloaod.THROAOD_ReleaseCode LIKE '%$search%'
+							OR u.User_FullName LIKE '%$search%'
+						)";
+			}
+		}
+		else if ($_GET['optTransactionID']==4) {
+			$query = "SELECT DISTINCT tdrtoaod.TDRTOAOD_ID AS ID, tdrtoaod.TDRTOAOD_ReturnCode, tdrtoaod.TDRTOAOD_ReturnTime,
+									  u.User_FullName
+					  FROM TD_ReturnOfAssetOwnershipDocument tdrtoaod, M_User u, M_DocumentAssetOwnership dao
+					  WHERE tdrtoaod.TDRTOAOD_Delete_Time is NULL
+					  AND tdrtoaod.TDRTOAOD_UserID=u.User_ID
+					  AND tdrtoaod.TDRTOAOD_DocCode=dao.DAO_DocCode ";
+			if ($_GET['txtSearch']) {
+				$search=$_GET['txtSearch'];
+				$query .="AND (
+							tdrtoaod.TDRTOAOD_ReturnCode LIKE '%$search%'
+							OR u.User_FullName LIKE '%$search%'
+						)";
+			}
+		}
 		if ($_GET['optFilterHeader']==1) {
 			if ($_GET['optTransactionID']==1) {
 				$query .="AND throaod.THROAOD_CompanyID='$_GET[optFilterDetail]' ";
@@ -593,12 +596,12 @@ $offset = ($noPage - 1) * $dataPerPage;
 			elseif ($_GET['optTransactionID']==2) {
 				$query .="AND thloaod.THLOAOD_CompanyID='$_GET[optFilterDetail]' ";
 			}
-			// elseif ($_GET['optTransactionID']==3) {
-			// 	$query .="AND thlolad.THLOLAD_CompanyID='$_GET[optFilterDetail]' ";
-			// }
-			// elseif ($_GET['optTransactionID']==4) {
-			// 	$query .="AND dla.DLA_CompanyID='$_GET[optFilterDetail]' ";
-			// }
+			elseif ($_GET['optTransactionID']==3) {
+				$query .="AND dao.DAO_CompanyID='$_GET[optFilterDetail]' ";
+			}
+			elseif ($_GET['optTransactionID']==4) {
+				$query .="AND dao.DAO_CompanyID='$_GET[optFilterDetail]' ";
+			}
 		}
 
 		if ($_GET['optFilterHeader']==4) {
@@ -608,9 +611,12 @@ $offset = ($noPage - 1) * $dataPerPage;
 			elseif ($_GET['optTransactionID']==2) {
 				$query .="AND thloaod.THLOAOD_Status='$_GET[optFilterDetail]' ";
 			}
-			// elseif ($_GET['optTransactionID']==3) {
-			// 	$query .="AND thrlolad.THRLOLAD_Status='$_GET[optFilterDetail]' ";
-			// }
+			elseif ($_GET['optTransactionID']==3) {
+				$query .="AND thrloaod.THROAOD_Status='$_GET[optFilterDetail]' ";
+			}
+			elseif ($_GET['optTransactionID']==4) {
+				$query .="AND dao.DAO_Status='$_GET[optFilterDetail]' ";
+			}
 		}
 
 		$orderby ="ORDER BY ID DESC LIMIT $offset, $dataPerPage";
@@ -666,41 +672,41 @@ $offset = ($noPage - 1) * $dataPerPage;
 						 u.User_FullName, c.Company_Name, lc.LoanCategory_Name, drs.DRS_Description
 			";
 		}
-		// else if ($_GET['optTransactionID']==3) {
-		// 	$query = "SELECT DISTINCT thrlolad.THRLOLAD_ID AS ID, thrlolad.THRLOLAD_ReleaseCode,
-		// 							  thrlolad.THRLOLAD_ReleaseDate, u.User_FullName, drs.DRS_Description
-		// 			  FROM TH_ReleaseOfLandAcquisitionDocument thrlolad, M_User u, TH_LoanOfLandAcquisitionDocument thlolad,
-		// 				   TD_ReleaseOfLandAcquisitionDocument tdrlolad, TD_LoanOfLandAcquisitionDocument tdlolad,
-		// 				   M_DocumentLandAcquisition dla, M_DocumentRegistrationStatus drs
-		// 			  WHERE thrlolad.THRLOLAD_Delete_Time is NULL
-		// 			  AND thrlolad.THRLOLAD_UserID=u.User_ID
-		// 			  AND thrlolad.THRLOLAD_THLOLAD_Code=thlolad.THLOLAD_LoanCode
-		// 			  AND tdlolad.TDLOLAD_THLOLAD_ID=thlolad.THLOLAD_ID
-		// 			  AND tdlolad.TDLOLAD_DocCode=dla.DLA_Code
-		// 			  AND thrlolad.THRLOLAD_Status=drs.DRS_Name ";
-		// 	if ($_GET['txtSearch']) {
-		// 		$search=$_GET['txtSearch'];
-		// 		$query .="AND (
-		// 					thrlolad.THRLOLAD_ReleaseCode LIKE '%$search%'
-		// 					OR u.User_FullName LIKE '%$search%'
-		// 				)";
-		// 	}
-		// }
-		// else if ($_GET['optTransactionID']==4) {
-		// 	$query = "SELECT DISTINCT tdrtolad.TDRTOLAD_ID AS ID, tdrtolad.TDRTOLAD_ReturnCode, tdrtolad.TDRTOLAD_ReturnTime,
-		// 							  u.User_FullName
-		// 			  FROM TD_ReturnOfLandAcquisitionDocument tdrtolad, M_User u, M_DocumentLandAcquisition dla
-		// 			  WHERE tdrtolad.TDRTOLAD_Delete_Time is NULL
-		// 			  AND tdrtolad.TDRTOLAD_UserID=u.User_ID
-		// 			  AND tdrtolad.TDRTOLAD_DocCode=dla.DLA_Code ";
-		// 	if ($_GET['txtSearch']) {
-		// 		$search=$_GET['txtSearch'];
-		// 		$query .="AND (
-		// 					tdrtolad.TDRTOLAD_ReturnCode LIKE '%$search%'
-		// 					OR u.User_FullName LIKE '%$search%'
-		// 				)";
-		// 	}
-		// }
+		else if ($_GET['optTransactionID']==3) {
+			$query = "SELECT DISTINCT thrloold.THROOLD_ID AS ID, thrloold.THROOLD_ReleaseCode,
+									  thrloold.THROOLD_ReleaseDate, u.User_FullName, drs.DRS_Description
+					  FROM TH_ReleaseOfOtherLegalDocuments thrloold, M_User u, TH_LoanOfOtherLegalDocuments thloold,
+						   TD_ReleaseOfOtherLegalDocuments tdrloold, TD_LoanOfOtherLegalDocuments tdloold,
+						   M_DocumentsOtherLegal dol, M_DocumentRegistrationStatus drs
+					  WHERE thrloold.THROOLD_Delete_Time is NULL
+					  AND thrloold.THROOLD_UserID=u.User_ID
+					  AND thrloold.THROOLD_THLOOLD_Code=thloold.THLOOLD_LoanCode
+					  AND tdloold.TDLOOLD_THLOOLD_ID=thloold.THLOOLD_ID
+					  AND tdloold.TDLOOLD_DocCode=dol.DOL_DocCode
+					  AND thrloold.THROOLD_Status=drs.DRS_Name ";
+			if ($_GET['txtSearch']) {
+				$search=$_GET['txtSearch'];
+				$query .="AND (
+							thrloold.THROOLD_ReleaseCode LIKE '%$search%'
+							OR u.User_FullName LIKE '%$search%'
+						)";
+			}
+		}
+		else if ($_GET['optTransactionID']==4) {
+			$query = "SELECT DISTINCT tdrtoold.TDRTOOLD_ID AS ID, tdrtoold.TDRTOOLD_ReturnCode, tdrtoold.TDRTOOLD_ReturnTime,
+									  u.User_FullName
+					  FROM TD_ReturnOfOtherLegalDocuments tdrtoold, M_User u, M_DocumentsOtherLegal dol
+					  WHERE tdrtoold.TDRTOOLD_Delete_Time is NULL
+					  AND tdrtoold.TDRTOOLD_UserID=u.User_ID
+					  AND tdrtoold.TDRTOOLD_DocCode=dla.DLA_Code ";
+			if ($_GET['txtSearch']) {
+				$search=$_GET['txtSearch'];
+				$query .="AND (
+							tdrtoold.TDRTOOLD_ReturnCode LIKE '%$search%'
+							OR u.User_FullName LIKE '%$search%'
+						)";
+			}
+		}
 		if ($_GET['optFilterHeader']==1) {
 			if ($_GET['optTransactionID']==1) {
 				$query .="AND throold.THROOLD_CompanyID='$_GET[optFilterDetail]' ";
@@ -708,12 +714,12 @@ $offset = ($noPage - 1) * $dataPerPage;
 			elseif ($_GET['optTransactionID']==2) {
 				$query .="AND thloold.THLOOLD_CompanyID='$_GET[optFilterDetail]' ";
 			}
-			// elseif ($_GET['optTransactionID']==3) {
-			// 	$query .="AND thlolad.THLOLAD_CompanyID='$_GET[optFilterDetail]' ";
-			// }
-			// elseif ($_GET['optTransactionID']==4) {
-			// 	$query .="AND dla.DLA_CompanyID='$_GET[optFilterDetail]' ";
-			// }
+			elseif ($_GET['optTransactionID']==3) {
+				$query .="AND dol.DOL_CompanyID='$_GET[optFilterDetail]' ";
+			}
+			elseif ($_GET['optTransactionID']==4) {
+				$query .="AND dol.DOL_CompanyID='$_GET[optFilterDetail]' ";
+			}
 		}
 
 		if ($_GET['optFilterHeader']==4) {
@@ -723,9 +729,12 @@ $offset = ($noPage - 1) * $dataPerPage;
 			elseif ($_GET['optTransactionID']==2) {
 				$query .="AND thloold.THLOOLD_Status='$_GET[optFilterDetail]' ";
 			}
-			// elseif ($_GET['optTransactionID']==3) {
-			// 	$query .="AND thrlolad.THRLOLAD_Status='$_GET[optFilterDetail]' ";
-			// }
+			elseif ($_GET['optTransactionID']==3) {
+				$query .="AND thrloold.THROOLD_Status='$_GET[optFilterDetail]' ";
+			}
+			elseif ($_GET['optTransactionID']==4) {
+				$query .="AND dol.DOL_Status='$_GET[optFilterDetail]' ";
+			}
 		}
 
 		$orderby ="ORDER BY ID DESC LIMIT $offset, $dataPerPage";
@@ -782,41 +791,41 @@ $offset = ($noPage - 1) * $dataPerPage;
 			";
 			// echo $query.$groupby;
 		}
-		// else if ($_GET['optTransactionID']==3) {
-		// 	$query = "SELECT DISTINCT thrlolad.THRLOLAD_ID AS ID, thrlolad.THRLOLAD_ReleaseCode,
-		// 							  thrlolad.THRLOLAD_ReleaseDate, u.User_FullName, drs.DRS_Description
-		// 			  FROM TH_ReleaseOfLandAcquisitionDocument thrlolad, M_User u, TH_LoanOfLandAcquisitionDocument thlolad,
-		// 				   TD_ReleaseOfLandAcquisitionDocument tdrlolad, TD_LoanOfLandAcquisitionDocument tdlolad,
-		// 				   M_DocumentLandAcquisition dla, M_DocumentRegistrationStatus drs
-		// 			  WHERE thrlolad.THRLOLAD_Delete_Time is NULL
-		// 			  AND thrlolad.THRLOLAD_UserID=u.User_ID
-		// 			  AND thrlolad.THRLOLAD_THLOLAD_Code=thlolad.THLOLAD_LoanCode
-		// 			  AND tdlolad.TDLOLAD_THLOLAD_ID=thlolad.THLOLAD_ID
-		// 			  AND tdlolad.TDLOLAD_DocCode=dla.DLA_Code
-		// 			  AND thrlolad.THRLOLAD_Status=drs.DRS_Name ";
-		// 	if ($_GET['txtSearch']) {
-		// 		$search=$_GET['txtSearch'];
-		// 		$query .="AND (
-		// 					thrlolad.THRLOLAD_ReleaseCode LIKE '%$search%'
-		// 					OR u.User_FullName LIKE '%$search%'
-		// 				)";
-		// 	}
-		// }
-		// else if ($_GET['optTransactionID']==4) {
-		// 	$query = "SELECT DISTINCT tdrtolad.TDRTOLAD_ID AS ID, tdrtolad.TDRTOLAD_ReturnCode, tdrtolad.TDRTOLAD_ReturnTime,
-		// 							  u.User_FullName
-		// 			  FROM TD_ReturnOfLandAcquisitionDocument tdrtolad, M_User u, M_DocumentLandAcquisition dla
-		// 			  WHERE tdrtolad.TDRTOLAD_Delete_Time is NULL
-		// 			  AND tdrtolad.TDRTOLAD_UserID=u.User_ID
-		// 			  AND tdrtolad.TDRTOLAD_DocCode=dla.DLA_Code ";
-		// 	if ($_GET['txtSearch']) {
-		// 		$search=$_GET['txtSearch'];
-		// 		$query .="AND (
-		// 					tdrtolad.TDRTOLAD_ReturnCode LIKE '%$search%'
-		// 					OR u.User_FullName LIKE '%$search%'
-		// 				)";
-		// 	}
-		// }
+		else if ($_GET['optTransactionID']==3) {
+			$query = "SELECT DISTINCT thrloonld.THROONLD_ID AS ID, thrloonld.THROONLD_ReleaseCode,
+									  thrloonld.THROONLD_ReleaseDate, u.User_FullName, drs.DRS_Description
+					  FROM TH_ReleaseOfOtherNonLegalDocuments thrloonld, M_User u, TH_LoanOfOtherNonLegalDocuments thloonld,
+						   TD_ReleaseOfOtherNonLegalDocuments tdrloonld, TD_LoanOfOtherNonLegalDocuments tdloonld,
+						   M_DocumentsOtherNonLegal donl, M_DocumentRegistrationStatus drs
+					  WHERE thrloonld.THROONLD_Delete_Time is NULL
+					  AND thrloonld.THROONLD_UserID=u.User_ID
+					  AND thrloonld.THROONLD_THLOONLD_Code=thloonld.THLOLAD_LoanCode
+					  AND tdloonld.TDLOLAD_THLOLAD_ID=thloonld.THLOLAD_ID
+					  AND tdloonld.TDLOLAD_DocCode=donl.DONL_DocCode
+					  AND thrloonld.THROONLD_Status=drs.DRS_Name ";
+			if ($_GET['txtSearch']) {
+				$search=$_GET['txtSearch'];
+				$query .="AND (
+							thrloonld.THROONLD_ReleaseCode LIKE '%$search%'
+							OR u.User_FullName LIKE '%$search%'
+						)";
+			}
+		}
+		else if ($_GET['optTransactionID']==4) {
+			$query = "SELECT DISTINCT tdrtolad.TDRTOLAD_ID AS ID, tdrtolad.TDRTOLAD_ReturnCode, tdrtolad.TDRTOLAD_ReturnTime,
+									  u.User_FullName
+					  FROM TD_ReturnOfLandAcquisitionDocument tdrtolad, M_User u, M_DocumentLandAcquisition dla
+					  WHERE tdrtolad.TDRTOLAD_Delete_Time is NULL
+					  AND tdrtolad.TDRTOLAD_UserID=u.User_ID
+					  AND tdrtolad.TDRTOLAD_DocCode=dla.DLA_Code ";
+			if ($_GET['txtSearch']) {
+				$search=$_GET['txtSearch'];
+				$query .="AND (
+							tdrtolad.TDRTOLAD_ReturnCode LIKE '%$search%'
+							OR u.User_FullName LIKE '%$search%'
+						)";
+			}
+		}
 		if ($_GET['optFilterHeader']==1) {
 			if ($_GET['optTransactionID']==1) {
 				$query .="AND throonld.THROONLD_CompanyID='$_GET[optFilterDetail]' ";
@@ -824,12 +833,12 @@ $offset = ($noPage - 1) * $dataPerPage;
 			elseif ($_GET['optTransactionID']==2) {
 				$query .="AND thloonld.THLOONLD_CompanyID='$_GET[optFilterDetail]' ";
 			}
-			// elseif ($_GET['optTransactionID']==3) {
-			// 	$query .="AND thlolad.THLOLAD_CompanyID='$_GET[optFilterDetail]' ";
-			// }
-			// elseif ($_GET['optTransactionID']==4) {
-			// 	$query .="AND dla.DLA_CompanyID='$_GET[optFilterDetail]' ";
-			// }
+			elseif ($_GET['optTransactionID']==3) {
+				$query .="AND donl.DONL_CompanyID='$_GET[optFilterDetail]' ";
+			}
+			elseif ($_GET['optTransactionID']==4) {
+				$query .="AND donl.DONL_CompanyID='$_GET[optFilterDetail]' ";
+			}
 		}
 
 		if ($_GET['optFilterHeader']==4) {
@@ -839,9 +848,12 @@ $offset = ($noPage - 1) * $dataPerPage;
 			elseif ($_GET['optTransactionID']==2) {
 				$query .="AND thloonld.THLOONLD_Status='$_GET[optFilterDetail]' ";
 			}
-			// elseif ($_GET['optTransactionID']==3) {
-			// 	$query .="AND thrlolad.THRLOLAD_Status='$_GET[optFilterDetail]' ";
-			// }
+			elseif ($_GET['optTransactionID']==3) {
+				$query .="AND thrloonld.THROONLD_Status='$_GET[optFilterDetail]' ";
+			}
+			elseif ($_GET['optTransactionID']==4) {
+				$query .="AND donl.DONL_Status='$_GET[optFilterDetail]' ";
+			}
 		}
 
 		// if ($_GET[phase]<>NULL) {
@@ -1486,117 +1498,117 @@ $MainContent .="
 		}
 
 		// Menampilkan Daftar Transaksi Untuk Pengeluaran Dokumen
-// 		else if ($_GET['optTransactionID']==3) {
-// 			if ($num==NULL) {
-// $MainContent .="
-// 				<table width='100%' border='1' class='stripeMe'>
-// 				<tr>
-// 					<th>ID</th>
-// 					<th>Kode Pengeluaran</th>
-//
-// 					<th>Tanggal Pengeluaran</th>
-// 					<th>Dikeluarkan Oleh</th>
-// 					<th>Status</th>
-// 				</tr>
-// 				<tr>
-// 					<td colspan=6 align='center'>Belum Ada Data</td>
-// 				</tr>
-// 				</table>
-// ";
-// 			}
-//
-// 			if ($num<>NULL){
-// $MainContent .="
-// 				<form name='list' method='post' action='print-document-barcode.php' onsubmit='return validateBarcodePrint(this);'>
-// 				<table width='100%' border='1' class='stripeMe'>
-// 				<tr>
-// 					<th colspan=7 align='center'>Daftar Transaksi Pengeluaran Dokumen $arr[DocumentGroup_Name]</th>
-// 				</tr>
-// 				<tr>
-// 					<th>ID</th>
-// 					<th>Kode Pengeluaran</th>
-// 					<th>Tanggal Pengeluaran</th>
-// 					<th>Dikeluarkan Oleh</th>
-// 					<th>Status</th>
-// 				</tr>
-// ";
-//
-// 				while ($field = mysql_fetch_array($sql)) {
-// 				$regdate=strtotime($field['THRLOLAD_ReleaseDate']);
-// 				$fregdate=date("j M Y", $regdate);
-//
-// $MainContent .="
-// 				<tr>
-// 					<td class='center'>$field[0]</td>
-// 					<td class='center'>
-// 						<a href='detail-of-release-land-acquisition-document.php?id=$field[0]' class='underline'>$field[1]</a>
-// 					</td>
-// 					<td class='center'>$fregdate</td>
-// 					<td class='center'>$field[3]</td>
-// 					<td class='center'>$field[4]</td>
-// 				</tr>";
-// 				}
-// $MainContent .="
-// 				</table>
-// 				</form>
-// 			";
-// 			}
-// 		}
+		else if ($_GET['optTransactionID']==3) {
+			if ($num==NULL) {
+$MainContent .="
+				<table width='100%' border='1' class='stripeMe'>
+				<tr>
+					<th>ID</th>
+					<th>Kode Pengeluaran</th>
+
+					<th>Tanggal Pengeluaran</th>
+					<th>Dikeluarkan Oleh</th>
+					<th>Status</th>
+				</tr>
+				<tr>
+					<td colspan=6 align='center'>Belum Ada Data</td>
+				</tr>
+				</table>
+";
+			}
+
+			if ($num<>NULL){
+$MainContent .="
+				<form name='list' method='post' action='print-document-barcode.php' onsubmit='return validateBarcodePrint(this);'>
+				<table width='100%' border='1' class='stripeMe'>
+				<tr>
+					<th colspan=7 align='center'>Daftar Transaksi Pengeluaran Dokumen $arr[DocumentGroup_Name]</th>
+				</tr>
+				<tr>
+					<th>ID</th>
+					<th>Kode Pengeluaran</th>
+					<th>Tanggal Pengeluaran</th>
+					<th>Dikeluarkan Oleh</th>
+					<th>Status</th>
+				</tr>
+";
+
+				while ($field = mysql_fetch_array($sql)) {
+				$regdate=strtotime($field['THRLOAOD_ReleaseDate']);
+				$fregdate=date("j M Y", $regdate);
+
+$MainContent .="
+				<tr>
+					<td class='center'>$field[0]</td>
+					<td class='center'>
+						<a href='detail-of-release-asset-ownership-document.php?id=$field[0]' class='underline'>$field[1]</a>
+					</td>
+					<td class='center'>$fregdate</td>
+					<td class='center'>$field[3]</td>
+					<td class='center'>$field[4]</td>
+				</tr>";
+				}
+$MainContent .="
+				</table>
+				</form>
+			";
+			}
+		}
 
 		// Menampilkan Daftar Transaksi Untuk Pengembalian Dokumen
-// 		else if ($_GET['optTransactionID']==4) {
-// 			if ($num==NULL) {
-// $MainContent .="
-// 				<table width='100%' border='1' class='stripeMe'>
-// 				<tr>
-// 					<th>ID</th>
-// 					<th>Kode Pengembalian</th>
-// 					<th>Tanggal Pengembalian</th>
-// 					<th>Nama Penerima Dokumen</th>
-// 				</tr>
-// 				<tr>
-// 					<td colspan=6 align='center'>Belum Ada Data</td>
-// 				</tr>
-// 				</table>
-// ";
-// 			}
-//
-// 			if ($num<>NULL){
-// $MainContent .="
-// 				<form name='list' method='post' action='print-document-barcode.php' onsubmit='return validateBarcodePrint(this);'>
-// 				<table width='100%' border='1' class='stripeMe'>
-// 				<tr>
-// 					<th colspan=7 align='center'>Daftar Transaksi Pengembalian Dokumen $arr[DocumentGroup_Name]</th>
-// 				</tr>
-// 				<tr>
-// 					<th>ID</th>
-// 					<th>Kode Pengembalian</th>
-// 					<th>Tanggal Pengembalian</th>
-// 					<th>Nama Penerima Dokumen</th>
-// 				</tr>
-// ";
-//
-// 				while ($field = mysql_fetch_array($sql)) {
-// 				$regdate=strtotime($field['TDRTOLAD_ReturnTime']);
-// 				$fregdate=date("j M Y", $regdate);
-//
-// $MainContent .="
-// 				<tr>
-// 					<td class='center'>$field[0]</td>
-// 					<td class='center'>
-// 						<a href='detail-of-return-land-acquisition-document.php?act=detail&id=$field[1]' class='underline'>$field[1]</a>
-// 					</td>
-// 					<td class='center'>$fregdate</td>
-// 					<td class='center'>$field[3]</td>
-// 				</tr>
-// ";
-// 				}
-// $MainContent .="
-// 				</table>
-// 				</form>
-// 			";
-// 			}
-// 		}
+		else if ($_GET['optTransactionID']==4) {
+			if ($num==NULL) {
+$MainContent .="
+				<table width='100%' border='1' class='stripeMe'>
+				<tr>
+					<th>ID</th>
+					<th>Kode Pengembalian</th>
+					<th>Tanggal Pengembalian</th>
+					<th>Nama Penerima Dokumen</th>
+				</tr>
+				<tr>
+					<td colspan=6 align='center'>Belum Ada Data</td>
+				</tr>
+				</table>
+";
+			}
+
+			if ($num<>NULL){
+$MainContent .="
+				<form name='list' method='post' action='print-document-barcode.php' onsubmit='return validateBarcodePrint(this);'>
+				<table width='100%' border='1' class='stripeMe'>
+				<tr>
+					<th colspan=7 align='center'>Daftar Transaksi Pengembalian Dokumen $arr[DocumentGroup_Name]</th>
+				</tr>
+				<tr>
+					<th>ID</th>
+					<th>Kode Pengembalian</th>
+					<th>Tanggal Pengembalian</th>
+					<th>Nama Penerima Dokumen</th>
+				</tr>
+";
+
+				while ($field = mysql_fetch_array($sql)) {
+				$regdate=strtotime($field['TDRTOAOD_ReturnTime']);
+				$fregdate=date("j M Y", $regdate);
+
+$MainContent .="
+				<tr>
+					<td class='center'>$field[0]</td>
+					<td class='center'>
+						<a href='detail-of-return-land-acquisition-document.php?act=detail&id=$field[1]' class='underline'>$field[1]</a>
+					</td>
+					<td class='center'>$fregdate</td>
+					<td class='center'>$field[3]</td>
+				</tr>
+";
+				}
+$MainContent .="
+				</table>
+				</form>
+			";
+			}
+		}
 	}
 
 	// UNTUK TRANSAKSI DOKUMEN Lainnya (Legal)
@@ -1728,117 +1740,117 @@ $MainContent .="
 		}
 
 		// Menampilkan Daftar Transaksi Untuk Pengeluaran Dokumen
-// 		else if ($_GET['optTransactionID']==3) {
-// 			if ($num==NULL) {
-// $MainContent .="
-// 				<table width='100%' border='1' class='stripeMe'>
-// 				<tr>
-// 					<th>ID</th>
-// 					<th>Kode Pengeluaran</th>
-//
-// 					<th>Tanggal Pengeluaran</th>
-// 					<th>Dikeluarkan Oleh</th>
-// 					<th>Status</th>
-// 				</tr>
-// 				<tr>
-// 					<td colspan=6 align='center'>Belum Ada Data</td>
-// 				</tr>
-// 				</table>
-// ";
-// 			}
-//
-// 			if ($num<>NULL){
-// $MainContent .="
-// 				<form name='list' method='post' action='print-document-barcode.php' onsubmit='return validateBarcodePrint(this);'>
-// 				<table width='100%' border='1' class='stripeMe'>
-// 				<tr>
-// 					<th colspan=7 align='center'>Daftar Transaksi Pengeluaran Dokumen $arr[DocumentGroup_Name]</th>
-// 				</tr>
-// 				<tr>
-// 					<th>ID</th>
-// 					<th>Kode Pengeluaran</th>
-// 					<th>Tanggal Pengeluaran</th>
-// 					<th>Dikeluarkan Oleh</th>
-// 					<th>Status</th>
-// 				</tr>
-// ";
-//
-// 				while ($field = mysql_fetch_array($sql)) {
-// 				$regdate=strtotime($field['THRLOLAD_ReleaseDate']);
-// 				$fregdate=date("j M Y", $regdate);
-//
-// $MainContent .="
-// 				<tr>
-// 					<td class='center'>$field[0]</td>
-// 					<td class='center'>
-// 						<a href='detail-of-release-land-acquisition-document.php?id=$field[0]' class='underline'>$field[1]</a>
-// 					</td>
-// 					<td class='center'>$fregdate</td>
-// 					<td class='center'>$field[3]</td>
-// 					<td class='center'>$field[4]</td>
-// 				</tr>";
-// 				}
-// $MainContent .="
-// 				</table>
-// 				</form>
-// 			";
-// 			}
-// 		}
+		else if ($_GET['optTransactionID']==3) {
+			if ($num==NULL) {
+$MainContent .="
+				<table width='100%' border='1' class='stripeMe'>
+				<tr>
+					<th>ID</th>
+					<th>Kode Pengeluaran</th>
+
+					<th>Tanggal Pengeluaran</th>
+					<th>Dikeluarkan Oleh</th>
+					<th>Status</th>
+				</tr>
+				<tr>
+					<td colspan=6 align='center'>Belum Ada Data</td>
+				</tr>
+				</table>
+";
+			}
+
+			if ($num<>NULL){
+$MainContent .="
+				<form name='list' method='post' action='print-document-barcode.php' onsubmit='return validateBarcodePrint(this);'>
+				<table width='100%' border='1' class='stripeMe'>
+				<tr>
+					<th colspan=7 align='center'>Daftar Transaksi Pengeluaran Dokumen $arr[DocumentGroup_Name]</th>
+				</tr>
+				<tr>
+					<th>ID</th>
+					<th>Kode Pengeluaran</th>
+					<th>Tanggal Pengeluaran</th>
+					<th>Dikeluarkan Oleh</th>
+					<th>Status</th>
+				</tr>
+";
+
+				while ($field = mysql_fetch_array($sql)) {
+				$regdate=strtotime($field['THRLOLAD_ReleaseDate']);
+				$fregdate=date("j M Y", $regdate);
+
+$MainContent .="
+				<tr>
+					<td class='center'>$field[0]</td>
+					<td class='center'>
+						<a href='detail-of-release-land-acquisition-document.php?id=$field[0]' class='underline'>$field[1]</a>
+					</td>
+					<td class='center'>$fregdate</td>
+					<td class='center'>$field[3]</td>
+					<td class='center'>$field[4]</td>
+				</tr>";
+				}
+$MainContent .="
+				</table>
+				</form>
+			";
+			}
+		}
 
 		// Menampilkan Daftar Transaksi Untuk Pengembalian Dokumen
-// 		else if ($_GET['optTransactionID']==4) {
-// 			if ($num==NULL) {
-// $MainContent .="
-// 				<table width='100%' border='1' class='stripeMe'>
-// 				<tr>
-// 					<th>ID</th>
-// 					<th>Kode Pengembalian</th>
-// 					<th>Tanggal Pengembalian</th>
-// 					<th>Nama Penerima Dokumen</th>
-// 				</tr>
-// 				<tr>
-// 					<td colspan=6 align='center'>Belum Ada Data</td>
-// 				</tr>
-// 				</table>
-// ";
-// 			}
-//
-// 			if ($num<>NULL){
-// $MainContent .="
-// 				<form name='list' method='post' action='print-document-barcode.php' onsubmit='return validateBarcodePrint(this);'>
-// 				<table width='100%' border='1' class='stripeMe'>
-// 				<tr>
-// 					<th colspan=7 align='center'>Daftar Transaksi Pengembalian Dokumen $arr[DocumentGroup_Name]</th>
-// 				</tr>
-// 				<tr>
-// 					<th>ID</th>
-// 					<th>Kode Pengembalian</th>
-// 					<th>Tanggal Pengembalian</th>
-// 					<th>Nama Penerima Dokumen</th>
-// 				</tr>
-// ";
-//
-// 				while ($field = mysql_fetch_array($sql)) {
-// 				$regdate=strtotime($field['TDRTOLAD_ReturnTime']);
-// 				$fregdate=date("j M Y", $regdate);
-//
-// $MainContent .="
-// 				<tr>
-// 					<td class='center'>$field[0]</td>
-// 					<td class='center'>
-// 						<a href='detail-of-return-land-acquisition-document.php?act=detail&id=$field[1]' class='underline'>$field[1]</a>
-// 					</td>
-// 					<td class='center'>$fregdate</td>
-// 					<td class='center'>$field[3]</td>
-// 				</tr>
-// ";
-// 				}
-// $MainContent .="
-// 				</table>
-// 				</form>
-// 			";
-// 			}
-// 		}
+		else if ($_GET['optTransactionID']==4) {
+			if ($num==NULL) {
+$MainContent .="
+				<table width='100%' border='1' class='stripeMe'>
+				<tr>
+					<th>ID</th>
+					<th>Kode Pengembalian</th>
+					<th>Tanggal Pengembalian</th>
+					<th>Nama Penerima Dokumen</th>
+				</tr>
+				<tr>
+					<td colspan=6 align='center'>Belum Ada Data</td>
+				</tr>
+				</table>
+";
+			}
+
+			if ($num<>NULL){
+$MainContent .="
+				<form name='list' method='post' action='print-document-barcode.php' onsubmit='return validateBarcodePrint(this);'>
+				<table width='100%' border='1' class='stripeMe'>
+				<tr>
+					<th colspan=7 align='center'>Daftar Transaksi Pengembalian Dokumen $arr[DocumentGroup_Name]</th>
+				</tr>
+				<tr>
+					<th>ID</th>
+					<th>Kode Pengembalian</th>
+					<th>Tanggal Pengembalian</th>
+					<th>Nama Penerima Dokumen</th>
+				</tr>
+";
+
+				while ($field = mysql_fetch_array($sql)) {
+				$regdate=strtotime($field['TDRTOLAD_ReturnTime']);
+				$fregdate=date("j M Y", $regdate);
+
+$MainContent .="
+				<tr>
+					<td class='center'>$field[0]</td>
+					<td class='center'>
+						<a href='detail-of-return-land-acquisition-document.php?act=detail&id=$field[1]' class='underline'>$field[1]</a>
+					</td>
+					<td class='center'>$fregdate</td>
+					<td class='center'>$field[3]</td>
+				</tr>
+";
+				}
+$MainContent .="
+				</table>
+				</form>
+			";
+			}
+		}
 	}
 
 	// UNTUK TRANSAKSI DOKUMEN Lainnya (Di Luar Legal)
@@ -1970,117 +1982,117 @@ $MainContent .="
 		}
 
 		// Menampilkan Daftar Transaksi Untuk Pengeluaran Dokumen
-// 		else if ($_GET['optTransactionID']==3) {
-// 			if ($num==NULL) {
-// $MainContent .="
-// 				<table width='100%' border='1' class='stripeMe'>
-// 				<tr>
-// 					<th>ID</th>
-// 					<th>Kode Pengeluaran</th>
-//
-// 					<th>Tanggal Pengeluaran</th>
-// 					<th>Dikeluarkan Oleh</th>
-// 					<th>Status</th>
-// 				</tr>
-// 				<tr>
-// 					<td colspan=6 align='center'>Belum Ada Data</td>
-// 				</tr>
-// 				</table>
-// ";
-// 			}
-//
-// 			if ($num<>NULL){
-// $MainContent .="
-// 				<form name='list' method='post' action='print-document-barcode.php' onsubmit='return validateBarcodePrint(this);'>
-// 				<table width='100%' border='1' class='stripeMe'>
-// 				<tr>
-// 					<th colspan=7 align='center'>Daftar Transaksi Pengeluaran Dokumen $arr[DocumentGroup_Name]</th>
-// 				</tr>
-// 				<tr>
-// 					<th>ID</th>
-// 					<th>Kode Pengeluaran</th>
-// 					<th>Tanggal Pengeluaran</th>
-// 					<th>Dikeluarkan Oleh</th>
-// 					<th>Status</th>
-// 				</tr>
-// ";
-//
-// 				while ($field = mysql_fetch_array($sql)) {
-// 				$regdate=strtotime($field['THRLOLAD_ReleaseDate']);
-// 				$fregdate=date("j M Y", $regdate);
-//
-// $MainContent .="
-// 				<tr>
-// 					<td class='center'>$field[0]</td>
-// 					<td class='center'>
-// 						<a href='detail-of-release-land-acquisition-document.php?id=$field[0]' class='underline'>$field[1]</a>
-// 					</td>
-// 					<td class='center'>$fregdate</td>
-// 					<td class='center'>$field[3]</td>
-// 					<td class='center'>$field[4]</td>
-// 				</tr>";
-// 				}
-// $MainContent .="
-// 				</table>
-// 				</form>
-// 			";
-// 			}
-// 		}
+		else if ($_GET['optTransactionID']==3) {
+			if ($num==NULL) {
+$MainContent .="
+				<table width='100%' border='1' class='stripeMe'>
+				<tr>
+					<th>ID</th>
+					<th>Kode Pengeluaran</th>
+
+					<th>Tanggal Pengeluaran</th>
+					<th>Dikeluarkan Oleh</th>
+					<th>Status</th>
+				</tr>
+				<tr>
+					<td colspan=6 align='center'>Belum Ada Data</td>
+				</tr>
+				</table>
+";
+			}
+
+			if ($num<>NULL){
+$MainContent .="
+				<form name='list' method='post' action='print-document-barcode.php' onsubmit='return validateBarcodePrint(this);'>
+				<table width='100%' border='1' class='stripeMe'>
+				<tr>
+					<th colspan=7 align='center'>Daftar Transaksi Pengeluaran Dokumen $arr[DocumentGroup_Name]</th>
+				</tr>
+				<tr>
+					<th>ID</th>
+					<th>Kode Pengeluaran</th>
+					<th>Tanggal Pengeluaran</th>
+					<th>Dikeluarkan Oleh</th>
+					<th>Status</th>
+				</tr>
+";
+
+				while ($field = mysql_fetch_array($sql)) {
+				$regdate=strtotime($field['THRLOLAD_ReleaseDate']);
+				$fregdate=date("j M Y", $regdate);
+
+$MainContent .="
+				<tr>
+					<td class='center'>$field[0]</td>
+					<td class='center'>
+						<a href='detail-of-release-land-acquisition-document.php?id=$field[0]' class='underline'>$field[1]</a>
+					</td>
+					<td class='center'>$fregdate</td>
+					<td class='center'>$field[3]</td>
+					<td class='center'>$field[4]</td>
+				</tr>";
+				}
+$MainContent .="
+				</table>
+				</form>
+			";
+			}
+		}
 
 		// Menampilkan Daftar Transaksi Untuk Pengembalian Dokumen
-// 		else if ($_GET['optTransactionID']==4) {
-// 			if ($num==NULL) {
-// $MainContent .="
-// 				<table width='100%' border='1' class='stripeMe'>
-// 				<tr>
-// 					<th>ID</th>
-// 					<th>Kode Pengembalian</th>
-// 					<th>Tanggal Pengembalian</th>
-// 					<th>Nama Penerima Dokumen</th>
-// 				</tr>
-// 				<tr>
-// 					<td colspan=6 align='center'>Belum Ada Data</td>
-// 				</tr>
-// 				</table>
-// ";
-// 			}
-//
-// 			if ($num<>NULL){
-// $MainContent .="
-// 				<form name='list' method='post' action='print-document-barcode.php' onsubmit='return validateBarcodePrint(this);'>
-// 				<table width='100%' border='1' class='stripeMe'>
-// 				<tr>
-// 					<th colspan=7 align='center'>Daftar Transaksi Pengembalian Dokumen $arr[DocumentGroup_Name]</th>
-// 				</tr>
-// 				<tr>
-// 					<th>ID</th>
-// 					<th>Kode Pengembalian</th>
-// 					<th>Tanggal Pengembalian</th>
-// 					<th>Nama Penerima Dokumen</th>
-// 				</tr>
-// ";
-//
-// 				while ($field = mysql_fetch_array($sql)) {
-// 				$regdate=strtotime($field['TDRTOLAD_ReturnTime']);
-// 				$fregdate=date("j M Y", $regdate);
-//
-// $MainContent .="
-// 				<tr>
-// 					<td class='center'>$field[0]</td>
-// 					<td class='center'>
-// 						<a href='detail-of-return-land-acquisition-document.php?act=detail&id=$field[1]' class='underline'>$field[1]</a>
-// 					</td>
-// 					<td class='center'>$fregdate</td>
-// 					<td class='center'>$field[3]</td>
-// 				</tr>
-// ";
-// 				}
-// $MainContent .="
-// 				</table>
-// 				</form>
-// 			";
-// 			}
-// 		}
+		else if ($_GET['optTransactionID']==4) {
+			if ($num==NULL) {
+$MainContent .="
+				<table width='100%' border='1' class='stripeMe'>
+				<tr>
+					<th>ID</th>
+					<th>Kode Pengembalian</th>
+					<th>Tanggal Pengembalian</th>
+					<th>Nama Penerima Dokumen</th>
+				</tr>
+				<tr>
+					<td colspan=6 align='center'>Belum Ada Data</td>
+				</tr>
+				</table>
+";
+			}
+
+			if ($num<>NULL){
+$MainContent .="
+				<form name='list' method='post' action='print-document-barcode.php' onsubmit='return validateBarcodePrint(this);'>
+				<table width='100%' border='1' class='stripeMe'>
+				<tr>
+					<th colspan=7 align='center'>Daftar Transaksi Pengembalian Dokumen $arr[DocumentGroup_Name]</th>
+				</tr>
+				<tr>
+					<th>ID</th>
+					<th>Kode Pengembalian</th>
+					<th>Tanggal Pengembalian</th>
+					<th>Nama Penerima Dokumen</th>
+				</tr>
+";
+
+				while ($field = mysql_fetch_array($sql)) {
+				$regdate=strtotime($field['TDRTOLAD_ReturnTime']);
+				$fregdate=date("j M Y", $regdate);
+
+$MainContent .="
+				<tr>
+					<td class='center'>$field[0]</td>
+					<td class='center'>
+						<a href='detail-of-return-land-acquisition-document.php?act=detail&id=$field[1]' class='underline'>$field[1]</a>
+					</td>
+					<td class='center'>$fregdate</td>
+					<td class='center'>$field[3]</td>
+				</tr>
+";
+				}
+$MainContent .="
+				</table>
+				</form>
+			";
+			}
+		}
 	}
 
 		$sql1 = mysql_query($query.$groupby);
