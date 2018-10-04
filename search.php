@@ -4,20 +4,16 @@
 = Nama Project		: Custodian																							=
 = Versi				: 1.2																								=
 = Disusun Oleh		: IT Support Application - PT Triputra Agro Persada													=
-= Developer			: Sabrina Ingrid Davita																				=
-= Dibuat Tanggal	: 04 Mei 2012																						=
-= Update Terakhir	: 05 Juni 2012																						=
+= Developer			: Outsource																				=
+= Dibuat Tanggal	: 03 Okt 2018																						=
+= Update Terakhir	: 																									=
 = Revisi			:																									=
-= 		24/05/2012	: Penambahan Filter Untuk Pencarian	(OK)															=
-= 		28/05/2012	: Penambahan Untuk Dokumen Pembebasan Lahan (OK)													=
-= 		05/06/2012	: Penambahan Filter Tahap GRL (OK)																	=
 =========================================================================================================================
 */
 session_start();
 ?>
 <title>Custodian System | Pencarian</title>
 <?PHP include ("./config/config_db.php"); ?>
-<<<<<<< HEAD
 <style>
 
 </style>
@@ -41,84 +37,17 @@ $sqlAssetOwnership = mysql_query($queryAssetOwnership);
 while ($dataAssetOwnership = mysql_fetch_array($sqlAssetOwnership)) {
 	if(!array_key_exists($dataAssetOwnership["Company_ID"],$assetOwnershipOpt->company)){
 		array_push($assetOwnershipOpt->company,[$dataAssetOwnership["Company_ID"]=>$dataAssetOwnership["Company_Name"]]);
-=======
-
-<script type="text/javascript" src="./js/datetimepicker.js"></script>
-
-<script language="JavaScript" type="text/JavaScript">
-// VALIDASI INPUT PEMILIHAN GRUP DOKUMEN
-function validateInput(elem) {
-	var optTHROLD_DocumentGroupID = document.getElementById('optTHROLD_DocumentGroupID').selectedIndex;
-	
-	if(optTHROLD_DocumentGroupID == 0) {
-		alert("Grup Dokumen Belum Dipilih!");
-		return false;
->>>>>>> 30a6cb8b9b8f70c6178cc4145418aedb0c5b1433
 	}
-	else if(optTHROLD_DocumentGroupID == 3) {
-		var phase = document.getElementById('phase').value;
-		
-		if (phase.replace(" ", "") != "") {
-			if(isNaN(phase)){
-				alert ("Tahap Harus Berupa Angka [0-9]!");
-				return false;
-			}
-		}
+	if(!in_array($dataAssetOwnership["docMonth"],$assetOwnershipOpt->company)){
+		array_push($assetOwnershipOpt->month,$dataAssetOwnership["docMonth"]);
 	}
-	return true;
-}
-
-// VALIDASI INPUT PEMILIHAN DOKUMEN YANG AKAN DICETAK BARCODE NYA
-function validateBarcodePrint(elem) {
-	var returnValue;
-	returnValue = false;							
-
-	var cBarcodePrint = document.getElementsByName('cBarcodePrint[]');
-		
-	for (var i = 0; i < cBarcodePrint.length; i++){
-		if (cBarcodePrint[i].checked) {
-			returnValue = true;
-			break;
-		}
+	if(!in_array($dataAssetOwnership["docYear"],$assetOwnershipOpt->company)){
+		array_push($assetOwnershipOpt->year,$dataAssetOwnership["docYear"]);
 	}
-	if (!returnValue) {
-		alert("Anda Belum Memilih Dokumen Yang Akan Dicetak Barcodenya!");
-	}
-	return returnValue;
-}
-
-// MENAMPILKAN DETAIL FILTER
-function showFilterDetail() {
-	$.post("jQuery.TransactionListFilter.php", {
-		optTHROLD_DocumentGroupID : $('#optTHROLD_DocumentGroupID').val(),
-		optFilterHeader : $('#optFilterHeader').val()
-	}, function(response){
-		
-		setTimeout("finishAjax('optFilterDetail', '"+escape(response)+"')", 400);
-	});
-}
-function finishAjax(id, response){
-  $('#'+id).html(unescape(response));
-} 
-
-//MENAMPILKAN DAFTAR FASE BILA GRUP DOKUMEN ADALAH GRL
-function showFilter(){
-	if (document.getElementById('optTHROLD_DocumentGroupID').value=="3"){
-		document.getElementById('optPhase').style.display = "inline";
-		document.getElementById('optFilterHeader').options[0]=new Option('--- Pilih Keterangan Dokumen ---', '0');
-		document.getElementById('optFilterHeader').options[1]=new Option('Perusahaan', '1');
-		document.getElementById('optFilterHeader').options[2]=new Option('Status', '5');
-	}
-	else {
-		document.getElementById('optPhase').style.display = "none";
-		document.getElementById('optFilterHeader').options[0]=new Option('--- Pilih Keterangan Dokumen ---', '0');
-		document.getElementById('optFilterHeader').options[1]=new Option('Perusahaan', '1');
-		document.getElementById('optFilterHeader').options[2]=new Option('Kategori Dokumen', '2');
-		document.getElementById('optFilterHeader').options[3]=new Option('Tipe Dokumen', '3');
-		document.getElementById('optFilterHeader').options[4]=new Option('Status', '5');
+	if(!array_key_exists($dataAssetOwnership["User_ID"],$assetOwnershipOpt->requester)){
+		array_push($assetOwnershipOpt->requester,[$dataAssetOwnership["User_ID"]=>$dataAssetOwnership["User_FullName"]]);
 	}
 }
-<<<<<<< HEAD
 $landAcquisitionOpt=new stdClass();
 $landAcquisitionOpt->company=[];
 $landAcquisitionOpt->requester=[];
@@ -137,105 +66,17 @@ $sqlLandAcquisition = mysql_query($queryLandAcquisition);
 while ($dataLandAcquisition = mysql_fetch_array($sqlLandAcquisition)) {
 	if(!array_key_exists($dataLandAcquisition["Company_ID"],$landAcquisitionOpt->company)){
 		array_push($landAcquisitionOpt->company,[$dataLandAcquisition["Company_ID"]=>$dataLandAcquisition["Company_Name"]]);
-=======
-
-// JQUERY UNTUK MENAMPILKAN TIPE DOKUMEN DARI KATEGORI DOKUMEN YANG DIPILIH
-function showType(){
-	var txtDL_GroupDocID = document.getElementById('DocumentGroup_ID').value;
-		$.post("jQuery.DocumentType.php", {
-			CategoryID: $('#txtDL_CategoryDocID').val(),
-			GroupID: txtDL_GroupDocID
-		}, function(response){
-			
-			setTimeout("finishAjax('txtDL_TypeDocID', '"+escape(response)+"')", 400);
-		});
-}
-function finishAjax(id, response){
-  $('#'+id).html(unescape(response));
-} 
-
-// VALIDASI TANGGAL
-var dtCh= "/";
-var minYear=1900;
-var maxYear=2100;
-
-function isInteger(s){
-	var i;
-    for (i = 0; i < s.length; i++){   
-        // Check that current character is number.
-        var c = s.charAt(i);
-        if (((c < "0") || (c > "9"))) return false;
-    }
-    // All characters are numbers.
-    return true;
-}
-
-function stripCharsInBag(s, bag){
-	var i;
-    var returnString = "";
-    // Search through string's characters one by one.
-    // If character is not in bag, append to returnString.
-    for (i = 0; i < s.length; i++){   
-        var c = s.charAt(i);
-        if (bag.indexOf(c) == -1) returnString += c;
-    }
-    return returnString;
-}
-
-function daysInFebruary (year){
-	// February has 29 days in any year evenly divisible by four,
-    // EXCEPT for centurial years which are not also divisible by 400.
-    return (((year % 4 == 0) && ( (!(year % 100 == 0)) || (year % 400 == 0))) ? 29 : 28 );
-}
-function DaysArray(n) {
-	for (var i = 1; i <= n; i++) {
-		this[i] = 31
-		if (i==4 || i==6 || i==9 || i==11) {this[i] = 30}
-		if (i==2) {this[i] = 29}
-   } 
-   return this
-}
-
-function checkdate(dtStr){
-	var daysInMonth = DaysArray(12)
-	var pos1=dtStr.indexOf(dtCh)
-	var pos2=dtStr.indexOf(dtCh,pos1+1)
-	var strMonth=dtStr.substring(0,pos1)
-	var strDay=dtStr.substring(pos1+1,pos2)
-	var strYear=dtStr.substring(pos2+1)
-	strYr=strYear
-	if (strDay.charAt(0)=="0" && strDay.length>1) strDay=strDay.substring(1)
-	if (strMonth.charAt(0)=="0" && strMonth.length>1) strMonth=strMonth.substring(1)
-	for (var i = 1; i <= 3; i++) {
-		if (strYr.charAt(0)=="0" && strYr.length>1) strYr=strYr.substring(1)
 	}
-	month=parseInt(strMonth)
-	day=parseInt(strDay)
-	year=parseInt(strYr)
-	if (pos1==-1 || pos2==-1){
-		alert("Format Tanggal : MM/DD/YYYY")
-		return false
->>>>>>> 30a6cb8b9b8f70c6178cc4145418aedb0c5b1433
+	if(!in_array($dataLandAcquisition["docMonth"],$landAcquisitionOpt->company)){
+		array_push($landAcquisitionOpt->month,$dataLandAcquisition["docMonth"]);
 	}
-	if (strMonth.length<1 || month<1 || month>12){
-		alert("Bulan Tidak Valid")
-		return false
+	if(!in_array($dataLandAcquisition["docYear"],$landAcquisitionOpt->company)){
+		array_push($landAcquisitionOpt->year,$dataLandAcquisition["docYear"]);
 	}
-	if (strDay.length<1 || day<1 || day>31 || (month==2 && day>daysInFebruary(year)) || day > daysInMonth[month]){
-		alert("Hari Tidak Valid")
-		return false
+	if(!array_key_exists($dataLandAcquisition["User_ID"],$landAcquisitionOpt->requester)){
+		array_push($landAcquisitionOpt->requester,[$dataLandAcquisition["User_ID"]=>$dataLandAcquisition["User_FullName"]]);
 	}
-	if (strYear.length != 4 || year==0 || year<minYear || year>maxYear){
-		alert("Masukkan 4 Digit Tahun Dari "+minYear+" Dan "+maxYear)
-		return false
-	}
-	if (dtStr.indexOf(dtCh,pos2+1)!=-1 || isInteger(stripCharsInBag(dtStr, dtCh))==false){
-		alert("Tanggal Tidak Valid")
-		return false
-	}
-return true
 }
-<<<<<<< HEAD
 $legalOpt=new stdClass();
 $legalOpt->type=[];
 $legalOpt->company=[];
@@ -269,93 +110,36 @@ while ($dataLegal = mysql_fetch_array($sqlLegal)) {
 	if($dataLegal["THROLD_DocumentGroupID"]=='1'){
 		if(!array_key_exists($dataLegal["DocumentType_ID"],$legalOpt->type)){
 			array_push($legalOpt->type,[$dataLegal["DocumentType_ID"]=>$dataLegal["DocumentType_Name"]]);
-=======
-
-// VALIDASI BAGIAN DETAIL SAAT EDIT DOKUMEn
-function validateInputEdit(elem) {
-	var returnValue;
-	returnValue = true;				
-
-		var txtDL_CategoryDocID = document.getElementById('txtDL_CategoryDocID').selectedIndex;
-		var txtDL_TypeDocID = document.getElementById('txtDL_TypeDocID').selectedIndex;
-		var txtDL_Instance = document.getElementById('txtDL_Instance').value;
-		var txtDL_NoDoc = document.getElementById('txtDL_NoDoc').value;
-		var txtDL_RegDate = document.getElementById('txtDL_RegDate').value;
-		var txtDL_ExpDate = document.getElementById('txtDL_ExpDate').value;
-		var txtDL_Information1 = document.getElementById('txtDL_Information1').selectedIndex;
-		var txtDL_Information2 = document.getElementById('txtDL_Information2').selectedIndex;
-		var Date1 = new Date(txtDL_RegDate);
-		var Date2 = new Date(txtDL_ExpDate);
-				
-		if(txtDL_CategoryDocID == 0) {
-			alert("Kategori Dokumen Belum Dipilih!");
-			returnValue = false;
->>>>>>> 30a6cb8b9b8f70c6178cc4145418aedb0c5b1433
 		}
-		if(txtDL_TypeDocID == 0) {
-			alert("Tipe Dokumen Belum Dipilih!");
-			returnValue = false;
+		if(!array_key_exists($dataLegal["Company_ID"],$legalOpt->company)){
+			array_push($legalOpt->company,[$dataLegal["Company_ID"]=>$dataLegal["Company_Name"]]);
 		}
-		if (txtDL_Instance.replace(" ", "") == "")  {	
-			alert("Nama Instansi Belum Terisi!");
-			returnValue = false;
+		if(!in_array($dataLegal["docMonth"],$legalOpt->company)){
+			array_push($legalOpt->month,$dataLegal["docMonth"]);
 		}
-		if (txtDL_NoDoc.replace(" ", "") == "")  {	
-			alert("Nomor Dokumen Belum Terisi!");
-			returnValue = false;
+		if(!in_array($dataLegal["docYear"],$legalOpt->company)){
+			array_push($legalOpt->year,$dataLegal["docYear"]);
 		}
-		if (txtDL_RegDate.replace(" ", "") == "")  {	
-			alert("Tanggal Publikasi Belum Terisi!");
-			returnValue = false;
-		} 
-		if (txtDL_RegDate.replace(" ", "") != "")  {	
-			if (checkdate(txtDL_RegDate) == false) {
-				returnValue = false;
-			}
+		if(!array_key_exists($dataLegal["User_ID"],$legalOpt->requester)){
+			array_push($legalOpt->requester,[$dataLegal["User_ID"]=>$dataLegal["User_FullName"]]);
 		}
-		if (txtDL_ExpDate.replace(" ", "") != "")  {	
-			if (checkdate(txtDL_ExpDate) == false) {
-				returnValue = false;
-			}
-			else {
-				if (Date2 < Date1) {
-				alert("Tanggal Habis Masa Berlaku Lebih Kecil Daripada Tanggal Publikasi!");
-				returnValue = false;
-				}
-			}
+	}
+	else if($dataLegal["THROLD_DocumentGroupID"]=='2'){
+		if(!array_key_exists($dataLegal["DocumentType_ID"],$licenseOpt->type)){
+			array_push($licenseOpt->type,[$dataLegal["DocumentType_ID"]=>$dataLegal["DocumentType_Name"]]);
 		}
-		if(txtDL_Information1 == 0) {
-			alert("Informasi Dokumen 1 Belum Dipilih!");
-			returnValue = false;
+		if(!array_key_exists($dataLegal["Company_ID"],$licenseOpt->company)){
+			array_push($licenseOpt->company,[$dataLegal["Company_ID"]=>$dataLegal["Company_Name"]]);
 		}
-		if(txtDL_Information2 == 0) {
-			alert("Informasi Dokumen 2 Belum Dipilih!");
-			returnValue = false;
+		if(!in_array($dataLegal["docMonth"],$licenseOpt->company)){
+			array_push($licenseOpt->month,$dataLegal["docMonth"]);
 		}
-	return returnValue;
-}
-
-// VALIDASI BAGIAN DETAIL SAAT EDIT DOKUMEn
-function validateInputEditLA(elem) {
-	var returnValue;
-	returnValue = true;				
-
-		var txtDLA_Phase = document.getElementById('txtDLA_Phase').value;
-		var txtDLA_Village = document.getElementById('txtDLA_Village').value;
-		var txtDLA_Block = document.getElementById('txtDLA_Block').value;
-		var txtDLA_Owner = document.getElementById('txtDLA_Owner').value;
-		var txtDLA_Period = document.getElementById('txtDLA_Period').value;
-		var txtDLA_DocDate = document.getElementById('txtDLA_DocDate').value;
-				
-		if (txtDLA_Phase.replace(" ", "") == "")  {	
-			alert("Tahap Pembebasan Lahan Belum Terisi!");
-			returnValue = false;
+		if(!in_array($dataLegal["docYear"],$licenseOpt->company)){
+			array_push($licenseOpt->year,$dataLegal["docYear"]);
 		}
-		if (txtDLA_Village.replace(" ", "") == "")  {	
-			alert("Nama Desa Belum Terisi!");
-			returnValue = false;
+		if(!array_key_exists($dataLegal["User_ID"],$licenseOpt->requester)){
+			array_push($licenseOpt->requester,[$dataLegal["User_ID"]=>$dataLegal["User_FullName"]]);
 		}
-<<<<<<< HEAD
 	}
 }
 $otherLegalOpt=new stdClass();
@@ -415,43 +199,18 @@ while ($dataOtherNonLegal = mysql_fetch_array($sqlOtherNonLegal)) {
 	if(!array_key_exists($dataOtherNonLegal["User_ID"],$otherNonLegalOpt->requester)){
 		array_push($otherNonLegalOpt->requester,[$dataOtherNonLegal["User_ID"]=>$dataOtherNonLegal["User_FullName"]]);
 	}
-=======
-		if (txtDLA_Block.replace(" ", "") == "")  {	
-			alert("Blok Belum Terisi!");
-			returnValue = false;
-		} 
-		if (txtDLA_Owner.replace(" ", "") == "")  {	
-			alert("Nama Pemilik Belum Terisi!");
-			returnValue = false;
-		}
-		if (txtDLA_Period.replace(" ", "") == "")  {	
-			alert("Periode Ganti Rugi Belum Terisi!");
-			returnValue = false;
-		}
-		if (txtDLA_Period.replace(" ", "") != "")  {	
-			if (checkdate(txtDLA_Period) == false) {
-				returnValue = false;
-			}
-		}
-		if (txtDLA_DocDate.replace(" ", "") == "")  {	
-			alert("Tanggal Dokumen Belum Terisi!");
-			returnValue = false;
-		}
-		if (txtDLA_DocDate.replace(" ", "") != "")  {	
-			if (checkdate(txtDLA_DocDate) == false) {
-				returnValue = false;
-			}
-		}
-	return returnValue;
->>>>>>> 30a6cb8b9b8f70c6178cc4145418aedb0c5b1433
 }
 
-//PERHITUNGAN TOTAL
-function countTotal(){
-	document.getElementById('txtDLA_AreaTotalPrice').value=document.getElementById('txtDLA_AreaStatement').value * document.getElementById('txtDLA_AreaPrice').value;
-	document.getElementById('txtDLA_PlantTotalPrice').value=document.getElementById('txtDLA_PlantQuantity').value * document.getElementById('txtDLA_PlantPrice').value;
-	document.getElementById('txtDLA_GrandTotal').value=parseInt(document.getElementById('txtDLA_AreaTotalPrice').value) + parseInt(document.getElementById('txtDLA_PlantTotalPrice').value);
-}
+$allOpt=[];
+$allOpt[1]=$legalOpt;
+$allOpt[2]=$licenseOpt;
+$allOpt[3]=$landAcquisitionOpt;
+$allOpt[4]=$assetOwnershipOpt;
+$allOpt[5]=$sqlOtherLegal;
+$allOpt[6]=$otherNonLegalOpt;
+?>
+var filterObject = <?=json_encode($allOpt)?>;
+
 </script>
 </head>
 

@@ -101,51 +101,68 @@ if(isset($_POST['login'])) {
 	$num = mysql_num_rows($sql);
 
 	if($num==1) {
+		session_register('Access_ID_Page_Minimal_Dept_Head'); //Arief F - 23082018
+		$_SESSION['Access_ID_Page_Minimal_Dept_Head'] = null; //Arief F - 23082018
 		$field = mysql_fetch_array($sql);
 		$User_ID=$field['User_ID'];
+		$query_cek_role = "SELECT r.Role_Name
+			FROM M_UserRole ur
+			LEFT JOIN M_Role r
+				ON ur.MUR_RoleID=r.Role_ID
+			WHERE ur.MUR_UserID='$User_ID'";
+		$sql_cek_role = mysql_query($query_cek_role);
+		$role = mysql_fetch_array($sql_cek_role);
+		if( $role['Role_Name'] != "Administrator" && $role['Role_Name'] != "Custodian Head"
+			&& $role['Role_Name'] != "Custodian"
+		){
+			//Cek Employee Grade Minimal Departemen Head //Arief F - 23082018
+			$query_employee_grade = "SELECT u.User_ID,
+					e.Employee_GradeCode, e.Employee_Grade
+				FROM custodian.M_User AS u
+					JOIN db_master.M_Employee AS e
+				WHERE
+					u.User_ID = '$User_ID'
+					AND u.User_ID = e.Employee_NIK
+					AND e.Employee_gradecode IN ('0000000005','06','0000000003','05','04','0000000004')
+					AND (u.User_Delete_Time IS NULL OR u.User_Delete_Time >= sysdate())"; //Arief F - 23082018
+			$sql_employee_grade = mysql_query($query_employee_grade); //Arief F - 23082018
+			$dibawah_dept_head = mysql_num_rows($sql_employee_grade); //Arief F - 23082018
 
-	//Cek Employee Grade Minimal Departemen Head //Arief F - 23082018
-		// include ("./config/config_server.php"); //Arief F - 23082018
-		$query_employee_grade = "SELECT u.User_ID,
-				e.Employee_GradeCode, e.Employee_Grade
-			FROM custodian.M_User AS u
-				JOIN db_master.M_Employee AS e
-			WHERE
-				u.User_ID = '$User_ID'
-				AND u.User_ID = e.Employee_NIK
-				AND e.Employee_gradecode IN ('0000000005','06','0000000003','05','04','0000000004')
-				AND (u.User_Delete_Time IS NULL OR u.User_Delete_Time >= sysdate())"; //Arief F - 23082018
-		$sql_employee_grade = mysql_query($query_employee_grade); //Arief F - 23082018
-		$dibawah_dept_head = mysql_num_rows($sql_employee_grade); //Arief F - 23082018
-		session_register('Access_ID_Page_Minimal_Dept_Head'); //Arief F - 23082018
-		$_SESSION['Access_ID_Page_Minimal_Dept_Head'] = null;
-		if($dibawah_dept_head == 0){ //Jika jabatan dibawah Departemen Head //Arief F - 23082018
-			$_SESSION['Access_ID_Page_Minimal_Dept_Head'] = [ //Arief F - 23082018
-				'6', //Registrasi Dokumen //Arief F - 23082018
-				'7' //Permintaan Dokumen //Arief F - 23082018
-			]; //Arief F - 23082018
-		} //Arief F - 23082018
+			if($dibawah_dept_head == 0){ //Jika jabatan dibawah Departemen Head //Arief F - 23082018
+				$_SESSION['Access_ID_Page_Minimal_Dept_Head'] = [ //Arief F - 23082018
+					'6', //Registrasi Dokumen //Arief F - 23082018
+					'7', //Permintaan Dokumen //Arief F - 23082018
+					'8', //Pengeluaran Dokumen //Arief F - 23082018
+					'9', //Pengembalian Dokumen //Arief F - 23082018
+					'58', //Dokumen Lainnya - RD //Arief F - 23082018
+					'60', //Dokumen Lainnya - RD //Arief F - 23082018
+					'62', //Dokumen Lainnya - RD //Arief F - 23082018
+					'64' //Dokumen Lainnya - RD //Arief F - 23082018
+				]; //Arief F - 23082018
+			} //Arief F - 23082018
 
-		//Cek Menu yang jabatan dibawah Department Head //Arief F - 23082018
-		$not_pages_min_dept_head = ""; //Arief F - 23082018
-		$not_parent_pages_min_dept_head = ""; //Arief F - 23082018
+			//Cek Menu yang jabatan dibawah Department Head //Arief F - 23082018
+			$not_pages_min_dept_head = ""; //Arief F - 23082018
+			$not_parent_pages_min_dept_head = ""; //Arief F - 23082018
 
-		$pages_min_dept_head = ""; //Arief F - 23082018
-		$parent_pages_min_dept_head = ""; //Arief F - 23082018
-	    if( $_SESSION['Access_ID_Page_Minimal_Dept_Head'] != null ){ //Arief F - 23082018
-	        $id_pages_tertentu = "("; //Arief F - 23082018
-	        foreach( $_SESSION['Access_ID_Page_Minimal_Dept_Head'] as $n => $data ){ //Arief F - 23082018
-	            $id_pages_tertentu .= "'".$data."',"; //Arief F - 23082018
-	        } //Arief F - 23082018
-	        $id_pages_tertentu = substr($id_pages_tertentu,0,-1); //Arief F - 23082018
-	        $id_pages_tertentu .= ")"; //Arief F - 23082018
-	        $not_pages_min_dept_head = "AND m.Menu_ID NOT IN ".$id_pages_tertentu; //Arief F - 23082018
-	        $not_parent_pages_min_dept_head = "AND m.Menu_ParentID NOT IN ".$id_pages_tertentu; //Arief F - 23082018
+			$pages_min_dept_head = ""; //Arief F - 23082018
+			$parent_pages_min_dept_head = ""; //Arief F - 23082018
 
-			$pages_min_dept_head = "AND m.Menu_ID IN ".$id_pages_tertentu; //Arief F - 23082018
-	        $parent_pages_min_dept_head = "AND m.Menu_ParentID IN ".$id_pages_tertentu; //Arief F - 23082018
-	    } //Arief F - 23082018
-	    //End of Cek Menu yang jabatan dibawah Department Head //Arief F - 23082018
+		    if( $_SESSION['Access_ID_Page_Minimal_Dept_Head'] != null ){ //Arief F - 23082018
+		        $id_pages_tertentu = "("; //Arief F - 23082018
+		        foreach( $_SESSION['Access_ID_Page_Minimal_Dept_Head'] as $n => $data ){ //Arief F - 23082018
+		            $id_pages_tertentu .= "'".$data."',"; //Arief F - 23082018
+		        } //Arief F - 23082018
+		        $id_pages_tertentu = substr($id_pages_tertentu,0,-1); //Arief F - 23082018
+		        $id_pages_tertentu .= ")"; //Arief F - 23082018
+		        $not_pages_min_dept_head = "AND m.Menu_ID NOT IN ".$id_pages_tertentu; //Arief F - 23082018
+		        $not_parent_pages_min_dept_head = "AND m.Menu_ParentID NOT IN ".$id_pages_tertentu; //Arief F - 23082018
+
+				$pages_min_dept_head = "AND m.Menu_ID IN ".$id_pages_tertentu; //Arief F - 23082018
+		        $parent_pages_min_dept_head = "AND m.Menu_ParentID IN ".$id_pages_tertentu; //Arief F - 23082018
+		    } //Arief F - 23082018
+		    //End of Cek Menu yang jabatan dibawah Department Head //Arief F - 23082018
+		}
 
 	//cek user role
 		// include ("./config/config_db.php");
