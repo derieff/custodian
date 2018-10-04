@@ -123,7 +123,7 @@ if(($_GET['cfm'])&&($_GET['ati'])&&($_GET['rdm'])) {
 							* Nicholas - 26 Sept 2018			*
 							* Fix Bug skip approval				*
 							************************************/
-							
+
 							/*if ($i == $jStep) {
 								$query = "UPDATE TH_RegistrationOfLegalDocument
 									SET THROLD_Status='accept', THROLD_Update_UserID='$A_ApproverID',
@@ -164,7 +164,7 @@ if(($_GET['cfm'])&&($_GET['ati'])&&($_GET['rdm'])) {
 							* Nicholas - 26 Sept 2018			*
 							* Fix Bug skip approval				*
 							************************************/
-							
+
 							/*if ($i == $jStep) {
 								$query = "UPDATE TH_RegistrationOfLegalDocument
 									SET THROLD_Status='accept', THROLD_Update_UserID='$A_ApproverID',
@@ -355,7 +355,7 @@ if(($_GET['cfm'])&&($_GET['ati'])&&($_GET['rdm'])) {
 												 AND DL_Delete_Time is NULL)";
 							$sql = mysql_query($query);
 							$arr = mysql_fetch_array($sql);
-							$DLIU_LocationCode=$arr[DL_Code];
+							$DLIU_LocationCode=$arr['DL_Code'];
 
 							//$step=$i+1;
 							$newnum=str_pad($nnum,4,"0",STR_PAD_LEFT);
@@ -373,7 +373,7 @@ if(($_GET['cfm'])&&($_GET['ati'])&&($_GET['rdm'])) {
 										WHERE DL_Code='$DLIU_LocationCode';";
 
 							// Memindahkan Pendaftaran Dokumen ke M_DocumentLegal
-							$info=str_replace("<br>", "\n",$d_arr['TDROLD_DocumentInformation3ID']);
+							$info=str_replace("<br>", "\n",$d_arr['TDROLD_DocumentInformation3']);
 							$sql3= "INSERT INTO M_DocumentLegal
 									VALUES (NULL,
 											'$CD_Code',
