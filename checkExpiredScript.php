@@ -48,11 +48,9 @@ $queryAssetOwnership="SELECT mdao.DAO_DocCode DocCode,mdao.DAO_NoPolisi,ma.Appro
 						ORDER BY ma.Approver_UserID ASC";
 $sqlAssetOwnership = mysql_query($queryAssetOwnership);
 
-$queryLegal="SELECT mdl.DL_RegUserID User_ID,mdl.DL_DocCode DocCode,mdl.DL_NoDoc,mdl.DL_Delete_Time,
+$queryLegal="SELECT mdl.DL_RegUserID User_ID,mdl.DL_DocCode DocCode,mdl.DL_NoDoc,
 				DATE_FORMAT(mdl.DL_ExpDate,'%d %M %Y') ExpTime,
-				mc.Company_Name,mdc.DocumentCategory_Name,mdt.DocumentType_Name,
-				PERIOD_DIFF(DATE_FORMAT(mdl.DL_ExpDate,'%Y%m'),DATE_FORMAT(CURDATE(),'%Y%m')) monthDiff,
-				DATE_FORMAT(mdl.DL_ExpDate,'%d') dayExpired,DATE_FORMAT(CURDATE(),'%d') currday
+				mc.Company_Name,mdc.DocumentCategory_Name,mdt.DocumentType_Name
 			FROM M_DocumentLegal mdl
 			LEFT JOIN M_DocumentCategory mdc 
 				ON mdl.DL_CategoryDocID=mdc.DocumentCategory_ID
@@ -60,10 +58,13 @@ $queryLegal="SELECT mdl.DL_RegUserID User_ID,mdl.DL_DocCode DocCode,mdl.DL_NoDoc
 				ON mdt.DocumentType_ID=mdl.DL_TypeDocID
 			LEFT JOIN M_Company mc
 				ON mc.Company_ID=mdl.DL_CompanyID
-			HAVING dayExpired=currday AND ExpTime IS NOT null AND mdl.DL_Delete_Time IS NULL
-				AND ((UPPER(TRIM(DocumentCategory_Name))='HGU' AND monthDiff=63)
+			WHERE mdl.DL_ExpDate IS NOT NULL 
+				AND mdl.DL_Delete_Time IS NULL
+				AND (
+					(UPPER(TRIM(DocumentCategory_Name))='HGU' AND DATE_SUB(mdl.DL_ExpDate,INTERVAL 63 MONTH)=CURDATE())
 					OR
-					(monthDiff=1))
+					(DATE_SUB(mdl.DL_ExpDate,INTERVAL 1 MONTH)=CURDATE())
+				)
 			ORDER BY mdl.DL_RegUserID ASC";
 $sqlLegal = mysql_query($queryLegal);
 
