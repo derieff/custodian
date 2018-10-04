@@ -34,8 +34,7 @@ $queryAssetOwnership="SELECT mdao.DAO_DocCode DocCode,mdao.DAO_NoPolisi,ma.Appro
 							ON me.Employee_CompanyCode=mc.Company_Name
 							AND mc.Company_InactiveTime IS NULL
 						INNER JOIN M_Role_Approver mra 
-							ON ((mc.Company_Region='-' AND mra.RA_Name='ADMIN - HO') 
-							OR (mra.RA_Name LIKE CONCAT('ADMIN - %',mc.Company_Region)))
+							ON (mc.Company_Region!='-' AND mra.RA_Name LIKE CONCAT('ADMIN - %',mc.Company_Region))
 							AND mra.RA_Delete_Time IS NULL
 						INNER JOIN M_Approver ma 
 							ON mra.RA_ID=ma.Approver_RoleID

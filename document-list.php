@@ -77,13 +77,19 @@ function finishAjax(id, response){
 
 //MENAMPILKAN DAFTAR FASE BILA GRUP DOKUMEN ADALAH GRL
 function showFilter(){
-	if (document.getElementById('optTHROLD_DocumentGroupID').value=="3"){
+	if(document.getElementById('optFilterHeader')!=null){
+		document.getElementById('optFilterHeader').innerHTML='';//reset opt(hapus semua pilihan)
+	}
+	//isi pilihan baru sesuai dengan group dokumen
+	if (document.getElementById('optTHROLD_DocumentGroupID').value>=3){
+		//Selain legal dan lisensi
 		document.getElementById('optPhase').style.display = "inline";
 		document.getElementById('optFilterHeader').options[0]=new Option('--- Pilih Keterangan Dokumen ---', '0');
 		document.getElementById('optFilterHeader').options[1]=new Option('Perusahaan', '1');
 		document.getElementById('optFilterHeader').options[2]=new Option('Status', '5');
 	}
 	else {
+		//Legal atau License
 		document.getElementById('optPhase').style.display = "none";
 		document.getElementById('optFilterHeader').options[0]=new Option('--- Pilih Keterangan Dokumen ---', '0');
 		document.getElementById('optFilterHeader').options[1]=new Option('Perusahaan', '1');

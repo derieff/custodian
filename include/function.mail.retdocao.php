@@ -15,7 +15,7 @@ include_once('./phpmailer/class.html2text.inc.php');
 include_once ("./config/db_sql.php");
 include_once ("./include/class.endencrp.php");
 	
-function mail_ret_asset_ownership($relCode,$User_ID,$docList,$userData,$subordinateID=-1){
+function mail_ret_asset_ownership($relCode,$User_ID,$docList,$userData,$subordinateID=-1,$lastReminder=-1){
 	$mail = new PHPMailer();
 	$decrp = new custodian_encryp;
 
@@ -88,7 +88,7 @@ function mail_ret_asset_ownership($relCode,$User_ID,$docList,$userData,$subordin
 				<p align=center style="margin-bottom: 7%;">
 					<span style="border: 1px solid green;padding: 5px;margin-bottom: 15px; font-size: 13px;font-family: \'lucida grande\',tahoma,verdana,arial,sans-serif;background-color: rgb(196, 223, 155);color: white;float: left;margin-left: 15%;width: 20%;border-radius: 10px;">
 						
-						<a target="_BLANK" style="color: white;" >Sudah Diterima</a>
+						<a target="_BLANK" href="http://'.$_SERVER['HTTP_HOST'].'/return-of-document.php?act=add'.($lastReminder!=-1?'&lastReminder=1':'').'" style="color: white;" >Sudah Diterima</a>
 					</span>
 					<span style="border: 1px solid green;padding: 5px;margin-bottom: 15px; font-size: 13px;font-family: \'lucida grande\',tahoma,verdana,arial,sans-serif;background-color: rgb(196, 223, 155);color: white;float: right;margin-right: 15%;width: 20%;border-radius: 10px;">
 						<a target="_BLANK" style="color: white;" >Belum Diterima</a>
