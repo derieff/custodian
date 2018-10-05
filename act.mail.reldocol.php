@@ -34,13 +34,13 @@ if( !empty($_GET['cfm']) && !empty($_GET['ati']) && !empty($_GET['rdm']) ) {
 				  WHERE A_ID='$A_ID'";
 		$sql = mysql_query($query);
 		$arr = mysql_fetch_array($sql);
-		$step=$arr[A_Step];
+		$step=$arr['A_Step'];
 		$AppDate=$arr['A_ApprovalDate'];
 		$A_TransactionCode=$arr['A_TransactionCode'];
 		$A_ApproverID=$arr['A_ApproverID'];
 
 		$h_query="SELECT *
-				  FROM TH_ReleaseOfLegalDocument throold,TH_LoanOfOtherLegalDocuments thloold
+				  FROM TH_ReleaseOfOtherLegalDocuments throold,TH_LoanOfOtherLegalDocuments thloold
 				  WHERE throold.THROOLD_ReleaseCode='$A_TransactionCode'
 				  AND throold.THROOLD_THLOOLD_Code=thloold.THLOOLD_LoanCode
 				  AND thloold.THLOOLD_Delete_Time IS NULL
@@ -98,7 +98,7 @@ if( !empty($_GET['cfm']) && !empty($_GET['ati']) && !empty($_GET['rdm']) ) {
 					}
 				}
 				else {
-					$query = "UPDATE TH_ReleaseOfLegalDocument
+					$query = "UPDATE TH_ReleaseOfOtherLegalDocuments
 								SET THROOLD_Status='accept', THROOLD_Update_UserID='$A_ApproverID',
 								    THROOLD_Update_Time=sysdate()
 								WHERE THROOLD_ReleaseCode='$A_TransactionCode'
@@ -169,7 +169,7 @@ if( !empty($_GET['cfm']) && !empty($_GET['ati']) && !empty($_GET['rdm']) ) {
 							// Kode Pengeluaran Dokumen
 							$CT_Code="$newnum/DOUT/$Company_Code/$DocumentGroup_Code/$regmonth/$regyear";
 
-							switch ($h_arr[THLOOLD_LoanCategoryID]) {
+							switch ($h_arr['THLOOLD_LoanCategoryID']) {
 								case "1":
 									$docStatus="4";
 									$code="0";
@@ -276,14 +276,14 @@ if( !empty($_GET['cfm']) && !empty($_GET['ati']) && !empty($_GET['rdm']) ) {
 		</table>";
 	}
 }
-if($_GET['act']) {
+if(isset($_GET['act'])) {
 	$act=$decrp->decrypt($_GET['act']);
 
 	if ($act=='confirm'){
 		$userID=$decrp->decrypt($_GET['user']);
 		$docID=$decrp->decrypt($_GET['doc']);
 		$relCode=$decrp->decrypt($_GET['rel']);
-		$query = "UPDATE TH_ReleaseOfLegalDocument
+		$query = "UPDATE TH_ReleaseOfOtherLegalDocuments
 					SET THROOLD_DocumentReceived='1', THROOLD_Update_UserID='$userID', THROOLD_Update_Time=sysdate()
 					WHERE THROOLD_ID='$docID'
 					AND THROOLD_Delete_Time IS NULL";
@@ -291,7 +291,7 @@ if($_GET['act']) {
 		if($sql){
 			mail_notif_reception_release_doc($relCode, $userID, 3 ,1);
 			mail_notif_reception_release_doc($relCode, "cust0002", 3 );
-			echo "<meta http-equiv='refresh' content='0; url=detail-of-release-document.php?id=$docID'>";
+			echo "<meta http-equiv='refresh' content='0; url=detail-of-release-other-legal-documents.php?id=$docID'>";
 		}else{
 			$ActionContent .="<div class='warning'>Konfirmasi Penerimaan Dokumen Gagal. Terjadi kesalahan</div>";
 		}
@@ -328,7 +328,7 @@ if($_GET['act']) {
 	}
 }
 
-if(isset($_POST[reject])) {
+if(isset($_POST['reject'])) {
 	$A_Status='4';
 	$A_ID=$_POST['A_ID'];
 	$ARC_RandomCode=$_POST['ARC_RandomCode'];
@@ -360,13 +360,13 @@ if(isset($_POST[reject])) {
 			if ($AppDate==NULL) {
 
 				$h_query="SELECT *
-						  FROM TH_ReleaseOfLegalDocument throold,TH_LoanOfOtherLegalDocuments thloold
+						  FROM TH_ReleaseOfOtherLegalDocuments throold,TH_LoanOfOtherLegalDocuments thloold
 						  WHERE throold.THROOLD_ReleaseCode='$A_TransactionCode'
 						  AND throold.THROOLD_Delete_Time IS NULL";
 				$h_sql=mysql_query($h_query);
 				$h_arr=mysql_fetch_array($h_sql);
 
-				$query1="UPDATE TH_ReleaseOfLegalDocument
+				$query1="UPDATE TH_ReleaseOfOtherLegalDocuments
 						 SET THROOLD_Status='reject', THROOLD_Reason='$THROOLD_Reason',
 						  	 THROOLD_Update_Time=sysdate(), THROOLD_Update_UserID='$A_ApproverID'
 						 WHERE THROOLD_ReleaseCode='$A_TransactionCode'";

@@ -16,7 +16,7 @@ include ("./config/config_db.php");
 include ("./include/function.mail.lodocao.php");
 $decrp = new custodian_encryp;
 
-if(($_GET['cfm'])&&($_GET['ati'])&&($_GET['rdm'])) {
+if( !empty($_GET['cfm']) && !empty($_GET['ati']) && !empty($_GET['rdm']) ) {
 	$A_Status="3";
 	$A_ID=$decrp->decrypt($_GET['ati']);
 	$ARC_RandomCode=$decrp->decrypt($_GET['rdm']);
@@ -279,7 +279,13 @@ if(($_GET['cfm'])&&($_GET['ati'])&&($_GET['rdm'])) {
 						$sql = mysql_query($query);
 						$field = mysql_fetch_array($sql);
 
-						$DocumentGroup_Code = "KEA";
+						// Cari Kode Dokumen Grup
+						$query = "SELECT *
+									FROM M_DocumentGroup
+									WHERE DocumentGroup_ID ='4'";
+						$sql = mysql_query($query);
+						$field = mysql_fetch_array($sql);
+						$DocumentGroup_Code=$field['DocumentGroup_Code'];
 
 						if($field[0]==NULL)
 							$maxnum=0;

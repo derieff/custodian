@@ -407,10 +407,10 @@ function mail_notif_loan_doc($loanCode, $User_ID, $status, $attr){
 	$mail->FromName   = 'Custodian System';
 
 	if ($status=='3'){
-		$mail->Subject  =''.$testing.'Notifikasi Proses Permintaan Dokumen '.$loanCode;
+		$mail->Subject  =''.$testing.' Notifikasi Proses Permintaan Dokumen '.$loanCode;
 	}
 	if ($status=='4'){
-		$mail->Subject  =''.$testing.'Notifikasi Proses Permintaan Dokumen '.$loanCode;
+		$mail->Subject  =''.$testing.' Notifikasi Proses Permintaan Dokumen '.$loanCode;
 	}
 	$mail->AddBcc('system.administrator@tap-agri.com');
 	//$mail->AddAttachment("images/icon_addrow.png", "icon_addrow.png");  // optional name
@@ -440,6 +440,9 @@ function mail_notif_loan_doc($loanCode, $User_ID, $status, $attr){
 
 		$ed_query="	SELECT DISTINCT	Company_Name, THLOOLD_LoanCategoryID,
 						THLOOLD_DocumentType, THLOOLD_DocumentWithWatermarkOrNot,
+						DOL_NamaDokumen, DOL_InstansiTerkait, DOL_NoDokumen,
+                        DocumentCategory_Name,
+						DOL_TglTerbit, DOL_TglBerakhir,
 						DOL_RegTime, THLOOLD_Reason, THLOOLD_UserID, User_FullName,
 						THLOOLD_Information, Company_ID, LoanCategory_Name
 					FROM TH_LoanOfOtherLegalDocuments
@@ -453,6 +456,8 @@ function mail_notif_loan_doc($loanCode, $User_ID, $status, $attr){
 						ON TDLOOLD_DocCode=DOL_DocCode
 					LEFT JOIN M_User
 						ON THLOOLD_UserID=User_ID
+					LEFT JOIN db_master.M_DocumentCategory m_dc
+                        ON DOL_CategoryDocID=m_dc.DocumentCategory_ID
 					WHERE THLOOLD_LoanCode='$loanCode'
 					AND THLOOLD_Delete_Time IS NULL";
 		$ed_handle = mysql_query($ed_query);
@@ -463,6 +468,12 @@ function mail_notif_loan_doc($loanCode, $User_ID, $status, $attr){
 						<TR  style=" font-size: 12px; font-family: \'lucida grande\',tahoma,verdana,arial,sans-serif;">
 							<TD align="center" valign="top">'.$edNum.'</TD>
 							<TD>'.$ed_arr->Company_Name.'<br />
+								Nama Dokumen : '.$ed_arr->DOL_NamaDokumen.'<br />
+								'.$ed_arr->DocumentCategory_Name.'<br />
+								Instansi Terkait : '.$ed_arr->DOL_InstansiTerkait.'<br />
+								No. Dokumen : '.$ed_arr->DOL_NoDokumen.'<br />
+								Tgl. Terbit Dokumen : '.date('d/m/Y', strtotime($ed_arr->DOL_TglTerbit)).'<br>
+								Tgl. Berakhir Dokumen : '.date('d/m/Y', strtotime($ed_arr->DOL_TglBerakhir)).'<br>
 								Tgl. Terbit : '.date('d/m/Y H:i:s', strtotime($ed_arr->DOL_RegTime)).'
 							</TD>
 						</TR>';
@@ -534,7 +545,7 @@ function mail_notif_loan_doc($loanCode, $User_ID, $status, $attr){
 					WHERE Position_Name=CONCAT('CEO - ',Company_Area)";
 		$ceo_handle=mysql_query($ceo_query);
 		$ceo_obj=mysql_fetch_object($ceo_handle);
-		if($ceo_obj->User_Email){
+		if(!empty($ceo_obj->User_Email)){
 			//$mail->AddCC($ceo_obj->User_Email,$ceo_obj->User_FullName);
 			$mail->addCustomHeader("CC: {$ceo_obj->User_FullName} <{$ceo_obj->User_Email}>");
 		}

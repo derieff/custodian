@@ -34,7 +34,7 @@ if( !empty($_GET['cfm']) && !empty($_GET['ati']) && !empty($_GET['rdm']) ) {
 				  WHERE A_ID='$A_ID'";
 		$sql = mysql_query($query);
 		$arr = mysql_fetch_array($sql);
-		$step=$arr[A_Step];
+		$step=$arr['A_Step'];
 		$AppDate=$arr['A_ApprovalDate'];
 		$A_TransactionCode=$arr['A_TransactionCode'];
 		$A_ApproverID=$arr['A_ApproverID'];
@@ -169,7 +169,7 @@ if( !empty($_GET['cfm']) && !empty($_GET['ati']) && !empty($_GET['rdm']) ) {
 							// Kode Pengeluaran Dokumen
 							$CT_Code="$newnum/DOUT/$Company_Code/$DocumentGroup_Code/$regmonth/$regyear";
 
-							switch ($h_arr[THLOLAD_LoanCategoryID]) {
+							switch ($h_arr['THLOLAD_LoanCategoryID']) {
 								case "1":
 									$docStatus="4";
 									$code="0";
@@ -276,7 +276,7 @@ if( !empty($_GET['cfm']) && !empty($_GET['ati']) && !empty($_GET['rdm']) ) {
 		</table>";
 	}
 }
-if($_GET['act']) {
+if(isset($_GET['act'])) {
 	$act=$decrp->decrypt($_GET['act']);
 
 	if ($act=='confirm'){
@@ -328,7 +328,7 @@ if($_GET['act']) {
 	}
 }
 
-if(isset($_POST[reject])) {
+if(isset($_POST['reject'])) {
 	$A_Status='4';
 	$A_ID=$_POST['A_ID'];
 	$ARC_RandomCode=$_POST['ARC_RandomCode'];

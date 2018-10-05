@@ -520,7 +520,7 @@ function mail_notif_loan_doc($loanCode, $User_ID, $status, $attr){
 					WHERE Position_Name=CONCAT('CEO - ',Company_Area)";
 		$ceo_handle=mysql_query($ceo_query);
 		$ceo_obj=mysql_fetch_object($ceo_handle);
-		if($ceo_obj->User_Email){
+		if(!empty($ceo_obj->User_Email)){
 			//$mail->AddCC($ceo_obj->User_Email,$ceo_obj->User_FullName);
 			$mail->addCustomHeader("CC: {$ceo_obj->User_FullName} <{$ceo_obj->User_Email}>");
 		}

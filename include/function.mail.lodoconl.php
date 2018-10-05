@@ -402,10 +402,10 @@ function mail_notif_loan_doc($loanCode, $User_ID, $status, $attr){
 	$mail->FromName   = 'Custodian System';
 
 	if ($status=='3'){
-		$mail->Subject  =''.$testing.'Notifikasi Proses Permintaan Dokumen '.$loanCode;
+		$mail->Subject  =''.$testing.' Notifikasi Proses Permintaan Dokumen '.$loanCode;
 	}
 	if ($status=='4'){
-		$mail->Subject  =''.$testing.'Notifikasi Proses Permintaan Dokumen '.$loanCode;
+		$mail->Subject  =''.$testing.' Notifikasi Proses Permintaan Dokumen '.$loanCode;
 	}
 	$mail->AddBcc('system.administrator@tap-agri.com');
 	//$mail->AddAttachment("images/icon_addrow.png", "icon_addrow.png");  // optional name
@@ -468,7 +468,7 @@ function mail_notif_loan_doc($loanCode, $User_ID, $status, $attr){
 				$dengan_cap = "";
 			}
 			$keteranganPermintaan = "";
-			if( $row->THLOONLD_Information != null or $row->THLOONLD_Information != "" ){
+			if( $ed_arr->THLOONLD_Information != null or $ed_arr->THLOONLD_Information != "" ){
 				$keteranganPermintaan = "(tujuan permintaan dokumen adalah ".$info.")";
 			}
 		}
@@ -516,7 +516,7 @@ function mail_notif_loan_doc($loanCode, $User_ID, $status, $attr){
 					WHERE Position_Name=CONCAT('CEO - ',Company_Area)";
 		$ceo_handle=mysql_query($ceo_query);
 		$ceo_obj=mysql_fetch_object($ceo_handle);
-		if($ceo_obj->User_Email){
+		if(!empty($ceo_obj->User_Email)){
 			//$mail->AddCC($ceo_obj->User_Email,$ceo_obj->User_FullName);
 			$mail->addCustomHeader("CC: {$ceo_obj->User_FullName} <{$ceo_obj->User_Email}>");
 		}
