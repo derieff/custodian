@@ -181,7 +181,7 @@ function mail_release_doc($relCode,$reminder=0){
 	  $errorMsg[] = $e->errorMessage();
 	}
 
-	if ( count($errorMsg) > 0 ) {
+	if ( isset($errorMsg) && count($errorMsg) > 0 ) {
 	  foreach ($errorMsg as $key => $value) {
 		$thisError = $key + 1;
 		//echo $thisError . ': ' . $value;
@@ -369,7 +369,7 @@ function mail_notif_release_doc($relCode, $User_ID, $status){
 	  $errorMsg[] = $e->errorMessage();
 	}
 
-	if ( count($errorMsg) > 0 ) {
+	if (isset($errorMsg) && count($errorMsg) > 0 ) {
 	  foreach ($errorMsg as $key => $value) {
 		$thisError = $key + 1;
 		//echo $thisError . ': ' . $value;
@@ -414,7 +414,7 @@ function mail_notif_reception_release_doc($relCode, $User_ID, $status,$acceptor=
    		$ed_query="	SELECT DISTINCT TDLOLAD_ID,Company_Name,DLA_Phase,DLA_Period,
 									DLA_Village,DLA_Block,DLA_Owner,User_FullName,
 									DLA_AreaStatement,DLA_PlantTotalPrice,DLA_GrandTotal,DLA_DocDate,
-									THLOLAD_UserID,THRLOLAD_Reason,THRLOLAD_DocumentType,THRLOLAD_Information
+									THLOLAD_UserID,THRLOLAD_Reason,THRLOLAD_Information
 					FROM TH_ReleaseOfLandAcquisitionDocument
 					LEFT JOIN TD_ReleaseOfLandAcquisitionDocument
 						ON TDRLOLAD_THRLOLAD_ID=THRLOLAD_ID
@@ -430,7 +430,7 @@ function mail_notif_reception_release_doc($relCode, $User_ID, $status,$acceptor=
 						ON THLOLAD_UserID=User_ID
 					WHERE THRLOLAD_ReleaseCode='$relCode'
 					AND THLOLAD_Delete_Time IS NULL";
-		$ed_handlae = mysql_query($ed_query);
+		$ed_handlae = mysql_query($ed_query);echo $ed_query;
 		$edNum=1;
 		while ($ed_arr = mysql_fetch_object($ed_handlae)) {
 			$DLA_AreaStatement=number_format($ed_arr->DLA_AreaStatement,2,'.',',');
@@ -453,7 +453,6 @@ function mail_notif_reception_release_doc($relCode, $User_ID, $status,$acceptor=
 			$edNum=$edNum+1;
 			$edNum=$edNum+1;
 			$info=$ed_arr->THRLOLAD_Information;
-			$docType=$ed_arr->THRLOLAD_DocumentType;
 			$reason=$ed_arr->THRLOLAD_Reason;
 			$regUser=$ed_arr->THLOLAD_UserID;
 			$requester=$ed_arr->User_FullName;
@@ -472,7 +471,7 @@ function mail_notif_reception_release_doc($relCode, $User_ID, $status,$acceptor=
 	<td width="458" align="justify" valign="top" style="font-size: 12px; font-family: \'lucida grande\',tahoma,verdana,arial,sans-serif;"><div style="margin-bottom: 15px; font-size: 13px">Yth '.$row->User_FullName.',</div>
 	<div style="margin-bottom: 15px">';
 	if($acceptor){
-		$bodyHeader .= '<p><span style="margin-bottom: 15px; font-size: 13px; font-family: \'lucida grande\',tahoma,verdana,arial,sans-serif;">Bersama ini disampaikan bahwa pengeluaran '.$docType.' dokumen (berdasarkan permintaan '.$requester.' untuk tujuan '.$info.') dengan detail permintaan dokumen sebagai berikut :</span></p>';
+		$bodyHeader .= '<p><span style="margin-bottom: 15px; font-size: 13px; font-family: \'lucida grande\',tahoma,verdana,arial,sans-serif;">Bersama ini disampaikan bahwa pengeluaran dokumen (berdasarkan permintaan '.$requester.' untuk tujuan '.$info.') dengan detail permintaan dokumen sebagai berikut :</span></p>';
 	}
 	else{
 		$bodyHeader .= '<p><span style="margin-bottom: 15px; font-size: 13px; font-family: \'lucida grande\',tahoma,verdana,arial,sans-serif;">Bersama ini disampaikan bahwa dokumen (berdasarkan permintaan '.$requester.' untuk tujuan '.$info.') dengan detail permintaan dokumen sebagai berikut :</span></p>';
@@ -541,7 +540,7 @@ function mail_notif_reception_release_doc($relCode, $User_ID, $status,$acceptor=
 	  $errorMsg[] = $e->errorMessage();
 	}
 
-	if ( count($errorMsg) > 0 ) {
+	if (isset($errorMsg) && count($errorMsg) > 0 ) {
 	  foreach ($errorMsg as $key => $value) {
 		$thisError = $key + 1;
 		//echo $thisError . ': ' . $value;

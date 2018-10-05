@@ -24,6 +24,7 @@ function pickla(symbol,row) {
 </HEAD>
 <BODY>
 <?PHP
+$PHP_SELF=$_SERVER['PHP_SELF'];
 $batas = 10;
 $pg = isset( $_GET['pg'] ) ? $_GET['pg'] : "";
 
@@ -162,7 +163,8 @@ IF ($txtTHLOLD_DocumentGroupID<>"3"){
 
 ELSE{
 	$phase=$_GET['pID'];
-	if ($_GET[recentCode]) $filter =" AND dla.DLA_Code NOT IN (".substr($_GET[recentCode],0, -1).")";
+	$filter ="";
+	if ($_GET['recentCode']) $filter =" AND dla.DLA_Code NOT IN (".substr($_GET['recentCode'],0, -1).")";
 
 	$query="SELECT DISTINCT c.Company_Name, dg.DocumentGroup_Name, dla.DLA_RegTime, dla.DLA_Code, dla.DLA_Phase, dla.DLA_Period,
 							dla.DLA_DocDate, dla.DLA_Block, dla.DLA_Village, dla.DLA_Owner
@@ -194,7 +196,7 @@ ELSE{
 	else{
 		$h_sql=mysql_query($query);
 		$h_arr=mysql_fetch_array($h_sql);
-		$period=date("d M Y", strtotime($h_arr[DLA_Period]));
+		$period=date("d M Y", strtotime($h_arr['DLA_Period']));
 		echo "<form name='search' method='post' action='$PHP_SELF'>
 			  <div style='text-align:left; padding:10px 5px; margin-bottom :5px; background :#CCC;'>
 				<b>Pencarian :</b> <input name='txtSearch' id='txtSearch' type='text' size='25%'/>
@@ -241,7 +243,7 @@ ELSE{
 		}
 
 		while ($arr=mysql_fetch_array($sql)){
-			$docdate=date("d M Y", strtotime($arr[DLA_DocDate]));
+			$docdate=date("d M Y", strtotime($arr['DLA_DocDate']));
 			?>
 			<tr>
 				<td align='center'><u><a href="javascript:pickla('<?= $arr['DLA_Code'] ?>','<?= $_GET['row'] ?>')"><?= $arr['DLA_Code'] ?></a></u></td>

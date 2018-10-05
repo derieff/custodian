@@ -51,6 +51,7 @@ function pickonl(symbol) {
 </HEAD>
 <BODY>
 <?PHP
+$PHP_SELF=$_SERVER['PHP_SELF'];
 $grup=$_GET['gID'];
 
 if ($grup=="1"){ //Arief F - 14092018
@@ -221,7 +222,7 @@ elseif($grup==3){ //Arief F - 14092018
 		}
 
 		while ($arr=mysql_fetch_array($sql)){
-			$loandate=date("d M Y", strtotime($arr[THLOLAD_LoanDate]));
+			$loandate=date("d M Y", strtotime($arr['THLOLAD_LoanDate']));
 			?>
 			<tr>
 				<td align='center'><u><a href="javascript:pickla('<?= $arr['THLOLAD_LoanCode'] ?>||<?= $arr['THLOLAD_Information'] ?>')"><?= $arr['THLOLAD_LoanCode'] ?></a></u></td>

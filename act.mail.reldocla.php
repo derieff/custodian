@@ -287,7 +287,7 @@ if(isset($_GET['act'])) {
 					SET THRLOLAD_DocumentReceived='1', THRLOLAD_Update_UserID='$userID', THRLOLAD_Update_Time=sysdate()
 					WHERE THRLOLAD_ID='$docID'
 					AND THRLOLAD_Delete_Time IS NULL";
-		$sql = mysql_query($query);
+		$sql = mysql_query($query);echo $query;
 		if($sql){
 			mail_notif_reception_release_doc($relCode, $userID, 3 ,1);
 			mail_notif_reception_release_doc($relCode, "cust0002", 3 );
