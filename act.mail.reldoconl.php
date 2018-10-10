@@ -186,7 +186,7 @@ if( !empty($_GET['cfm']) && !empty($_GET['ati']) && !empty($_GET['rdm']) ) {
 							$query1="UPDATE M_DocumentsOtherNonLegal
 									 SET DONL_Status='$docStatus', DONL_Update_UserID='$A_ApproverID',
 									 	 DONL_Update_Time=sysdate()
-									 WHERE DONL_Code='$d_arr[TDLOONLD_DocCode]'";
+									 WHERE DONL_DocCode='$d_arr[TDLOONLD_DocCode]'";
 							$query2="INSERT INTO M_CodeTransaction
 								   	 VALUES (NULL,'$CT_Code','$nnum','DOUT','$Company_Code','$DocumentGroup_Code',
 											 '$rmonth','$regyear','$A_ApproverID',sysdate(),

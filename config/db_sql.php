@@ -7,6 +7,7 @@
 	$password = "tap123";
 	$databasename = "custodian";
 
+	$link=mysql_connect($host,$username,$password) or die ("could not connect: ".mysql_error());
 	$link = mysql_connect($host,$username,$password) or die ("Cannot Connect To Database");
 	mysql_select_db($databasename,$link);
 

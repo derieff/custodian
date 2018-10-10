@@ -186,7 +186,7 @@ if( !empty($_GET['cfm']) && !empty($_GET['ati']) && !empty($_GET['rdm']) ) {
 							$query1="UPDATE M_DocumentsOtherLegal
 									 SET DOL_Status='$docStatus', DOL_Update_UserID='$A_ApproverID',
 									 	 DOL_Update_Time=sysdate()
-									 WHERE DOL_Code='$d_arr[TDLOOLD_DocCode]'";
+									 WHERE DOL_DocCode='$d_arr[TDLOOLD_DocCode]'";
 							$query2="INSERT INTO M_CodeTransaction
 								   	 VALUES (NULL,'$CT_Code','$nnum','DOUT','$Company_Code','$DocumentGroup_Code',
 											 '$rmonth','$regyear','$A_ApproverID',sysdate(),

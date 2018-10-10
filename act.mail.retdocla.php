@@ -186,7 +186,7 @@ if(($_GET['cfm'])&&($_GET['ati'])&&($_GET['rdm'])) {
 							$query1="UPDATE M_DocumentsOtherLegal
 									 SET DOL_Status='$docStatus', DOL_Update_UserID='$A_ApproverID',
 									 	 DOL_Update_Time=sysdate()
-									 WHERE DOL_Code='$d_arr[TDLOOLD_DocCode]'";
+									 WHERE DOL_DocCode='$d_arr[TDLOOLD_DocCode]'";
 							$query2="INSERT INTO M_CodeTransaction
 								   	 VALUES (NULL,'$CT_Code','$nnum','DOUT','$Company_Code','$DocumentGroup_Code',
 											 '$rmonth','$regyear','$A_ApproverID',sysdate(),
@@ -395,7 +395,7 @@ if(isset($_POST[reject])) {
 				while($d_arr=mysql_fetch_array($d_sql)){
 					$query="UPDATE M_DocumentsOtherLegal
 						    SET DOL_Status='1', DOL_Update_UserID='$A_ApproverID', DOL_Update_Time=sysdate()
-						    WHERE DOL_Code='$d_arr[TDLOOLD_DocCode]'";
+						    WHERE DOL_DocCode='$d_arr[TDLOOLD_DocCode]'";
 					$mysqli->query($query);
 				}
 				mail_notif_release_doc($A_TransactionCode, $h_arr['THLOOLD_UserID'], 4 );

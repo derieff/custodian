@@ -81,7 +81,7 @@ if(($_GET['cfm'])&&($_GET['ati'])&&($_GET['rdm'])) {
 						LEFT JOIN M_Role_Approver ra
 							ON rads.RADS_RA_ID = ra.RA_ID
 						WHERE ma.A_Step = '{$i}'
-							AND (ra.RA_Name NOT LIKE '%CEO%' OR ra.RA_Name = 'CEO - {$aComp}')
+							AND (ra.RA_Name NOT LIKE '%CEO%' OR ra.RA_Name = 'CEO - {$aComp["Company_Area"]}')
 							AND ma.A_TransactionCode = '{$A_TransactionCode}'
 							AND rads.RADS_DocID = '10'
 							AND rads.RADS_ProsesID = '1'
@@ -117,7 +117,7 @@ if(($_GET['cfm'])&&($_GET['ati'])&&($_GET['rdm'])) {
 							* Nicholas - 26 Sept 2018			*
 							* Fix Bug skip approval				*
 							************************************/
-							
+
 							/*if ($i == $jStep) {
 								$query = "UPDATE TH_RegistrationOfLandAcquisitionDocument
 									SET THRGOLAD_RegStatus='accept', THRGOLAD_Update_UserID='$A_ApproverID',
@@ -158,7 +158,7 @@ if(($_GET['cfm'])&&($_GET['ati'])&&($_GET['rdm'])) {
 							* Nicholas - 26 Sept 2018			*
 							* Fix Bug skip approval				*
 							************************************/
-							
+
 							/*if ($i == $jStep) {
 								$query = "UPDATE TH_RegistrationOfLandAcquisitionDocument
 									SET THRGOLAD_RegStatus='accept', THRGOLAD_Update_UserID='$A_ApproverID',
@@ -192,7 +192,7 @@ if(($_GET['cfm'])&&($_GET['ati'])&&($_GET['rdm'])) {
 								</tr>
 							</tbody>
 						</table>";
-					}
+					// }
 
 					/*$query = "UPDATE M_Approval
 								SET A_Status='2', A_Update_UserID='$A_ApproverID', A_Update_Time=sysdate()
@@ -374,7 +374,7 @@ if(($_GET['cfm'])&&($_GET['ati'])&&($_GET['rdm'])) {
 													 AND DL_Delete_Time is NULL)";
 								$sql = mysql_query($query);
 								$arr = mysql_fetch_array($sql);
-								$DLIU_LocationCode=$arr[DL_Code];
+								$DLIU_LocationCode=$arr['DL_Code'];
 
 								$query = "UPDATE L_DocumentLocation
 											SET DL_Status='0', 	DL_Update_UserID='$A_ApproverID',

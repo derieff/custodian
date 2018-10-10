@@ -1,5 +1,5 @@
-<?PHP 
-/* 
+<?PHP
+/*
 =========================================================================================================================
 = Nama Project		: Custodian																							=
 = Versi				: 1.0.1																								=
@@ -11,7 +11,7 @@
 =		26/09/2012	: Perubahan Query (LEFT JOIN) & Penambahan Header-Footer											=
 =========================================================================================================================
 */
-session_start(); 
+session_start();
 ?>
 <?PHP include ("./config/config_db.php"); ?>
 <!DOCTYPE html PUBLIC "-//W3C//Dth XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/Dth/xhtml1-transitional.dth">
@@ -56,12 +56,12 @@ if(!isset($_SESSION['User_ID'])) {
 	<div style='border-bottom:#000 solid 3px;'></div>
 	<?PHP
 	$id=$_GET["id"];
-	$query = "SELECT  tdrtolad.TDRTOLAD_ReturnCode, 
-					  u.User_FullName, 
-					  d.Division_Name, 
+	$query = "SELECT  tdrtolad.TDRTOLAD_ReturnCode,
+					  u.User_FullName,
+					  d.Division_Name,
 					  dp.Department_Name,
-					  p.Position_Name, 
-					  tdrtolad.TDRTOLAD_ReturnTime, 
+					  p.Position_Name,
+					  tdrtolad.TDRTOLAD_ReturnTime,
 					  dg.DocumentGroup_Name,
 					  (SELECT u1.User_FullName FROM M_User u1 WHERE u1.User_ID=u.User_SPV1) AS Atasan1,
 					  (SELECT u1.User_FullName FROM M_User u1 WHERE u1.User_ID=u.User_SPV2) AS Atasan2
@@ -70,7 +70,7 @@ if(!isset($_SESSION['User_ID'])) {
 				ON tdrtolad.TDRTOLAD_UserID=u.User_ID
 			  LEFT JOIN M_DivisionDepartmentPosition ddp
 				ON ddp.DDP_UserID=u.User_ID
-			  LEFT JOIN M_Division d 
+			  LEFT JOIN M_Division d
 				ON ddp.DDP_DivID=d.Division_ID
 			  LEFT JOIN M_Department dp
 				ON ddp.DDP_DeptID=dp.Department_ID
@@ -184,11 +184,11 @@ if(!isset($_SESSION['User_ID'])) {
 </thead>
 <tbody>
 	<?PHP
-	$queryd = "SELECT dla.DLA_Code, c.Company_Name, dg.DocumentGroup_Name, dla.DLA_ID,dla.DLA_Phase, dla.DLA_Period, 
+	$queryd = "SELECT dla.DLA_Code, c.Company_Name, dg.DocumentGroup_Name, dla.DLA_ID,dla.DLA_Phase, dla.DLA_Period,
 						  dla.DLA_DocDate, dla.DLA_Block, dla.DLA_Village, dla.DLA_Owner, tdrtolad.TDRTOLAD_Information
-					FROM TD_ReturnOfLandAcquisitionDocument tdrtolad, M_DocumentLandAcquisition dla, M_Company c, 
+					FROM TD_ReturnOfLandAcquisitionDocument tdrtolad, M_DocumentLandAcquisition dla, M_Company c,
 						 M_DocumentGroup dg
-					WHERE tdrtolad.TDRTOLAD_ReturnCode='$id' 
+					WHERE tdrtolad.TDRTOLAD_ReturnCode='$id'
 					AND tdrtolad.TDRTOLAD_Delete_Time IS NULL
 					AND tdrtolad.TDRTOLAD_DocCode=dla.DLA_Code
 					AND dla.DLA_CompanyID=c.Company_ID
@@ -199,7 +199,6 @@ if(!isset($_SESSION['User_ID'])) {
 		$fperdate=date("j M Y", strtotime($arrd['DLA_Period']));
 		$fdocdate=date("j M Y", strtotime($arrd['DLA_DocDate']));
 		
-		/*
 		if ($jumdata==8) {
 			$style="style='page-break-after:always'";
 			$jumdata=0;
@@ -207,8 +206,8 @@ if(!isset($_SESSION['User_ID'])) {
 		else
 		{
 			$style="";
-		}*/
-		
+		}
+
 		echo ("
 		<tr $style>
 			<td class='center'>
@@ -275,7 +274,7 @@ if(!isset($_SESSION['User_ID'])) {
 				FROM TD_ReturnOfLandAcquisitionDocument tdrtrold, M_User u, TD_LoanOfLandAcquisitionDocument tdlolad,
 					 TH_LoanOfLandAcquisitionDocument thlolad
 				WHERE tdlolad.TDLOLAD_DocCode=tdrtrold.TDRTOLAD_DocCode
-				AND tdlolad.TDLOLAD_THLOLAD_ID=thlolad.THLOLAD_ID 
+				AND tdlolad.TDLOLAD_THLOLAD_ID=thlolad.THLOLAD_ID
 				AND thlolad.THLOLAD_UserID=u.User_ID
 				AND tdrtrold.TDRTOLAD_ReturnCode='$id'
 				ORDER BY tdlolad.TDLOLAD_Insert_Time DESC";

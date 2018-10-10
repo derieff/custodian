@@ -11,13 +11,6 @@ function pick(symbol,row) {
 	window.close();
 	}
 }
-function pickla(symbol,row) {
-	if (window.opener && !window.opener.closed) {
-    window.opener.document.adddetaildoc.txtTDLOLAD_DocCode<?= $_GET['row'] ?>.value = symbol;
-	window.opener.document.adddetaildoc.docCode.value = window.opener.document.adddetaildoc.docCode.value + "\'" + symbol + "\'" +",";
-	window.close();
-	}
-}
 // -->
 </SCRIPT>
 <link href="./css/style.css" rel="stylesheet" type="text/css">
@@ -37,7 +30,7 @@ if ( empty( $pg ) ) {
 $txtTHLOLD_CompanyID=$_GET['cID'];
 $txtTHLOLD_DocumentGroupID=$_GET['gID'];
 
-IF ($txtTHLOLD_DocumentGroupID<>"3"){
+IF ($txtTHLOLD_DocumentGroupID=="4"){
 	if ($_GET['recentCode']) $filter =" AND dl.DAO_DocCode NOT IN (".substr($_GET[recentCode],0, -1).")";
 
 	$query="SELECT DISTINCT c.Company_Name, dg.DocumentGroup_Name,
@@ -180,101 +173,6 @@ IF ($txtTHLOLD_DocumentGroupID<>"3"){
 				<td align='center'><?= $arr['DAO_Lokasi_PT'] ?></td>
                 <td align='center'><?= $arr['DAO_Region'] ?></td>
                 <td align='center'><?= $arr['DAO_Keterangan'] ?></td>
-			</tr>
-			<?PHP
-		}
-	}
-}
-
-ELSE{
-	$phase=$_GET['pID'];
-	if ($_GET[recentCode]) $filter =" AND dla.DLA_Code NOT IN (".substr($_GET[recentCode],0, -1).")";
-
-	$query="SELECT DISTINCT c.Company_Name, dg.DocumentGroup_Name, dla.DLA_RegTime, dla.DLA_Code, dla.DLA_Phase, dla.DLA_Period,
-							dla.DLA_DocDate, dla.DLA_Block, dla.DLA_Village, dla.DLA_Owner
-			FROM M_DocumentLandAcquisition dla, M_Company c, M_DocumentGroup dg
-			WHERE dla.DLA_Status ='1'
-			AND dla.DLA_CompanyID='$txtTHLOLD_CompanyID'
-			AND dg.DocumentGroup_ID='$txtTHLOLD_DocumentGroupID'
-			AND dla.DLA_Phase='$phase'
-			AND dla.DLA_Delete_Time IS NULL
-			AND dla.DLA_CompanyID=c.Company_ID
-			$filter
-			ORDER BY dla.DLA_RegTime DESC ";
-	$limit = " LIMIT $posisi, $batas";
-	$sql = mysql_query($query.$limit);
-	$numRow = mysql_num_rows ($sql);
-	if ($numRow==0) {
-		echo "
-		<table width='100%' border=0 cellspacing=0 cellpadding=0 style='border:none'>
-		<tr>
-			<td align='center'>
-				<img src='./images/error.png'><br>
-				<div class='error'>Tidak Ada Dokumen Yang Tersedia</div>
-			</td>
-		</tr>
-		</table>
-		<a href='#' onclick='window.close();'><b>[Tutup]</b></a>
-		";
-	}
-	else{
-		$h_sql=mysql_query($query);
-		$h_arr=mysql_fetch_array($h_sql);
-		$period=date("d M Y", strtotime($h_arr[DLA_Period]));
-		echo "<form name='search' method='post' action='$PHP_SELF'>
-			  <div style='text-align:left; padding:10px 5px; margin-bottom :5px; background :#CCC;'>
-				<b>Pencarian :</b> <input name='txtSearch' id='txtSearch' type='text' size='25%'/>
-			  </div>
-			  </form>";
-		echo "<div class=title><b>$h_arr[Company_Name] - $h_arr[DocumentGroup_Name]</b><br><i>Tahap $h_arr[DLA_Phase] : $period</i></div>";
-		?>
-
-		<table width="100%" border="1" cellspacing="0" cellpadding="0">
-		<tr>
-			<th width='15%'>Kode Dokumen</th>
-			<th width='10%'>Tanggal Dokumen</th>
-			<th width='35%'>Blok</th>
-			<th width='20%'>Desa</th>
-			<th width='20%'>Pemilik</th>
-		<tr>
-		<?PHP
-		if($_POST) {
-			$search=$_POST['txtSearch'];
-			$query =   "SELECT c.Company_Name, dg.DocumentGroup_Name, dla.DLA_RegTime, dla.DLA_Code, dla.DLA_Phase, dla.DLA_Period,
-							   dla.DLA_DocDate, dla.DLA_Block, dla.DLA_Village, dla.DLA_Owner
-						FROM M_DocumentLandAcquisition dla, M_Company c, M_DocumentGroup dg
-						WHERE dla.DLA_Status ='1'
-						AND dla.DLA_CompanyID='$txtTHLOLD_CompanyID'
-						AND dg.DocumentGroup_ID='$txtTHLOLD_DocumentGroupID'
-						AND dla.DLA_Phase='$phase'
-						AND dla.DLA_Delete_Time IS NULL
-						AND dla.DLA_CompanyID=c.Company_ID
-						$filter
-						AND (
-							dla.DLA_Code LIKE '%$search%'
-							OR dla.DLA_DocDate LIKE '%$search%'
-							OR dla.DLA_Block LIKE '%$search%'
-							OR dla.DLA_Village LIKE '%$search%'
-							OR dla.DLA_Owner LIKE '%$search%'
-						)
-						ORDER BY dla.DLA_RegTime DESC ";
-			$limit = " LIMIT $posisi, $batas";
-			$sql = mysql_query($query.$limit);
-			$numSearch=mysql_num_rows($sql);
-			if ($numSearch==0){
-				echo"<tr><td colspan='20' align='center'><b>Data Tidak Ditemukan</b></td></tr>";
-			}
-		}
-
-		while ($arr=mysql_fetch_array($sql)){
-			$docdate=date("d M Y", strtotime($arr[DLA_DocDate]));
-			?>
-			<tr>
-				<td align='center'><u><a href="javascript:pickla('<?= $arr['DLA_Code'] ?>','<?= $_GET['row'] ?>')"><?= $arr['DLA_Code'] ?></a></u></td>
-				<td align='center'><?= $docdate ?></td>
-				<td align='center'><?= $arr['DLA_Block'] ?></td>
-				<td align='center'><?= $arr['DLA_Village'] ?></td>
-				<td align='center'><?= $arr['DLA_Owner'] ?></td>
 			</tr>
 			<?PHP
 		}

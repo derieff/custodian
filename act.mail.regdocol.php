@@ -120,7 +120,7 @@ if(($_GET['cfm'])&&($_GET['ati'])&&($_GET['rdm'])) {
 							* Nicholas - 26 Sept 2018			*
 							* Fix Bug skip approval				*
 							************************************/
-							
+
 							/*if ($i == $jStep) {
 								$query = "UPDATE TH_RegistrationOfOtherLegalDocuments
 									SET THROOLD_Status='accept', THROOLD_Update_UserID='$A_ApproverID',
@@ -161,7 +161,7 @@ if(($_GET['cfm'])&&($_GET['ati'])&&($_GET['rdm'])) {
 							* Nicholas - 26 Sept 2018			*
 							* Fix Bug skip approval				*
 							************************************/
-							
+
 							/*if ($i == $jStep) {
 								$query = "UPDATE TH_RegistrationOfOtherLegalDocuments
 									SET THROOLD_Status='accept', THROOLD_Update_UserID='$A_ApproverID',
@@ -361,7 +361,6 @@ if(($_GET['cfm'])&&($_GET['ati'])&&($_GET['rdm'])) {
 										VALUES ('$CD_Code','$nnum','$Company_Code','$DocumentGroup_Code',
 												'$regmonth','$regyear','$A_ApproverID', sysdate(),
 												'$A_ApproverID', sysdate(),NULL,NULL)";
-
 							$mysqli->query($sql2);
 
 							$query = "UPDATE L_DocumentLocation
