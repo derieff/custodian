@@ -11,13 +11,6 @@ function pick(symbol,row) {
 	window.close();
 	}
 }
-function pickla(symbol,row) {
-	if (window.opener && !window.opener.closed) {
-    window.opener.document.adddetaildoc.txtTDLOONLD_DocCode<?= $_GET['row'] ?>.value = symbol;
-	window.opener.document.adddetaildoc.docCode.value = window.opener.document.adddetaildoc.docCode.value + "\'" + symbol + "\'" +",";
-	window.close();
-	}
-}
 // -->
 </SCRIPT>
 <link href="./css/style.css" rel="stylesheet" type="text/css">
@@ -37,7 +30,7 @@ if ( empty( $pg ) ) {
 $txtTHLOLD_CompanyID=$_GET['cID'];
 $txtTHLOLD_DocumentGroupID=$_GET['gID'];
 
-IF ($txtTHLOLD_DocumentGroupID<>"3"){
+IF ($txtTHLOLD_DocumentGroupID=="6"){
 	if ($_GET['recentCode']) $filter =" AND donl.DONL_DocCode NOT IN (".substr($_GET[recentCode],0, -1).")";
 
 	$query="SELECT DISTINCT c.Company_Name, dg.DocumentGroup_Name,
@@ -144,101 +137,6 @@ IF ($txtTHLOLD_DocumentGroupID<>"3"){
 				<td align='center'><?= $arr['DONL_NamaDokumen'] ?></td>
                 <td align='center'><?= $arr['DONL_TahunDokumen'] ?></td>
                 <td align='center'><?= $arr['Department_Name'] ?></td>
-			</tr>
-			<?PHP
-		}
-	}
-}
-
-ELSE{
-	$phase=$_GET['pID'];
-	if ($_GET[recentCode]) $filter =" AND donl.DONL_Code NOT IN (".substr($_GET[recentCode],0, -1).")";
-
-	$query="SELECT DISTINCT c.Company_Name, dg.DocumentGroup_Name, donl.DONL_RegTime, donl.DONL_Code, donl.DONL_Phase, donl.DONL_Period,
-							donl.DONL_DocDate, donl.DONL_Block, donl.DONL_Village, donl.DONL_Owner
-			FROM M_DocumentsOtherNonLegal donl, M_Company c, M_DocumentGroup dg
-			WHERE donl.DONL_Status ='1'
-			AND donl.DONL_CompanyID='$txtTHLOLD_CompanyID'
-			AND dg.DocumentGroup_ID='$txtTHLOLD_DocumentGroupID'
-			AND donl.DONL_Phase='$phase'
-			AND donl.DONL_Delete_Time IS NULL
-			AND donl.DONL_CompanyID=c.Company_ID
-			$filter
-			ORDER BY donl.DONL_RegTime DESC ";
-	$limit = " LIMIT $posisi, $batas";
-	$sql = mysql_query($query.$limit);
-	$numRow = mysql_num_rows ($sql);
-	if ($numRow==0) {
-		echo "
-		<table width='100%' border=0 cellspacing=0 cellpadding=0 style='border:none'>
-		<tr>
-			<td align='center'>
-				<img src='./images/error.png'><br>
-				<div class='error'>Tidak Ada Dokumen Yang Tersedia</div>
-			</td>
-		</tr>
-		</table>
-		<a href='#' onclick='window.close();'><b>[Tutup]</b></a>
-		";
-	}
-	else{
-		$h_sql=mysql_query($query);
-		$h_arr=mysql_fetch_array($h_sql);
-		$period=date("d M Y", strtotime($h_arr[DONL_Period]));
-		echo "<form name='search' method='post' action='$PHP_SELF'>
-			  <div style='text-align:left; padding:10px 5px; margin-bottom :5px; background :#CCC;'>
-				<b>Pencarian :</b> <input name='txtSearch' id='txtSearch' type='text' size='25%'/>
-			  </div>
-			  </form>";
-		echo "<div class=title><b>$h_arr[Company_Name] - $h_arr[DocumentGroup_Name]</b><br><i>Tahap $h_arr[DONL_Phase] : $period</i></div>";
-		?>
-
-		<table width="100%" border="1" cellspacing="0" cellpadding="0">
-		<tr>
-			<th width='15%'>Kode Dokumen</th>
-			<th width='10%'>Tanggal Dokumen</th>
-			<th width='35%'>Blok</th>
-			<th width='20%'>Desa</th>
-			<th width='20%'>Pemilik</th>
-		<tr>
-		<?PHP
-		if($_POST) {
-			$search=$_POST['txtSearch'];
-			$query =   "SELECT c.Company_Name, dg.DocumentGroup_Name, donl.DONL_RegTime, donl.DONL_Code, donl.DONL_Phase, donl.DONL_Period,
-							   donl.DONL_DocDate, donl.DONL_Block, donl.DONL_Village, donl.DONL_Owner
-						FROM M_DocumentsOtherNonLegal donl, M_Company c, M_DocumentGroup dg
-						WHERE donl.DONL_Status ='1'
-						AND donl.DONL_CompanyID='$txtTHLOLD_CompanyID'
-						AND dg.DocumentGroup_ID='$txtTHLOLD_DocumentGroupID'
-						AND donl.DONL_Phase='$phase'
-						AND donl.DONL_Delete_Time IS NULL
-						AND donl.DONL_CompanyID=c.Company_ID
-						$filter
-						AND (
-							donl.DONL_Code LIKE '%$search%'
-							OR donl.DONL_DocDate LIKE '%$search%'
-							OR donl.DONL_Block LIKE '%$search%'
-							OR donl.DONL_Village LIKE '%$search%'
-							OR donl.DONL_Owner LIKE '%$search%'
-						)
-						ORDER BY donl.DONL_RegTime DESC ";
-			$limit = " LIMIT $posisi, $batas";
-			$sql = mysql_query($query.$limit);
-			$numSearch=mysql_num_rows($sql);
-			if ($numSearch==0){
-				echo"<tr><td colspan='20' align='center'><b>Data Tidak Ditemukan</b></td></tr>";
-			}
-		}
-
-		while ($arr=mysql_fetch_array($sql)){
-			$docdate=date("d M Y", strtotime($arr[DONL_DocDate]));
-			?>
-			<tr>
-				<td align='center'><u><a href="javascript:pickla('<?= $arr['DONL_Code'] ?>','<?= $_GET['row'] ?>')"><?= $arr['DONL_Code'] ?></a></u></td>
-				<td align='center'><?= $docdate ?></td>
-				<td align='center'><?= $arr['DONL_Block'] ?></td>
-				<td align='center'><?= $arr['DONL_Village'] ?></td>
-				<td align='center'><?= $arr['DONL_Owner'] ?></td>
 			</tr>
 			<?PHP
 		}

@@ -2,7 +2,7 @@
 /*
 =========================================================================================================================
 = Nama Project		: Custodian																							=
-= Versi				: 1.0.1																								=
+= Versi				: 2.0.0																								=
 = Disusun Oleh		: IT Support Application - PT Triputra Agro Persada													=
 = Developer			: Outsource               																			=
 = Dibuat Tanggal	: 7 Sep 2018																						=

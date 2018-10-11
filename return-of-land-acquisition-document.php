@@ -15,9 +15,9 @@ session_start();
 ?>
 <title>Custodian System | Pengembalian Dokumen Pembebasan Lahan</title>
 <head>
-<?PHP 
+<?PHP
 include ("./config/config_db.php");
-include ("./include/function.mail.retdocla.php"); 
+include ("./include/function.mail.retdocla.php");
 ?>
 
 <script language="JavaScript" type="text/JavaScript">
@@ -227,7 +227,7 @@ if(isset($_GET["act"]))
 			<th>Blok</th>
 			<th>Desa</th>
 			<th>Pemilik</th>
-			<th>Ket Pengembalian</th>
+			<th>Ket. Pengembalian</th>
 		</tr>";
 
 		$queryd = "SELECT dla.DLA_Code, c.Company_Name, dla.DLA_ID,tdrtolad.TDRTOLAD_Information, dla.DLA_Phase,

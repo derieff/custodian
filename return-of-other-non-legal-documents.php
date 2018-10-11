@@ -2,7 +2,7 @@
 /*
 =========================================================================================================================
 = Nama Project		: Custodian																							=
-= Versi				: 1.1.1																								=
+= Versi				: 2.0.0																								=
 = Disusun Oleh		: IT Support Application - PT Triputra Agro Persada													=
 = Developer			: Outsource               																			=
 = Dibuat Tanggal	: 26 September 2018																					=
@@ -186,7 +186,7 @@ if(isset($_GET["act"]))
 		<tr>
 			<td width='30%'>No Pengembalian</td>
 			<td width='67%'>$field1[TDRTOONLD_ReturnCode]</td>
-			<td width='3%'><a href='print-return-of-other-legal-documents.php?id=$field1[TDRTOONLD_ReturnCode]' target='_blank'><img src='./images/icon-print.png'></a>
+			<td width='3%'><a href='print-return-of-other-non-legal-documents.php?id=$field1[TDRTOONLD_ReturnCode]' target='_blank'><img src='./images/icon-print.png'></a>
 			</td>
 		</tr>
 		<tr>
@@ -215,29 +215,38 @@ if(isset($_GET["act"]))
 		<table width='100%' id='mytable' class='stripeMe'>
 		<tr>
 			<th>Kode Dokumen</th>
+			<!--<th>Perusahaan</th>-->
+			<th>PT</th>
+			<th>No. Dokumen</th>
 			<th>Nama Dokumen</th>
-			<th>Perusahaan</th>
-			<th>Keterangan</th>
+			<th>Tahun Dokumen</th>
+			<th>Departemen</th>
+			<th>Ket. Pengembalian</th>
 		</tr>";
 
-		$queryd = "SELECT donl.DONL_DocCode, dt.DocumentType_Name, c.Company_Name, dg.DocumentGroup_Name,
-						  dc.DocumentCategory_Name, donl.DONL_NoDoc, donl.DONL_ID,tdronld.TDRTOONLD_Information
-					FROM TD_ReturnOfOtherNonLegalDocuments tdronld, M_DocumentType dt,
-					 	 M_DocumentsOtherNonLegal donl, M_Company c, M_DocumentGroup dg, M_DocumentCategory dc
+		$queryd = "SELECT donl.DONL_DocCode, c.Company_Name, dg.DocumentGroup_Name,
+						  donl.DONL_ID, tdronld.TDRTOONLD_Information,  m_d.Department_Name,
+						  donl.DONL_NoDokumen, donl.DONL_NamaDokumen, donl.DONL_TahunDokumen, mc.Company_Name nama_pt
+					FROM TD_ReturnOfOtherNonLegalDocuments tdronld,
+					 	 M_DocumentsOtherNonLegal donl, M_Company c, M_DocumentGroup dg,
+						 db_master.M_Department m_d, M_Company mc
 					WHERE tdronld.TDRTOONLD_ReturnCode='$id'
 					AND tdronld.TDRTOONLD_Delete_Time IS NULL
 					AND tdronld.TDRTOONLD_DocCode=donl.DONL_DocCode
-					AND donl.DONL_TypeDocID=dt.DocumentType_ID
 					AND donl.DONL_CompanyID=c.Company_ID
 					AND donl.DONL_GroupDocID=dg.DocumentGroup_ID
-					AND donl.DONL_CategoryDocID=dc.DocumentCategory_ID";
+					AND donl.DONL_Dept_Code=m_d.Department_Code
+					AND donl.DONL_PT_ID=mc.Company_ID";
 		$sqld = mysql_query($queryd);
 		while ($arrd = mysql_fetch_array($sqld)) {
 			$ActionContent .="
 			<tr>
 				<td align='center'>$arrd[DONL_DocCode]</td>
-				<td align='center'>$arrd[DocumentType_Name] No $arrd[DONL_NoDoc]</td>
-				<td align='center'>$arrd[Company_Name]</td>
+				<td class='center'>$arrd[nama_pt]</td>
+				<td class='center'>$arrd[DONL_NoDokumen]</td>
+				<td class='center'>$arrd[DONL_NamaDokumen]</td>
+				<td class='center'>$arrd[DONL_TahunDokumen]</td>
+				<td class='center'>$arrd[Department_Name]</td>
 				<td align='center'><pre>$arrd[TDRTOONLD_Information]</pre></td>
 			</tr>";
 		}
@@ -333,7 +342,7 @@ if ($noPage < $jumPage)
 
 /* ACTIONS */
 if(isset($_POST[cancel])) {
-	echo "<meta http-equiv='refresh' content='0; url=return-of-other-legal-documents.php'>";
+	echo "<meta http-equiv='refresh' content='0; url=return-of-other-non-legal-documents.php'>";
 }
 
 elseif(isset($_POST[adddetail])) {
@@ -358,7 +367,7 @@ elseif(isset($_POST[adddetail])) {
 
 	// Cari Kode Perusahaan $ Kode Grup Dokumen
 	$query = "SELECT c.Company_Code, dg.DocumentGroup_Code
-			  FROM M_DocumentsOtherNonLegal dl, M_Company c, M_DocumentGroup dg
+			  FROM M_DocumentsOtherNonLegal donl, M_Company c, M_DocumentGroup dg
 			  WHERE donl.DONL_DocCode='$_POST[txtTDRTOONLD_DocCode1]'
 			  AND donl.DONL_CompanyID=c.Company_ID
 			  AND donl.DONL_GroupDocID=dg.DocumentGroup_ID";
@@ -419,7 +428,7 @@ elseif(isset($_POST[adddetail])) {
 			$mysqli->query($sql2);
 		}
 	}
-		echo "<meta http-equiv='refresh' content='0; url=return-of-other-legal-documents.php'>";
+		echo "<meta http-equiv='refresh' content='0; url=return-of-other-non-legal-documents.php'>";
 }
 
 $page->ActContent($ActionContent);

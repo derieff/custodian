@@ -303,7 +303,7 @@ $MainContent .="
 				AND tdroold.TDROOLD_Delete_Time IS NULL
 				AND tdloold.TDLOOLD_DocCode=dol.DOL_DocCode
 				AND tdroold.TDROOLD_TDLOOLD_ID=tdloold.TDLOOLD_ID
-                ";
+                AND dol.DOL_CategoryDocID=dc.DocumentCategory_ID";
 	$sql = mysql_query($query);
 	$no=1;
 	while ($arr = mysql_fetch_array($sql)) {
@@ -383,7 +383,7 @@ if(isset($_POST['konfirmasi_penerimaandokumen'])){
 	}
 }
 
-if(isset($_POST[approval])) {
+if(isset($_POST['approval'])) {
 	$A_TransactionCode=$_POST['txtA_TransactionCode'];
 	$A_ApproverID=$_SESSION['User_ID'];
 	$A_Status=$_POST['optTHROOLD_Status'];
@@ -499,7 +499,7 @@ if(isset($_POST[approval])) {
 					// Kode Pengeluaran Dokumen
 					$CT_Code="$newnum/DOUT/$Company_Code/$DocumentGroup_Code/$regmonth/$regyear";
 
-					switch ($_POST[optTHLOOLD_LoanCategoryID]) {
+					switch ($_POST['optTHLOOLD_LoanCategoryID']) {
 						case "1":
 							$docStatus="4";
 							$code="0";

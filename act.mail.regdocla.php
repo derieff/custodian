@@ -117,7 +117,7 @@ if(($_GET['cfm'])&&($_GET['ati'])&&($_GET['rdm'])) {
 							* Nicholas - 26 Sept 2018			*
 							* Fix Bug skip approval				*
 							************************************/
-							
+
 							/*if ($i == $jStep) {
 								$query = "UPDATE TH_RegistrationOfLandAcquisitionDocument
 									SET THRGOLAD_RegStatus='accept', THRGOLAD_Update_UserID='$A_ApproverID',
@@ -158,7 +158,7 @@ if(($_GET['cfm'])&&($_GET['ati'])&&($_GET['rdm'])) {
 							* Nicholas - 26 Sept 2018			*
 							* Fix Bug skip approval				*
 							************************************/
-							
+
 							/*if ($i == $jStep) {
 								$query = "UPDATE TH_RegistrationOfLandAcquisitionDocument
 									SET THRGOLAD_RegStatus='accept', THRGOLAD_Update_UserID='$A_ApproverID',
@@ -192,7 +192,7 @@ if(($_GET['cfm'])&&($_GET['ati'])&&($_GET['rdm'])) {
 								</tr>
 							</tbody>
 						</table>";
-					
+					// }
 
 					/*$query = "UPDATE M_Approval
 								SET A_Status='2', A_Update_UserID='$A_ApproverID', A_Update_Time=sysdate()

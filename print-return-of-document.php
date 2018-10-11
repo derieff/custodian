@@ -1,5 +1,5 @@
-<?PHP 
-/* 
+<?PHP
+/*
 =========================================================================================================================
 = Nama Project		: Custodian																							=
 = Versi				: 1.0.1																								=
@@ -11,7 +11,7 @@
 =		26/09/2012	: Perubahan Query (LEFT JOIN) & Penambahan Header-Footer											=
 =========================================================================================================================
 */
-session_start(); 
+session_start();
 ?>
 <?PHP include ("./config/config_db.php"); ?>
 <!DOCTYPE html PUBLIC "-//W3C//Dth XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/Dth/xhtml1-transitional.dth">
@@ -56,12 +56,12 @@ if(!isset($_SESSION['User_ID'])) {
 	<div style='border-bottom:#000 solid 3px;'></div>
 	<?PHP
 	$id=$_GET["id"];
-	$query = "SELECT  tdrold.TDRTOLD_ReturnCode, 
-					  u.User_FullName, 
-					  d.Division_Name, 
+	$query = "SELECT  tdrold.TDRTOLD_ReturnCode,
+					  u.User_FullName,
+					  d.Division_Name,
 					  dp.Department_Name,
-					  p.Position_Name, 
-					  tdrold.TDRTOLD_ReturnTime, 
+					  p.Position_Name,
+					  tdrold.TDRTOLD_ReturnTime,
 					  dg.DocumentGroup_Name,
 					  (SELECT u1.User_FullName FROM M_User u1 WHERE u1.User_ID=u.User_SPV1) AS Atasan1,
 					  (SELECT u1.User_FullName FROM M_User u1 WHERE u1.User_ID=u.User_SPV2) AS Atasan2
@@ -79,11 +79,11 @@ if(!isset($_SESSION['User_ID'])) {
 			  LEFT JOIN M_DocumentLegal dl
 				ON tdrold.TDRTOLD_DocCode=dl.DL_DocCode
 			  LEFT JOIN M_DocumentGroup dg
-				ON dl.DL_GroupDocID=dg.DocumentGroup_ID			  
+				ON dl.DL_GroupDocID=dg.DocumentGroup_ID
 			  WHERE tdrold.TDRTOLD_ReturnCode='$id'";
 	$sql = mysql_query($query);
 	$arr = mysql_fetch_array($sql);
-	
+
 	$fregdate=date("j M Y", strtotime($arr['TDRTOLD_ReturnTime']));
 	$atasan=($arr['Atasan2'])?$arr['Atasan2']:$arr['Atasan1'];
 	?>
@@ -179,19 +179,19 @@ if(!isset($_SESSION['User_ID'])) {
         	Ket 3
         </th>
         <th width='10%'>
-        	Ket Pengembalian
+        	Ket. Pengembalian
         </th>
    	</tr>
 </thead>
 <tbody>
 <?PHP
-	$queryd="SELECT dl.DL_DocCode, dt.DocumentType_Name, c.Company_Name, dg.DocumentGroup_Name, 
-					dc.DocumentCategory_Name, dl.DL_NoDoc, dl.DL_ID,tdrold.TDRTOLD_Information, 
+	$queryd="SELECT dl.DL_DocCode, dt.DocumentType_Name, c.Company_Name, dg.DocumentGroup_Name,
+					dc.DocumentCategory_Name, dl.DL_NoDoc, dl.DL_ID,tdrold.TDRTOLD_Information,
 					di1.DocumentInformation1_Name, di2.DocumentInformation2_Name, dl.DL_Information3
 			 FROM TD_ReturnOfLegalDocument tdrold, M_DocumentType dt,
 			 	  M_DocumentLegal dl, M_Company c, M_DocumentGroup dg, M_DocumentCategory dc,
 				  M_DocumentInformation1 di1, M_DocumentInformation2 di2
-			 WHERE tdrold.TDRTOLD_ReturnCode='$id' 
+			 WHERE tdrold.TDRTOLD_ReturnCode='$id'
 			 AND tdrold.TDRTOLD_Delete_Time IS NULL
 			 AND tdrold.TDRTOLD_DocCode=dl.DL_DocCode
 			 AND dl.DL_TypeDocID=dt.DocumentType_ID
@@ -203,7 +203,7 @@ if(!isset($_SESSION['User_ID'])) {
 	$sqld = mysql_query($queryd);
 	$jumdata=0;
 	while ($arrd = mysql_fetch_array($sqld)) {
-		$fregdate=date('j M Y', strtotime($arrd[THROLD_ReleaseDate]));
+		// $fregdate=date('j M Y', strtotime($arrd[THROLD_ReleaseDate]));
 		/*
 		if ($jumdata==8) {
 			$style="style='page-break-after:always'";
@@ -213,7 +213,7 @@ if(!isset($_SESSION['User_ID'])) {
 		{
 			$style="";
 		}*/
-		
+
 		echo ("
 		<tr $style>
 			<td class='center'>
@@ -280,7 +280,7 @@ if(!isset($_SESSION['User_ID'])) {
 				FROM TD_ReturnOfLegalDocument tdrtrold, M_User u, TD_LoanOfLegalDocument tdlold,
 					 TH_LoanOfLegalDocument thlold
 				WHERE tdlold.TDLOLD_DocCode=tdrtrold.TDRTOLD_DocCode
-				AND tdlold.TDLOLD_THLOLD_ID=thlold.THLOLD_ID 
+				AND tdlold.TDLOLD_THLOLD_ID=thlold.THLOLD_ID
 				AND thlold.THLOLD_UserID=u.User_ID
 				AND tdrtrold.TDRTOLD_ReturnCode='$id'
 				ORDER BY tdlold.TDLOLD_Insert_Time DESC";

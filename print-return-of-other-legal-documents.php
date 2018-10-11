@@ -2,13 +2,11 @@
 /*
 =========================================================================================================================
 = Nama Project		: Custodian																							=
-= Versi				: 1.0.1																								=
+= Versi				: 2.0.0																								=
 = Disusun Oleh		: IT Support Application - PT Triputra Agro Persada													=
-= Developer			: Sabrina Ingrid Davita																				=
-= Dibuat Tanggal	: 29 Mei 2012																						=
-= Update Terakhir	: 27 Sep 2012																						=
+= Developer			: Outsource               																			=
+= Dibuat Tanggal	: 7 Sep 2018																						=
 = Revisi			:																									=
-=		26/09/2012	: Perubahan Query (LEFT JOIN) & Penambahan Header-Footer											=
 =========================================================================================================================
 */
 session_start();
@@ -56,18 +54,18 @@ if(!isset($_SESSION['User_ID'])) {
 	<div style='border-bottom:#000 solid 3px;'></div>
 	<?PHP
 	$id=$_GET["id"];
-	$query = "SELECT  tdrtolad.TDRTOLAD_ReturnCode,
+	$query = "SELECT  tdroold.TDRTOOLD_ReturnCode,
 					  u.User_FullName,
 					  d.Division_Name,
 					  dp.Department_Name,
 					  p.Position_Name,
-					  tdrtolad.TDRTOLAD_ReturnTime,
+					  tdroold.TDRTOOLD_ReturnTime,
 					  dg.DocumentGroup_Name,
 					  (SELECT u1.User_FullName FROM M_User u1 WHERE u1.User_ID=u.User_SPV1) AS Atasan1,
 					  (SELECT u1.User_FullName FROM M_User u1 WHERE u1.User_ID=u.User_SPV2) AS Atasan2
-			  FROM TD_ReturnOfLandAcquisitionDocument tdrtolad
+			  FROM TD_ReturnOfOtherLegalDocuments tdroold
 			  LEFT JOIN M_User u
-				ON tdrtolad.TDRTOLAD_UserID=u.User_ID
+				ON tdroold.TDRTOOLD_UserID=u.User_ID
 			  LEFT JOIN M_DivisionDepartmentPosition ddp
 				ON ddp.DDP_UserID=u.User_ID
 			  LEFT JOIN M_Division d
@@ -76,15 +74,15 @@ if(!isset($_SESSION['User_ID'])) {
 				ON ddp.DDP_DeptID=dp.Department_ID
 			  LEFT JOIN M_Position p
 				ON ddp.DDP_PosID=p.Position_ID
+			  LEFT JOIN M_DocumentsOtherLegal dol
+				ON tdroold.TDRTOOLD_DocCode=dol.DOL_DocCode
 			  LEFT JOIN M_DocumentGroup dg
-				ON dg.DocumentGroup_ID='3'
-			  LEFT JOIN M_DocumentLandAcquisition dla
-				ON tdrtolad.TDRTOLAD_DocCode=dla.DLA_Code
-			  WHERE tdrtolad.TDRTOLAD_ReturnCode='$id'";
+				ON dol.DOL_GroupDocID=dg.DocumentGroup_ID
+			  WHERE tdroold.TDRTOOLD_ReturnCode='$id'";
 	$sql = mysql_query($query);
 	$arr = mysql_fetch_array($sql);
 
-	$fregdate=date("j M Y", strtotime($arr['TDRTOLAD_ReturnTime']));
+	$fregdate=date("j M Y", strtotime($arr['TDRTOOLD_ReturnTime']));
 	$atasan=($arr['Atasan2'])?$arr['Atasan2']:$arr['Atasan1'];
 	?>
 	<div id='title'>Pengembalian Dokumen <?PHP echo"$arr[DocumentGroup_Name]"; ?></div>
@@ -94,7 +92,7 @@ if(!isset($_SESSION['User_ID'])) {
 				<b>No Pengembalian</b>
 			</td>
 			<td width='25%'>
-				<?PHP echo"$arr[TDRTOLAD_ReturnCode]"; ?>
+				<?PHP echo"$arr[TDRTOOLD_ReturnCode]"; ?>
 			</td>
 			<td width='15%'>
 				<b>Tgl Pengembalian</b>
@@ -103,8 +101,8 @@ if(!isset($_SESSION['User_ID'])) {
 				<?PHP echo"$fregdate"; ?>
 			</td>
 			<td rowspan='4' align='center'>
-				<img src="<?PHP echo "barcode.php?text=$arr[TDRTOLAD_ReturnCode]";?>" /><br />
-				<?PHP echo"$arr[TDRTOLAD_ReturnCode]"; ?>
+				<img src="<?PHP echo "barcode.php?text=$arr[TDRTOOLD_ReturnCode]";?>" /><br />
+				<?PHP echo"$arr[TDRTOOLD_ReturnCode]"; ?>
 		   </td>
 		</tr>
 		<tr>
@@ -149,55 +147,43 @@ if(!isset($_SESSION['User_ID'])) {
 		</tr>
 	</table>
 </div>
+
 <div id='content'>
 <table cellpadding='0' cellspacing='0'  width='100%' border='1' id='mytable' class='stripeMe'>
 <thead>
     <tr>
-    	<th width='10%'>
-        	Kode Dokumen
-        </th>
-        <th width='10%'>
-        	Perusahaan
-        </th>
-        <th width='5%'>
-        	Tahap
-        </th>
-        <th width='10%'>
-        	Periode
-        </th>
-        <th width='10%'>
-        	Tanggal Dokumen
-        </th>
-        <th width='10%'>
-        	Blok
-        </th>
-        <th width='10%'>
-        	Desa
-        </th>
-        <th width='10%'>
-        	Pemilik
-        </th>
-        <th width='10%'>
-        	Ket. Pengembalian
-        </th>
-   	</tr>
+        <th>Kode Dokumen</th>
+        <th>Perusahaan</th>
+        <th>Kategori Dokumen</th>
+        <th>Nama Dokumen</th>
+        <th>Instansi Terkait</th>
+        <th>No. Dokumen</th>
+        <th>Tgl. Terbit</th>
+        <th>Tgl. Berakhir</th>
+        <th>Ket. Pengembalian</th>
+    </tr>
 </thead>
 <tbody>
-	<?PHP
-	$queryd = "SELECT dla.DLA_Code, c.Company_Name, dg.DocumentGroup_Name, dla.DLA_ID,dla.DLA_Phase, dla.DLA_Period,
-						  dla.DLA_DocDate, dla.DLA_Block, dla.DLA_Village, dla.DLA_Owner, tdrtolad.TDRTOLAD_Information
-					FROM TD_ReturnOfLandAcquisitionDocument tdrtolad, M_DocumentLandAcquisition dla, M_Company c,
-						 M_DocumentGroup dg
-					WHERE tdrtolad.TDRTOLAD_ReturnCode='$id'
-					AND tdrtolad.TDRTOLAD_Delete_Time IS NULL
-					AND tdrtolad.TDRTOLAD_DocCode=dla.DLA_Code
-					AND dla.DLA_CompanyID=c.Company_ID
-					AND dg.DocumentGroup_ID='3'";
+<?PHP
+	$queryd="SELECT dol.DOL_DocCode, c.Company_Name, dg.DocumentGroup_Name,
+                    dc.DocumentCategory_Name,
+                    dol.DOL_NamaDokumen, dol.DOL_InstansiTerkait, dol.DOL_NoDokumen,
+                    dol.DOL_TglTerbit, dol.DOL_TglBerakhir,
+                    tdroold.TDRTOOLD_Information
+			 FROM TD_ReturnOfOtherLegalDocuments tdroold,
+			 	  M_DocumentsOtherLegal dol, M_Company c, M_DocumentGroup dg,
+                  db_master.M_DocumentCategory dc
+			 WHERE tdroold.TDRTOOLD_ReturnCode='$id'
+    			 AND tdroold.TDRTOOLD_Delete_Time IS NULL
+    			 AND tdroold.TDRTOOLD_DocCode=dol.DOL_DocCode
+    			 AND dol.DOL_CompanyID=c.Company_ID
+    			 AND dol.DOL_GroupDocID=dg.DocumentGroup_ID
+                 AND dol.DOL_CategoryDocID=dc.DocumentCategory_ID";
 	$sqld = mysql_query($queryd);
 	$jumdata=0;
 	while ($arrd = mysql_fetch_array($sqld)) {
-		$fperdate=date("j M Y", strtotime($arrd['DLA_Period']));
-		$fdocdate=date("j M Y", strtotime($arrd['DLA_DocDate']));
+        $tgl_terbit=date("j M Y", strtotime($arrd['DOL_TglTerbit']));
+        $tgl_berakhir=date("j M Y", strtotime($arrd['DOL_TglBerakhir']));
 
 		if ($jumdata==8) {
 			$style="style='page-break-after:always'";
@@ -211,31 +197,19 @@ if(!isset($_SESSION['User_ID'])) {
 		echo ("
 		<tr $style>
 			<td class='center'>
-				$arrd[DLA_Code]
+				$arrd[DOL_DocCode]
 			</td>
 			<td class='center'>
 				$arrd[Company_Name]
-			</td>
+		    </td>
+            <td class='center'>$arrd[DocumentCategory_Name]</td>
+            <td class='center'>$arrd[DOL_NamaDokumen]</td>
+            <td class='center'>$arrd[DOL_InstansiTerkait]</td>
+            <td class='center'>$arrd[DOL_NoDokumen]</td>
+            <td class='center'>$tgl_terbit</td>
+            <td class='center'>$tgl_berakhir</td>
 			<td class='center'>
-				$arrd[DLA_Phase]
-			</td>
-			<td class='center'>
-				$fperdate
-			</td>
-			<td class='center'>
-				$fdocdate
-			</td>
-			<td class='center'>
-				$arrd[DLA_Block]
-			</td>
-			<td class='center'>
-				$arrd[DLA_Village]
-			</td>
-			<td class='center'>
-				$arrd[DLA_Owner]
-			</td>
-			<td class='center'>
-				$arrd[TDRTOLAD_Information]
+				$arrd[TDRTOOLD_Information]
 			</td>
 		</tr>");
 		$jumdata ++;
@@ -244,7 +218,7 @@ if(!isset($_SESSION['User_ID'])) {
 </tbody>
 <tfoot>
 	<tr>
-		<td colspan='11' style='font-size:8px;font-weight:bolder;' align='right'><i>PRINTED BY CUSTODIAN SYSTEM VER <?PHP echo $_SESSION['version']?> ON <?PHP echo date("d/m/Y H:i:s")?></i></td>
+		<td colspan='17' style='font-size:8px;font-weight:bolder;' align='right'><i>PRINTED BY CUSTODIAN SYSTEM VER <?PHP echo $_SESSION['version']?> ON <?PHP echo date("d/m/Y H:i:s")?></i></td>
 	</tr>
 </tfoot>
 </table>
@@ -271,13 +245,13 @@ if(!isset($_SESSION['User_ID'])) {
     <tr>
 <?PHP
 	$queryr="SELECT u.User_FullName
-				FROM TD_ReturnOfLandAcquisitionDocument tdrtrold, M_User u, TD_LoanOfLandAcquisitionDocument tdlolad,
-					 TH_LoanOfLandAcquisitionDocument thlolad
-				WHERE tdlolad.TDLOLAD_DocCode=tdrtrold.TDRTOLAD_DocCode
-				AND tdlolad.TDLOLAD_THLOLAD_ID=thlolad.THLOLAD_ID
-				AND thlolad.THLOLAD_UserID=u.User_ID
-				AND tdrtrold.TDRTOLAD_ReturnCode='$id'
-				ORDER BY tdlolad.TDLOLAD_Insert_Time DESC";
+				FROM TD_ReturnOfOtherLegalDocuments tdrtroold, M_User u, TD_LoanOfOtherLegalDocuments tdloold,
+					 TH_LoanOfOtherLegalDocuments thloold
+				WHERE tdloold.TDLOOLD_DocCode=tdrtroold.TDRTOOLD_DocCode
+				AND tdloold.TDLOOLD_THLOOLD_ID=thloold.THLOOLD_ID
+				AND thloold.THLOOLD_UserID=u.User_ID
+				AND tdrtroold.TDRTOOLD_ReturnCode='$id'
+				ORDER BY tdloold.TDLOOLD_Insert_Time DESC";
 	$sqlr = mysql_query($queryr);
 	$arrr=mysql_fetch_array($sqlr);
 ?>

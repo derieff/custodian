@@ -365,13 +365,6 @@ elseif($grup==3){
 }
 
 elseif($grup==4){
-	/*$query="SELECT *
-            #DL_NoDoc no_dokumen, DL_RegTime tgl_terbit_dokumen
-              FROM TD_ReleaseOfAssetOwnershipDocument tdrloaod, TD_LoanOfAssetOwnershipDocument tdloaod, M_DocumentAssetOwnership dao
-              WHERE tdrloaod.TDROAOD_TDLOAOD_ID=tdloaod.TDLOAOD_ID
-              AND dao.DAO_DocCode=tdloaod.TDLOAOD_DocCode
-              AND dao.DAO_Status='4'
-              AND tdrloaod.TDROAOD_ReturnCode='0'";*/
 	$query="SELECT tdloaod.TDLOAOD_DocCode, m_e.Employee_FullName, m_mk.MK_Name,
 			  dao.DAO_Type, dao.DAO_Jenis, dao.DAO_NoPolisi, dao.DAO_NoRangka, dao.DAO_NoMesin,
 			  (SELECT COUNT(tdloaod.TDLOAOD_DocCode) Total
@@ -529,13 +522,6 @@ elseif($grup==4){
 }
 
 elseif($grup==5){
-	/* Query Arief
-	$query="SELECT *
-			  FROM TD_ReleaseOfOtherLegalDocuments tdrloold, TD_LoanOfOtherLegalDocuments tdloold, M_DocumentsOtherLegal dol
-			  WHERE tdrloold.TDROOLD_TDLOOLD_ID=tdloold.TDLOOLD_ID
-			  AND dol.DOL_DocCode=tdloold.TDLOOLD_DocCode
-			  AND dol.DOL_Status='4'
-			  AND tdrloold.TDROOLD_ReturnCode='0'";*/
 	$query="SELECT tdloold.TDLOOLD_DocCode, dc.DocumentCategory_Name,
 			  dol.DOL_NamaDokumen, dol.DOL_InstansiTerkait,dol.DOL_NoDokumen,DATE_FORMAT(dol.DOL_TglTerbit, '%d %M %Y') DOL_TglTerbit,
 			  (SELECT COUNT(tdloold.TDLOOLD_ID) Total
@@ -667,13 +653,6 @@ elseif($grup==5){
 }
 
 elseif($grup==6){
-	/* Query Arief
-	$query="SELECT *
-			  FROM TD_ReleaseOfOtherNonLegalDocuments tdrloonld, TD_LoanOfOtherNonLegalDocuments tdloonld, M_DocumentsOtherNonLegal donl
-			  WHERE tdrloonld.TDROONLD_TDLOONLD_ID=tdloonld.TDLOONLD_ID
-			  AND donl.DONL_DocCode=tdloonld.TDLOONLD_DocCode
-			  AND donl.DONL_Status='4'
-			  AND tdrloonld.TDROONLD_ReturnCode='0'";*/
 	$query="SELECT tdloonld.TDLOONLD_DocCode,mc.Company_Name,donl.DONL_NoDokumen,donl.DONL_NamaDokumen,donl.DONL_TahunDokumen,m_d.Department_Name,
 			  (SELECT COUNT(tdloonld.TDLOONLD_ID) Total
 				FROM TD_LoanOfOtherNonLegalDocuments tdloonld
@@ -796,10 +775,12 @@ elseif($grup==6){
 
 			?>
 			<tr>
-				<td align='center'><u><a href="javascript:pickonl('<?= $arr['TDLOLD_DocCode'] ?>', '<?=$txtKe;?>')"><?= $arr['TDLOLD_DocCode'] ?></a></u></td>
-				<td align='center'><?= $loandate ?></td>
-				<td align='center'><?= $arr['DL_NoDoc'] ?></td>
-				<td align='center'><?= $tgl_terbit?></td>
+				<td align='center'><u><a href="javascript:pickonl('<?= $arr['TDLOONLD_DocCode'] ?>', '<?=$txtKe;?>')"><?= $arr['TDLOONLD_DocCode'] ?></a></u></td>
+				<td align='center'><?= $arr['Company_Name'] ?></td>
+				<td align='center'><?= $arr['DONL_NoDokumen'] ?></td>
+				<td align='center'><?= $arr['DONL_NamaDokumen'] ?></td>
+				<td align='center'><?= $arr['DONL_TahunDokumen'] ?></td>
+				<td align='center'><?= $arr['Department_Name'] ?></td>
 			</tr>
 			<?PHP
 		}

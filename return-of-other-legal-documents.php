@@ -2,7 +2,7 @@
 /*
 =========================================================================================================================
 = Nama Project		: Custodian																							=
-= Versi				: 1.1.1																								=
+= Versi				: 2.0.0																								=
 = Disusun Oleh		: IT Support Application - PT Triputra Agro Persada													=
 = Developer			: Outsource               																			=
 = Dibuat Tanggal	: 26 September 2018																					=
@@ -160,11 +160,11 @@ if(isset($_GET["act"]))
 
 	if($act=='detail') {
 		$id=$_GET['id'];
-		$query1 = "SELECT  tdrold.TDRTOOLD_ReturnCode, u.User_FullName, d.Division_Name, dp.Department_Name,
-		    			   p.Position_Name, tdrold.TDRTOOLD_ReturnTime
-			   	   FROM TD_ReturnOfOtherLegalDocuments tdrold
+		$query1 = "SELECT  tdroold.TDRTOOLD_ReturnCode, u.User_FullName, d.Division_Name, dp.Department_Name,
+		    			   p.Position_Name, tdroold.TDRTOOLD_ReturnTime
+			   	   FROM TD_ReturnOfOtherLegalDocuments tdroold
 				   LEFT JOIN M_User u
-						ON tdrold.TDRTOOLD_UserID=u.User_ID
+						ON tdroold.TDRTOOLD_UserID=u.User_ID
 				   LEFT JOIN M_DivisionDepartmentPosition ddp
 						ON u.User_ID=ddp.DDP_UserID
 						AND ddp.DDP_Delete_Time is NULL
@@ -174,7 +174,7 @@ if(isset($_GET["act"]))
 						ON ddp.DDP_DeptID=dp.Department_ID
 				   LEFT JOIN M_Position p
 						ON ddp.DDP_PosID=p.Position_ID
-			       WHERE tdrold.TDRTOOLD_ReturnCode='$id'";
+			       WHERE tdroold.TDRTOOLD_ReturnCode='$id'";
 		$sql1 = mysql_query($query1);
 		$field1 = mysql_fetch_array($sql1);
 		$fregdate=date('j M Y', strtotime($field1[TDRTOOLD_ReturnTime]));
@@ -215,33 +215,43 @@ if(isset($_GET["act"]))
 		<table width='100%' id='mytable' class='stripeMe'>
 		<tr>
 			<th>Kode Dokumen</th>
-			<th>Nama Dokumen</th>
 			<th>Perusahaan</th>
-			<th>Keterangan</th>
+			<th>Kategori Dokumen</th>
+			<th>Nama Dokumen</th>
+			<th>Instansi Terkait</th>
+			<th>No. Dokumen</th>
+			<th>Tgl. Terbit</th>
+			<th>Tgl. Berakhir</th>
+			<th>Ket. Pengembalian</th>
 		</tr>";
 
-		$queryd = "SELECT dol.DOL_DocCode, dt.DocumentType_Name, c.Company_Name, dg.DocumentGroup_Name,
-						  dc.DocumentCategory_Name, dol.DOL_NoDoc, dol.DOL_ID,tdrold.TDRTOOLD_Information,
-					 	  di1.DocumentInformation1_Name, di2.DocumentInformation2_Name, dol.DOL_Information3
-					FROM TD_ReturnOfOtherLegalDocuments tdrold, M_DocumentType dt,
-					 	 M_DocumentsOtherLegal dol, M_Company c, M_DocumentGroup dg, M_DocumentCategory dc,
-						 M_DocumentInformation1 di1, M_DocumentInformation2 di2
-					WHERE tdrold.TDRTOOLD_ReturnCode='$id'
-					AND tdrold.TDRTOOLD_Delete_Time IS NULL
-					AND tdrold.TDRTOOLD_DocCode=dol.DOL_DocCode
-					AND dol.DOL_TypeDocID=dt.DocumentType_ID
+		$queryd = "SELECT dol.DOL_DocCode, c.Company_Name, dg.DocumentGroup_Name,
+						  dc.DocumentCategory_Name, dol.DOL_ID,tdroold.TDRTOOLD_Information,
+						  dol.DOL_NamaDokumen, dol.DOL_InstansiTerkait, dol.DOL_NoDokumen,
+	 					  dol.DOL_TglTerbit, dol.DOL_TglBerakhir
+					FROM TD_ReturnOfOtherLegalDocuments tdroold,
+					 	 M_DocumentsOtherLegal dol, M_Company c, M_DocumentGroup dg, db_master.M_DocumentCategory dc
+					WHERE tdroold.TDRTOOLD_ReturnCode='$id'
+					AND tdroold.TDRTOOLD_Delete_Time IS NULL
+					AND tdroold.TDRTOOLD_DocCode=dol.DOL_DocCode
 					AND dol.DOL_CompanyID=c.Company_ID
 					AND dol.DOL_GroupDocID=dg.DocumentGroup_ID
-					AND dol.DOL_CategoryDocID=dc.DocumentCategory_ID
-					AND dol.DOL_Information1=di1.DocumentInformation1_ID
-					AND dol.DOL_Information2=di2.DocumentInformation2_ID";
+					AND dol.DOL_CategoryDocID=dc.DocumentCategory_ID";
 		$sqld = mysql_query($queryd);
 		while ($arrd = mysql_fetch_array($sqld)) {
+			$tgl_terbit=date("j M Y", strtotime($arrd['DOL_TglTerbit']));
+	        $tgl_berakhir=date("j M Y", strtotime($arrd['DOL_TglBerakhir']));
+
 			$ActionContent .="
 			<tr>
 				<td align='center'>$arrd[DOL_DocCode]</td>
-				<td align='center'>$arrd[DocumentType_Name] No $arrd[DOL_NoDoc]</td>
 				<td align='center'>$arrd[Company_Name]</td>
+				<td align='center'>$arrd[DocumentCategory_Name]</td>
+				<td align='center'>$arrd[DOL_NamaDokumen]</td>
+				<td align='center'>$arrd[DOL_InstansiTerkait]</td>
+				<td align='center'>$arrd[DOL_NoDokumen]</td>
+				<td align='center'>$tgl_terbit</td>
+				<td align='center'>$tgl_berakhir</td>
 				<td align='center'><pre>$arrd[TDRTOOLD_Information]</pre></td>
 			</tr>";
 		}
@@ -362,7 +372,7 @@ elseif(isset($_POST[adddetail])) {
 
 	// Cari Kode Perusahaan $ Kode Grup Dokumen
 	$query = "SELECT c.Company_Code, dg.DocumentGroup_Code
-			  FROM M_DocumentsOtherLegal dl, M_Company c, M_DocumentGroup dg
+			  FROM M_DocumentsOtherLegal dol, M_Company c, M_DocumentGroup dg
 			  WHERE dol.DOL_DocCode='$_POST[txtTDRTOOLD_DocCode1]'
 			  AND dol.DOL_CompanyID=c.Company_ID
 			  AND dol.DOL_GroupDocID=dg.DocumentGroup_ID";
