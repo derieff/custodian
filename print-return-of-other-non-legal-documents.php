@@ -158,7 +158,7 @@ if(!isset($_SESSION['User_ID'])) {
         <th>Nama Dokumen</th>
         <th>Tahun Dokumen</th>
         <th>Departemen</th>
-        <th>Ket Pengembalian</th>
+        <th>Ket. Pengembalian</th>
     </tr>
 </thead>
 <tbody>

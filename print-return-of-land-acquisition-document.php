@@ -178,7 +178,7 @@ if(!isset($_SESSION['User_ID'])) {
         	Pemilik
         </th>
         <th width='10%'>
-        	Ket Pengembalian
+        	Ket. Pengembalian
         </th>
    	</tr>
 </thead>
@@ -198,7 +198,7 @@ if(!isset($_SESSION['User_ID'])) {
 	while ($arrd = mysql_fetch_array($sqld)) {
 		$fperdate=date("j M Y", strtotime($arrd['DLA_Period']));
 		$fdocdate=date("j M Y", strtotime($arrd['DLA_DocDate']));
-		
+
 		if ($jumdata==8) {
 			$style="style='page-break-after:always'";
 			$jumdata=0;

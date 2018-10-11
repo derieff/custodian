@@ -221,7 +221,7 @@ if(isset($_GET["act"]))
 			<th>Nama Dokumen</th>
 			<th>Tahun Dokumen</th>
 			<th>Departemen</th>
-			<th>Keterangan</th>
+			<th>Ket. Pengembalian</th>
 		</tr>";
 
 		$queryd = "SELECT donl.DONL_DocCode, c.Company_Name, dg.DocumentGroup_Name,

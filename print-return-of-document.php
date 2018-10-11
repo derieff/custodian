@@ -179,7 +179,7 @@ if(!isset($_SESSION['User_ID'])) {
         	Ket 3
         </th>
         <th width='10%'>
-        	Ket Pengembalian
+        	Ket. Pengembalian
         </th>
    	</tr>
 </thead>

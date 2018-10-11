@@ -222,7 +222,7 @@ if(isset($_GET["act"]))
 			<th>No. Dokumen</th>
 			<th>Tgl. Terbit</th>
 			<th>Tgl. Berakhir</th>
-			<th>Ket Pengembalian</th>
+			<th>Ket. Pengembalian</th>
 		</tr>";
 
 		$queryd = "SELECT dol.DOL_DocCode, c.Company_Name, dg.DocumentGroup_Name,

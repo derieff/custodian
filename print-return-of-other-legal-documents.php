@@ -160,7 +160,7 @@ if(!isset($_SESSION['User_ID'])) {
         <th>No. Dokumen</th>
         <th>Tgl. Terbit</th>
         <th>Tgl. Berakhir</th>
-        <th>Ket Pengembalian</th>
+        <th>Ket. Pengembalian</th>
     </tr>
 </thead>
 <tbody>

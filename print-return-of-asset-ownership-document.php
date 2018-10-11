@@ -166,7 +166,7 @@ if(!isset($_SESSION['User_ID'])) {
     	<th colspan='2'>Pajak Kendaraan</th>
     	<th rowspan='2'>Lokasi (PT)</th>
     	<th rowspan='2'>Region</th>
-        <th rowspan='2'>Ket Pengembalian</th>
+        <th rowspan='2'>Ket. Pengembalian</th>
     </tr>
     <tr>
     	<th>Start Date</th>
