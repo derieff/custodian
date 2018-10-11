@@ -307,6 +307,36 @@ $query = "SELECT DISTINCT throld.THROLD_ID ID, throld.THROLD_RegistrationCode Ko
 		  AND throld.THRGOLAD_RegStatus=drs.DRS_Name
 		  AND drs.DRS_ID='2'
 		  UNION
+		  SELECT DISTINCT throaod.THROAOD_ID ID, throaod.THROAOD_RegistrationCode KodeTransaksi, throaod.THROAOD_RegistrationDate TanggalTransaksi,
+						  c.Company_Name Perusahaan,  drs.DRS_Description StatusTransaksi,
+						  '1' IDKategori, 'Registrasi' Kategori,'detail-of-registration-land-acquisition-document.php' Link
+		  FROM TH_RegistrationOfAssetOwnershipDocument throaod, M_Company c, M_DocumentRegistrationStatus drs
+		  WHERE throaod.THROAOD_Delete_Time is NULL
+		  AND throaod.THROAOD_CompanyID=c.Company_ID
+		  AND throaod.THROAOD_UserID='$_SESSION[User_ID]'
+		  AND throaod.THROAOD_Status=drs.DRS_Name
+		  AND drs.DRS_ID='2'
+		  UNION
+		  SELECT DISTINCT throold.THROOLD_ID ID, throold.THROOLD_RegistrationCode KodeTransaksi, throold.THROOLD_RegistrationDate TanggalTransaksi,
+						  c.Company_Name Perusahaan,  drs.DRS_Description StatusTransaksi,
+						  '1' IDKategori, 'Registrasi' Kategori,'detail-of-registration-land-acquisition-document.php' Link
+		  FROM TH_RegistrationOfOtherLegalDocuments throold, M_Company c, M_DocumentRegistrationStatus drs
+		  WHERE throold.THROOLD_Delete_Time is NULL
+		  AND throold.THROOLD_CompanyID=c.Company_ID
+		  AND throold.THROOLD_UserID='$_SESSION[User_ID]'
+		  AND throold.THROOLD_Status=drs.DRS_Name
+		  AND drs.DRS_ID='2'
+		  UNION
+		  SELECT DISTINCT throonld.THROONLD_ID ID, throonld.THROONLD_RegistrationCode KodeTransaksi, throonld.THROONLD_RegistrationDate TanggalTransaksi,
+						  c.Company_Name Perusahaan,  drs.DRS_Description StatusTransaksi,
+						  '1' IDKategori, 'Registrasi' Kategori,'detail-of-registration-land-acquisition-document.php' Link
+		  FROM TH_RegistrationOfOtherNonLegalDocuments throonld, M_Company c, M_DocumentRegistrationStatus drs
+		  WHERE throonld.THROONLD_Delete_Time is NULL
+		  AND throonld.THROONLD_CompanyID=c.Company_ID
+		  AND throonld.THROONLD_UserID='$_SESSION[User_ID]'
+		  AND throonld.THROONLD_Status=drs.DRS_Name
+		  AND drs.DRS_ID='2'
+		  UNION
 		  SELECT DISTINCT thlold.THLOLD_ID ID, thlold.THLOLD_LoanCode KodeTransaksi, thlold.THLOLD_LoanDate TanggalTransaksi,
 						  c.Company_Name Perusahaan, drs.DRS_Description StatusTransaksi,
 						  '2' IDKategori, 'Permintaan' Kategori,'detail-of-loan-document.php' Link
@@ -325,6 +355,36 @@ $query = "SELECT DISTINCT throld.THROLD_ID ID, throld.THROLD_RegistrationCode Ko
 		  AND thlolad.THLOLAD_CompanyID=c.Company_ID
 		  AND thlolad.THLOLAD_UserID='$_SESSION[User_ID]'
 		  AND thlolad.THLOLAD_Status=drs.DRS_Name
+		  AND drs.DRS_ID='2'
+		  UNION
+		  SELECT DISTINCT thloaod.THLOAOD_ID ID, thloaod.THLOAOD_LoanCode KodeTransaksi, thloaod.THLOAOD_LoanDate TanggalTransaksi,
+						  c.Company_Name Perusahaan, drs.DRS_Description StatusTransaksi,
+						  '2' IDKategori, 'Permintaan' Kategori,'detail-of-loan-land-acquisition-document.php' Link
+		  FROM TH_LoanOfAssetOwnershipDocument thloaod, M_Company c, M_DocumentRegistrationStatus drs
+		  WHERE thloaod.THLOAOD_Delete_Time is NULL
+		  AND thloaod.THLOAOD_CompanyID=c.Company_ID
+		  AND thloaod.THLOAOD_UserID='$_SESSION[User_ID]'
+		  AND thloaod.THLOAOD_Status=drs.DRS_Name
+		  AND drs.DRS_ID='2'
+		  UNION
+		  SELECT DISTINCT thloold.THLOOLD_ID ID, thloold.THLOOLD_LoanCode KodeTransaksi, thloold.THLOOLD_LoanDate TanggalTransaksi,
+						  c.Company_Name Perusahaan, drs.DRS_Description StatusTransaksi,
+						  '2' IDKategori, 'Permintaan' Kategori,'detail-of-loan-land-acquisition-document.php' Link
+		  FROM TH_LoanOfOtherLegalDocuments thloold, M_Company c, M_DocumentRegistrationStatus drs
+		  WHERE thloold.THLOOLD_Delete_Time is NULL
+		  AND thloold.THLOOLD_CompanyID=c.Company_ID
+		  AND thloold.THLOOLD_UserID='$_SESSION[User_ID]'
+		  AND thloold.THLOOLD_Status=drs.DRS_Name
+		  AND drs.DRS_ID='2'
+		  UNION
+		  SELECT DISTINCT thloonld.THLOONLD_ID ID, thloonld.THLOONLD_LoanCode KodeTransaksi, thloonld.THLOONLD_LoanDate TanggalTransaksi,
+						  c.Company_Name Perusahaan, drs.DRS_Description StatusTransaksi,
+						  '2' IDKategori, 'Permintaan' Kategori,'detail-of-loan-land-acquisition-document.php' Link
+		  FROM TH_LoanOfOtherNonLegalDocuments thloonld, M_Company c, M_DocumentRegistrationStatus drs
+		  WHERE thloonld.THLOONLD_Delete_Time is NULL
+		  AND thloonld.THLOONLD_CompanyID=c.Company_ID
+		  AND thloonld.THLOONLD_UserID='$_SESSION[User_ID]'
+		  AND thloonld.THLOONLD_Status=drs.DRS_Name
 		  AND drs.DRS_ID='2'
 		  UNION
 		  SELECT DISTINCT throld.THROLD_ID ID, throld.THROLD_ReleaseCode KodeTransaksi, throld.THROLD_ReleaseDate TanggalTransaksi,
@@ -347,6 +407,39 @@ $query = "SELECT DISTINCT throld.THROLD_ID ID, throld.THROLD_RegistrationCode Ko
 		  AND thlolad.THLOLAD_CompanyID=c.Company_ID
 		  AND thrlolad.THRLOLAD_UserID='$_SESSION[User_ID]'
 		  AND thrlolad.THRLOLAD_Status=drs.DRS_Name
+		  AND drs.DRS_ID='2'
+		  UNION
+		  SELECT DISTINCT thrloaod.THROAOD_ID ID, thrloaod.THROAOD_ReleaseCode KodeTransaksi, thrloaod.THROAOD_ReleaseDate TanggalTransaksi,
+						  c.Company_Name Perusahaan, drs.DRS_Description StatusTransaksi,
+						  '3' IDKategori, 'Pengeluaran' Kategori,'detail-of-release-land-acquisition-document.php' Link
+		  FROM TH_ReleaseOfAssetOwnershipDocument thrloaod, TH_LoanOfAssetOwnershipDocument thloaod, M_Company c, M_DocumentRegistrationStatus drs
+		  WHERE thrloaod.THROAOD_Delete_Time is NULL
+		  AND thloaod.THLOAOD_LoanCode=thrloaod.THROAOD_THLOAOD_Code
+		  AND thloaod.THLOAOD_CompanyID=c.Company_ID
+		  AND thrloaod.THROAOD_UserID='$_SESSION[User_ID]'
+		  AND thrloaod.THROAOD_Status=drs.DRS_Name
+		  AND drs.DRS_ID='2'
+		  UNION
+		  SELECT DISTINCT thrloold.THROOLD_ID ID, thrloold.THROOLD_ReleaseCode KodeTransaksi, thrloold.THROOLD_ReleaseDate TanggalTransaksi,
+						  c.Company_Name Perusahaan, drs.DRS_Description StatusTransaksi,
+						  '3' IDKategori, 'Pengeluaran' Kategori,'detail-of-release-land-acquisition-document.php' Link
+		  FROM TH_ReleaseOfOtherLegalDocuments thrloold, TH_LoanOfOtherLegalDocuments thloold, M_Company c, M_DocumentRegistrationStatus drs
+		  WHERE thrloold.THROOLD_Delete_Time is NULL
+		  AND thloold.THLOOLD_LoanCode=thrloold.THROOLD_THLOOLD_Code
+		  AND thloold.THLOOLD_CompanyID=c.Company_ID
+		  AND thrloold.THROOLD_UserID='$_SESSION[User_ID]'
+		  AND thrloold.THROOLD_Status=drs.DRS_Name
+		  AND drs.DRS_ID='2'
+		  UNION
+		  SELECT DISTINCT thrloonld.THROONLD_ID ID, thrloonld.THROONLD_ReleaseCode KodeTransaksi, thrloonld.THROONLD_ReleaseDate TanggalTransaksi,
+						  c.Company_Name Perusahaan, drs.DRS_Description StatusTransaksi,
+						  '3' IDKategori, 'Pengeluaran' Kategori,'detail-of-release-land-acquisition-document.php' Link
+		  FROM TH_ReleaseOfOtherNonLegalDocuments thrloonld, TH_LoanOfOtherNonLegalDocuments thloonld, M_Company c, M_DocumentRegistrationStatus drs
+		  WHERE thrloonld.THROONLD_Delete_Time is NULL
+		  AND thloonld.THLOONLD_LoanCode=thrloonld.THROONLD_THLOONLD_Code
+		  AND thloonld.THLOONLD_CompanyID=c.Company_ID
+		  AND thrloonld.THROONLD_UserID='$_SESSION[User_ID]'
+		  AND thrloonld.THROONLD_Status=drs.DRS_Name
 		  AND drs.DRS_ID='2'
 		  ORDER BY IDKategori, ID";
 $sql = mysql_query($query);

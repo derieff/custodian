@@ -18,7 +18,10 @@ include_once ("./include/class.endencrp.php");
 function mail_registration_doc($regCode,$reminder=0){
 	$mail = new PHPMailer();
 	$decrp = new custodian_encryp;
-	//$testing='TESTING';
+	$body = "";
+	$bodyHeader = "";
+	$bodyFooter = "";
+	$testing='TESTING';
 
 	$e_query="SELECT User_ID,
 					User_FullName, User_Email, DocumentGroup_Name,
@@ -71,9 +74,9 @@ function mail_registration_doc($regCode,$reminder=0){
 	$mail->FromName   = 'Custodian System';
 
 	if ($reminder){
-		$mail->Subject  ='[REMINDER] Persetujuan Pendaftaran Dokumen '.$regCode.'';
+		$mail->Subject  ='[REMINDER] '.$testing.' Persetujuan Pendaftaran Dokumen '.$regCode.'';
 	}else{
-		$mail->Subject  =' Persetujuan Pendaftaran Dokumen '.$regCode.'';
+		$mail->Subject  =''.$testing.' Persetujuan Pendaftaran Dokumen '.$regCode.'';
 	}
 	$mail->AddBcc('system.administrator@tap-agri.com');
 	//$mail->AddAttachment("images/icon_addrow.png", "icon_addrow.png");  // optional name
@@ -203,7 +206,7 @@ function mail_registration_doc($regCode,$reminder=0){
 		}
 
 			$bodyFooter .= '
-				<div style="margin: 0pt;font-family: \'lucida grande\',tahoma,verdana,arial,sans-serif;">Hormat Kami,<br />Departemen Custodian<br />PT Triputra Agro Persada
+				<div style="margin: 0pt;font-family: \'lucida grande\',tahoma,verdana,arial,sans-serif;margin-top:7%;">Hormat Kami,<br />Departemen Custodian<br />PT Triputra Agro Persada
 				</div></td>
 				</tr>
 			</tbody>
@@ -275,7 +278,10 @@ function mail_registration_doc($regCode,$reminder=0){
 function mail_notif_registration_doc($regCode, $User_ID, $status, $attr){
 	$mail = new PHPMailer();
 	$decrp = new custodian_encryp;
-	//$testing='TESTING';
+	$body = "";
+	$bodyHeader = "";
+	$bodyFooter = "";
+	$testing='TESTING';
 
 	$e_query="SELECT User_ID, User_FullName, User_Email
 			  FROM M_User
@@ -304,15 +310,17 @@ function mail_notif_registration_doc($regCode, $User_ID, $status, $attr){
 	$mail->FromName   = 'Custodian System';
 
 	if ($status=='3'){
-		$mail->Subject  ='Notifikasi Proses Pendaftaran Dokumen '.$regCode;
+		$mail->Subject  =''.$testing.' Notifikasi Proses Pendaftaran Dokumen '.$regCode;
 	}
 	if ($status=='4'){
-		$mail->Subject  ='Notifikasi Proses Pendaftaran Dokumen '.$regCode;
+		$mail->Subject  =''.$testing.' Notifikasi Proses Pendaftaran Dokumen '.$regCode;
 	}
 	$mail->AddBcc('system.administrator@tap-agri.com');
 	//$mail->AddAttachment("images/icon_addrow.png", "icon_addrow.png");  // optional name
 
 		$ed_query="SELECT DISTINCT DocumentCategory_Name,
+						THROOLD_Reason,
+						THROOLD_UserID,
 						TDROOLD_NamaDokumen,
 						TDROOLD_InstansiTerkait,
 						TDROOLD_NoDokumen,
@@ -413,7 +421,7 @@ function mail_notif_registration_doc($regCode, $User_ID, $status, $attr){
 				</div>';
 	}
 		$bodyFooter .= '
-				<div style="margin: 0pt;font-family: \'lucida grande\',tahoma,verdana,arial,sans-serif;">Hormat Kami,<br />Departemen Custodian<br />PT Triputra Agro Persada
+				<div style="margin: 0pt;font-family: \'lucida grande\',tahoma,verdana,arial,sans-serif;margin-top:7%;">Hormat Kami,<br />Departemen Custodian<br />PT Triputra Agro Persada
 				</div></td>
 				</tr>
 			</tbody>

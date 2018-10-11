@@ -352,9 +352,9 @@ if(($_GET['cfm'])&&($_GET['ati'])&&($_GET['rdm'])) {
 												 AND DL_Delete_Time is NULL)";
 							$sql = mysql_query($query);
 							$arr = mysql_fetch_array($sql);
-							$DLIU_LocationCode=$arr[DL_Code];
+							$DLIU_LocationCode=$arr['DL_Code'];
 
-							$step=$i+1;
+							//$step=$i+1;
 							$newnum=str_pad($nnum,4,"0",STR_PAD_LEFT);
 							$CD_Code="$newnum$Company_Code$DocumentGroup_Code$regmonth$regyear";
 							$sql2= "INSERT INTO M_CodeDocument

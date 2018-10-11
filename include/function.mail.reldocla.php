@@ -1,5 +1,5 @@
 <?PHP
-/* 
+/*
 =========================================================================================================================
 = Nama Project		: Custodian																							=
 = Versi				: 1.1.0																								=
@@ -15,11 +15,14 @@ include_once('./phpmailer/class.phpmailer.php');
 include_once('./phpmailer/class.html2text.inc.php');
 include_once ("./config/db_sql.php");
 include_once ("./include/class.endencrp.php");
-		
-function mail_release_doc($relCode,$reminder=0){ 
+
+function mail_release_doc($relCode,$reminder=0){
 	$mail = new PHPMailer();
 	$decrp = new custodian_encryp;
-	//$testing='TESTING';
+	$testing='TESTING';
+	$body = "";
+	$bodyHeader = "";
+	$bodyFooter = "";
 
 	$e_query="	SELECT  User_ID,User_FullName,User_Email,DocumentGroup_Name,A_TransactionCode,
 						ARC_AID,ARC_RandomCode,THRLOLAD_ReleaseDate
@@ -60,7 +63,7 @@ function mail_release_doc($relCode,$reminder=0){
 	}
 	$mail->AddBcc('system.administrator@tap-agri.com');
 	//$mail->AddAttachment("images/icon_addrow.png", "icon_addrow.png");  // optional name
-					
+
    		$ed_query="	SELECT DISTINCT TDLOLAD_ID,Company_Name,DLA_Phase,DLA_Period,
 									DLA_Village,DLA_Block,DLA_Owner,User_FullName,
 									DLA_AreaStatement,DLA_PlantTotalPrice,THLOLAD_UserID,
@@ -85,7 +88,7 @@ function mail_release_doc($relCode,$reminder=0){
 					WHERE THRLOLAD_ReleaseCode='$relCode'
 					AND THLOLAD_Delete_Time IS NULL";
 
-		$ed_handlae = mysql_query($ed_query);	
+		$ed_handlae = mysql_query($ed_query);
 		$edNum=1;
 		while ($ed_arr = mysql_fetch_object($ed_handlae)) {
 			$DLA_AreaStatement=number_format($ed_arr->DLA_AreaStatement,2,'.',',');
@@ -93,9 +96,9 @@ function mail_release_doc($relCode,$reminder=0){
 			$DLA_GrandTotal=number_format($ed_arr->DLA_GrandTotal,2,',','.');
 			$period=date("j M Y", strtotime($ed_arr->DLA_Period));
 			$DocDate=date("j M Y", strtotime($ed_arr->DLA_DocDate));
-			
-		$body .= '				
-						<TR  style=" font-size: 12px; font-family: \'lucida grande\',tahoma,verdana,arial,sans-serif;">	
+
+		$body .= '
+						<TR  style=" font-size: 12px; font-family: \'lucida grande\',tahoma,verdana,arial,sans-serif;">
 							<TD align="center" valign="top">'.$edNum.'</TD>
 							<TD>'.$ed_arr->Company_Name.' - Tahap '.$ed_arr->DLA_Phase.'<br />
 								Periode GRL : '.$period.'<br />
@@ -103,14 +106,14 @@ function mail_release_doc($relCode,$reminder=0){
 								Pemilik : '.$ed_arr->DLA_Owner.'<br />
 								'.$DLA_AreaStatement.' Ha - Rp '.$DLA_PlantTotalPrice.' - Rp '.$DLA_GrandTotal.'<br />
 								Tgl. Dokumen : '.$DocDate.'
-							</TD>									
+							</TD>
 						</TR>';
 			$edNum=$edNum+1;
 			$requester=ucwords(strtolower($ed_arr->User_FullName));
 			$requester_dept=ucwords(strtolower($ed_arr->Employee_Department));
 			$requester_div=ucwords(strtolower($ed_arr->Employee_Division));
 		}
-		$bodyHeader .= '	
+		$bodyHeader .= '
 	<table width="497" border="0" align="center" cellpadding="0" cellspacing="0">
 <tbody>
 <tr>
@@ -125,26 +128,26 @@ function mail_release_doc($relCode,$reminder=0){
 	<p><span style="margin-bottom: 15px; font-size: 13px; font-family: \'lucida grande\',tahoma,verdana,arial,sans-serif;">Bersama ini disampaikan bahwa pengeluaran dokumen '.$row->DocumentGroup_Name.' (berdasarkan permintaan <b>'.$requester.' / Dept : '.$requester_dept.' / Divisi : '.$requester_div.'</b>) dengan detail pengeluaran sebagai berikut, membutuhkan persetujuan Bapak/Ibu :</span></p>
 	<p>
         <TABLE  width="458" >
-		<TR align="center"  style="border: 1px solid #ffe222; padding: 10px; background-color: #c4df9b; color: #333333; font-size: 12px; font-family: \'lucida grande\',tahoma,verdana,arial,sans-serif;">															
+		<TR align="center"  style="border: 1px solid #ffe222; padding: 10px; background-color: #c4df9b; color: #333333; font-size: 12px; font-family: \'lucida grande\',tahoma,verdana,arial,sans-serif;">
 			<TD width="10%"  style="font-size: 13px"><strong>No.</strong></TD>
 			<TD width="90%"  style="font-size: 13px"><strong>Keterangan Dokumen</strong></TD>
 		</TR>';
-		$bodyFooter .= '				
+		$bodyFooter .= '
                     </TABLE>
 				</p>
 				<p><span style="margin-bottom: 15px; font-size: 13px;font-family: \'lucida grande\',tahoma,verdana,arial,sans-serif;">Untuk itu dimohon Bapak/Ibu dapat memberikan persetujuan pengeluaran dokumen di atas. Terima kasih.  </span><br />
 				</p>
 				<p align=center>
 					<span style="border: 1px solid green;padding: 5px;margin-bottom: 15px; font-size: 13px;font-family: \'lucida grande\',tahoma,verdana,arial,sans-serif;background-color: rgb(196, 223, 155);color: white;float: left;margin-left: 15%;width: 20%;border-radius: 10px;">
-						<a target="_BLANK" style="color: white;" href="http://'.$_SERVER['HTTP_HOST'].'/act.mail.reldocla.php?cfm='.$decrp->encrypt('accept').'&ati='.$decrp->encrypt($row->ARC_AID).'&rdm='.$decrp->encrypt($row->ARC_RandomCode).'">Setuju</a>
+						<a target="_BLANK" style="color: white;" href="http://'.$_SERVER['HTTP_HOST'].'/custodian/act.mail.reldocla.php?cfm='.$decrp->encrypt('accept').'&ati='.$decrp->encrypt($row->ARC_AID).'&rdm='.$decrp->encrypt($row->ARC_RandomCode).'">Setuju</a>
 					</span>
 					<span style="border: 1px solid green;padding: 5px;margin-bottom: 15px; font-size: 13px;font-family: \'lucida grande\',tahoma,verdana,arial,sans-serif;background-color: rgb(196, 223, 155);color: white;float: right;margin-right: 15%;width: 20%;border-radius: 10px;">
-						<a target="_BLANK" style="color: white;" href="http://'.$_SERVER['HTTP_HOST'].'/act.mail.reldocla.php?act='.$decrp->encrypt('reject').'&ati='.$decrp->encrypt($row->ARC_AID).'&rdm='.$decrp->encrypt($row->ARC_RandomCode).'">Tolak</a>
+						<a target="_BLANK" style="color: white;" href="http://'.$_SERVER['HTTP_HOST'].'/custodian/act.mail.reldocla.php?act='.$decrp->encrypt('reject').'&ati='.$decrp->encrypt($row->ARC_AID).'&rdm='.$decrp->encrypt($row->ARC_RandomCode).'">Tolak</a>
 					</span><br />
 				</p>
 				</div>
 				<div style="margin: 0pt;font-family: \'lucida grande\',tahoma,verdana,arial,sans-serif;margin-top:7%">Hormat Kami,<br />Departemen Custodian<br />PT Triputra Agro Persada
-				</div></td>           
+				</div></td>
 				</tr>
 			</tbody>
 			</table>
@@ -156,8 +159,8 @@ function mail_release_doc($relCode,$reminder=0){
 		</tr>
 	</tbody>
 </table>';
-		
-	$emailContent=$bodyHeader.$body.$bodyFooter;	
+
+	$emailContent=$bodyHeader.$body.$bodyFooter;
 	//echo $row->user_email.$body ;
 	$mail->ClearAddresses();
 	$mail->AddAddress($row->User_Email,$row->User_FullName);
@@ -166,7 +169,7 @@ function mail_release_doc($relCode,$reminder=0){
 	$mail->AltBody = $h2t->get_text();
 	$mail->WordWrap   = 80; // set word wrap
 	$mail->MsgHTML($emailContent);
-	
+
 	try {
 	  if ( !$mail->Send() ) {
 		$error = "Unable to send to: " . $to . "<br>";
@@ -184,12 +187,15 @@ function mail_release_doc($relCode,$reminder=0){
 		//echo $thisError . ': ' . $value;
 	  }
 	}
-} 
+}
 
-function mail_notif_release_doc($relCode, $User_ID, $status){ 
+function mail_notif_release_doc($relCode, $User_ID, $status){
 	$mail = new PHPMailer();
 	$decrp = new custodian_encryp;
-	//$testing='TESTING';
+	$testing='TESTING';
+	$body = "";
+	$bodyHeader = "";
+	$bodyFooter = "";
 
 	$e_query="SELECT User_ID, User_FullName, User_Email
 			  FROM M_User
@@ -217,7 +223,7 @@ function mail_notif_release_doc($relCode, $User_ID, $status){
 	}
 	$mail->AddBcc('system.administrator@tap-agri.com');
 	//$mail->AddAttachment("images/icon_addrow.png", "icon_addrow.png");  // optional name
-					
+
    		$ed_query="	SELECT DISTINCT TDLOLAD_ID,Company_Name,DLA_Phase,DLA_Period,
 									DLA_Village,DLA_Block,DLA_Owner,User_FullName,
 									DLA_AreaStatement,DLA_PlantTotalPrice,THLOLAD_UserID,
@@ -238,7 +244,7 @@ function mail_notif_release_doc($relCode, $User_ID, $status){
 						ON THLOLAD_UserID=User_ID
 					WHERE THRLOLAD_ReleaseCode='$relCode'
 					AND THLOLAD_Delete_Time IS NULL";
-		$ed_handlae = mysql_query($ed_query);	
+		$ed_handlae = mysql_query($ed_query);
 		$edNum=1;
 		while ($ed_arr = mysql_fetch_object($ed_handlae)) {
 			$DLA_AreaStatement=number_format($ed_arr->DLA_AreaStatement,2,'.',',');
@@ -246,9 +252,9 @@ function mail_notif_release_doc($relCode, $User_ID, $status){
 			$DLA_GrandTotal=number_format($ed_arr->DLA_GrandTotal,2,',','.');
 			$period=date("j M Y", strtotime($ed_arr->DLA_Period));
 			$DocDate=date("j M Y", strtotime($ed_arr->DLA_DocDate));
-			
-		$body .= '				
-						<TR  style=" font-size: 12px; font-family: \'lucida grande\',tahoma,verdana,arial,sans-serif;">	
+
+		$body .= '
+						<TR  style=" font-size: 12px; font-family: \'lucida grande\',tahoma,verdana,arial,sans-serif;">
 							<TD align="center" valign="top">'.$edNum.'</TD>
 							<TD>'.$ed_arr->Company_Name.' - Tahap '.$ed_arr->DLA_Phase.'<br />
 								Periode GRL : '.$period.'<br />
@@ -256,7 +262,7 @@ function mail_notif_release_doc($relCode, $User_ID, $status){
 								Pemilik : '.$ed_arr->DLA_Owner.'<br />
 								'.$DLA_AreaStatement.' Ha - Rp '.$DLA_PlantTotalPrice.' - Rp '.$DLA_GrandTotal.'<br />
 								Tgl. Dokumen : '.$DocDate.'
-							</TD>									
+							</TD>
 						</TR>';
 			$edNum=$edNum+1;
 			$edNum=$edNum+1;
@@ -266,8 +272,8 @@ function mail_notif_release_doc($relCode, $User_ID, $status){
 			$regUser=$ed_arr->THLOLAD_UserID;
 			$requester=$ed_arr->User_FullName;
 		}
-		
-		$bodyHeader .= '	
+
+		$bodyHeader .= '
 	<table width="497" border="0" align="center" cellpadding="0" cellspacing="0">
 <tbody>
 <tr>
@@ -282,13 +288,13 @@ function mail_notif_release_doc($relCode, $User_ID, $status){
 	<p><span style="margin-bottom: 15px; font-size: 13px; font-family: \'lucida grande\',tahoma,verdana,arial,sans-serif;">Bersama ini disampaikan bahwa dokumen (berdasarkan permintaan '.$requester.' untuk tujuan '.$info.') dengan detail permintaan dokumen sebagai berikut :</span></p>
 	<p>
         <TABLE  width="458" >
-		<TR align="center"  style="border: 1px solid #ffe222; padding: 10px; background-color: #c4df9b; color: #333333; font-size: 12px; font-family: \'lucida grande\',tahoma,verdana,arial,sans-serif;">															
+		<TR align="center"  style="border: 1px solid #ffe222; padding: 10px; background-color: #c4df9b; color: #333333; font-size: 12px; font-family: \'lucida grande\',tahoma,verdana,arial,sans-serif;">
 			<TD width="10%"  style="font-size: 13px"><strong>No.</strong></TD>
 			<TD width="90%"  style="font-size: 13px"><strong>Keterangan Dokumen</strong></TD>
 		</TR>';
-		
-	if (($status=='3')&&($row->User_ID<>$regUser)){	
-		$bodyFooter .= '				
+
+	if (($status=='3')&&($row->User_ID<>$regUser)){
+		$bodyFooter .= '
                     </TABLE>
 				</p>
 				<p><span style="margin-bottom: 15px; font-size: 13px;font-family: \'lucida grande\',tahoma,verdana,arial,sans-serif;">Telah Disetujui. User yang bersangkutan akan mengambil dokumen di atas ke Departemen Custodian. Terima kasih. </span><br />
@@ -296,23 +302,23 @@ function mail_notif_release_doc($relCode, $User_ID, $status){
 				</div>';
 	}
 	if (($status=='3')&&($row->User_ID==$regUser)){
-		$bodyFooter .= '				
+		$bodyFooter .= '
                     </TABLE>
 				</p>
 				<p><span style="margin-bottom: 15px; font-size: 13px;font-family: \'lucida grande\',tahoma,verdana,arial,sans-serif;">Telah Disetujui. Untuk itu Bapak/Ibu dapat mengambil dokumen di atas ke Departemen Custodian dengan membawa <u>Form Permintaan Dokumen</u>. Terima kasih.  </span><br />
 				</p>
 				<p align=center style="margin-bottom: 7%;">
 					<span style="border: 1px solid green;padding: 5px;margin-bottom: 15px; font-size: 13px;font-family: \'lucida grande\',tahoma,verdana,arial,sans-serif;background-color: rgb(196, 223, 155);color: white;float: left;margin-left: 15%;width: 20%;border-radius: 10px;">
-						<a target="_BLANK" style="color: white;" href="http://'.$_SERVER['HTTP_HOST'].'/act.mail.reldocla.php?act='.$decrp->encrypt('confirm').'&user='.$decrp->encrypt($regUser).'&doc='.$decrp->encrypt($docID).'&rel='.$decrp->encrypt($relCode).'">Sudah Diterima</a>
+						<a target="_BLANK" style="color: white;" href="http://'.$_SERVER['HTTP_HOST'].'/custodian/act.mail.reldocla.php?act='.$decrp->encrypt('confirm').'&user='.$decrp->encrypt($regUser).'&doc='.$decrp->encrypt($docID).'&rel='.$decrp->encrypt($relCode).'">Sudah Diterima</a>
 					</span>
 					<span style="border: 1px solid green;padding: 5px;margin-bottom: 15px; font-size: 13px;font-family: \'lucida grande\',tahoma,verdana,arial,sans-serif;background-color: rgb(196, 223, 155);color: white;float: right;margin-right: 15%;width: 20%;border-radius: 10px;">
-						<a target="_BLANK" style="color: white;" href="http://'.$_SERVER['HTTP_HOST'].'/act.mail.reldocla.php?act='.$decrp->encrypt('reject').'&ati='.$decrp->encrypt($accept_row->ARC_AID).'&rdm='.$decrp->encrypt($accept_row->ARC_RandomCode).'">Belum Diterima</a>
+						<a target="_BLANK" style="color: white;" href="http://'.$_SERVER['HTTP_HOST'].'/custodian/act.mail.reldocla.php?act='.$decrp->encrypt('reject').'&ati='.$decrp->encrypt($accept_row->ARC_AID).'&rdm='.$decrp->encrypt($accept_row->ARC_RandomCode).'">Belum Diterima</a>
 					</span><br />
 				</p>
 				</div>';
 	}
 	if (($status=='4')&&($row->User_ID==$regUser)){
-		$bodyFooter .= '				
+		$bodyFooter .= '
                     </TABLE>
 				</p>
 				<p><span style="margin-bottom: 15px; font-size: 13px;font-family: \'lucida grande\',tahoma,verdana,arial,sans-serif;">Telah Ditolak dengan alasan : '.$reason.'<br>Terima kasih.  </span><br />
@@ -320,7 +326,7 @@ function mail_notif_release_doc($relCode, $User_ID, $status){
 				</div>';
 	}
 	if (($status=='4')&&($row->User_ID<>$regUser)){
-		$bodyFooter .= '				
+		$bodyFooter .= '
                     </TABLE>
 				</p>
 				<p><span style="margin-bottom: 15px; font-size: 13px;font-family: \'lucida grande\',tahoma,verdana,arial,sans-serif;">Telah Ditolak dengan alasan : '.$reason.'<br>Terima kasih.  </span><br />
@@ -329,7 +335,7 @@ function mail_notif_release_doc($relCode, $User_ID, $status){
 	}
 		$bodyFooter .= '
 				<div style="margin: 0pt;font-family: \'lucida grande\',tahoma,verdana,arial,sans-serif;">Hormat Kami,<br />Departemen Custodian<br />PT Triputra Agro Persada
-				</div></td>           
+				</div></td>
 				</tr>
 			</tbody>
 			</table>
@@ -341,8 +347,8 @@ function mail_notif_release_doc($relCode, $User_ID, $status){
 		</tr>
 	</tbody>
 </table>';
-		
-	$emailContent=$bodyHeader.$body.$bodyFooter;		
+
+	$emailContent=$bodyHeader.$body.$bodyFooter;
 	//echo $row->user_email.$body ;
 	$mail->ClearAddresses();
 	$mail->AddAddress($row->User_Email,$row->User_FullName);
@@ -351,7 +357,7 @@ function mail_notif_release_doc($relCode, $User_ID, $status){
 	$mail->AltBody = $h2t->get_text();
 	$mail->WordWrap   = 80; // set word wrap
 	$mail->MsgHTML($emailContent);
-	
+
 	try {
 	  if ( !$mail->Send() ) {
 		$error = "Unable to send to: " . $to . "<br>";
@@ -369,11 +375,14 @@ function mail_notif_release_doc($relCode, $User_ID, $status){
 		//echo $thisError . ': ' . $value;
 	  }
 	}
-} 
-function mail_notif_reception_release_doc($relCode, $User_ID, $status,$acceptor=0){ 
+}
+function mail_notif_reception_release_doc($relCode, $User_ID, $status,$acceptor=0){
 	$mail = new PHPMailer();
 	$decrp = new custodian_encryp;
-	//$testing='TESTING';
+	$testing='TESTING';
+	$body = "";
+	$bodyHeader = "";
+	$bodyFooter = "";
 
 	$e_query="SELECT User_ID, User_FullName, User_Email
 			  FROM M_User
@@ -401,11 +410,11 @@ function mail_notif_reception_release_doc($relCode, $User_ID, $status,$acceptor=
 	}
 	$mail->AddBcc('system.administrator@tap-agri.com');
 	//$mail->AddAttachment("images/icon_addrow.png", "icon_addrow.png");  // optional name
-					
+
    		$ed_query="	SELECT DISTINCT TDLOLAD_ID,Company_Name,DLA_Phase,DLA_Period,
 									DLA_Village,DLA_Block,DLA_Owner,User_FullName,
 									DLA_AreaStatement,DLA_PlantTotalPrice,DLA_GrandTotal,DLA_DocDate,
-									THLOLAD_UserID,THRLOLAD_Reason,THRLOLAD_DocumentType,THRLOLAD_Information
+									THLOLAD_UserID,THRLOLAD_Reason,THRLOLAD_Information
 					FROM TH_ReleaseOfLandAcquisitionDocument
 					LEFT JOIN TD_ReleaseOfLandAcquisitionDocument
 						ON TDRLOLAD_THRLOLAD_ID=THRLOLAD_ID
@@ -421,7 +430,7 @@ function mail_notif_reception_release_doc($relCode, $User_ID, $status,$acceptor=
 						ON THLOLAD_UserID=User_ID
 					WHERE THRLOLAD_ReleaseCode='$relCode'
 					AND THLOLAD_Delete_Time IS NULL";
-		$ed_handlae = mysql_query($ed_query);	
+		$ed_handlae = mysql_query($ed_query);
 		$edNum=1;
 		while ($ed_arr = mysql_fetch_object($ed_handlae)) {
 			$DLA_AreaStatement=number_format($ed_arr->DLA_AreaStatement,2,'.',',');
@@ -429,9 +438,9 @@ function mail_notif_reception_release_doc($relCode, $User_ID, $status,$acceptor=
 			$DLA_GrandTotal=number_format($ed_arr->DLA_GrandTotal,2,',','.');
 			$period=date("j M Y", strtotime($ed_arr->DLA_Period));
 			$DocDate=date("j M Y", strtotime($ed_arr->DLA_DocDate));
-			
-		$body .= '				
-						<TR  style=" font-size: 12px; font-family: \'lucida grande\',tahoma,verdana,arial,sans-serif;">	
+
+		$body .= '
+						<TR  style=" font-size: 12px; font-family: \'lucida grande\',tahoma,verdana,arial,sans-serif;">
 							<TD align="center" valign="top">'.$edNum.'</TD>
 							<TD>'.$ed_arr->Company_Name.' - Tahap '.$ed_arr->DLA_Phase.'<br />
 								Periode GRL : '.$period.'<br />
@@ -439,18 +448,17 @@ function mail_notif_reception_release_doc($relCode, $User_ID, $status,$acceptor=
 								Pemilik : '.$ed_arr->DLA_Owner.'<br />
 								'.$DLA_AreaStatement.' Ha - Rp '.$DLA_PlantTotalPrice.' - Rp '.$DLA_GrandTotal.'<br />
 								Tgl. Dokumen : '.$DocDate.'
-							</TD>									
+							</TD>
 						</TR>';
 			$edNum=$edNum+1;
 			$edNum=$edNum+1;
 			$info=$ed_arr->THRLOLAD_Information;
-			$docType=$ed_arr->THRLOLAD_DocumentType;
 			$reason=$ed_arr->THRLOLAD_Reason;
 			$regUser=$ed_arr->THLOLAD_UserID;
 			$requester=$ed_arr->User_FullName;
 		}
-		
-		$bodyHeader .= '	
+
+		$bodyHeader .= '
 	<table width="497" border="0" align="center" cellpadding="0" cellspacing="0">
 <tbody>
 <tr>
@@ -463,24 +471,24 @@ function mail_notif_reception_release_doc($relCode, $User_ID, $status,$acceptor=
 	<td width="458" align="justify" valign="top" style="font-size: 12px; font-family: \'lucida grande\',tahoma,verdana,arial,sans-serif;"><div style="margin-bottom: 15px; font-size: 13px">Yth '.$row->User_FullName.',</div>
 	<div style="margin-bottom: 15px">';
 	if($acceptor){
-		$bodyHeader .= '<p><span style="margin-bottom: 15px; font-size: 13px; font-family: \'lucida grande\',tahoma,verdana,arial,sans-serif;">Bersama ini disampaikan bahwa pengeluaran '.$docType.' dokumen (berdasarkan permintaan '.$requester.' untuk tujuan '.$info.') dengan detail permintaan dokumen sebagai berikut :</span></p>';
+		$bodyHeader .= '<p><span style="margin-bottom: 15px; font-size: 13px; font-family: \'lucida grande\',tahoma,verdana,arial,sans-serif;">Bersama ini disampaikan bahwa pengeluaran dokumen (berdasarkan permintaan '.$requester.' untuk tujuan '.$info.') dengan detail permintaan dokumen sebagai berikut :</span></p>';
 	}
 	else{
 		$bodyHeader .= '<p><span style="margin-bottom: 15px; font-size: 13px; font-family: \'lucida grande\',tahoma,verdana,arial,sans-serif;">Bersama ini disampaikan bahwa dokumen (berdasarkan permintaan '.$requester.' untuk tujuan '.$info.') dengan detail permintaan dokumen sebagai berikut :</span></p>';
 	}
 	$bodyHeader .= '<p>
         <TABLE  width="458" >
-		<TR align="center"  style="border: 1px solid #ffe222; padding: 10px; background-color: #c4df9b; color: #333333; font-size: 12px; font-family: \'lucida grande\',tahoma,verdana,arial,sans-serif;">															
+		<TR align="center"  style="border: 1px solid #ffe222; padding: 10px; background-color: #c4df9b; color: #333333; font-size: 12px; font-family: \'lucida grande\',tahoma,verdana,arial,sans-serif;">
 			<TD width="10%"  style="font-size: 13px"><strong>No.</strong></TD>
 			<TD width="90%"  style="font-size: 13px"><strong>Keterangan Dokumen</strong></TD>
 		</TR>';
 	if($acceptor){
-		$bodyFooter .= '				
+		$bodyFooter .= '
 				</TABLE>
 			</p>
 			<p>
 				<span style="margin-bottom: 15px; font-size: 13px;font-family: \'lucida grande\',tahoma,verdana,arial,sans-serif;">
-					Telah diambil oleh user yang bersangkutan dari Custodian Departemen. Terima kasih. 
+					Telah diambil oleh user yang bersangkutan dari Custodian Departemen. Terima kasih.
 				</span><br />
 			</p>
 			</div>';
@@ -491,14 +499,14 @@ function mail_notif_reception_release_doc($relCode, $User_ID, $status,$acceptor=
 			</p>
 			<p>
 				<span style="margin-bottom: 15px; font-size: 13px;font-family: \'lucida grande\',tahoma,verdana,arial,sans-serif;">
-					Telah diterima lengkap dan sesuai. Terima kasih. 
+					Telah diterima lengkap dan sesuai. Terima kasih.
 				</span><br />
 			</p>
 			</div>';
 	}
 		$bodyFooter .= '
 				<div style="margin: 0pt;font-family: \'lucida grande\',tahoma,verdana,arial,sans-serif;">Hormat Kami,<br />Departemen Custodian<br />PT Triputra Agro Persada
-				</div></td>           
+				</div></td>
 				</tr>
 			</tbody>
 			</table>
@@ -510,8 +518,8 @@ function mail_notif_reception_release_doc($relCode, $User_ID, $status,$acceptor=
 		</tr>
 	</tbody>
 </table>';
-		
-	$emailContent=$bodyHeader.$body.$bodyFooter;		
+
+	$emailContent=$bodyHeader.$body.$bodyFooter;
 	//echo $row->user_email.$body ;
 	$mail->ClearAddresses();
 	$mail->AddAddress($row->User_Email,$row->User_FullName);
@@ -520,7 +528,7 @@ function mail_notif_reception_release_doc($relCode, $User_ID, $status,$acceptor=
 	$mail->AltBody = $h2t->get_text();
 	$mail->WordWrap   = 80; // set word wrap
 	$mail->MsgHTML($emailContent);
-	
+
 	try {
 	  if ( !$mail->Send() ) {
 		$error = "Unable to send to: " . $to . "<br>";
@@ -538,6 +546,6 @@ function mail_notif_reception_release_doc($relCode, $User_ID, $status,$acceptor=
 		//echo $thisError . ': ' . $value;
 	  }
 	}
-} 
+}
 
 ?>

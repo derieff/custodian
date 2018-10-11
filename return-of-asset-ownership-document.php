@@ -2,7 +2,7 @@
 /*
 =========================================================================================================================
 = Nama Project		: Custodian																							=
-= Versi				: 1.1.1																								=
+= Versi				: 2.0.0																								=
 = Disusun Oleh		: IT Support Application - PT Triputra Agro Persada													=
 = Developer			: Outsource               																			=
 = Dibuat Tanggal	: 26 September 2018																					=
@@ -76,6 +76,87 @@ $page=new Template();
 $act=$_GET["act"];
 if(isset($_GET["act"]))
 {
+	//Menambah Header / Dokumen Baru
+	if($act=='reason') {
+		$ActionContent ="
+		<form name='add-detaildoc' method='post' action='$PHP_SELF'>
+		<table width='100%' id='mytable' class='stripeMe'>
+		<th colspan=3>Pengembalian Dokumen Kepemilikan Aset</th>";
+
+		$query1="SELECT u.User_FullName as FullName, ddp.DDP_DeptID as DeptID, ddp.DDP_DivID as DivID,
+						ddp.DDP_PosID as PosID, dp.Department_Name as DeptName, d.Division_Name as DivName,
+						p.Position_Name as PosName,u.User_SPV1,u.User_SPV2
+				 FROM M_User u
+				 LEFT JOIN M_DivisionDepartmentPosition ddp
+					ON u.User_ID=ddp.DDP_UserID
+					AND ddp.DDP_Delete_Time is NULL
+				 LEFT JOIN M_Division d
+					ON ddp.DDP_DivID=d.Division_ID
+				 LEFT JOIN M_Department dp
+					ON ddp.DDP_DeptID=dp.Department_ID
+				 LEFT JOIN M_Position p
+					ON ddp.DDP_PosID=p.Position_ID
+				 WHERE u.User_ID='$_SESSION[User_ID]'";
+		$sql1 = mysql_query($query1);
+		$field1 = mysql_fetch_array($sql1);
+
+		$ActionContent .="
+		<tr>
+			<td width='30%'>Nama</td>
+			<td>$field1[FullName]</td>
+		</tr>
+		<tr>
+			<td>Divisi</td>
+			<td>$field1[DivName]</td>
+		</tr>
+		<tr>
+			<td>Departemen</td>
+			<td>$field1[DeptName]</td>
+		</tr>
+		<tr>
+			<td>Jabatan</td>
+			<td>$field1[PosName]</td>
+		</tr>
+		</table>
+
+		<div style='space'>&nbsp;</div>
+
+		<table width='100%' id='detail' class='stripeMe'>
+		<tr>
+			<th>Kode Dokumen</th>
+			<th>Alasan Keterlambatan</th>
+		</tr>
+		<tr>
+			<td>
+				<textarea name='txtTDRTOAOD_DocCode1' id='txtTDRTOAOD_DocCode1' cols='20' rows='1' readonly='readonly' onClick='javascript:showList(1);'></textarea>
+			</td>
+			<td>
+				<textarea name='txtTDRTOAOD_Information1' id='txtTDRTOAOD_Information1' cols='20' rows='1'></textarea>
+			</td>
+		</tr>
+		</table>
+
+		<table width='100%'>
+		<th  class='bg-white'>
+			<input onclick='addRowToTable();' type='button' class='addrow'/>
+			<input onclick='removeRowFromTable();' type='button' class='deleterow'/>
+			<input type='hidden' value='1' id='countRow' name='countRow' />
+		</th>
+		</table>
+
+		<table width='100%'>
+		<th>
+			<input name='adddetail' type='submit' value='Daftar' class='button' onclick='return validateInputDetail(this);'/>
+			<input name='cancel' type='submit' value='Batal' class='button'/>
+		</th>
+		</table>
+
+		<div class='alertRed10px'>
+			PERINGATAN : <br>
+			Periksa Kembali Data Anda. Apabila Data Telah Disimpan, Anda Tidak Dapat Mengubahnya Lagi.
+		</div>
+		</form>";
+	}
 	//Menambah Header / Dokumen Baru
 	if($act=='add') {
 		$ActionContent ="
@@ -160,11 +241,11 @@ if(isset($_GET["act"]))
 
 	if($act=='detail') {
 		$id=$_GET['id'];
-		$query1 = "SELECT  tdrold.TDRTOAOD_ReturnCode, u.User_FullName, d.Division_Name, dp.Department_Name,
-		    			   p.Position_Name, tdrold.TDRTOAOD_ReturnTime
-			   	   FROM TD_ReturnOfAssetOwnershipDocument tdrold
+		$query1 = "SELECT  tdrtoaod.TDRTOAOD_ReturnCode, u.User_FullName, d.Division_Name, dp.Department_Name,
+		    			   p.Position_Name, tdrtoaod.TDRTOAOD_ReturnTime
+			   	   FROM TD_ReturnOfAssetOwnershipDocument tdrtoaod
 				   LEFT JOIN M_User u
-						ON tdrold.TDRTOAOD_UserID=u.User_ID
+						ON tdrtoaod.TDRTOAOD_UserID=u.User_ID
 				   LEFT JOIN M_DivisionDepartmentPosition ddp
 						ON u.User_ID=ddp.DDP_UserID
 						AND ddp.DDP_Delete_Time is NULL
@@ -174,7 +255,7 @@ if(isset($_GET["act"]))
 						ON ddp.DDP_DeptID=dp.Department_ID
 				   LEFT JOIN M_Position p
 						ON ddp.DDP_PosID=p.Position_ID
-			       WHERE tdrold.TDRTOAOD_ReturnCode='$id'";
+			       WHERE tdrtoaod.TDRTOAOD_ReturnCode='$id'";
 		$sql1 = mysql_query($query1);
 		$field1 = mysql_fetch_array($sql1);
 		$fregdate=date('j M Y', strtotime($field1[TDRTOAOD_ReturnTime]));
@@ -214,34 +295,72 @@ if(isset($_GET["act"]))
 		<div class='detail-title'>Daftar Dokumen</div>
 		<table width='100%' id='mytable' class='stripeMe'>
 		<tr>
-			<th>Kode Dokumen</th>
-			<th>Nama Dokumen</th>
-			<th>Perusahaan</th>
-			<th>Keterangan</th>
+			<th rowspan='2'>Kode Dokumen</th>
+			<th rowspan='2'>Perusahaan</th>
+			<th rowspan='2'>Nama Pemilik</th>
+			<th rowspan='2'>Merk Kendaraan</th>
+			<th rowspan='2'>Type</th>
+			<th rowspan='2'>Jenis</th>
+			<th rowspan='2'>No. Polisi</th>
+			<th rowspan='2'>No. Rangka</th>
+			<th rowspan='2'>No. Mesin</th>
+			<th rowspan='2'>No. BPKB</th>
+			<th colspan='2'>STNK</th>
+			<th colspan='2'>Pajak Kendaraan</th>
+			<th rowspan='2'>Lokasi (PT)</th>
+			<th rowspan='2'>Region</th>
+			<th rowspan='2'>Ket. Pengembalian</th>
+		</tr>
+		<tr>
+			<th>Start Date</th>
+			<th>Expired Date</th>
+			<th>Start Date</th>
+			<th>Expired Date</th>
 		</tr>";
 
-		$queryd = "SELECT dao.DAO_DocCode, dt.DocumentType_Name, c.Company_Name, dg.DocumentGroup_Name,
-						  dc.DocumentCategory_Name, dao.DAO_NoDoc, dao.DAO_ID,tdrold.TDRTOAOD_Information,
-					 	  di1.DocumentInformation1_Name, di2.DocumentInformation2_Name, dao.DAO_Information3
-					FROM TD_ReturnOfAssetOwnershipDocument tdrold, M_DocumentType dt,
-					 	 M_DocumentAssetOwnership dao, M_Company c, M_DocumentGroup dg, M_DocumentCategory dc,
-						 M_DocumentInformation1 di1, M_DocumentInformation2 di2
-					WHERE tdrold.TDRTOAOD_ReturnCode='$id'
-					AND tdrold.TDRTOAOD_Delete_Time IS NULL
-					AND tdrold.TDRTOAOD_DocCode=dao.DAO_DocCode
-					AND dao.DAO_TypeDocID=dt.DocumentType_ID
+		$queryd = "SELECT dao.DAO_DocCode, c.Company_Name, dg.DocumentGroup_Name,
+						  dao.DAO_ID,tdrtoaod.TDRTOAOD_Information,
+						  m_e.Employee_FullName, m_mk.MK_Name, dao.DAO_Type, dao.DAO_Jenis,
+						  dao.DAO_NoPolisi, dao.DAO_NoRangka, dao.DAO_NoMesin, dao.DAO_NoBPKB,
+						  dao.DAO_STNK_StartDate, dao.DAO_STNK_ExpiredDate,
+						  dao.DAO_Pajak_StartDate, dao.DAO_Pajak_ExpiredDate,
+						  dao.DAO_Lokasi_PT, dao.DAO_Region
+					FROM TD_ReturnOfAssetOwnershipDocument tdrtoaod,
+					 	 M_DocumentAssetOwnership dao, M_Company c, M_DocumentGroup dg,
+						 db_master.M_Employee m_e, db_master.M_MerkKendaraan m_mk
+					WHERE tdrtoaod.TDRTOAOD_ReturnCode='$id'
+					AND tdrtoaod.TDRTOAOD_Delete_Time IS NULL
+					AND tdrtoaod.TDRTOAOD_DocCode=dao.DAO_DocCode
 					AND dao.DAO_CompanyID=c.Company_ID
 					AND dao.DAO_GroupDocID=dg.DocumentGroup_ID
-					AND dao.DAO_CategoryDocID=dc.DocumentCategory_ID
-					AND dao.DAO_Information1=di1.DocumentInformation1_ID
-					AND dao.DAO_Information2=di2.DocumentInformation2_ID";
+					AND m_e.Employee_NIK=dao.DAO_Employee_NIK
+					AND m_mk.MK_ID=dao.DAO_MK_ID";
 		$sqld = mysql_query($queryd);
 		while ($arrd = mysql_fetch_array($sqld)) {
+			$stnk_sdate=date("j M Y", strtotime($arrd['DAO_STNK_StartDate']));
+			$stnk_exdate=(($arrd['DAO_STNK_ExpiredDate']=="0000-00-00 00:00:00")||($arrd['DAO_STNK_ExpiredDate']=="1970-01-01 01:00:00"))?"-":date("j M Y", strtotime($arrd['DAO_STNK_ExpiredDate']));
+
+			$pajak_sdate=date("j M Y", strtotime($arrd['DAO_Pajak_StartDate']));
+			$pajak_exdate=(($arrd['DAO_Pajak_ExpiredDate']=="0000-00-00 00:00:00")||($arrd['DAO_Pajak_ExpiredDate']=="1970-01-01 01:00:00"))?"-":date("j M Y", strtotime($arrd['DAO_Pajak_ExpiredDate']));
+
 			$ActionContent .="
 			<tr>
 				<td align='center'>$arrd[DAO_DocCode]</td>
-				<td align='center'>$arrd[DocumentType_Name] No $arrd[DAO_NoDoc]</td>
 				<td align='center'>$arrd[Company_Name]</td>
+				<td align='center'>$arrd[Employee_FullName]</td>
+				<td align='center'>$arrd[MK_Name]</td>
+				<td align='center'>$arrd[DAO_Type]</td>
+				<td align='center'>$arrd[DAO_Jenis]</td>
+				<td align='center'>$arrd[DAO_NoPolisi]</td>
+				<td align='center'>$arrd[DAO_NoRangka]</td>
+				<td align='center'>$arrd[DAO_NoMesin]</td>
+				<td align='center'>$arr[DAO_NoBPKB]</td>
+				<td align='center'>$stnk_sdate</td>
+				<td align='center'>$stnk_exdate</td>
+				<td align='center'>$pajak_sdate</td>
+				<td align='center'>$pajak_exdate</td>
+				<td align='center'>$arrd[DAO_Lokasi_PT]</td>
+				<td align='center'>$arrd[DAO_Region]</td>
 				<td align='center'><pre>$arrd[TDRTOAOD_Information]</pre></td>
 			</tr>";
 		}
@@ -340,7 +459,7 @@ if(isset($_POST[cancel])) {
 	echo "<meta http-equiv='refresh' content='0; url=return-of-asset-ownership-document.php'>";
 }
 
-elseif(isset($_POST[adddetail])) {
+elseif(isset($_POST['adddetail'])) {
 	$regyear=date("Y");
 	$rmonth=date("n");
 
@@ -362,7 +481,7 @@ elseif(isset($_POST[adddetail])) {
 
 	// Cari Kode Perusahaan $ Kode Grup Dokumen
 	$query = "SELECT c.Company_Code, dg.DocumentGroup_Code
-			  FROM M_DocumentAssetOwnership dl, M_Company c, M_DocumentGroup dg
+			  FROM M_DocumentAssetOwnership dao, M_Company c, M_DocumentGroup dg
 			  WHERE dao.DAO_DocCode='$_POST[txtTDRTOAOD_DocCode1]'
 			  AND dao.DAO_CompanyID=c.Company_ID
 			  AND dao.DAO_GroupDocID=dg.DocumentGroup_ID";

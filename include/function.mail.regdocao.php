@@ -18,7 +18,7 @@ include_once ("./include/class.endencrp.php");
 function mail_registration_doc($regCode,$reminder=0){
 	$mail = new PHPMailer();
 	$decrp = new custodian_encryp;
-	//$testing='TESTING';
+	$testing='TESTING';
 	$body = "";
 	$bodyHeader = "";
 	$bodyFooter = "";
@@ -72,9 +72,9 @@ function mail_registration_doc($regCode,$reminder=0){
 	$mail->FromName   = 'Custodian System';
 
 	if ($reminder){
-		$mail->Subject  ='[REMINDER]  Persetujuan Pendaftaran Dokumen '.$regCode.'';
+		$mail->Subject  ='[REMINDER] '.$testing.' Persetujuan Pendaftaran Dokumen '.$regCode.'';
 	}else{
-		$mail->Subject  =' Persetujuan Pendaftaran Dokumen '.$regCode.'';
+		$mail->Subject  =''.$testing.' Persetujuan Pendaftaran Dokumen '.$regCode.'';
 	}
 	$mail->AddBcc('system.administrator@tap-agri.com');
 	//$mail->AddAttachment("images/icon_addrow.png", "icon_addrow.png");  // optional name
@@ -147,16 +147,26 @@ function mail_registration_doc($regCode,$reminder=0){
 				</p>
 				<p><span style="margin-bottom: 15px; font-size: 13px;font-family: \'lucida grande\',tahoma,verdana,arial,sans-serif;">Untuk itu dimohon Bapak/Ibu dapat memberikan persetujuan pendaftaran dokumen di atas. Terima kasih.  </span><br />
 				</p>
-				<p align=center><span style="border: 1px solid green;padding: 5px;margin-bottom: 15px; font-size: 13px;font-family: \'lucida grande\',tahoma,verdana,arial,sans-serif;background-color: rgb(196, 223, 155);color: white;float: left;margin-left: 12%;width: 20%;border-radius: 10px;"><a target="_BLANK" style="color: white;" href="http://'.$_SERVER['HTTP_HOST'].'/custodian/act.mail.regdocao.php?cfm='.$decrp->encrypt('accept').'&ati='.$decrp->encrypt($row->ARC_AID).'&rdm='.$decrp->encrypt($row->ARC_RandomCode).'">Setuju</a></span>';
+				<p align=center>
+					<span style="border: 1px solid green;padding: 5px;margin-bottom: 15px; font-size: 13px;font-family: \'lucida grande\',tahoma,verdana,arial,sans-serif;background-color: rgb(196, 223, 155);color: white;float: left;margin-left: 12%;width: 20%;border-radius: 10px;">
+						<a target="_BLANK" style="color: white;" href="http://'.$_SERVER['HTTP_HOST'].'/custodian/act.mail.regdocao.php?cfm='.$decrp->encrypt('accept').'&ati='.$decrp->encrypt($row->ARC_AID).'&rdm='.$decrp->encrypt($row->ARC_RandomCode).'">Setuju</a>
+					</span>';
 				if ($custodian==1){
-			$bodyFooter .= '
-				<span style="border: 1px solid green;padding: 5px;margin-bottom: 15px; font-size: 13px;font-family: \'lucida grande\',tahoma,verdana,arial,sans-serif;background-color: rgb(196, 223, 155);color: white;float: left;margin-left: 4%;margin-right:4%;width: 20%;border-radius: 10px;"><a target="_BLANK" style="color: white;" href="http://'.$_SERVER['HTTP_HOST'].'/custodian/act.mail.regdocao.php?act='.$decrp->encrypt('reject').'&ati='.$decrp->encrypt($row->ARC_AID).'&rdm='.$decrp->encrypt($row->ARC_RandomCode).'">Tolak</a></span>
-				<span style="border: 1px solid green;padding: 5px;margin-bottom: 15px; font-size: 13px;font-family: \'lucida grande\',tahoma,verdana,arial,sans-serif;background-color: rgb(196, 223, 155);color: white;float: right;margin-right: 12%;width: 20%;border-radius: 10px;"><a target="_BLANK" style="color: white;" href="http://'.$_SERVER['HTTP_HOST'].'/custodian/detail-of-registration-asset-ownership-document.php?act='.$decrp->encrypt('approve').'&ati='.$decrp->encrypt($row->ARC_AID).'&rdm='.$decrp->encrypt($row->ARC_RandomCode).'&id='.$decrp->encrypt($row->THROAOD_ID).'">Revisi</a></span><br />';
+				$bodyFooter .= '
+					<span style="border: 1px solid green;padding: 5px;margin-bottom: 15px; font-size: 13px;font-family: \'lucida grande\',tahoma,verdana,arial,sans-serif;background-color: rgb(196, 223, 155);color: white;float: left;margin-left: 4%;margin-right:4%;width: 20%;border-radius: 10px;">
+						<a target="_BLANK" style="color: white;" href="http://'.$_SERVER['HTTP_HOST'].'/custodian/act.mail.regdocao.php?act='.$decrp->encrypt('reject').'&ati='.$decrp->encrypt($row->ARC_AID).'&rdm='.$decrp->encrypt($row->ARC_RandomCode).'">Tolak</a>
+					</span>
+					<span style="border: 1px solid green;padding: 5px;margin-bottom: 15px; font-size: 13px;font-family: \'lucida grande\',tahoma,verdana,arial,sans-serif;background-color: rgb(196, 223, 155);color: white;float: right;margin-right: 12%;width: 20%;border-radius: 10px;">
+						<a target="_BLANK" style="color: white;" href="http://'.$_SERVER['HTTP_HOST'].'/custodian/detail-of-registration-asset-ownership-document.php?act='.$decrp->encrypt('approve').'&ati='.$decrp->encrypt($row->ARC_AID).'&rdm='.$decrp->encrypt($row->ARC_RandomCode).'&id='.$decrp->encrypt($row->THROAOD_ID).'">Revisi</a>
+					</span>
+					<br />';
 				}
 				else {
-			$bodyFooter .= '
-				<span style="border: 1px solid green;padding: 5px;margin-bottom: 15px; font-size: 13px;font-family: \'lucida grande\',tahoma,verdana,arial,sans-serif;background-color: rgb(196, 223, 155);color: white;float: right;margin-right: 12%;width: 20%;border-radius: 10px;"><a target="_BLANK" style="color: white;" href="http://'.$_SERVER['HTTP_HOST'].'/custodian/act.mail.regdocao.php?act='.$decrp->encrypt('reject').'&ati='.$decrp->encrypt($row->ARC_AID).'&rdm='.$decrp->encrypt($row->ARC_RandomCode).'">Tolak</a></span>
-				<br>';
+				$bodyFooter .= '
+					<span style="border: 1px solid green;padding: 5px;margin-bottom: 15px; font-size: 13px;font-family: \'lucida grande\',tahoma,verdana,arial,sans-serif;background-color: rgb(196, 223, 155);color: white;float: right;margin-right: 12%;width: 20%;border-radius: 10px;">
+						<a target="_BLANK" style="color: white;" href="http://'.$_SERVER['HTTP_HOST'].'/custodian/act.mail.regdocao.php?act='.$decrp->encrypt('reject').'&ati='.$decrp->encrypt($row->ARC_AID).'&rdm='.$decrp->encrypt($row->ARC_RandomCode).'">Tolak</a>
+					</span>
+					<br>';
 				}
 			$bodyFooter .= '
 				</p>
@@ -205,7 +215,7 @@ function mail_registration_doc($regCode,$reminder=0){
 		}
 
 			$bodyFooter .= '
-				<div style="margin: 0pt;font-family: \'lucida grande\',tahoma,verdana,arial,sans-serif;">Hormat Kami,<br />Departemen Custodian<br />PT Triputra Agro Persada
+				<div style="margin: 0pt;font-family: \'lucida grande\',tahoma,verdana,arial,sans-serif;margin-top:7%">Hormat Kami,<br />Departemen Custodian<br />PT Triputra Agro Persada
 				</div></td>
 				</tr>
 			</tbody>
@@ -277,7 +287,7 @@ function mail_registration_doc($regCode,$reminder=0){
 function mail_notif_registration_doc($regCode, $User_ID, $status, $attr){
 	$mail = new PHPMailer();
 	$decrp = new custodian_encryp;
-	//$testing='TESTING';
+	$testing='TESTING';
 	$body = "";
 	$bodyHeader = "";
 	$bodyFooter = "";
@@ -309,15 +319,17 @@ function mail_notif_registration_doc($regCode, $User_ID, $status, $attr){
 	$mail->FromName   = 'Custodian System';
 
 	if ($status=='3'){
-		$mail->Subject  ='Notifikasi Proses Pendaftaran Dokumen '.$regCode;
+		$mail->Subject  =''.$testing.' Notifikasi Proses Pendaftaran Dokumen '.$regCode;
 	}
 	if ($status=='4'){
-		$mail->Subject  ='Notifikasi Proses Pendaftaran Dokumen '.$regCode;
+		$mail->Subject  =''.$testing.' Notifikasi Proses Pendaftaran Dokumen '.$regCode;
 	}
 	$mail->AddBcc('system.administrator@tap-agri.com');
 	//$mail->AddAttachment("images/icon_addrow.png", "icon_addrow.png");  // optional name
 
 		$ed_query="	SELECT DISTINCT	Company_Name,
+						THROAOD_Reason,
+						THROAOD_UserID,
 						TDROAOD_NoPolisi,
 						m_mk.MK_Name merk_kendaraan,
 						m_e.Employee_FullName nama_pemilik,

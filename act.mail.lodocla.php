@@ -15,7 +15,7 @@ include ("./config/config_db.php");
 include ("./include/function.mail.lodocla.php");
 $decrp = new custodian_encryp;
 
-if(($_GET['cfm'])&&($_GET['ati'])&&($_GET['rdm'])) {
+if( !empty($_GET['cfm']) && !empty($_GET['ati']) && !empty($_GET['rdm']) ) {
 	$A_Status="3";
 	$A_ID=$decrp->decrypt($_GET['ati']);
 	$ARC_RandomCode=$decrp->decrypt($_GET['rdm']);
@@ -305,7 +305,7 @@ if(($_GET['cfm'])&&($_GET['ati'])&&($_GET['rdm'])) {
 							$newnum=str_pad($nnum,3,"0",STR_PAD_LEFT);
 							$CT_Code="$newnum/DREQ/$Company_Code/$DocumentGroup_Code/$regmonth/$regyear";
 
-							switch ($h_arr[THLOLAD_LoanCategoryID]) {
+							switch ($h_arr['THLOLAD_LoanCategoryID']) {
 								case "1":
 									$docStatus="3";
 									break;

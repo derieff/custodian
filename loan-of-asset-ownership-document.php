@@ -864,7 +864,7 @@ elseif(isset($_POST['adddetail'])) {
 	$query = "UPDATE M_Approval
 		SET A_Status = '2', A_Update_UserID = '$A_ApproverID', A_Update_Time = sysdate()
 		WHERE A_TransactionCode = '$A_TransactionCode' AND A_Step = '1'";
-	$sql = mysql_query($query)
+	$sql = mysql_query($query);
 	// if ($sql = mysql_query($query)) {
 	// 	mail_loan_doc($A_TransactionCode);
 	// }
@@ -956,6 +956,7 @@ elseif(isset($_POST['adddetail'])) {
 		THLOAOD_Update_UserID='$A_ApproverID',THLOAOD_Update_Time=sysdate()
 		WHERE THLOAOD_LoanCode='$A_TransactionCode'
 		AND THLOAOD_Delete_Time IS NULL";
+		echo $sql4;
 	$mysqli->query($sql4);
 
 	if($mysqli->query($sql4)) {

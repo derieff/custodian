@@ -16,7 +16,7 @@ include ("./config/config_db.php");
 include ("./include/function.mail.lodoc.php");
 $decrp = new custodian_encryp;
 
-if(($_GET['cfm'])&&($_GET['ati'])&&($_GET['rdm'])) {
+if( !empty($_GET['cfm']) && !empty($_GET['ati']) && !empty($_GET['rdm']) ) {
 	$A_Status="3";
 	$A_ID=$decrp->decrypt($_GET['ati']);
 	$ARC_RandomCode=$decrp->decrypt($_GET['rdm']);
@@ -39,7 +39,7 @@ if(($_GET['cfm'])&&($_GET['ati'])&&($_GET['rdm'])) {
 				  WHERE A_ID='$A_ID'";
 		$sql = mysql_query($query);
 		$arr = mysql_fetch_array($sql);
-		$step=$arr[A_Step];
+		$step=$arr['A_Step'];
 		$AppDate=$arr['A_ApprovalDate'];
 		$A_TransactionCode=$arr['A_TransactionCode'];
 		$A_ApproverID=$arr['A_ApproverID'];
@@ -314,7 +314,7 @@ if(($_GET['cfm'])&&($_GET['ati'])&&($_GET['rdm'])) {
 							$newnum=str_pad($nnum,3,"0",STR_PAD_LEFT);
 							$CT_Code="$newnum/DREQ/$Company_Code/$DocumentGroup_Code/$regmonth/$regyear";
 
-							switch ($h_arr[THLOLD_LoanCategoryID]) {
+							switch ($h_arr['THLOLD_LoanCategoryID']) {
 								case "1":
 									$docStatus="3";
 									break;
@@ -418,7 +418,7 @@ if(($_GET['cfm'])&&($_GET['ati'])&&($_GET['rdm'])) {
 		</table>";
 	}
 }
-if($_GET['act']) {
+if(!empty($_GET['act'])) {
 	$act=$decrp->decrypt($_GET['act']);
 	if ($act=='reject'){
 		$A_ID=$decrp->decrypt($_GET['ati']);
@@ -452,7 +452,7 @@ if($_GET['act']) {
 	}
 }
 
-if(isset($_POST[reject])) {
+if(isset($_POST['reject'])) {
 	$A_Status='4';
 	$A_ID=$_POST['A_ID'];
 	$ARC_RandomCode=$_POST['ARC_RandomCode'];
@@ -476,7 +476,7 @@ if(isset($_POST[reject])) {
 				  	  WHERE A_ID='$A_ID'";
 			$sql = mysql_query($query);
 			$arr = mysql_fetch_array($sql);
-			$step=$arr[A_Step];
+			$step=$arr['A_Step'];
 			$AppDate=$arr['A_ApprovalDate'];
 			$A_TransactionCode=$arr['A_TransactionCode'];
 			$A_ApproverID=$arr['A_ApproverID'];

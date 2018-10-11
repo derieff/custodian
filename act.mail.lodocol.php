@@ -16,7 +16,7 @@ include ("./config/config_db.php");
 include ("./include/function.mail.lodocol.php");
 $decrp = new custodian_encryp;
 
-if(($_GET['cfm'])&&($_GET['ati'])&&($_GET['rdm'])) {
+if( !empty($_GET['cfm']) && !empty($_GET['ati']) && !empty($_GET['rdm']) ) {
 	$A_Status="3";
 	$A_ID=$decrp->decrypt($_GET['ati']);
 	$ARC_RandomCode=$decrp->decrypt($_GET['rdm']);
@@ -281,6 +281,14 @@ if(($_GET['cfm'])&&($_GET['ati'])&&($_GET['rdm'])) {
 						$sql = mysql_query($query);
 						$field = mysql_fetch_array($sql);
 
+						// Cari Kode Dokumen Grup
+						$query = "SELECT *
+									FROM M_DocumentGroup
+									WHERE DocumentGroup_ID ='5'";
+						$sql = mysql_query($query);
+						$field = mysql_fetch_array($sql);
+						$DocumentGroup_Code=$field['DocumentGroup_Code'];
+
 						if($field[0]==NULL)
 							$maxnum=0;
 						else
@@ -400,7 +408,7 @@ if(($_GET['cfm'])&&($_GET['ati'])&&($_GET['rdm'])) {
 		</table>";
 	}
 }
-if($_GET['act']) {
+if(isset($_GET['act'])) {
 	$act=$decrp->decrypt($_GET['act']);
 	if ($act=='reject'){
 		$A_ID=$decrp->decrypt($_GET['ati']);
@@ -434,7 +442,7 @@ if($_GET['act']) {
 	}
 }
 
-if(isset($_POST[reject])) {
+if(isset($_POST['reject'])) {
 	$A_Status='4';
 	$A_ID=$_POST['A_ID'];
 	$ARC_RandomCode=$_POST['ARC_RandomCode'];

@@ -251,6 +251,25 @@ pre{
 .button:hover {
     background:url(../images/bg-button-hover.png) no-repeat bottom;
 }
+.button-blue{
+	width: 170px;
+	height:28px;
+    cursor:pointer;
+    background:#2980b9;
+	color:#fff;
+	border:none;
+	margin-right:10px;
+	margin-left:10px;
+	font-weight:bolder;
+	text-transform:uppercase;
+	box-shadow:none;
+	border:1.5px solid #34495e;
+	border-radius:20px;
+}
+.button-blue:hover{
+	/* background-color: linear-gradient(#fff, #3498db); */
+	background:#3498db;
+}
 .button-resetpass {
 	width:120px;
     cursor:pointer;

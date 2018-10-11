@@ -17,7 +17,7 @@ session_start();
 ?>
 <title>Custodian System | Pengembalian Dokumen</title>
 <head>
-<?PHP 
+<?PHP
 include ("./config/config_db.php");
 include_once ("./include/class.endencrp.php");
 $decrp = new custodian_encryp;
@@ -225,7 +225,7 @@ if(isset($_GET["act"]))
 			<th>Kode Dokumen</th>
 			<th>Nama Dokumen</th>
 			<th>Perusahaan</th>
-			<th>Keterangan</th>
+			<th>Ket. Pengembalian</th>
 		</tr>";
 
 		$queryd = "SELECT dl.DL_DocCode, dt.DocumentType_Name, c.Company_Name, dg.DocumentGroup_Name,

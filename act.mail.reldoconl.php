@@ -15,7 +15,7 @@ include ("./config/config_db.php");
 include ("./include/function.mail.reldoconl.php");
 $decrp = new custodian_encryp;
 
-if(($_GET['cfm'])&&($_GET['ati'])&&($_GET['rdm'])) {
+if( !empty($_GET['cfm']) && !empty($_GET['ati']) && !empty($_GET['rdm']) ) {
 	$A_Status="3";
 	$A_ID=$decrp->decrypt($_GET['ati']);
 	$ARC_RandomCode=$decrp->decrypt($_GET['rdm']);
@@ -144,7 +144,7 @@ if(($_GET['cfm'])&&($_GET['ati'])&&($_GET['rdm'])) {
 						$query = "SELECT MAX(CD_SeqNo)
 									FROM M_CodeDocument
 									WHERE CD_Year='$regyear'
-									AND CT_Action='DOUT'
+									-- AND CT_Action='DOUT'
 									AND CD_GroupDocCode='$DocumentGroup_Code'
 									AND CD_CompanyCode='$Company_Code'
 									AND CD_Delete_Time is NULL";
@@ -169,7 +169,7 @@ if(($_GET['cfm'])&&($_GET['ati'])&&($_GET['rdm'])) {
 							// Kode Pengeluaran Dokumen
 							$CT_Code="$newnum/DOUT/$Company_Code/$DocumentGroup_Code/$regmonth/$regyear";
 
-							switch ($h_arr[THLOONLD_LoanCategoryID]) {
+							switch ($h_arr['THLOONLD_LoanCategoryID']) {
 								case "1":
 									$docStatus="4";
 									$code="0";
@@ -186,7 +186,7 @@ if(($_GET['cfm'])&&($_GET['ati'])&&($_GET['rdm'])) {
 							$query1="UPDATE M_DocumentsOtherNonLegal
 									 SET DONL_Status='$docStatus', DONL_Update_UserID='$A_ApproverID',
 									 	 DONL_Update_Time=sysdate()
-									 WHERE DONL_Code='$d_arr[TDLOONLD_DocCode]'";
+									 WHERE DONL_DocCode='$d_arr[TDLOONLD_DocCode]'";
 							$query2="INSERT INTO M_CodeTransaction
 								   	 VALUES (NULL,'$CT_Code','$nnum','DOUT','$Company_Code','$DocumentGroup_Code',
 											 '$rmonth','$regyear','$A_ApproverID',sysdate(),
@@ -276,7 +276,7 @@ if(($_GET['cfm'])&&($_GET['ati'])&&($_GET['rdm'])) {
 		</table>";
 	}
 }
-if($_GET['act']) {
+if(isset($_GET['act'])) {
 	$act=$decrp->decrypt($_GET['act']);
 	if ($act=='confirm'){
 		$userID=$decrp->decrypt($_GET['user']);
@@ -327,7 +327,7 @@ if($_GET['act']) {
 	}
 }
 
-if(isset($_POST[reject])) {
+if(isset($_POST['reject'])) {
 	$A_Status='4';
 	$A_ID=$_POST['A_ID'];
 	$ARC_RandomCode=$_POST['ARC_RandomCode'];
@@ -351,7 +351,7 @@ if(isset($_POST[reject])) {
 				  	  WHERE A_ID='$A_ID'";
 			$sql = mysql_query($query);
 			$arr = mysql_fetch_array($sql);
-			$step=$arr[A_Step];
+			$step=$arr['A_Step'];
 			$AppDate=$arr['A_ApprovalDate'];
 			$A_TransactionCode=$arr['A_TransactionCode'];
 			$A_ApproverID=$arr['A_ApproverID'];

@@ -783,6 +783,40 @@ elseif(isset($_POST['adddetail'])) {
 	$txtA_ApproverID=$_POST['txtA_ApproverID'];
 
 	$step = 0;
+	
+	foreach ($txtA_ApproverID as $k=>$v) {
+		$step=$step+1;
+		if ($txtA_ApproverID<>NULL) {
+			if ($txtA_ApproverID<>$_SESSION['User_ID']) {
+				$appbefquery = "SELECT *
+						FROM M_Approval
+						WHERE A_TransactionCode='$A_TransactionCode'
+						AND A_ApproverID='$txtA_ApproverID[$k]'
+						AND A_Step='$step'";
+				$numappbef = mysql_num_rows(mysql_query($appbefquery));
+
+				if ($numappbef == '0') {
+					$sql2 = "INSERT INTO M_Approval
+						VALUES (NULL, '$A_TransactionCode', '$txtA_ApproverID[$k]', '$step',
+						'1', NULL, '$A_ApproverID', sysdate(), '$A_ApproverID', sysdate(), NULL, NULL)";
+					$mysqli->query($sql2);
+					$sa_query = "SELECT *
+							FROM M_Approval
+							WHERE A_TransactionCode='$A_TransactionCode'
+							AND A_ApproverID='$txtA_ApproverID[$k]'
+							AND A_Step = '$step'
+							AND A_Delete_Time IS NULL";
+					$sa_arr = mysql_fetch_array(mysql_query($sa_query));
+					$ARC_AID = $sa_arr['A_ID'];
+					$str = rand(1,100);
+					$RandomCode = crypt('T4pagri'.$str);
+					$iSQL="INSERT INTO L_ApprovalRandomCode VALUES ('$ARC_AID', '$RandomCode')";
+					$mysqli->query($iSQL);
+				}
+			}
+		}
+	}
+	/*
 	foreach ($txtA_ApproverID as $k=>$v) {
 		if ($txtA_ApproverID[$k]<>NULL) {
 			if ($txtA_ApproverID[$k]<>$_SESSION['User_ID']) {
@@ -814,7 +848,7 @@ elseif(isset($_POST['adddetail'])) {
 				}
 			}
 		}
-	}
+	}*/
 	/*$jumlah=count($txtA_ApproverID);
 	$step=0;
 	for($i=0;$i<$jumlah;$i++){
@@ -854,10 +888,17 @@ elseif(isset($_POST['adddetail'])) {
 	$query = "UPDATE M_Approval
 		SET A_Status = '2', A_Update_UserID = '$A_ApproverID', A_Update_Time = sysdate()
 		WHERE A_TransactionCode = '$A_TransactionCode' AND A_Step = '1'";
-	if ($sql = mysql_query($query)) {
+	$sql = mysql_query($query);
+	
+	/************************************
+	* Nicholas - 01 Okt 2018			*
+	* Fix Bug skip approval				*
+	************************************/
+	
+	/*if ($sql = mysql_query($query)) {
 		mail_loan_doc($A_TransactionCode);
 	}
-
+	
 	// MENCARI JUMLAH APPROVAL
 	$query = "SELECT MAX(A_Step) AS jStep
 		FROM M_Approval
@@ -890,7 +931,7 @@ elseif(isset($_POST['adddetail'])) {
 			}
 		}
 	}
-
+	*/
 	/*$sql3= "UPDATE M_Approval
 			SET A_Status='2', A_Update_UserID='$_SESSION[User_ID]',A_Update_Time=sysdate()
 			WHERE A_TransactionCode ='$_POST[txtTDLOONLD_THLOONLD_LoanCode]'
@@ -903,10 +944,11 @@ elseif(isset($_POST['adddetail'])) {
 		AND THLOONLD_Delete_Time IS NULL";
 	$mysqli->query($sql4);
 
-	/*if($mysqli->query($sql4)) {
+	if($mysqli->query($sql4)) {
 		// Kirim Email ke Approver 1
 		mail_loan_doc($_POST['txtTDLOONLD_THLOONLD_LoanCode']);
-	}*/
+	}
+	/**** END Nicholas 01 Okt 2018 ****/
 	echo "<meta http-equiv='refresh' content='0; url=loan-of-other-non-legal-documents.php'>";
 }
 

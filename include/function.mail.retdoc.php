@@ -14,8 +14,13 @@ include_once('./phpmailer/class.phpmailer.php');
 include_once('./phpmailer/class.html2text.inc.php');
 include_once ("./config/db_sql.php");
 include_once ("./include/class.endencrp.php");
-	
-function mail_ret_legal($docCode,$User_ID,$subordinateID=-1){
+
+//Config server name, php cli does not have HTTP_HOST
+if(!isset($_SERVER['HTTP_HOST'])){
+	$_SERVER['HTTP_HOST']='localhost/custodian';
+}
+
+function mail_ret_legal($relCode,$User_ID,$docList,$userData,$subordinateID=-1,$lastReminder=-1){
 	$mail = new PHPMailer();
 	$decrp = new custodian_encryp;
 
@@ -37,46 +42,26 @@ function mail_ret_legal($docCode,$User_ID,$subordinateID=-1){
 	$mail->AddReplyTo('no-reply@tap-agri.com','Custodian');
 	$mail->From       = 'no-reply@tap-agri.com';
 	$mail->FromName   = 'Custodian System';
-	$mail->Subject  ='Notifikasi Pengembalian Dokumen '.$docCode;
+	$mail->Subject  ='Notifikasi Pengembalian Dokumen '.$relCode;
 	$mail->AddBcc('system.administrator@tap-agri.com');
-
-		$ed_query="	SELECT Company_Name,DocumentCategory_Name,DocumentType_Name, 
-									DL_NoDoc,TDRTOLD_Information,
-									TDRTOLD_UserID,TDRTOLD_ID,User_FullName
-					FROM TD_ReturnOfLegalDocument
-					LEFT JOIN M_DocumentLegal
-						ON DL_DocCode=TDRTOLD_DocCode
-					LEFT JOIN M_Company
-						ON Company_ID=DL_CompanyID
-					LEFT JOIN M_DocumentCategory
-						ON DocumentCategory_ID=DL_CategoryDocID
-					LEFT JOIN M_DocumentType
-						ON DocumentType_ID=DL_TypeDocID
-					LEFT JOIN M_User
-						ON TDRTOLD_UserID=User_ID
-					WHERE TDRTOLD_ReturnCode='$docCode'
-					AND TDRTOLD_Delete_Time IS NULL";
-		$ed_handle = mysql_query($ed_query);	
-		$edNum=1;
-		$body="";
-		while ($ed_arr = mysql_fetch_object($ed_handle)) {
-			
-			$body .= '				
-						<TR  style=" font-size: 12px; font-family: \'lucida grande\',tahoma,verdana,arial,sans-serif;">	
-							<TD align="center" valign="top">'.$edNum.'</TD>
-							<TD>'.$ed_arr->Company_Name.'<br />
-								'.$ed_arr->DocumentCategory_Name.'<br />
-								'.$ed_arr->DocumentType_Name.'<br />
-								No. Dokumen : '.$ed_arr->DL_NoDoc.'
-							</TD>
-						</TR>';
-			$edNum=$edNum+1;
-			$info=$ed_arr->TDRTOLD_Information;
-			$docID=$ed_arr->TDRTOLD_ID;
-			$regUser=$ed_arr->TDRTOLD_UserID;
-			$requester=$ed_arr->User_FullName;
-		}
-		$bodyHeader = '	
+	$requester=ucwords(strtolower($userData["User_FullName"]));
+	$requester_dept=ucwords(strtolower($userData["Employee_Department"]));
+	$requester_div=ucwords(strtolower($userData["Employee_Division"]));
+	$documentGroupName=ucwords(strtolower($userData["DocumentGroup_Name"]));
+	$body="";
+	$docNum = count($docList);
+	for($i=0;$i<$docNum;$i++){
+		$body .= '<TR  style=" font-size: 12px; font-family: \'lucida grande\',tahoma,verdana,arial,sans-serif;">	
+					<TD align="center" valign="top">'.($i+1).'</TD>
+					<TD>'.$docList[$i]["Company_Name"].'<br />
+						'.$docList[$i]["DocumentCategory_Name"].'<br />
+						'.$docList[$i]["DocumentType_Name"].'<br />
+						No. Dokumen		: '.$docList[$i]["DL_NoDoc"].'<br />
+						Tgl.Pengeluaran	: '.$docList[$i]["RelTime"].'
+					</TD>
+				</TR>';
+	}
+	$bodyHeader = '	
 	<table width="497" border="0" align="center" cellpadding="0" cellspacing="0">
 	<tbody>
 	<tr>
@@ -88,30 +73,43 @@ function mail_ret_legal($docCode,$User_ID,$subordinateID=-1){
 	<tr>
 	<td width="458" align="justify" valign="top" style="font-size: 12px; font-family: \'lucida grande\',tahoma,verdana,arial,sans-serif;"><div style="margin-bottom: 15px; font-size: 13px">Yth '.$row->User_FullName.',</div>
 	<div style="margin-bottom: 15px">
-	<p><span style="margin-bottom: 15px; font-size: 13px; font-family: \'lucida grande\',tahoma,verdana,arial,sans-serif;">Bersama ini disampaikan bahwa ada dokumen expired dengan detail sebagai berikut :</span></p>
+	<p><span style="margin-bottom: 15px; font-size: 13px; font-family: \'lucida grande\',tahoma,verdana,arial,sans-serif;">Bersama ini disampaikan bahwa dokumen '.$documentGroupName.' (berdasarkan permintaan <b>'.$requester.' / Dept : '.$requester_dept.' / Divisi : '.$requester_div.'</b>) dengan detail pengeluaran sebagai berikut, telah melewati batas waktu pengembalian :</span></p>
 	<p>
 		<TABLE  width="458" >
 		<TR align="center"  style="border: 1px solid #ffe222; padding: 10px; background-color: #c4df9b; color: #333333; font-size: 12px; font-family: \'lucida grande\',tahoma,verdana,arial,sans-serif;">															
 			<TD width="10%"  style="font-size: 13px"><strong>No.</strong></TD>
 			<TD width="90%"  style="font-size: 13px"><strong>Keterangan Dokumen</strong></TD>
-		</TR>';	
-		$bodyFooter = '				
+		</TR>';
+		$bodyFooter ='';
+		if($subordinateID==-1){
+			$bodyFooter = '				
 					</TABLE>
 				</p>
-				<p><span style="margin-bottom: 15px; font-size: 13px;font-family: \'lucida grande\',tahoma,verdana,arial,sans-serif;">Mohon kerjasamanya untuk melakukan pembaharuan dokumen.<br /> Terima kasih.  </span><br />
+				<p><span style="margin-bottom: 15px; font-size: 13px;font-family: \'lucida grande\',tahoma,verdana,arial,sans-serif;">Mohon kerjasamanya untuk melakukan pengembalian dokumen.<br /> Terima kasih.  </span><br />
 				</p>
 				<div style="margin: 0pt;font-family: \'lucida grande\',tahoma,verdana,arial,sans-serif;">Hormat Kami,<br />Departemen Custodian<br />PT Triputra Agro Persada
 				</div>
 				<p align=center style="margin-bottom: 7%;">
 					<span style="border: 1px solid green;padding: 5px;margin-bottom: 15px; font-size: 13px;font-family: \'lucida grande\',tahoma,verdana,arial,sans-serif;background-color: rgb(196, 223, 155);color: white;float: left;margin-left: 15%;width: 20%;border-radius: 10px;">
 						
-						<a target="_BLANK" style="color: white;" >Sudah Diterima</a>
+						<a target="_BLANK" href="http://'.$_SERVER['HTTP_HOST'].'/return-of-document.php?act=add'.($lastReminder!=-1?'&lastReminder=1':'').'" style="color: white;" >Sudah Diterima</a>
 					</span>
 					<span style="border: 1px solid green;padding: 5px;margin-bottom: 15px; font-size: 13px;font-family: \'lucida grande\',tahoma,verdana,arial,sans-serif;background-color: rgb(196, 223, 155);color: white;float: right;margin-right: 15%;width: 20%;border-radius: 10px;">
 						<a target="_BLANK" style="color: white;" >Belum Diterima</a>
 					</span><br />
 				</p>
 				</div>';
+		}
+		else{
+			$bodyFooter = '				
+					</TABLE>
+				</p>
+				<p><span style="margin-bottom: 15px; font-size: 13px;font-family: \'lucida grande\',tahoma,verdana,arial,sans-serif;">Mohon kerjasamanya untuk menginformasikan '.$requester.'.<br /> Terima kasih.  </span><br />
+				</p>
+				<div style="margin: 0pt;font-family: \'lucida grande\',tahoma,verdana,arial,sans-serif;">Hormat Kami,<br />Departemen Custodian<br />PT Triputra Agro Persada
+				</div>
+				</div>';
+		}
 		$bodyFooter .= '
 				</td>           
 				</tr>
@@ -125,7 +123,6 @@ function mail_ret_legal($docCode,$User_ID,$subordinateID=-1){
 		</tr>
 	</tbody>
 	</table>';
-		
 	$emailContent=$bodyHeader.$body.$bodyFooter;	
 	//echo $row->user_email.$body ;
 	$mail->ClearAddresses();

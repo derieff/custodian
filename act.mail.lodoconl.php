@@ -13,10 +13,10 @@
 <link href="./css/mobile.css" rel="stylesheet" type="text/css">
 <?PHP
 include ("./config/config_db.php");
-include ("./include/function.mail.lodocol.php");
+include ("./include/function.mail.lodoconl.php");
 $decrp = new custodian_encryp;
 
-if(($_GET['cfm'])&&($_GET['ati'])&&($_GET['rdm'])) {
+if( !empty($_GET['cfm']) && !empty($_GET['ati']) && !empty($_GET['rdm']) ) {
 	$A_Status="3";
 	$A_ID=$decrp->decrypt($_GET['ati']);
 	$ARC_RandomCode=$decrp->decrypt($_GET['rdm']);
@@ -53,6 +53,7 @@ if(($_GET['cfm'])&&($_GET['ati'])&&($_GET['rdm'])) {
 		$h_arr=mysql_fetch_array($h_sql);
 
 		if ($AppDate==NULL) {
+
 			// MENCARI JUMLAH APPROVAL
 			$query = "SELECT MAX(A_Step) AS jStep
 						FROM M_Approval
@@ -60,7 +61,6 @@ if(($_GET['cfm'])&&($_GET['ati'])&&($_GET['rdm'])) {
 			$sql = mysql_query($query);
 			$arr = mysql_fetch_array($sql);
 			$jStep=$arr['jStep'];
-
 			// UPDATE APPROVAL
 			$query = "UPDATE M_Approval
 						SET A_Status='$A_Status', A_ApprovalDate=sysdate(), A_Update_UserID='$A_ApproverID',
@@ -282,6 +282,14 @@ if(($_GET['cfm'])&&($_GET['ati'])&&($_GET['rdm'])) {
 						$sql = mysql_query($query);
 						$field = mysql_fetch_array($sql);
 
+						// Cari Kode Dokumen Grup
+						$query = "SELECT *
+									FROM M_DocumentGroup
+									WHERE DocumentGroup_ID ='6'";
+						$sql = mysql_query($query);
+						$field = mysql_fetch_array($sql);
+						$DocumentGroup_Code=$field['DocumentGroup_Code'];
+
 						if($field[0]==NULL)
 							$maxnum=0;
 						else
@@ -401,7 +409,7 @@ if(($_GET['cfm'])&&($_GET['ati'])&&($_GET['rdm'])) {
 		</table>";
 	}
 }
-if($_GET['act']) {
+if(isset($_GET['act'])) {
 	$act=$decrp->decrypt($_GET['act']);
 	if ($act=='reject'){
 		$A_ID=$decrp->decrypt($_GET['ati']);
@@ -435,7 +443,7 @@ if($_GET['act']) {
 	}
 }
 
-if(isset($_POST[reject])) {
+if(isset($_POST['reject'])) {
 	$A_Status='4';
 	$A_ID=$_POST['A_ID'];
 	$ARC_RandomCode=$_POST['ARC_RandomCode'];

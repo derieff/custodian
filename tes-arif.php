@@ -1,12 +1,64 @@
 <?php
 // echo str_pad(2139, 8, "0", STR_PAD_LEFT);
-date_default_timezone_set("Asia/Jakarta");
-$sekarang = date('H:i:s d-m-Y');
-echo "Sekarang : ".$sekarang."<br>";
-echo "Batas Waktu : ".date('H:i d-m-Y', strtotime('+150 minutes', strtotime($sekarang)));
+// date_default_timezone_set("Asia/Jakarta");
+// $sekarang = date('H:i:s d-m-Y');
+// echo "Sekarang : ".$sekarang."<br>";
+// echo "Batas Waktu : ".date('H:i d-m-Y', strtotime('+150 minutes', strtotime($sekarang)));
 // include ("./include/function.mail.lodocol.php");
 // mail_loan_doc('003/REQ/AMP/DLL/IX/2018','1');
-// include ("./config/config_db.php");
+include ("./config/config_db.php");
+// ACTION UNTUK GENERATE NO DOKUMEN
+$regyear=date("Y");
+$rmonth=date("n");
+
+// Mengubah Bulan ke Romawi
+switch ($rmonth)	{
+	case 1: $regmonth="I"; break;
+	case 2: $regmonth="II"; break;
+	case 3: $regmonth="III"; break;
+	case 4: $regmonth="IV"; break;
+	case 5: $regmonth="V"; break;
+	case 6: $regmonth="VI"; break;
+	case 7: $regmonth="VII"; break;
+	case 8: $regmonth="VIII"; break;
+	case 9: $regmonth="IX"; break;
+	case 10: $regmonth="X"; break;
+	case 11: $regmonth="XI"; break;
+	case 12: $regmonth="XII"; break;
+}
+
+// Cari Kode Perusahaan
+$query = "SELECT *
+			FROM M_Company
+			WHERE Company_ID='3'";
+$sql = mysql_query($query);
+$field = mysql_fetch_array($sql);
+$Company_Code=$field['Company_Code'];
+
+// Cari Kode Dokumen Grup
+$query = "SELECT *
+			FROM M_DocumentGroup
+			WHERE DocumentGroup_ID ='5'";
+$sql = mysql_query($query);
+$field = mysql_fetch_array($sql);
+$DocumentGroup_Code=$field['DocumentGroup_Code'];
+
+$query = "SELECT MAX(CD_SeqNo) FROM M_CodeDocument WHERE CD_Year='18' AND CD_GroupDocCode='DLL' AND CD_CompanyCode='AMP' AND CD_Delete_Time is NULL";
+$sql = mysql_query($query);
+$field = mysql_fetch_array($sql);
+
+if($field[0]==NULL)
+	$maxnum=0;
+else
+	$maxnum=$field[0];
+$nnum=$maxnum+1;
+
+echo $nnum;
+$newnum=str_pad($nnum,3,"0",STR_PAD_LEFT);
+
+$CT_Code="$newnum/DOUT/$Company_Code/$DocumentGroup_Code/$regmonth/$regyear";
+
+echo "<hr>".$CT_Code;
 // $sa_query = "SELECT *
 //         FROM M_Approval
 //         WHERE A_TransactionCode='003/REQ/AMP/KEA/IX/2018'

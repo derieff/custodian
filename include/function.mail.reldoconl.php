@@ -19,6 +19,9 @@ function mail_release_doc($relCode,$reminder=0){
 	$mail = new PHPMailer();
 	$decrp = new custodian_encryp;
 	$testing='TESTING';
+	$body = "";
+	$bodyHeader = "";
+	$bodyFooter = "";
 
 	$e_query="	SELECT  User_ID,User_FullName,User_Email,DocumentGroup_Name,A_TransactionCode,
 						ARC_AID,ARC_RandomCode,THROONLD_ReleaseDate
@@ -131,10 +134,10 @@ function mail_release_doc($relCode,$reminder=0){
 				</p>
 				<p align=center>
 					<span style="border: 1px solid green;padding: 5px;margin-bottom: 15px; font-size: 13px;font-family: \'lucida grande\',tahoma,verdana,arial,sans-serif;background-color: rgb(196, 223, 155);color: white;float: left;margin-left: 15%;width: 20%;border-radius: 10px;">
-						<a target="_BLANK" style="color: white;" href="http://'.$_SERVER['HTTP_HOST'].'/act.mail.reldoconl.php?cfm='.$decrp->encrypt('accept').'&ati='.$decrp->encrypt($row->ARC_AID).'&rdm='.$decrp->encrypt($row->ARC_RandomCode).'">Setuju</a>
+						<a target="_BLANK" style="color: white;" href="http://'.$_SERVER['HTTP_HOST'].'/custodian/act.mail.reldoconl.php?cfm='.$decrp->encrypt('accept').'&ati='.$decrp->encrypt($row->ARC_AID).'&rdm='.$decrp->encrypt($row->ARC_RandomCode).'">Setuju</a>
 					</span>
 					<span style="border: 1px solid green;padding: 5px;margin-bottom: 15px; font-size: 13px;font-family: \'lucida grande\',tahoma,verdana,arial,sans-serif;background-color: rgb(196, 223, 155);color: white;float: right;margin-right: 15%;width: 20%;border-radius: 10px;">
-						<a target="_BLANK" style="color: white;" href="http://'.$_SERVER['HTTP_HOST'].'/act.mail.reldoconl.php?act='.$decrp->encrypt('reject').'&ati='.$decrp->encrypt($row->ARC_AID).'&rdm='.$decrp->encrypt($row->ARC_RandomCode).'">Tolak</a>
+						<a target="_BLANK" style="color: white;" href="http://'.$_SERVER['HTTP_HOST'].'/custodian/act.mail.reldoconl.php?act='.$decrp->encrypt('reject').'&ati='.$decrp->encrypt($row->ARC_AID).'&rdm='.$decrp->encrypt($row->ARC_RandomCode).'">Tolak</a>
 					</span><br />
 				</p>
 				</div>
@@ -210,7 +213,10 @@ function mail_release_doc($relCode,$reminder=0){
 function mail_notif_release_doc($relCode, $User_ID, $status){
 	$mail = new PHPMailer();
 	$decrp = new custodian_encryp;
-	//$testing='TESTING';
+	$testing='TESTING';
+	$body = "";
+	$bodyHeader = "";
+	$bodyFooter = "";
 
 	$e_query="SELECT User_ID, User_FullName, User_Email
 			  FROM M_User
@@ -231,17 +237,17 @@ function mail_notif_release_doc($relCode, $User_ID, $status){
 	$mail->From       = 'no-reply@tap-agri.com';
 	$mail->FromName   = 'Custodian System';
 	if ($status=='3'){
-		$mail->Subject  =''.$testing.'Notifikasi Proses Pengeluaran Dokumen '.$relCode;
+		$mail->Subject  =''.$testing.' Notifikasi Proses Pengeluaran Dokumen '.$relCode;
 	}
 	if ($status=='4'){
-		$mail->Subject  =''.$testing.'Notifikasi Proses Pengeluaran Dokumen '.$relCode;
+		$mail->Subject  =''.$testing.' Notifikasi Proses Pengeluaran Dokumen '.$relCode;
 	}
 	$mail->AddBcc('system.administrator@tap-agri.com');
 	//$mail->AddAttachment("images/icon_addrow.png", "icon_addrow.png");  // optional name
 
 		$ed_query="	SELECT DISTINCT Company_Name,
-						THROONLD_Reason,THLOONLD_UserID,THROONLD_Information,THROONLD_ID,User_FullName,
-						DONL_NamaDokumen, DONL_NoDokumen, DONL_TahunDokumen,
+						THROONLD_Reason,THLOONLD_UserID,THROONLD_Information,THROONLD_ID,
+						User_FullName,DONL_NamaDokumen, DONL_NoDokumen, DONL_TahunDokumen,
                         Department_Name
 					FROM TH_ReleaseOfOtherNonLegalDocuments
 					LEFT JOIN TD_ReleaseOfOtherNonLegalDocuments
@@ -292,9 +298,14 @@ function mail_notif_release_doc($relCode, $User_ID, $status){
 <tbody>
 <tr>
 	<td width="458" align="justify" valign="top" style="font-size: 12px; font-family: \'lucida grande\',tahoma,verdana,arial,sans-serif;"><div style="margin-bottom: 15px; font-size: 13px">Yth '.$row->User_FullName.',</div>
-	<div style="margin-bottom: 15px">
-	<p><span style="margin-bottom: 15px; font-size: 13px; font-family: \'lucida grande\',tahoma,verdana,arial,sans-serif;">Bersama ini disampaikan bahwa dokumen (berdasarkan permintaan '.$requester.' untuk tujuan '.$info.') dengan detail permintaan dokumen sebagai berikut :</span></p>
-	<p>
+	<div style="margin-bottom: 15px">';
+	if($acceptor){
+		$bodyHeader .= '<p><span style="margin-bottom: 15px; font-size: 13px; font-family: \'lucida grande\',tahoma,verdana,arial,sans-serif;">Bersama ini disampaikan bahwa pengeluaran  dokumen (berdasarkan permintaan '.$requester.' untuk tujuan '.$info.') dengan detail permintaan dokumen sebagai berikut :</span></p>';
+	}
+	else{
+		$bodyHeader .= '<p><span style="margin-bottom: 15px; font-size: 13px; font-family: \'lucida grande\',tahoma,verdana,arial,sans-serif;">Bersama ini disampaikan bahwa dokumen (berdasarkan permintaan '.$requester.' untuk tujuan '.$info.') dengan detail permintaan dokumen sebagai berikut :</span></p>';
+	}
+	$bodyHeader .= '<p>
         <TABLE  width="458" >
 		<TR align="center"  style="border: 1px solid #ffe222; padding: 10px; background-color: #c4df9b; color: #333333; font-size: 12px; font-family: \'lucida grande\',tahoma,verdana,arial,sans-serif;">
 			<TD width="10%"  style="font-size: 13px"><strong>No.</strong></TD>
@@ -316,10 +327,10 @@ function mail_notif_release_doc($relCode, $User_ID, $status){
 				</p>
 				<p align=center style="margin-bottom: 7%;">
 					<span style="border: 1px solid green;padding: 5px;margin-bottom: 15px; font-size: 13px;font-family: \'lucida grande\',tahoma,verdana,arial,sans-serif;background-color: rgb(196, 223, 155);color: white;float: left;margin-left: 15%;width: 20%;border-radius: 10px;">
-						<a target="_BLANK" style="color: white;" href="http://'.$_SERVER['HTTP_HOST'].'/act.mail.reldoconl.php?act='.$decrp->encrypt('confirm').'&user='.$decrp->encrypt($regUser).'&doc='.$decrp->encrypt($docID).'&rel='.$decrp->encrypt($relCode).'">Sudah Diterima</a>
+						<a target="_BLANK" style="color: white;" href="http://'.$_SERVER['HTTP_HOST'].'/custodian/act.mail.reldoconl.php?act='.$decrp->encrypt('confirm').'&user='.$decrp->encrypt($regUser).'&doc='.$decrp->encrypt($docID).'&rel='.$decrp->encrypt($relCode).'">Sudah Diterima</a>
 					</span>
 					<span style="border: 1px solid green;padding: 5px;margin-bottom: 15px; font-size: 13px;font-family: \'lucida grande\',tahoma,verdana,arial,sans-serif;background-color: rgb(196, 223, 155);color: white;float: right;margin-right: 15%;width: 20%;border-radius: 10px;">
-						<a target="_BLANK" style="color: white;" href="http://'.$_SERVER['HTTP_HOST'].'/act.mail.reldoconl.php?act='.$decrp->encrypt('reject').'&ati='.$decrp->encrypt($accept_row->ARC_AID).'&rdm='.$decrp->encrypt($accept_row->ARC_RandomCode).'">Belum Diterima</a>
+						<a target="_BLANK" style="color: white;" href="http://'.$_SERVER['HTTP_HOST'].'/custodian/act.mail.reldoconl.php?act='.$decrp->encrypt('reject').'&ati='.$decrp->encrypt($accept_row->ARC_AID).'&rdm='.$decrp->encrypt($accept_row->ARC_RandomCode).'">Belum Diterima</a>
 					</span><br />
 				</p>
 				</div>';
@@ -413,7 +424,10 @@ function mail_notif_release_doc($relCode, $User_ID, $status){
 function mail_notif_reception_release_doc($relCode, $User_ID, $status){
 	$mail = new PHPMailer();
 	$decrp = new custodian_encryp;
-	//$testing='TESTING';
+	$testing='TESTING';
+	$body = "";
+	$bodyHeader = "";
+	$bodyFooter = "";
 
 	$e_query="SELECT User_ID, User_FullName, User_Email
 			  FROM M_User
@@ -434,10 +448,10 @@ function mail_notif_reception_release_doc($relCode, $User_ID, $status){
 	$mail->From       = 'no-reply@tap-agri.com';
 	$mail->FromName   = 'Custodian System';
 	if ($status=='3'){
-		$mail->Subject  =''.$testing.'Notifikasi Proses Pengeluaran Dokumen '.$relCode;
+		$mail->Subject  =''.$testing.' Notifikasi Proses Pengeluaran Dokumen '.$relCode;
 	}
 	if ($status=='4'){
-		$mail->Subject  =''.$testing.'Notifikasi Proses Pengeluaran Dokumen '.$relCode;
+		$mail->Subject  =''.$testing.' Notifikasi Proses Pengeluaran Dokumen '.$relCode;
 	}
 	$mail->AddBcc('system.administrator@tap-agri.com');
 	//$mail->AddAttachment("images/icon_addrow.png", "icon_addrow.png");  // optional name
@@ -496,7 +510,7 @@ function mail_notif_reception_release_doc($relCode, $User_ID, $status){
 	<td width="458" align="justify" valign="top" style="font-size: 12px; font-family: \'lucida grande\',tahoma,verdana,arial,sans-serif;"><div style="margin-bottom: 15px; font-size: 13px">Yth '.$row->User_FullName.',</div>
 	<div style="margin-bottom: 15px">';
 	if($acceptor){
-		$bodyHeader .= '<p><span style="margin-bottom: 15px; font-size: 13px; font-family: \'lucida grande\',tahoma,verdana,arial,sans-serif;">Bersama ini disampaikan bahwa pengeluaran '.$docType.' dokumen (berdasarkan permintaan '.$requester.' untuk tujuan '.$info.') dengan detail permintaan dokumen sebagai berikut :</span></p>';
+		$bodyHeader .= '<p><span style="margin-bottom: 15px; font-size: 13px; font-family: \'lucida grande\',tahoma,verdana,arial,sans-serif;">Bersama ini disampaikan bahwa pengeluaran dokumen (berdasarkan permintaan '.$requester.' untuk tujuan '.$info.') dengan detail permintaan dokumen sebagai berikut :</span></p>';
 	}
 	else{
 		$bodyHeader .= '<p><span style="margin-bottom: 15px; font-size: 13px; font-family: \'lucida grande\',tahoma,verdana,arial,sans-serif;">Bersama ini disampaikan bahwa dokumen (berdasarkan permintaan '.$requester.' untuk tujuan '.$info.') dengan detail permintaan dokumen sebagai berikut :</span></p>';
@@ -508,12 +522,12 @@ function mail_notif_reception_release_doc($relCode, $User_ID, $status){
 			<TD width="90%"  style="font-size: 13px"><strong>Keterangan Dokumen</strong></TD>
 		</TR>';
 	if($acceptor){
-		$bodyFooter .= '				
+		$bodyFooter .= '
 				</TABLE>
 			</p>
 			<p>
 				<span style="margin-bottom: 15px; font-size: 13px;font-family: \'lucida grande\',tahoma,verdana,arial,sans-serif;">
-					Telah diambil oleh user yang bersangkutan dari Custodian Departemen. Terima kasih. 
+					Telah diambil oleh user yang bersangkutan dari Custodian Departemen. Terima kasih.
 				</span><br />
 			</p>
 			</div>';
@@ -524,7 +538,7 @@ function mail_notif_reception_release_doc($relCode, $User_ID, $status){
 			</p>
 			<p>
 				<span style="margin-bottom: 15px; font-size: 13px;font-family: \'lucida grande\',tahoma,verdana,arial,sans-serif;">
-					Telah diterima lengkap dan sesuai. Terima kasih. 
+					Telah diterima lengkap dan sesuai. Terima kasih.
 				</span><br />
 			</p>
 			</div>';
