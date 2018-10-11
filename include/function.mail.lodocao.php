@@ -119,18 +119,23 @@ function mail_loan_doc($loanCode,$reminder=0){
 			$requester_dept=ucwords(strtolower($ed_arr->Employee_Department));
 			$requester_div=ucwords(strtolower($ed_arr->Employee_Division));
 		}
+		$cap_atau_watermark = "Cap/Watermark";
 		if($row->THLOAOD_DocumentType == "ORIGINAL" ){
 			$tipe_dokumen = "Asli";
-		}elseif($row->THLOAOD_DocumentType == "HARDCOPY" or $row->THLOAOD_DocumentType == "SOFTCOPY"){
+		}elseif($row->THLOAOD_DocumentType == "SOFTCOPY"){
 			$tipe_dokumen = ucfirst(strtolower($row->THLOAOD_DocumentType));
+			$cap_atau_watermark = "Cap";
+		}elseif($row->THLOAOD_DocumentType == "HARDCOPY"){
+			$tipe_dokumen = ucfirst(strtolower($row->THLOAOD_DocumentType));
+			$cap_atau_watermark = "Watermark";
 		}else{
 			if( $row->THLOAOD_LoanCategoryID != '3') $tipe_dokumen .= "Asli";
 			else $tipe_dokumen .= "";
 		}
 		if( $row->THLOAOD_DocumentWithWatermarkOrNot == "1" ){
-			$dengan_cap = " dengan Watermark";
+			$dengan_cap = " dengan ".$cap_atau_watermark;
 		}elseif( $row->THLOAOD_DocumentWithWatermarkOrNot == "2" ){
-			$dengan_cap = " tanpa Watermark";
+			$dengan_cap = " tanpa ".$cap_atau_watermark;
 		}else{
 			$dengan_cap = "";
 		}

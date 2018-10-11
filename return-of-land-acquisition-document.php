@@ -105,6 +105,23 @@ if(isset($_GET["act"]))
 		$sql1 = mysql_query($query1);
 		$field1 = mysql_fetch_array($sql1);
 
+		$queryApprover = "
+			SELECT ma.Approver_UserID, rads.RADS_StepID, rads.RADS_RA_ID, ra.RA_Name
+			FROM M_Role_ApproverDocStepStatus rads
+			LEFT JOIN M_Role_Approver ra
+				ON rads.RADS_RA_ID = ra.RA_ID
+			LEFT JOIN M_Approver ma
+				ON ra.RA_ID = ma.Approver_RoleID
+			WHERE rads.RADS_DocID = '22'
+				AND rads.RADS_ProsesID = '4'
+				AND ma.Approver_Delete_Time IS NULL
+				ORDER BY rads.RADS_StepID
+		";
+		$sqlApprover=mysql_query($queryApprover);
+		while($d = mysql_fetch_array($sqlApprover)){
+			$approvers[] = $d['Approver_UserID'];  //Approval Untuk ke Custodian
+		}
+
 		$ActionContent .="
 		<tr>
 			<td width='30%'>Nama</td>
@@ -142,11 +159,20 @@ if(isset($_GET["act"]))
 		</table>
 
 		<table width='100%'>
-		<th  class='bg-white'>
-			<input onclick='addRowToTable();' type='button' class='addrow'/>
-			<input onclick='removeRowFromTable();' type='button' class='deleterow'/>
-			<input type='hidden' value='1' id='countRow' name='countRow' />
-		</th>
+			<tr>
+				<td>";
+				foreach($approvers as $approver){
+					$ActionContent .="<input type='hidden' name='txtA_ApproverID[]' value='$approver' readonly='true' class='readonly'/>";
+				}
+				$ActionContent .="</td>
+			</tr>
+			<tr>
+				<th  class='bg-white'>
+					<input onclick='addRowToTable();' type='button' class='addrow'/>
+					<input onclick='removeRowFromTable();' type='button' class='deleterow'/>
+					<input type='hidden' value='1' id='countRow' name='countRow' />
+				</th>
+			</tr>
 		</table>
 
 		<table width='100%'>
@@ -258,6 +284,13 @@ if(isset($_GET["act"]))
 		$ActionContent .="
 		</table>";
 	}
+
+	//Kirim Ulang Email Persetujuan
+	if($act=='resend'){
+		mail_return_doc($_GET['code'],'1');
+		echo"<script>alert('Email Persetujuan Telah Dikirim Ulang.');</script>";
+		echo "<meta http-equiv='refresh' content='0; url=return-of-land-acquisition-document.php'>";
+	}
 }
 
 // Menampilkan Dokumen
@@ -270,11 +303,15 @@ else
 
 $offset = ($noPage - 1) * $dataPerPage;
 
-$query = "SELECT DISTINCT tdrtolad.TDRTOLAD_ID, tdrtolad.TDRTOLAD_ReturnCode, tdrtolad.TDRTOLAD_ReturnTime, u.User_FullName
-		  FROM TD_ReturnOfLandAcquisitionDocument tdrtolad, M_User u
+$query = "SELECT DISTINCT tdrtolad.TDRTOLAD_ID, tdrtolad.TDRTOLAD_ReturnCode, tdrtolad.TDRTOLAD_ReturnTime, u.User_FullName,
+            drs.DRS_Description, tdrtolad.TDRTOLAD_Status
+		  FROM TD_ReturnOfLandAcquisitionDocument tdrtolad
+		  LEFT JOIN M_User u
+            ON tdrtolad.TDRTOLAD_UserID=u.User_ID
+          LEFT JOIN M_DocumentRegistrationStatus drs
+            ON tdrtolad.TDRTOLAD_Status=drs.DRS_Name
 		  WHERE tdrtolad.TDRTOLAD_Delete_Time is NULL
-		  AND tdrtolad.TDRTOLAD_UserID=u.User_ID
-		  AND u.User_ID='$_SESSION[User_ID]'
+		  	AND u.User_ID='$_SESSION[User_ID]'
 		  ORDER BY tdrtolad.TDRTOLAD_ID DESC
 		  LIMIT $offset, $dataPerPage";
 $sql = mysql_query($query);
@@ -283,9 +320,11 @@ $num = mysql_num_rows($sql);
 $MainContent ="
 <table width='100%' border='1' class='stripeMe'>
 <tr>
-	<th width='30%'>Kode Pengembalian</th>
-	<th width='30%'>Tanggal Pengembalian</th>
-	<th width='40%'>Nama Penerima Dokumen</th>
+	<th>Kode Pengembalian</th>
+	<th>Tanggal Pengembalian</th>
+	<th>Nama Penerima Dokumen</th>
+	<th>Status</th>
+	<th></th>
 </tr>";
 
 if ($num==NULL) {
@@ -296,6 +335,7 @@ if ($num==NULL) {
 }else{
 	while ($field = mysql_fetch_array($sql)) {
 		$fregdate=date("j M Y", strtotime($field['TDRTOLAD_ReturnTime']));
+		$resend=($field['TDRTOLAD_Status']=="waiting")?"<b><a href='$PHP_SELF?act=resend&code=$field[1]'><img title='Kirim Ulang Email Persetujuan' src='./images/icon-resend.png' width='20'></a></b>":"";
 
 		$MainContent .="
 		<tr>
@@ -304,6 +344,8 @@ if ($num==NULL) {
 			</td>
 			<td class='center'>$fregdate</td>
 			<td class='center'>$field[3]</td>
+			<td class='center'>$field[4]</td>
+			<td class='center'>$resend</td>
 		</tr>";
  	}
 }
@@ -311,12 +353,15 @@ $MainContent .="
 	</table>
 ";
 
-$query1 ="SELECT DISTINCT tdrtolad.TDRTOLAD_ID, tdrtolad.TDRTOLAD_ReturnCode, tdrtolad.TDRTOLAD_ReturnTime,
-				 		  u.User_FullName
-		  FROM TD_ReturnOfLandAcquisitionDocument tdrtolad, M_User u
+$query1 ="SELECT DISTINCT tdrtolad.TDRTOLAD_ID, tdrtolad.TDRTOLAD_ReturnCode, tdrtolad.TDRTOLAD_ReturnTime, u.User_FullName,
+            drs.DRS_Description, tdrtolad.TDRTOLAD_Status
+		  FROM TD_ReturnOfLandAcquisitionDocument tdrtolad
+		  LEFT JOIN M_User u
+            ON tdrtolad.TDRTOLAD_UserID=u.User_ID
+          LEFT JOIN M_DocumentRegistrationStatus drs
+            ON tdrtolad.TDRTOLAD_Status=drs.DRS_Name
 		  WHERE tdrtolad.TDRTOLAD_Delete_Time is NULL
-		  AND tdrtolad.TDRTOLAD_UserID=u.User_ID
-		  AND u.User_ID='$_SESSION[User_ID]'";
+		  	AND u.User_ID='$_SESSION[User_ID]'";
 $sql1 = mysql_query($query1);
 $num1 = mysql_num_rows($sql1);
 
@@ -415,7 +460,8 @@ elseif(isset($_POST[adddetail])) {
 			$txtTDRTOLAD_Information=str_replace("<br>", "\n",$_POST["txtTDRTOLAD_Information".$i]);
 
 			$sql1= "INSERT INTO TD_ReturnOfLandAcquisitionDocument
-					VALUES (NULL,'$CT_Code','$txtTDRTOLAD_DocCode','$txtTDRTOLAD_Information',sysdate(),
+					VALUES (NULL,'$CT_Code','$txtTDRTOLAD_DocCode','$txtTDRTOLAD_Information',
+							'waiting', sysdate(),
 							'$_SESSION[User_ID]','$_SESSION[User_ID]', sysdate(),NULL,NULL)";
 			$mysqli->query($sql1);
 
@@ -436,6 +482,37 @@ elseif(isset($_POST[adddetail])) {
 				   AND dla.DLA_Code=tdlolad.TDLOLAD_DocCode";
 			$mysqli->query($sql2);
 		}
+
+		$txtA_ApproverID=$_POST['txtA_ApproverID'];
+		$jumlah=count($txtA_ApproverID);
+
+		for($i=0;$i<$jumlah;$i++){
+			$step=$i+1;
+			$sql2= "INSERT INTO M_Approval
+					VALUES (NULL,'$CT_Code', '$txtA_ApproverID[$i]', '$step',
+					        '1',NULL,'$_SESSION[User_ID]', sysdate(),'$_SESSION[User_ID]', sysdate(),NULL,NULL)";
+			$mysqli->query($sql2);
+			$sa_query="SELECT *
+					   FROM M_Approval
+					   WHERE A_TransactionCode='$CT_Code'
+					   AND A_ApproverID='$txtA_ApproverID[$i]'
+					   AND A_Delete_Time IS NULL";
+			$sa_sql=mysql_query($sa_query);
+			$sa_arr=mysql_fetch_array($sa_sql);
+			$ARC_AID=$sa_arr['A_ID'];
+			$str=rand(1,100);
+			$RandomCode=crypt('T4pagri'.$str);
+			$iSQL="INSERT INTO L_ApprovalRandomCode
+				   VALUES ('$ARC_AID','$RandomCode')";
+			$mysqli->query($iSQL);
+		}
+		$sql3 = "UPDATE M_Approval
+            SET A_Status='2'
+            WHERE A_TransactionCode='$CT_Code' AND A_ApproverID='$txtA_ApproverID[0]' AND A_Step='1'";
+        $sfe_sql=mysql_query($sql3);
+        if($sfe_sql){
+		    mail_return_doc($CT_Code);
+        }
 	}
 	echo "<meta http-equiv='refresh' content='0; url=return-of-land-acquisition-document.php'>";
 }

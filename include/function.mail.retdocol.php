@@ -19,7 +19,7 @@ include_once ("./include/class.endencrp.php");
 if(!isset($_SERVER['HTTP_HOST'])){
 	$_SERVER['HTTP_HOST']='localhost/custodian';
 }
-	
+
 function mail_ret_other_legal($relCode,$User_ID,$docList,$userData,$subordinateID=-1,$lastReminder=-1){
 	$mail = new PHPMailer();
 	$decrp = new custodian_encryp;
@@ -62,7 +62,7 @@ function mail_ret_other_legal($relCode,$User_ID,$docList,$userData,$subordinateI
 					</TD>
 				</TR>';
 	}
-	$bodyHeader = '	
+	$bodyHeader = '
 	<table width="497" border="0" align="center" cellpadding="0" cellspacing="0">
 	<tbody>
 	<tr>
@@ -77,13 +77,13 @@ function mail_ret_other_legal($relCode,$User_ID,$docList,$userData,$subordinateI
 	<p><span style="margin-bottom: 15px; font-size: 13px; font-family: \'lucida grande\',tahoma,verdana,arial,sans-serif;">Bersama ini disampaikan bahwa dokumen '.$documentGroupName.' (berdasarkan permintaan <b>'.$requester.' / Dept : '.$requester_dept.' / Divisi : '.$requester_div.'</b>) dengan detail pengeluaran sebagai berikut, telah melewati batas waktu pengembalian :</span></p>
 	<p>
 		<TABLE  width="458" >
-		<TR align="center"  style="border: 1px solid #ffe222; padding: 10px; background-color: #c4df9b; color: #333333; font-size: 12px; font-family: \'lucida grande\',tahoma,verdana,arial,sans-serif;">															
+		<TR align="center"  style="border: 1px solid #ffe222; padding: 10px; background-color: #c4df9b; color: #333333; font-size: 12px; font-family: \'lucida grande\',tahoma,verdana,arial,sans-serif;">
 			<TD width="10%"  style="font-size: 13px"><strong>No.</strong></TD>
 			<TD width="90%"  style="font-size: 13px"><strong>Keterangan Dokumen</strong></TD>
-		</TR>';	
+		</TR>';
 		$bodyFooter ='';
 		if($subordinateID==-1){
-			$bodyFooter = '				
+			$bodyFooter = '
 					</TABLE>
 				</p>
 				<p><span style="margin-bottom: 15px; font-size: 13px;font-family: \'lucida grande\',tahoma,verdana,arial,sans-serif;">Mohon kerjasamanya untuk melakukan pengembalian dokumen.<br /> Terima kasih.  </span><br />
@@ -101,7 +101,7 @@ function mail_ret_other_legal($relCode,$User_ID,$docList,$userData,$subordinateI
 				</div>';
 		}
 		else{
-			$bodyFooter = '				
+			$bodyFooter = '
 					</TABLE>
 				</p>
 				<p><span style="margin-bottom: 15px; font-size: 13px;font-family: \'lucida grande\',tahoma,verdana,arial,sans-serif;">Mohon kerjasamanya untuk menginformasikan '.$requester.'.<br /> Terima kasih.  </span><br />
@@ -111,7 +111,7 @@ function mail_ret_other_legal($relCode,$User_ID,$docList,$userData,$subordinateI
 				</div>';
 		}
 		$bodyFooter .= '
-				</td>           
+				</td>
 				</tr>
 			</tbody>
 			</table>
@@ -123,8 +123,8 @@ function mail_ret_other_legal($relCode,$User_ID,$docList,$userData,$subordinateI
 		</tr>
 	</tbody>
 	</table>';
-		
-	$emailContent=$bodyHeader.$body.$bodyFooter;	
+
+	$emailContent=$bodyHeader.$body.$bodyFooter;
 	//echo $row->user_email.$body ;
 	$mail->ClearAddresses();
 	$mail->AddAddress($row->User_Email,$row->User_FullName);
@@ -159,5 +159,9 @@ function mail_ret_other_legal($relCode,$User_ID,$docList,$userData,$subordinateI
 		</tbody>
 		</table>";
 	}
+}
+
+function mail_return_doc($retDoc, $reminder=0){
+
 }
 ?>
