@@ -773,6 +773,186 @@ $offset = ($noPage - 1) * $dataPerPage;
 		}
 		$querylimit .="ORDER BY dla.DLA_ID LIMIT $offset, $dataPerPage";
 	}
+	elseif ($_GET['optTHROLD_DocumentGroupID']=='4'){
+		$query = "SELECT dla.DLA_ID, c.Company_Name, dla.DLA_Phase, dla.DLA_Period, dla.DLA_DocRevision, lds.LDS_Name,
+						 dla.DLA_Code
+				  FROM M_DocumentLandAcquisition dla, M_Company c, M_User u,  M_LoanDetailStatus lds
+				  WHERE c.Company_ID=dla.DLA_CompanyID
+				  AND dla.DLA_Delete_Time IS NULL
+				  AND dla.DLA_Status=lds.LDS_ID
+				  AND dla.DLA_RegUserID=u.User_ID ";
+
+		if ($_GET['txtSearch']) {
+			$search=$_GET['txtSearch'];
+			$query .="AND (
+						dla.DLA_Code LIKE '%$search%'
+						OR dla.DLA_CompanyID LIKE '%$search%'
+						OR c.Company_Name LIKE '%$search%'
+						OR dla.DLA_RegUserID LIKE '%$search%'
+						OR u.User_FullName LIKE '%$search%'
+						OR dla.DLA_Information LIKE '%$search%'
+						OR dla.DLA_RegTime LIKE '%$search%'
+						OR dla.DLA_Phase LIKE '%$search%'
+						OR dla.DLA_Period LIKE '%$search%'
+						OR dla.DLA_DocDate LIKE '%$search%'
+						OR dla.DLA_Block LIKE '%$search%'
+						OR dla.DLA_Village LIKE '%$search%'
+						OR dla.DLA_Owner LIKE '%$search%'
+						OR dla.DLA_Information LIKE '%$search%'
+						OR dla.DLA_AreaClass LIKE '%$search%'
+						OR dla.DLA_AreaStatement LIKE '%$search%'
+						OR dla.DLA_AreaPrice LIKE '%$search%'
+						OR dla.DLA_AreaTotalPrice LIKE '%$search%'
+						OR dla.DLA_PlantClass LIKE '%$search%'
+						OR dla.DLA_PlantQuantity LIKE '%$search%'
+						OR dla.DLA_PlantPrice LIKE '%$search%'
+						OR dla.DLA_PlantTotalPrice LIKE '%$search%'
+						OR dla.DLA_GrandTotal LIKE '%$search%'
+						OR lds.LDS_Name LIKE '%$search%'
+					)";
+		}
+		else{
+			if ($_GET['optCompanyID']!=-1) {
+				$query .="AND dla.DLA_CompanyID='".$_GET['optCompanyID']."' ";
+			}
+			if ($_GET['optDocumentStatusID']!=-1) {
+				$query .="AND lds.LDS_Name='".$_GET['optDocumentStatusID']."' ";
+			}
+			if($_GET['txtDateStart']!=""&&$_GET['txtDateEnd']!="") {
+				$query .="AND (dl.DLA_Period BETWEEN STR_TO_DATE('".$_GET['txtDateStart']."', '%m/%d/%Y') AND STR_TO_DATE('".$_GET['txtDateEnd']."', '%m/%d/%Y'))";
+			}
+			else if($_GET['txtDateStart']!=""){
+				$query .="AND (dl.DLA_Period > STR_TO_DATE('".$_GET['txtDateStart']."', '%m/%d/%Y'))";
+			}
+			else if($_GET['txtDateEnd']!=""){
+				$query .="AND (dl.DLA_Period < STR_TO_DATE('".$_GET['txtDateEnd']."', '%m/%d/%Y'))";
+			}
+		// elseif ($_GET[phase]<>NULL) {
+			// $query .="AND dla.DLA_Phase='$_GET[phase]' ";
+		// }
+		}
+		$querylimit .="ORDER BY dla.DLA_ID LIMIT $offset, $dataPerPage";
+	}
+	elseif ($_GET['optTHROLD_DocumentGroupID']=='5'){
+		$query = "SELECT dla.DLA_ID, c.Company_Name, dla.DLA_Phase, dla.DLA_Period, dla.DLA_DocRevision, lds.LDS_Name,
+						 dla.DLA_Code
+				  FROM M_DocumentLandAcquisition dla, M_Company c, M_User u,  M_LoanDetailStatus lds
+				  WHERE c.Company_ID=dla.DLA_CompanyID
+				  AND dla.DLA_Delete_Time IS NULL
+				  AND dla.DLA_Status=lds.LDS_ID
+				  AND dla.DLA_RegUserID=u.User_ID ";
+
+		if ($_GET['txtSearch']) {
+			$search=$_GET['txtSearch'];
+			$query .="AND (
+						dla.DLA_Code LIKE '%$search%'
+						OR dla.DLA_CompanyID LIKE '%$search%'
+						OR c.Company_Name LIKE '%$search%'
+						OR dla.DLA_RegUserID LIKE '%$search%'
+						OR u.User_FullName LIKE '%$search%'
+						OR dla.DLA_Information LIKE '%$search%'
+						OR dla.DLA_RegTime LIKE '%$search%'
+						OR dla.DLA_Phase LIKE '%$search%'
+						OR dla.DLA_Period LIKE '%$search%'
+						OR dla.DLA_DocDate LIKE '%$search%'
+						OR dla.DLA_Block LIKE '%$search%'
+						OR dla.DLA_Village LIKE '%$search%'
+						OR dla.DLA_Owner LIKE '%$search%'
+						OR dla.DLA_Information LIKE '%$search%'
+						OR dla.DLA_AreaClass LIKE '%$search%'
+						OR dla.DLA_AreaStatement LIKE '%$search%'
+						OR dla.DLA_AreaPrice LIKE '%$search%'
+						OR dla.DLA_AreaTotalPrice LIKE '%$search%'
+						OR dla.DLA_PlantClass LIKE '%$search%'
+						OR dla.DLA_PlantQuantity LIKE '%$search%'
+						OR dla.DLA_PlantPrice LIKE '%$search%'
+						OR dla.DLA_PlantTotalPrice LIKE '%$search%'
+						OR dla.DLA_GrandTotal LIKE '%$search%'
+						OR lds.LDS_Name LIKE '%$search%'
+					)";
+		}
+		else{
+			if ($_GET['optCompanyID']!=-1) {
+				$query .="AND dla.DLA_CompanyID='".$_GET['optCompanyID']."' ";
+			}
+			if ($_GET['optDocumentStatusID']!=-1) {
+				$query .="AND lds.LDS_Name='".$_GET['optDocumentStatusID']."' ";
+			}
+			if($_GET['txtDateStart']!=""&&$_GET['txtDateEnd']!="") {
+				$query .="AND (dl.DLA_Period BETWEEN STR_TO_DATE('".$_GET['txtDateStart']."', '%m/%d/%Y') AND STR_TO_DATE('".$_GET['txtDateEnd']."', '%m/%d/%Y'))";
+			}
+			else if($_GET['txtDateStart']!=""){
+				$query .="AND (dl.DLA_Period > STR_TO_DATE('".$_GET['txtDateStart']."', '%m/%d/%Y'))";
+			}
+			else if($_GET['txtDateEnd']!=""){
+				$query .="AND (dl.DLA_Period < STR_TO_DATE('".$_GET['txtDateEnd']."', '%m/%d/%Y'))";
+			}
+		// elseif ($_GET[phase]<>NULL) {
+			// $query .="AND dla.DLA_Phase='$_GET[phase]' ";
+		// }
+		}
+		$querylimit .="ORDER BY dla.DLA_ID LIMIT $offset, $dataPerPage";
+	}
+	elseif ($_GET['optTHROLD_DocumentGroupID']=='6'){
+		$query = "SELECT dla.DLA_ID, c.Company_Name, dla.DLA_Phase, dla.DLA_Period, dla.DLA_DocRevision, lds.LDS_Name,
+						 dla.DLA_Code
+				  FROM M_DocumentLandAcquisition dla, M_Company c, M_User u,  M_LoanDetailStatus lds
+				  WHERE c.Company_ID=dla.DLA_CompanyID
+				  AND dla.DLA_Delete_Time IS NULL
+				  AND dla.DLA_Status=lds.LDS_ID
+				  AND dla.DLA_RegUserID=u.User_ID ";
+
+		if ($_GET['txtSearch']) {
+			$search=$_GET['txtSearch'];
+			$query .="AND (
+						dla.DLA_Code LIKE '%$search%'
+						OR dla.DLA_CompanyID LIKE '%$search%'
+						OR c.Company_Name LIKE '%$search%'
+						OR dla.DLA_RegUserID LIKE '%$search%'
+						OR u.User_FullName LIKE '%$search%'
+						OR dla.DLA_Information LIKE '%$search%'
+						OR dla.DLA_RegTime LIKE '%$search%'
+						OR dla.DLA_Phase LIKE '%$search%'
+						OR dla.DLA_Period LIKE '%$search%'
+						OR dla.DLA_DocDate LIKE '%$search%'
+						OR dla.DLA_Block LIKE '%$search%'
+						OR dla.DLA_Village LIKE '%$search%'
+						OR dla.DLA_Owner LIKE '%$search%'
+						OR dla.DLA_Information LIKE '%$search%'
+						OR dla.DLA_AreaClass LIKE '%$search%'
+						OR dla.DLA_AreaStatement LIKE '%$search%'
+						OR dla.DLA_AreaPrice LIKE '%$search%'
+						OR dla.DLA_AreaTotalPrice LIKE '%$search%'
+						OR dla.DLA_PlantClass LIKE '%$search%'
+						OR dla.DLA_PlantQuantity LIKE '%$search%'
+						OR dla.DLA_PlantPrice LIKE '%$search%'
+						OR dla.DLA_PlantTotalPrice LIKE '%$search%'
+						OR dla.DLA_GrandTotal LIKE '%$search%'
+						OR lds.LDS_Name LIKE '%$search%'
+					)";
+		}
+		else{
+			if ($_GET['optCompanyID']!=-1) {
+				$query .="AND dla.DLA_CompanyID='".$_GET['optCompanyID']."' ";
+			}
+			if ($_GET['optDocumentStatusID']!=-1) {
+				$query .="AND lds.LDS_Name='".$_GET['optDocumentStatusID']."' ";
+			}
+			if($_GET['txtDateStart']!=""&&$_GET['txtDateEnd']!="") {
+				$query .="AND (dl.DLA_Period BETWEEN STR_TO_DATE('".$_GET['txtDateStart']."', '%m/%d/%Y') AND STR_TO_DATE('".$_GET['txtDateEnd']."', '%m/%d/%Y'))";
+			}
+			else if($_GET['txtDateStart']!=""){
+				$query .="AND (dl.DLA_Period > STR_TO_DATE('".$_GET['txtDateStart']."', '%m/%d/%Y'))";
+			}
+			else if($_GET['txtDateEnd']!=""){
+				$query .="AND (dl.DLA_Period < STR_TO_DATE('".$_GET['txtDateEnd']."', '%m/%d/%Y'))";
+			}
+		// elseif ($_GET[phase]<>NULL) {
+			// $query .="AND dla.DLA_Phase='$_GET[phase]' ";
+		// }
+		}
+		$querylimit .="ORDER BY dla.DLA_ID LIMIT $offset, $dataPerPage";
+	}
 
 $queryAll=$query.$querylimit;
 $sql = mysql_query($queryAll);
