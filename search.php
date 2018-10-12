@@ -55,7 +55,7 @@ $landAcquisitionOpt->requester=[];
 $landAcquisitionOpt->year=[];
 $landAcquisitionOpt->month=[];
 $queryLandAcquisition="SELECT DISTINCT mu.User_ID,mu.User_FullName,mc.Company_Name,mc.Company_ID,
-							MONTH(thrgolad.THRGOLAD_RegistrationDate) docMont,YEAR(thrgolad.THRGOLAD_RegistrationDate) docYear
+							MONTH(thrgolad.THRGOLAD_RegistrationDate) docMonth,YEAR(thrgolad.THRGOLAD_RegistrationDate) docYear
 						FROM TH_RegistrationOfLandAcquisitionDocument thrgolad
 						LEFT JOIN M_User mu
 							ON thrgolad.THRGOLAD_UserID=mu.User_ID
@@ -92,7 +92,7 @@ $licenseOpt->year=[];
 $licenseOpt->month=[];
 $queryLegal="SELECT DISTINCT mu.User_ID,mu.User_FullName,mc.Company_Name,mc.Company_ID,
 					throld.THROLD_DocumentGroupID,mdt.DocumentType_ID,mdt.DocumentType_Name,
-					MONTH(throld.THROLD_RegistrationDate) docMont,YEAR(throld.THROLD_RegistrationDate) docYear
+					MONTH(throld.THROLD_RegistrationDate) docMonth,YEAR(throld.THROLD_RegistrationDate) docYear
 				FROM TH_RegistrationOfLegalDocument throld
 				LEFT JOIN M_User mu
 					ON throld.THROLD_UserID=mu.User_ID
@@ -209,16 +209,16 @@ $allOpt[3]=$landAcquisitionOpt;
 $allOpt[4]=$assetOwnershipOpt;
 $allOpt[5]=$sqlOtherLegal;
 $allOpt[6]=$otherNonLegalOpt;
+$encoded = json_encode($allOpt);
 ?>
-var filterObject = <?=json_encode($allOpt)?>;
+var filterObject = <?=($encoded==""?"''":$encoded)?>;
 
 </script>
 
 <script language="JavaScript" type="text/JavaScript">
 // VALIDASI INPUT PEMILIHAN GRUP DOKUMEN
 function validateInput(elem) {
-	var optTHROLD_DocumentGroupID = document.getElementById('optTHROLD_DocumentGroupID').selectedIndex;
-
+	var optTHROLD_DocumentGroupID = document.getElementById('optTHROLD_DocumentGroupID').value;
 	if(optTHROLD_DocumentGroupID == -1) {
 		alert("Grup Dokumen Belum Dipilih!");
 		return false;
@@ -538,7 +538,7 @@ $ActionContent ="
 			<select name='optTHROLD_DocumentGroupID' id='optTHROLD_DocumentGroupID' onchange='showFilter();'>
 				<option value='-1'>--- Pilih Grup Dokumen ---</option>";
 
-			$query = "SELECT *
+			$query = "SELECT DISTINCT DocumentGroup_ID,DocumentGroup_Name
 					  FROM M_DocumentGroup
 					  WHERE DocumentGroup_Delete_Time is NULL";
 			$sql = mysql_query($query);
@@ -561,7 +561,7 @@ $ActionContent .="
 			<select name='optCompanyID' id='optCompanyID' onchange='showFilter();'>
 				<option value='-1'>--- Pilih Perusahaan ---</option>";
 
-			$query = "SELECT Company_ID,Company_Name 
+			$query = "SELECT DISTINCT Company_ID,Company_Name 
 						FROM M_Company
 						WHERE Company_Delete_Time IS NULL";
 			$sql = mysql_query($query);
@@ -601,15 +601,15 @@ $ActionContent .="
 			<select name='optDocumentStatusID' id='optDocumentStatusID' onchange='showFilter();'>
 				<option value='-1'>--- Pilih Status Dokumen ---</option>";
 
-			$query = "SELECT DRS_Name 
-						FROM M_DocumentRegistrationStatus
-						WHERE DRS_Delete_Time IS NULL";
+			$query = "SELECT DISTINCT LDS_Name 
+						FROM M_LoanDetailStatus
+						WHERE LDS_Delete_Time IS NULL";
 			$sql = mysql_query($query);
 
 			while ($field = mysql_fetch_object($sql) ){
 
 $ActionContent .="
-				<option value='".$field->DRS_Name."'>".$field->DRS_Name."</option>";
+				<option value='".$field->LDS_Name."'>".$field->LDS_Name."</option>";
 			}
 $ActionContent .="
 			</select>
@@ -690,35 +690,25 @@ $offset = ($noPage - 1) * $dataPerPage;
 						OR dl.DL_NoDoc LIKE '%$search%'
 						OR dl.DL_PubDate LIKE '%$search%'
 						OR dl.DL_ExpDate LIKE '%$search%'
+						OR lds.LDS_Name LIKE '%$search%'
 					)";
 		}
 		else{
-			if ($_GET['optCompanyID']!=1) {
+			if ($_GET['optCompanyID']!=-1) {
 				$query .="AND dl.DL_CompanyID='".$_GET['optCompanyID']."' ";
 			}
 			if ($_GET['optDocumentStatusID']!=-1) {
-				$query .="AND dl.DL_Status='".$_GET['optDocumentStatusID']."' ";
+				$query .="AND lds.LDS_Name='".$_GET['optDocumentStatusID']."' ";
 			}
 			if($_GET['txtDateStart']!=""&&$_GET['txtDateEnd']!="") {
-				$query .="AND (
-				(dl.DL_RegTime BETWEEN STR_TO_DATE('".$_GET['txtDateStart']."', '%m/%d/%Y') AND STR_TO_DATE('".$_GET['txtDateEnd']."', '%m/%d/%Y'))
-				OR (dl.DL_PubDate BETWEEN STR_TO_DATE('".$_GET['txtDateStart']."', '%m/%d/%Y') AND STR_TO_DATE('".$_GET['txtDateEnd']."', '%m/%d/%Y'))
-				OR (dl.DL_ExpDate BETWEEN STR_TO_DATE('".$_GET['txtDateStart']."', '%m/%d/%Y') AND STR_TO_DATE('".$_GET['txtDateEnd']."', '%m/%d/%Y'))
+				$query .="AND (dl.DL_PubDate BETWEEN STR_TO_DATE('".$_GET['txtDateStart']."', '%m/%d/%Y') AND STR_TO_DATE('".$_GET['txtDateEnd']."', '%m/%d/%Y')
 				)";
 			}
 			else if($_GET['txtDateStart']!=""){
-				$query .="AND (
-				(dl.DL_RegTime > STR_TO_DATE('".$_GET['txtDateStart']."', '%m/%d/%Y'))
-				OR (dl.DL_PubDate > STR_TO_DATE('".$_GET['txtDateStart']."', '%m/%d/%Y'))
-				OR (dl.DL_ExpDate > STR_TO_DATE('".$_GET['txtDateStart']."', '%m/%d/%Y'))
-				)";
+				$query .="AND (dl.DL_PubDate > STR_TO_DATE('".$_GET['txtDateStart']."', '%m/%d/%Y'))";
 			}
 			else if($_GET['txtDateEnd']!=""){
-				$query .="AND (
-				(dl.DL_RegTime < STR_TO_DATE('".$_GET['txtDateEnd']."', '%m/%d/%Y'))
-				OR (dl.DL_PubDate < STR_TO_DATE('".$_GET['txtDateEnd']."', '%m/%d/%Y'))
-				OR (dl.DL_ExpDate < STR_TO_DATE('".$_GET['txtDateEnd']."', '%m/%d/%Y'))
-				)";
+				$query .="AND (dl.DL_PubDate < STR_TO_DATE('".$_GET['txtDateEnd']."', '%m/%d/%Y'))";
 			}
 		}
 		$querylimit .="ORDER BY dl.DL_ID LIMIT $offset, $dataPerPage";
@@ -758,32 +748,24 @@ $offset = ($noPage - 1) * $dataPerPage;
 						OR dla.DLA_PlantPrice LIKE '%$search%'
 						OR dla.DLA_PlantTotalPrice LIKE '%$search%'
 						OR dla.DLA_GrandTotal LIKE '%$search%'
+						OR lds.LDS_Name LIKE '%$search%'
 					)";
 		}
 		else{
-			if ($_GET['optCompanyID']!=1) {
+			if ($_GET['optCompanyID']!=-1) {
 				$query .="AND dla.DLA_CompanyID='".$_GET['optCompanyID']."' ";
 			}
 			if ($_GET['optDocumentStatusID']!=-1) {
-				$query .="AND dla.DLA_Status='".$_GET['optDocumentStatusID']."' ";
+				$query .="AND lds.LDS_Name='".$_GET['optDocumentStatusID']."' ";
 			}
 			if($_GET['txtDateStart']!=""&&$_GET['txtDateEnd']!="") {
-				$query .="AND (
-				(dl.DLA_RegTime BETWEEN STR_TO_DATE('".$_GET['txtDateStart']."', '%m/%d/%Y') AND STR_TO_DATE('".$_GET['txtDateEnd']."', '%m/%d/%Y'))
-				OR (dl.DLA_DocDate BETWEEN STR_TO_DATE('".$_GET['txtDateStart']."', '%m/%d/%Y') AND STR_TO_DATE('".$_GET['txtDateEnd']."', '%m/%d/%Y'))
-				)";
+				$query .="AND (dl.DLA_Period BETWEEN STR_TO_DATE('".$_GET['txtDateStart']."', '%m/%d/%Y') AND STR_TO_DATE('".$_GET['txtDateEnd']."', '%m/%d/%Y'))";
 			}
 			else if($_GET['txtDateStart']!=""){
-				$query .="AND (
-				(dl.DLA_RegTime > STR_TO_DATE('".$_GET['txtDateStart']."', '%m/%d/%Y'))
-				OR (dl.DLA_DocDate > STR_TO_DATE('".$_GET['txtDateStart']."', '%m/%d/%Y'))
-				)";
+				$query .="AND (dl.DLA_Period > STR_TO_DATE('".$_GET['txtDateStart']."', '%m/%d/%Y'))";
 			}
 			else if($_GET['txtDateEnd']!=""){
-				$query .="AND (
-				(dl.DLA_RegTime < STR_TO_DATE('".$_GET['txtDateEnd']."', '%m/%d/%Y'))
-				OR (dl.DLA_DocDate < STR_TO_DATE('".$_GET['txtDateEnd']."', '%m/%d/%Y'))
-				)";
+				$query .="AND (dl.DLA_Period < STR_TO_DATE('".$_GET['txtDateEnd']."', '%m/%d/%Y'))";
 			}
 		// elseif ($_GET[phase]<>NULL) {
 			// $query .="AND dla.DLA_Phase='$_GET[phase]' ";
