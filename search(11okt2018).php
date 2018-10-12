@@ -17,7 +17,6 @@ session_start();
 <style>
 
 </style>
-<script type="text/javascript" src="./js/datetimepicker.js"></script>
 <script language="JavaScript" type="text/JavaScript">
 <?php
 $assetOwnershipOpt=new stdClass();
@@ -213,307 +212,6 @@ $allOpt[6]=$otherNonLegalOpt;
 var filterObject = <?=json_encode($allOpt)?>;
 
 </script>
-
-<script language="JavaScript" type="text/JavaScript">
-// VALIDASI INPUT PEMILIHAN GRUP DOKUMEN
-function validateInput(elem) {
-	var optTHROLD_DocumentGroupID = document.getElementById('optTHROLD_DocumentGroupID').selectedIndex;
-
-	if(optTHROLD_DocumentGroupID == -1) {
-		alert("Grup Dokumen Belum Dipilih!");
-		return false;
-	}
-	/*else if(optTHROLD_DocumentGroupID == 3) {
-		var phase = document.getElementById('phase').value;
-
-		if (phase.replace(" ", "") != "") {
-			if(isNaN(phase)){
-				alert ("Tahap Harus Berupa Angka [0-9]!");
-				return false;
-			}
-		}
-	}*/
-	return true;
-}
-
-// VALIDASI INPUT PEMILIHAN DOKUMEN YANG AKAN DICETAK BARCODE NYA
-function validateBarcodePrint(elem) {
-	var returnValue;
-	returnValue = false;
-
-	var cBarcodePrint = document.getElementsByName('cBarcodePrint[]');
-
-	for (var i = 0; i < cBarcodePrint.length; i++){
-		if (cBarcodePrint[i].checked) {
-			returnValue = true;
-			break;
-		}
-	}
-	if (!returnValue) {
-		alert("Anda Belum Memilih Dokumen Yang Akan Dicetak Barcodenya!");
-	}
-	return returnValue;
-}
-
-// JQUERY UNTUK MENAMPILKAN TIPE DOKUMEN DARI KATEGORI DOKUMEN YANG DIPILIH
-function showType(){
-	var txtGrupID = document.getElementById('optFilterGrupDokumen').value;
- 		$.post("jQuery.DocumentType.php", {
-			CategoryID: $('#optFilterGrupDokumen').val(),
-			GroupID: txtGrupID
-		}, function(response){
-
-			setTimeout("finishAjax('optFilterTipeDokumen', '"+escape(response)+"')", 400);
-		});
-}
-
-// MENAMPILKAN DETAIL FILTER
-function showFilterDetail() {
-	$.post("jQuery.TransactionListFilter.php", {
-		optTHROLD_DocumentGroupID : $('#optTHROLD_DocumentGroupID').val(),
-		optFilterHeader : $('#optFilterHeader').val()
-	}, function(response){
-
-		setTimeout("finishAjax('optFilterDetail', '"+escape(response)+"')", 400);
-	});
-}
-function finishAjax(id, response){
-  $('#'+id).html(unescape(response));
-}
-
-//MENAMPILKAN DAFTAR FASE BILA GRUP DOKUMEN ADALAH GRL
-function showFilter(){
-	if (document.getElementById('optTHROLD_DocumentGroupID').value=="3"){
-		document.getElementById('optPhase').style.display = "inline";
-		document.getElementById('optFilterHeader').options[0]=new Option('--- Pilih Keterangan Dokumen ---', '0');
-		document.getElementById('optFilterHeader').options[1]=new Option('Perusahaan', '1');
-		document.getElementById('optFilterHeader').options[2]=new Option('Status', '5');
-	}
-	else {
-		document.getElementById('optPhase').style.display = "none";
-		document.getElementById('optFilterHeader').options[0]=new Option('--- Pilih Keterangan Dokumen ---', '0');
-		document.getElementById('optFilterHeader').options[1]=new Option('Perusahaan', '1');
-		document.getElementById('optFilterHeader').options[2]=new Option('Kategori Dokumen', '2');
-		document.getElementById('optFilterHeader').options[3]=new Option('Tipe Dokumen', '3');
-		document.getElementById('optFilterHeader').options[4]=new Option('Status', '5');
-	}
-}
-
-// JQUERY UNTUK MENAMPILKAN TIPE DOKUMEN DARI KATEGORI DOKUMEN YANG DIPILIH
-function showType(){
-	var txtDL_GroupDocID = document.getElementById('DocumentGroup_ID').value;
-		$.post("jQuery.DocumentType.php", {
-			CategoryID: $('#txtDL_CategoryDocID').val(),
-			GroupID: txtDL_GroupDocID
-		}, function(response){
-
-			setTimeout("finishAjax('txtDL_TypeDocID', '"+escape(response)+"')", 400);
-		});
-}
-function finishAjax(id, response){
-  $('#'+id).html(unescape(response));
-}
-
-// VALIDASI TANGGAL
-var dtCh= "/";
-var minYear=1900;
-var maxYear=2100;
-
-function isInteger(s){
-	var i;
-    for (i = 0; i < s.length; i++){
-        // Check that current character is number.
-        var c = s.charAt(i);
-        if (((c < "0") || (c > "9"))) return false;
-    }
-    // All characters are numbers.
-    return true;
-}
-
-function stripCharsInBag(s, bag){
-	var i;
-    var returnString = "";
-    // Search through string's characters one by one.
-    // If character is not in bag, append to returnString.
-    for (i = 0; i < s.length; i++){
-        var c = s.charAt(i);
-        if (bag.indexOf(c) == -1) returnString += c;
-    }
-    return returnString;
-}
-
-function daysInFebruary (year){
-	// February has 29 days in any year evenly divisible by four,
-    // EXCEPT for centurial years which are not also divisible by 400.
-    return (((year % 4 == 0) && ( (!(year % 100 == 0)) || (year % 400 == 0))) ? 29 : 28 );
-}
-function DaysArray(n) {
-	for (var i = 1; i <= n; i++) {
-		this[i] = 31
-		if (i==4 || i==6 || i==9 || i==11) {this[i] = 30}
-		if (i==2) {this[i] = 29}
-   }
-   return this
-}
-
-function checkdate(dtStr){
-	var daysInMonth = DaysArray(12)
-	var pos1=dtStr.indexOf(dtCh)
-	var pos2=dtStr.indexOf(dtCh,pos1+1)
-	var strMonth=dtStr.substring(0,pos1)
-	var strDay=dtStr.substring(pos1+1,pos2)
-	var strYear=dtStr.substring(pos2+1)
-	strYr=strYear
-	if (strDay.charAt(0)=="0" && strDay.length>1) strDay=strDay.substring(1)
-	if (strMonth.charAt(0)=="0" && strMonth.length>1) strMonth=strMonth.substring(1)
-	for (var i = 1; i <= 3; i++) {
-		if (strYr.charAt(0)=="0" && strYr.length>1) strYr=strYr.substring(1)
-	}
-	month=parseInt(strMonth)
-	day=parseInt(strDay)
-	year=parseInt(strYr)
-	if (pos1==-1 || pos2==-1){
-		alert("Format Tanggal : MM/DD/YYYY")
-		return false
-	}
-	if (strMonth.length<1 || month<1 || month>12){
-		alert("Bulan Tidak Valid")
-		return false
-	}
-	if (strDay.length<1 || day<1 || day>31 || (month==2 && day>daysInFebruary(year)) || day > daysInMonth[month]){
-		alert("Hari Tidak Valid")
-		return false
-	}
-	if (strYear.length != 4 || year==0 || year<minYear || year>maxYear){
-		alert("Masukkan 4 Digit Tahun Dari "+minYear+" Dan "+maxYear)
-		return false
-	}
-	if (dtStr.indexOf(dtCh,pos2+1)!=-1 || isInteger(stripCharsInBag(dtStr, dtCh))==false){
-		alert("Tanggal Tidak Valid")
-		return false
-	}
-return true
-}
-
-// VALIDASI BAGIAN DETAIL SAAT EDIT DOKUMEn
-function validateInputEdit(elem) {
-	var returnValue;
-	returnValue = true;
-
-		var txtDL_CategoryDocID = document.getElementById('txtDL_CategoryDocID').selectedIndex;
-		var txtDL_TypeDocID = document.getElementById('txtDL_TypeDocID').selectedIndex;
-		var txtDL_Instance = document.getElementById('txtDL_Instance').value;
-		var txtDL_NoDoc = document.getElementById('txtDL_NoDoc').value;
-		var txtDL_RegDate = document.getElementById('txtDL_RegDate').value;
-		var txtDL_ExpDate = document.getElementById('txtDL_ExpDate').value;
-		var txtDL_Information1 = document.getElementById('txtDL_Information1').selectedIndex;
-		var txtDL_Information2 = document.getElementById('txtDL_Information2').selectedIndex;
-		var Date1 = new Date(txtDL_RegDate);
-		var Date2 = new Date(txtDL_ExpDate);
-
-		if(txtDL_CategoryDocID == 0) {
-			alert("Kategori Dokumen Belum Dipilih!");
-			returnValue = false;
-		}
-		if(txtDL_TypeDocID == 0) {
-			alert("Tipe Dokumen Belum Dipilih!");
-			returnValue = false;
-		}
-		if (txtDL_Instance.replace(" ", "") == "")  {
-			alert("Nama Instansi Belum Terisi!");
-			returnValue = false;
-		}
-		if (txtDL_NoDoc.replace(" ", "") == "")  {
-			alert("Nomor Dokumen Belum Terisi!");
-			returnValue = false;
-		}
-		if (txtDL_RegDate.replace(" ", "") == "")  {
-			alert("Tanggal Publikasi Belum Terisi!");
-			returnValue = false;
-		}
-		if (txtDL_RegDate.replace(" ", "") != "")  {
-			if (checkdate(txtDL_RegDate) == false) {
-				returnValue = false;
-			}
-		}
-		if (txtDL_ExpDate.replace(" ", "") != "")  {
-			if (checkdate(txtDL_ExpDate) == false) {
-				returnValue = false;
-			}
-			else {
-				if (Date2 < Date1) {
-				alert("Tanggal Habis Masa Berlaku Lebih Kecil Daripada Tanggal Publikasi!");
-				returnValue = false;
-				}
-			}
-		}
-		if(txtDL_Information1 == 0) {
-			alert("Informasi Dokumen 1 Belum Dipilih!");
-			returnValue = false;
-		}
-		if(txtDL_Information2 == 0) {
-			alert("Informasi Dokumen 2 Belum Dipilih!");
-			returnValue = false;
-		}
-	return returnValue;
-}
-
-// VALIDASI BAGIAN DETAIL SAAT EDIT DOKUMEn
-function validateInputEditLA(elem) {
-	var returnValue;
-	returnValue = true;
-
-		var txtDLA_Phase = document.getElementById('txtDLA_Phase').value;
-		var txtDLA_Village = document.getElementById('txtDLA_Village').value;
-		var txtDLA_Block = document.getElementById('txtDLA_Block').value;
-		var txtDLA_Owner = document.getElementById('txtDLA_Owner').value;
-		var txtDLA_Period = document.getElementById('txtDLA_Period').value;
-		var txtDLA_DocDate = document.getElementById('txtDLA_DocDate').value;
-
-		if (txtDLA_Phase.replace(" ", "") == "")  {
-			alert("Tahap Pembebasan Lahan Belum Terisi!");
-			returnValue = false;
-		}
-		if (txtDLA_Village.replace(" ", "") == "")  {
-			alert("Nama Desa Belum Terisi!");
-			returnValue = false;
-		}
-		if (txtDLA_Block.replace(" ", "") == "")  {
-			alert("Blok Belum Terisi!");
-			returnValue = false;
-		}
-		if (txtDLA_Owner.replace(" ", "") == "")  {
-			alert("Nama Pemilik Belum Terisi!");
-			returnValue = false;
-		}
-		if (txtDLA_Period.replace(" ", "") == "")  {
-			alert("Periode Ganti Rugi Belum Terisi!");
-			returnValue = false;
-		}
-		if (txtDLA_Period.replace(" ", "") != "")  {
-			if (checkdate(txtDLA_Period) == false) {
-				returnValue = false;
-			}
-		}
-		if (txtDLA_DocDate.replace(" ", "") == "")  {
-			alert("Tanggal Dokumen Belum Terisi!");
-			returnValue = false;
-		}
-		if (txtDLA_DocDate.replace(" ", "") != "")  {
-			if (checkdate(txtDLA_DocDate) == false) {
-				returnValue = false;
-			}
-		}
-	return returnValue;
-}
-
-//PERHITUNGAN TOTAL
-function countTotal(){
-	document.getElementById('txtDLA_AreaTotalPrice').value=document.getElementById('txtDLA_AreaStatement').value * document.getElementById('txtDLA_AreaPrice').value;
-	document.getElementById('txtDLA_PlantTotalPrice').value=document.getElementById('txtDLA_PlantQuantity').value * document.getElementById('txtDLA_PlantPrice').value;
-	document.getElementById('txtDLA_GrandTotal').value=parseInt(document.getElementById('txtDLA_AreaTotalPrice').value) + parseInt(document.getElementById('txtDLA_PlantTotalPrice').value);
-}
-</script>
 </head>
 
 <?PHP
@@ -527,7 +225,7 @@ require_once "./include/template.inc";
 $page=new Template();
 
 $ActionContent ="
-	<form name='list' method='GET' action='search.php'>
+	<form name='list' method='GET' action='document-list2.php'>
 	<table width='100%' id='mytable' class='stripeMe'>
 	<tr>
 		<th colspan=4>Pencarian Dokumen</th>
@@ -536,7 +234,7 @@ $ActionContent ="
 		<td>Grup Dokumen</td>
 		<td>
 			<select name='optTHROLD_DocumentGroupID' id='optTHROLD_DocumentGroupID' onchange='showFilter();'>
-				<option value='-1'>--- Pilih Grup Dokumen ---</option>";
+				<option value='0'>--- Pilih Grup ---</option>";
 
 			$query = "SELECT *
 					  FROM M_DocumentGroup
@@ -556,78 +254,44 @@ $ActionContent .="
 		</td>-->
 	</tr>
 	<tr>
-		<td>Perusahaan</td>
-		<td>
-			<select name='optCompanyID' id='optCompanyID' onchange='showFilter();'>
-				<option value='-1'>--- Pilih Perusahaan ---</option>";
-
-			$query = "SELECT Company_ID,Company_Name 
-						FROM M_Company
-						WHERE Company_Delete_Time IS NULL";
-			$sql = mysql_query($query);
-
-			while ($field = mysql_fetch_object($sql) ){
-
-$ActionContent .="
-				<option value='".$field->Company_ID."'>".$field->Company_Name."</option>";
-			}
-$ActionContent .="
-			</select>
-		</td>
-	</tr>
-	<!--tr>
-		<td>Tahap Dokumen</td>
-		<td>
-			<select name='optDocumentStepID' id='optDocumentStepID' onchange='showFilter();'>
-				<option value='-1'>--- Pilih Tahap Dokumen ---</option>
-				<option value='1'>Registrasi</option>
-				<option value='2'>Permintaan</option>
-				<option value='3'>Pengeluaran</option>
-				<option value='4'>Pengembalian</option>
-			</select>
-		</td>
-	</tr-->
-	<tr>
-		<td>Tanggal</td>
-		<td>
-			<input type='text' size='10' readonly='readonly' name='txtDateStart' id='txtDateStart' placeholder='Tanggal awal' onclick=\"javascript:NewCssCal('txtDateStart', 'MMddyyyy');\"/>
-			<span>sampai</span>
-			<input type='text' size='10' readonly='readonly' name='txtDateEnd' id='txtDateEnd'  placeholder='Tanggal akhir' onclick=\"javascript:NewCssCal('txtDateEnd', 'MMddyyyy');\"/>
-		</td>
-	</tr>
-	<tr>
-		<td>Status Dokumen</td>
-		<td>
-			<select name='optDocumentStatusID' id='optDocumentStatusID' onchange='showFilter();'>
-				<option value='-1'>--- Pilih Status Dokumen ---</option>";
-
-			$query = "SELECT DRS_Name 
-						FROM M_DocumentRegistrationStatus
-						WHERE DRS_Delete_Time IS NULL";
-			$sql = mysql_query($query);
-
-			while ($field = mysql_fetch_object($sql) ){
-
-$ActionContent .="
-				<option value='".$field->DRS_Name."'>".$field->DRS_Name."</option>";
-			}
-$ActionContent .="
-			</select>
-		</td>
-	</tr>
-	<tr>
 		<td>SEARCH</td>
 		<td>
-			<input name='txtSearch' type='text' placeholder='Filter'/>
+			<input name='txtSearch' type='text'/>
 		</td>
 	</tr>
 	<tr>
 		<th colspan='2'>
 			<input name='listdocument' type='submit' value='Cari' class='button' onclick='return validateInput(this);'/>
-			<input name='resetFilter' type='submit' value='Reset' class='button'/>
+			<input name='filter' type='submit' value='Filter' class='button'/>
 			<input name='export_to_excel' type='submit' value='&nbsp;Export to Excel&nbsp;' class='button-blue' />
 		</th>
 	</tr>";
+	if (isset($_GET[filter])) {
+$ActionContent .="
+	<tr>
+		<td>Filter</td>
+		<td>:</td>
+		<td colspan=4>
+			<select name='optFilterHeader' id='optFilterHeader' onchange='showFilterDetail(this.value);'>
+				<option value='0'>--- Pilih Grup Dokumen Terlebih Dahulu ---</option>
+		</td>
+	</tr>
+	<tr>
+		<td></td><td></td><td>
+			<select name='optFilterDetail' id='optFilterDetail' class='filter'>
+				<option value='0'>--- Pilih Filter Terlebih Dahulu ---</option>
+			</select>
+		</td>
+	</tr>
+	<tr>
+		<td></td><td></td><td>
+			<div id='optPhase' style='display:none;'>
+			Tahap GRL : <input type='text'  name='phase' id='phase' size='5'>
+			</div>
+		</td>
+	</tr>
+";
+	}
 $ActionContent .="
 	</table>
 	</form>
@@ -650,7 +314,7 @@ else
 	$noPage = 1;
 
 $offset = ($noPage - 1) * $dataPerPage;
-	if ($_GET['optTHROLD_DocumentGroupID'] ==  '1' or $_GET['optTHROLD_DocumentGroupID'] == '2'){
+	if ($_GET[optTHROLD_DocumentGroupID]<>'3'){
 		$query = "SELECT dl.DL_ID, dl.DL_DocCode, c.Company_Name, dc.DocumentCategory_Name,
 		dt.DocumentType_Name, dl.DL_PubDate, lds.LDS_Name, dg.DocumentGroup_Name
 		FROM
@@ -668,7 +332,7 @@ $offset = ($noPage - 1) * $dataPerPage;
 		AND dl.DL_Information2 = di2.DocumentInformation2_ID
 		AND dl.DL_Delete_Time IS NULL ";
 
-		if ($_GET['txtSearch']) {
+		if ($_GET[txtSearch]) {
 			$search=$_GET['txtSearch'];
 			$query .="AND (
 						dl.DL_DocCode LIKE '%$search%'
@@ -692,38 +356,21 @@ $offset = ($noPage - 1) * $dataPerPage;
 						OR dl.DL_ExpDate LIKE '%$search%'
 					)";
 		}
-		else{
-			if ($_GET['optCompanyID']!=1) {
-				$query .="AND dl.DL_CompanyID='".$_GET['optCompanyID']."' ";
-			}
-			if ($_GET['optDocumentStatusID']!=-1) {
-				$query .="AND dl.DL_Status='".$_GET['optDocumentStatusID']."' ";
-			}
-			if($_GET['txtDateStart']!=""&&$_GET['txtDateEnd']!="") {
-				$query .="AND (
-				(dl.DL_RegTime BETWEEN STR_TO_DATE('".$_GET['txtDateStart']."', '%m/%d/%Y') AND STR_TO_DATE('".$_GET['txtDateEnd']."', '%m/%d/%Y'))
-				OR (dl.DL_PubDate BETWEEN STR_TO_DATE('".$_GET['txtDateStart']."', '%m/%d/%Y') AND STR_TO_DATE('".$_GET['txtDateEnd']."', '%m/%d/%Y'))
-				OR (dl.DL_ExpDate BETWEEN STR_TO_DATE('".$_GET['txtDateStart']."', '%m/%d/%Y') AND STR_TO_DATE('".$_GET['txtDateEnd']."', '%m/%d/%Y'))
-				)";
-			}
-			else if($_GET['txtDateStart']!=""){
-				$query .="AND (
-				(dl.DL_RegTime > STR_TO_DATE('".$_GET['txtDateStart']."', '%m/%d/%Y'))
-				OR (dl.DL_PubDate > STR_TO_DATE('".$_GET['txtDateStart']."', '%m/%d/%Y'))
-				OR (dl.DL_ExpDate > STR_TO_DATE('".$_GET['txtDateStart']."', '%m/%d/%Y'))
-				)";
-			}
-			else if($_GET['txtDateEnd']!=""){
-				$query .="AND (
-				(dl.DL_RegTime < STR_TO_DATE('".$_GET['txtDateEnd']."', '%m/%d/%Y'))
-				OR (dl.DL_PubDate < STR_TO_DATE('".$_GET['txtDateEnd']."', '%m/%d/%Y'))
-				OR (dl.DL_ExpDate < STR_TO_DATE('".$_GET['txtDateEnd']."', '%m/%d/%Y'))
-				)";
-			}
+		elseif ($_GET[optFilterHeader]==1) {
+			$query .="AND dl.DL_CompanyID='$_GET[optFilterDetail]' ";
+		}
+		elseif ($_GET[optFilterHeader]==2) {
+			$query .="AND dl.DL_CategoryDocID='$_GET[optFilterDetail]' ";
+		}
+		elseif ($_GET[optFilterHeader]==3) {
+			$query .="AND dl.DL_TypeDocID='$_GET[optFilterDetail]' ";
+		}
+		elseif ($_GET[optFilterHeader]==5) {
+			$query .="AND dl.DL_Status='$_GET[optFilterDetail]' ";
 		}
 		$querylimit .="ORDER BY dl.DL_ID LIMIT $offset, $dataPerPage";
 	}
-	elseif ($_GET['optTHROLD_DocumentGroupID']=='3'){
+	elseif ($_GET[optTHROLD_DocumentGroupID]=='3'){
 		$query = "SELECT dla.DLA_ID, c.Company_Name, dla.DLA_Phase, dla.DLA_Period, dla.DLA_DocRevision, lds.LDS_Name,
 						 dla.DLA_Code
 				  FROM M_DocumentLandAcquisition dla, M_Company c, M_User u,  M_LoanDetailStatus lds
@@ -732,7 +379,7 @@ $offset = ($noPage - 1) * $dataPerPage;
 				  AND dla.DLA_Status=lds.LDS_ID
 				  AND dla.DLA_RegUserID=u.User_ID ";
 
-		if ($_GET['txtSearch']) {
+		if ($_GET[txtSearch]) {
 			$search=$_GET['txtSearch'];
 			$query .="AND (
 						dla.DLA_Code LIKE '%$search%'
@@ -760,34 +407,14 @@ $offset = ($noPage - 1) * $dataPerPage;
 						OR dla.DLA_GrandTotal LIKE '%$search%'
 					)";
 		}
-		else{
-			if ($_GET['optCompanyID']!=1) {
-				$query .="AND dla.DLA_CompanyID='".$_GET['optCompanyID']."' ";
-			}
-			if ($_GET['optDocumentStatusID']!=-1) {
-				$query .="AND dla.DLA_Status='".$_GET['optDocumentStatusID']."' ";
-			}
-			if($_GET['txtDateStart']!=""&&$_GET['txtDateEnd']!="") {
-				$query .="AND (
-				(dl.DLA_RegTime BETWEEN STR_TO_DATE('".$_GET['txtDateStart']."', '%m/%d/%Y') AND STR_TO_DATE('".$_GET['txtDateEnd']."', '%m/%d/%Y'))
-				OR (dl.DLA_DocDate BETWEEN STR_TO_DATE('".$_GET['txtDateStart']."', '%m/%d/%Y') AND STR_TO_DATE('".$_GET['txtDateEnd']."', '%m/%d/%Y'))
-				)";
-			}
-			else if($_GET['txtDateStart']!=""){
-				$query .="AND (
-				(dl.DLA_RegTime > STR_TO_DATE('".$_GET['txtDateStart']."', '%m/%d/%Y'))
-				OR (dl.DLA_DocDate > STR_TO_DATE('".$_GET['txtDateStart']."', '%m/%d/%Y'))
-				)";
-			}
-			else if($_GET['txtDateEnd']!=""){
-				$query .="AND (
-				(dl.DLA_RegTime < STR_TO_DATE('".$_GET['txtDateEnd']."', '%m/%d/%Y'))
-				OR (dl.DLA_DocDate < STR_TO_DATE('".$_GET['txtDateEnd']."', '%m/%d/%Y'))
-				)";
-			}
-		// elseif ($_GET[phase]<>NULL) {
-			// $query .="AND dla.DLA_Phase='$_GET[phase]' ";
-		// }
+		elseif ($_GET[optFilterHeader]==1) {
+			$query .="AND dla.DLA_CompanyID='$_GET[optFilterDetail]' ";
+		}
+		elseif ($_GET[optFilterHeader]==5) {
+			$query .="AND dla.DLA_Status='$_GET[optFilterDetail]' ";
+		}
+		elseif ($_GET[phase]<>NULL) {
+			$query .="AND dla.DLA_Phase='$_GET[phase]' ";
 		}
 		$querylimit .="ORDER BY dla.DLA_ID LIMIT $offset, $dataPerPage";
 	}
@@ -797,8 +424,8 @@ $sql = mysql_query($queryAll);
 $num = mysql_num_rows($sql);
 $sqldg = mysql_query($queryAll);
 $arr = mysql_fetch_array($sqldg);
-//echo $queryAll;
-	if ($_GET['optTHROLD_DocumentGroupID'] == '1' or $_GET['optTHROLD_DocumentGroupID'] == '2'){
+echo $queryAll;
+	if ($_GET[optTHROLD_DocumentGroupID]<>'3'){
 		if ($num==NULL) {
 		$MainContent .="
 			<table width='100%' border='1' class='stripeMe'>
@@ -822,7 +449,7 @@ $arr = mysql_fetch_array($sqldg);
 			<form name='list' method='GET' target='_blank' action='print-document-barcode.php' onsubmit='return validateBarcodePrint(this);'>
 			<table width='100%' border='1' class='stripeMe'>
 			<tr>
-				<th colspan='7' align='center'>Daftar Dokumen $arr[DocumentGroup_Name]</th>
+				<th colspan=8 align='center'>Daftar Dokumen $arr[DocumentGroup_Name]</th>
 			</tr>
 			<tr>
 				<th>ID</th>
@@ -858,7 +485,7 @@ $arr = mysql_fetch_array($sqldg);
 		}
 	}
 
-	elseif ($_GET['optTHROLD_DocumentGroupID']=='3'){
+	elseif ($_GET[optTHROLD_DocumentGroupID]=='3'){
 		if ($num==NULL) {
 		$MainContent .="
 			<table width='100%' border='1' class='stripeMe'>
@@ -882,7 +509,7 @@ $arr = mysql_fetch_array($sqldg);
 			<form name='list' method='GET' action='print-land-acquisition-document-barcode.php' onsubmit='return validateBarcodePrint(this);' target='_blank'>
 			<table width='100%' border='1' class='stripeMe'>
 			<tr>
-				<th colspan='7' align='center'>Daftar Dokumen Pembebasan Lahan</th>
+				<th colspan=10 align='center'>Daftar Dokumen Pembebasan Lahan</th>
 			</tr>
 			<tr>
 				<th>ID</th>
@@ -892,6 +519,7 @@ $arr = mysql_fetch_array($sqldg);
 				<th>Periode</th>
 				<th>Revisi</th>
 				<th>Status</th>
+
 			</tr>
 		";
 
@@ -908,12 +536,15 @@ $arr = mysql_fetch_array($sqldg);
 				<td class='center'>$fregdate</td>
 				<td class='center'>$field[4]</td>
 				<td class='center'>$field[5]</td>
+				<td class='center'><input name='cBarcodePrint[]' type='checkbox' value='$field[0]' /></td>
+				<td class='center'><a href='$PHP_SELF?act=editLA&id=$field[0]'><img title='Ubah' src='./images/icon-edit1.png' width='20'></a></td>
 			</tr>
 		";
 			$no=$no+1;
 			}
 		$MainContent .="
 			</table>
+			<center><input name='printbarcode' type='submit' value='Cetak Barcode' class='button' /></center>
 			</form>
 		";
 		}
@@ -1366,7 +997,6 @@ $MainContent .="
 			AND lds.LDS_ID=dla.DLA_Status";
 		$sql = mysql_query($query);
 		$arr = mysql_fetch_array($sql);
-		//echo $query;
 	}
 	if($act=='detailLA') {
 		$regdate=strtotime($arr['DLA_RegTime']);
