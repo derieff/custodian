@@ -243,8 +243,7 @@ function mail_notif_return_doc($retCode, $User_ID, $status){
 	//$mail->AddAttachment("images/icon_addrow.png", "icon_addrow.png");  // optional name
 
 		$ed_query="	SELECT DISTINCT Company_Name, TDRTOAOD_Information,
-						-- THROLD_Reason,
-						TDRTOAOD_UserID,TDRTOAOD_ID,User_FullName,
+						TDRTOAOD_Reason, TDRTOAOD_UserID,TDRTOAOD_ID,User_FullName,
 						m_e.Employee_FullName nama_pemilik,
  					    m_mk.MK_Name merk_kendaraan, DAO_NoPolisi,
  					    DAO_STNK_StartDate, DAO_STNK_ExpiredDate
@@ -279,8 +278,7 @@ function mail_notif_return_doc($retCode, $User_ID, $status){
 			$edNum=$edNum+1;
 			$info=$ed_arr->TDRTOAOD_Information;
 			$docID=$ed_arr->TDRTOAOD_ID;
-			// $reason=$ed_arr->THROLD_Reason;
-			$reason="";
+			$reason=$ed_arr->TDRTOAOD_Reason;
 			$regUser=$ed_arr->TDRTOAOD_UserID;
 			$requester=$ed_arr->User_FullName;
 		}

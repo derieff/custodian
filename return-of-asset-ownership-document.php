@@ -39,15 +39,15 @@ function validateInputDetail(elem) {
 		else {
 			<?php
  				$query = "SELECT *
-				  		  FROM TD_ReleaseOfAssetOwnershipDocument tdrloaod, TD_LoanOfAssetOwnershipDocument tdloaod, M_DocumentAssetOwnership dao
-				  		  WHERE tdrloaod.TDROAOD_TDLOAOD_ID=tdloaod.TDLOAOD_ID
-				  		  AND dao.DAO_DocCode=tdloaod.TDLOAOD_DocCode
+				  		  FROM TD_ReleaseOfAssetOwnershipDocument tdrloaod, TD_LoanOfAssetOwnershipDocument tdaooaod, M_DocumentAssetOwnership dao
+				  		  WHERE tdrloaod.TDROAOD_TDAOOAOD_ID=tdaooaod.TDAOOAOD_ID
+				  		  AND dao.DAO_DocCode=tdaooaod.TDAOOAOD_DocCode
 						  AND dao.DAO_Status='4'
 			   			  AND tdrloaod.TDROAOD_ReturnCode='0'";
  				$result = mysql_query($query);
 				while ($data = mysql_fetch_array($result)) {
-					$TDLOAOD_DocCode = $data['TDLOAOD_DocCode'];
-					$a = "if (txtTDRTOAOD_DocCode == '$TDLOAOD_DocCode') {";
+					$TDAOOAOD_DocCode = $data['TDAOOAOD_DocCode'];
+					$a = "if (txtTDRTOAOD_DocCode == '$TDAOOAOD_DocCode') {";
 					$a .= "checkDocCode = 1; ";
 					$a .= "}";
 				echo $a;
@@ -268,8 +268,23 @@ if(isset($_GET["act"]))
 
 	if($act=='detail') {
 		$id=$_GET['id'];
+        $do=$_GET["do"];
+
+		// Cek apakah user berikut memiliki hak untuk approval
+        $cApp_query="SELECT DISTINCT dra.A_ApproverID
+        		  	 FROM TD_ReturnOfAssetOwnershipDocument tdrtoaod, M_Approval dra
+        			 WHERE tdrtoaod.TDRTOAOD_Delete_Time is NULL
+        			 AND dra.A_ApproverID='$_SESSION[User_ID]'
+        			 AND dra.A_Status='2'
+        			 AND dra.A_TransactionCode=tdrtoaod.TDRTOAOD_ReturnCode
+        			 AND tdrtoaod.TDRTOAOD_ReturnCode='$id'";
+        $approver=mysql_num_rows(mysql_query($cApp_query));
+        $appQuery=(($do=='approve')&&($approver=="1"))?"AND m_app.A_ApproverID='$_SESSION[User_ID]'":"AND m_app.A_Status='2'";
+
 		$query1 = "SELECT  tdrtoaod.TDRTOAOD_ReturnCode, u.User_FullName, d.Division_Name, dp.Department_Name,
-		    			   p.Position_Name, tdrtoaod.TDRTOAOD_ReturnTime
+		    			   p.Position_Name, tdrtoaod.TDRTOAOD_ReturnTime, u.User_ID,
+						   tdrtoaod.TDRTOAOD_Status, drs.DRS_Description, tdrtoaod.TDRTOAOD_Reason,
+                           (SELECT u1.User_FullName FROM M_User u1 WHERE u1.User_ID=m_app.A_ApproverID) waitingApproval
 			   	   FROM TD_ReturnOfAssetOwnershipDocument tdrtoaod
 				   LEFT JOIN M_User u
 						ON tdrtoaod.TDRTOAOD_UserID=u.User_ID
@@ -282,18 +297,29 @@ if(isset($_GET["act"]))
 						ON ddp.DDP_DeptID=dp.Department_ID
 				   LEFT JOIN M_Position p
 						ON ddp.DDP_PosID=p.Position_ID
+				   LEFT JOIN M_Approval m_app
+     					ON tdrtoaod.TDRTOAOD_ReturnCode=m_app.A_TransactionCode
+                        $appQuery
+                   LEFT JOIN M_DocumentRegistrationStatus drs
+   			        	ON tdrtoaod.TDRTOAOD_Status=drs.DRS_Name
 			       WHERE tdrtoaod.TDRTOAOD_ReturnCode='$id'";
 		$sql1 = mysql_query($query1);
 		$field1 = mysql_fetch_array($sql1);
 		$fregdate=date('j M Y', strtotime($field1[TDRTOAOD_ReturnTime]));
 
-
 		$ActionContent ="
-		<table width='100%' id='mytable' class='stripeMe'>
-		<th colspan=3>Pengembalian Dokumen Kepemilikan Aset</th>
-		<tr>
+		<form name='app-doc' method='post' action='$PHP_SELF'>
+		<table width='100%' id='mytable' class='stripeMe'>";
+		if(($do=='approve')&&($approver=="1"))
+        	$ActionContent .="<th colspan=3>Persetujuan Pengembalian Dokumen Kepemilikan Aset</th>";
+        else
+            $ActionContent .="<th colspan=3>Pengembalian Dokumen Kepemilikan Aset</th>";
+		$ActionContent .="<tr>
 			<td width='30%'>No Pengembalian</td>
-			<td width='67%'>$field1[TDRTOAOD_ReturnCode]</td>
+			<td width='67%'>
+				<input type='hidden' name='txtTDRTOAOD_ReturnCode' id='txtTDRTOAOD_ReturnCode' value='$field1[TDRTOAOD_ReturnCode]'>
+				$field1[TDRTOAOD_ReturnCode]
+			</td>
 			<td width='3%'><a href='print-return-of-asset-ownership-document.php?id=$field1[TDRTOAOD_ReturnCode]' target='_blank'><img src='./images/icon-print.png'></a>
 			</td>
 		</tr>
@@ -303,7 +329,10 @@ if(isset($_GET["act"]))
 		</tr>
 		<tr>
 			<td>Nama</td>
-			<td colspan='2'>$field1[User_FullName]</td>
+			<td colspan='2'>
+				<input type='hidden' name='txtUser_ID' id='txtUser_ID' value='$field1[User_ID]'>
+				$field1[User_FullName]
+			</td>
 		</tr>
 		<tr>
 			<td>Divisi</td>
@@ -316,8 +345,73 @@ if(isset($_GET["act"]))
 		<tr>
 			<td>Jabatan</td>
 			<td colspan='2'>$field1[Position_Name]</td>
-		</tr>
-		</table>
+		</tr>";
+
+        if(($do=='approve')&&($approver=="1")) {
+        	$ActionContent .="
+        	<tr>
+        		<td>Persetujuan</td>
+        		<td colspan='2'>
+        			<select name='optTDRTOAOD_Status' id='optTDRTOAOD_Status'>
+        				<option value='0'>--- Menunggu Persetujuan ---</option>";
+        					$q_drs="SELECT *
+        								FROM M_DocumentRegistrationStatus
+        								WHERE (DRS_Name <> '' AND DRS_Name <> 'waiting')
+        								AND DRS_Delete_Time is NULL";
+        					$s_drs = mysql_query($q_drs);
+        					while ($f_drs=mysql_fetch_array($s_drs)) {
+        						if ($f_drs['DRS_ID']==3)
+        							$ActionContent .="<option value='$f_drs[DRS_ID]'>Setuju</option>";
+        						else if ($f_drs['DRS_ID']==4)
+        							$ActionContent .="<option value='$f_drs[DRS_ID]'>Tolak</option>";
+        					}
+        	$ActionContent .="
+        			</select>
+        		</td>
+        	</tr>
+        	<tr>
+        		<td>Keterangan Persetujuan</td>
+        		<td colspan='2'>
+        			<textarea name='txtTDRTOAOD_Reason' id='txtTDRTOAOD_Reason' cols='50' rows='2'>$arr[TDRTOAOD_Reason]</textarea>
+        			<br>*Wajib Diisi Apabila Dokumen Ditolak.
+        		</td>
+        	</tr>";
+        }else {
+        	$ActionContent .="<tr>
+        		<td>Status Dokumen</td>";
+
+        	if($field1['TDRTOAOD_Status']=="waiting") {
+        		$ActionContent .="
+        		      <td colspan='2'>Menunggu Persetujuan $field1[waitingApproval]</td>
+                </tr>";
+        	}else if($field1['TDRTOAOD_Status']=="accept") {
+        		$ActionContent .="
+        			<td colspan='2'>Disetujui</td>
+        		</tr>";
+        	}else if($field1['TDRTOAOD_Status']=="reject") {
+        		$ActionContent .="
+        			<td colspan='2'>Ditolak</td>
+        		</tr>
+        		<tr>
+        			<td>Alasan</td>
+        			<td colspan='2'>$field1[TDRTOAOD_Reason]</td>
+        		</tr>";
+        	}else {
+        		$ActionContent .="
+        		      <td colspan='2'>Draft</td>
+                </tr>";
+        	}
+        }
+        if(($do=='approve')&&($approver=="1")) {
+        	$ActionContent .="
+        	<th colspan=11>
+        		<input name='approval' type='submit' value='Simpan' class='button' onclick='return validateInput(this);'/>
+        		<input name='cancel' type='submit' value='Batal' class='button'/>
+        	</th>";
+        }
+		$ActionContent .="
+        </table>
+        </form>
 
 		<div class='detail-title'>Daftar Dokumen</div>
 		<table width='100%' id='mytable' class='stripeMe'>
@@ -502,7 +596,7 @@ if ($noPage < $jumPage)
 	$Pager .= "<a href=$PHP_SELF?page=$next>Next &gt;&gt;</a> ";
 
 /* ACTIONS */
-if(isset($_POST[cancel])) {
+if(isset($_POST['cancel'])) {
 	echo "<meta http-equiv='refresh' content='0; url=return-of-asset-ownership-document.php'>";
 }
 
@@ -563,7 +657,7 @@ elseif(isset($_POST['adddetail'])) {
 				   '$_SESSION[User_ID]', sysdate(),'$_SESSION[User_ID]',sysdate(),NULL,NULL)";
 
 	if($mysqli->query($sql)) {
-		$count=$_POST[countRow];
+		$count=$_POST['countRow'];
 
 		//Insert Detail
 		for ($i=1 ; $i<=$count ; $i++) {
@@ -572,21 +666,21 @@ elseif(isset($_POST['adddetail'])) {
 
 			$sql1= "INSERT INTO TD_ReturnOfAssetOwnershipDocument
 					VALUES (NULL,'$CT_Code','$txtTDRTOAOD_DocCode','$txtTDRTOAOD_Information',
-							'waiting', sysdate(),
+							'waiting', NULL, sysdate(),
 							'$_SESSION[User_ID]','$_SESSION[User_ID]', sysdate(),NULL,NULL)";
 			$mysqli->query($sql1);
 
-			$sql2="UPDATE TD_ReleaseOfAssetOwnershipDocument tdrloaod, TD_LoanOfAssetOwnershipDocument tdloaod, M_DocumentAssetOwnership dao
+			$sql2="UPDATE TD_ReleaseOfAssetOwnershipDocument tdrloaod, TD_LoanOfAssetOwnershipDocument tdaooaod, M_DocumentAssetOwnership dao
 				   SET tdrloaod.TDROAOD_ReturnCode='$CT_Code',
 				   	   tdrloaod.TDROAOD_Update_UserID='$_SESSION[User_ID]',
 					   tdrloaod.TDROAOD_Update_Time=sysdate(),
 					   dao.DAO_Status='1',
 				   	   dao.DAO_Update_UserID='$_SESSION[User_ID]',
 					   dao.DAO_Update_Time=sysdate()
-				   WHERE tdrloaod.TDROAOD_TDLOAOD_ID=tdloaod.TDLOAOD_ID
+				   WHERE tdrloaod.TDROAOD_TDAOOAOD_ID=tdaooaod.TDAOOAOD_ID
 				   AND tdrloaod.TDROAOD_ReturnCode='0'
-				   AND tdloaod.TDLOAOD_DocCode='$txtTDRTOAOD_DocCode'
-				   AND dao.DAO_DocCode=tdloaod.TDLOAOD_DocCode";
+				   AND tdaooaod.TDAOOAOD_DocCode='$txtTDRTOAOD_DocCode'
+				   AND dao.DAO_DocCode=tdaooaod.TDAOOAOD_DocCode";
 			$mysqli->query($sql2);
 		}
 
@@ -622,6 +716,172 @@ elseif(isset($_POST['adddetail'])) {
 		}
 	}
 	echo "<meta http-equiv='refresh' content='0; url=return-of-asset-ownership-document.php'>";
+}
+
+if(isset($_POST['approval'])){
+    $A_TransactionCode=$_POST['txtTDRTOAOD_ReturnCode'];
+	$A_ApproverID=$_SESSION['User_ID'];
+	$A_Status=$_POST['optTDRTOAOD_Status'];
+	$TDRTOAOD_Reason=str_replace("<br>", "\n",$_POST['txtTDRTOAOD_Reason']);
+
+	// MENCARI TAHAP APPROVAL USER TERSEBUT
+	$query = "SELECT *
+				FROM M_Approval
+				WHERE A_TransactionCode='$A_TransactionCode'
+				AND A_ApproverID='$A_ApproverID'";
+	$sql = mysql_query($query);
+	$arr = mysql_fetch_array($sql);
+	$step=$arr['A_Step'];
+	$AppDate=$arr['A_ApprovalDate'];
+
+	if ($AppDate==NULL) {
+        // MENCARI JUMLAH APPROVAL
+        $query = "SELECT MAX(A_Step) AS jStep
+                    FROM M_Approval
+                    WHERE A_TransactionCode='$A_TransactionCode'";
+        $sql = mysql_query($query);
+        $arr = mysql_fetch_array($sql);
+        $jStep=$arr['jStep'];
+
+        // UPDATE APPROVAL
+        $query = "UPDATE M_Approval
+                    SET A_Status='$A_Status', A_ApprovalDate=sysdate(), A_Update_UserID='$A_ApproverID',
+                        A_Update_Time=sysdate()
+                    WHERE A_ID='$A_ID'";
+        $sql = mysql_query($query);
+
+        // PROSES BILA "SETUJU"
+        if ($A_Status=='3') {
+            // CEK APAKAH MERUPAKAN APPROVAL FINAL
+            if ($step <> $jStep) {
+                $nStep=$step+1;
+                $query = "UPDATE M_Approval
+                            SET A_Status='2', A_Update_UserID='$A_ApproverID', A_Update_Time=sysdate()
+                            WHERE A_TransactionCode='$A_TransactionCode'
+                            AND A_Step='$nStep'";
+                if ($sql = mysql_query($query)) {
+                    mail_return_doc($A_TransactionCode);
+                    echo "<meta http-equiv='refresh' content='0; url=home.php'>";
+    			}
+            }else{
+                $query = "UPDATE TD_ReturnOfAssetOwnershipDocument
+                            SET TDRTOAOD_Status='accept', TDRTOAOD_Update_UserID='$A_ApproverID',
+                                TDRTOAOD_Update_Time=sysdate()
+                            WHERE TDRTOAOD_ReturnCode='$A_TransactionCode'
+                            AND TDRTOAOD_Delete_Time IS NULL";
+                if ($sql = mysql_query($query)) {
+                    // ACTION UNTUK GENERATE NO DOKUMEN
+                    $regyear=date("Y");
+                    $rmonth=date("n");
+
+                    // Mengubah Bulan ke Romawi
+                    switch ($rmonth)	{
+                        case 1: $regmonth="I"; break;
+                        case 2: $regmonth="II"; break;
+                        case 3: $regmonth="III"; break;
+                        case 4: $regmonth="IV"; break;
+                        case 5: $regmonth="V"; break;
+                        case 6: $regmonth="VI"; break;
+                        case 7: $regmonth="VII"; break;
+                        case 8: $regmonth="VIII"; break;
+                        case 9: $regmonth="IX"; break;
+                        case 10: $regmonth="X"; break;
+                        case 11: $regmonth="XI"; break;
+                        case 12: $regmonth="XII"; break;
+                    }
+
+                    // Cari Kode Perusahaan
+                    $query = "SELECT *
+                                FROM M_Company
+                                WHERE Company_ID='$h_arr[DAO_CompanyID]'";
+                    $sql = mysql_query($query);
+                    $field = mysql_fetch_array($sql);
+                    $Company_Code=$field['Company_Code'];
+
+                    // Cari Kode Dokumen Grup
+                    $query = "SELECT *
+                                FROM M_DocumentGroup
+                                WHERE DocumentGroup_ID ='$h_arr[DAO_GroupDocID]'";
+                    $sql = mysql_query($query);
+                    $field = mysql_fetch_array($sql);
+                    $DocumentGroup_Code=$field['DocumentGroup_Code'];
+
+                    // Cari No Dokumen Terakhir
+                    $query = "SELECT MAX(CD_SeqNo)
+                                FROM M_CodeDocument
+                                WHERE CD_Year='$regyear'
+                                -- AND CT_Action='DOUT'
+                                AND CD_GroupDocCode='$DocumentGroup_Code'
+                                AND CD_CompanyCode='$Company_Code'
+                                AND CD_Delete_Time is NULL";
+                    $sql = mysql_query($query);
+                    $field = mysql_fetch_array($sql);
+
+                    if($field[0]==NULL)
+                        $maxnum=0;
+                    else
+                        $maxnum=$field[0];
+                    $nnum=$maxnum+1;
+
+                    $d_query="SELECT *
+                              FROM TD_ReturnOfAssetOwnershipDocument tdrtoaod,
+                                   M_DocumentAssetOwnership dao
+                              WHERE tdrtoaod.TDRTOAOD_ReturnCode='$h_arr[TDRTOAOD_ReturnCode]'
+                              AND tdrtoaod.TDRTOAOD_Delete_Time IS NULL
+                              AND tdrtoaod.TDRTOAOD_DocCode=dao.DAO_DocCode";
+                    $d_sql=mysql_query($d_query);
+                    while($d_arr=mysql_fetch_array($d_sql)){
+                        $newnum=str_pad($nnum,3,"0",STR_PAD_LEFT);
+                        // Kode Pengeluaran Dokumen
+                        $CT_Code="$newnum/DRETN/$Company_Code/$DocumentGroup_Code/$regmonth/$regyear";
+
+                        $docStatus = 1; //Dokumen Tersedia kembali pada Custodian
+                        $query1="UPDATE M_DocumentAssetOwnership
+                                 SET DAO_Status='$docStatus', DAO_Update_UserID='$A_ApproverID',
+                                     DAO_Update_Time=sysdate()
+                                 WHERE DAO_DocCode='$d_arr[DAO_DocCode]'";
+                        // $query2="INSERT INTO M_CodeTransaction
+                        // 	   	 VALUES (NULL,'$CT_Code','$nnum','DRETN','$Company_Code','$DocumentGroup_Code',
+                        // 				 '$rmonth','$regyear','$A_ApproverID',sysdate(),
+                        // 				 '$A_ApproverID',sysdate(),NULL,NULL)";
+
+                        $mysqli->query($query1);
+                        // $mysqli->query($query2);
+                        $nnum=$nnum+1;
+                    }
+                    mail_notif_return_doc($A_TransactionCode, $h_arr['TDRTOAOD_UserID'], 3 );
+                    mail_notif_return_doc($A_TransactionCode, "cust0002", 3 );
+                }
+            }
+        }
+        // PROSES BILA "TOLAK"
+    	if ($A_Status=='4') {
+    		$query = "UPDATE TD_ReturnOfAssetOwnershipDocument
+    					SET TDRTOAOD_Status='reject', TDRTOAOD_Reason='$TDRTOAOD_Reason',
+    						TDRTOAOD_Update_Time=sysdate(), TDRTOAOD_Update_UserID='$A_ApproverID'
+    					WHERE TDRTOAOD_ReturnCode='$A_TransactionCode'";
+
+    		$query1 = "UPDATE M_Approval
+    					SET A_Delete_Time=sysdate(), A_Delete_UserID='$A_ApproverID',
+    						A_Status='$A_Status'
+    					WHERE A_TransactionCode='$A_TransactionCode'
+    					AND A_Step>'$step'";
+    		if (($sql = mysql_query($query)) && ($sql1 = mysql_query($query1))) {
+    			$txtDAO_ID=$_POST['txtDAO_ID'];
+    			$jumlah=count($txtDAO_ID);
+
+    			for ($i=0;$i<$jumlah;$i++) {
+    				$query = "UPDATE M_DocumentAssetOwnership
+    						  SET DAO_Status='4', DAO_Update_UserID='$A_ApproverID', DAO_Update_Time=sysdate()
+    						  WHERE DAO_ID='$txtDAO_ID[$i]'";
+    				$mysqli->query($query);
+    			}
+    			// mail_notif_release_doc($A_TransactionCode, $_POST['txtTHLOLD_UserID'], 4 );
+    			mail_notif_return_doc($A_TransactionCode, $_POST['txtUser_ID'], 4 );
+    			echo "<meta http-equiv='refresh' content='0; url=home.php'>";
+    		}
+    	}
+    }
 }
 
 $page->ActContent($ActionContent);

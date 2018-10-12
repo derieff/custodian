@@ -212,9 +212,7 @@ if(($_GET['cfm'])&&($_GET['ati'])&&($_GET['rdm'])) {
 		</table>";
 					}
 				}
-			}else{ //Apabila Approval Ditolak
-
-            }
+			}
 		}
 		else {
 			echo "
@@ -262,6 +260,185 @@ if(($_GET['cfm'])&&($_GET['ati'])&&($_GET['rdm'])) {
 		</tr>
 		</tbody>
 		</table>";
+	}
+}
+
+if(isset($_GET['act'])) {
+	$act=$decrp->decrypt($_GET['act']);
+	if ($act=='reject'){
+		$A_ID=$decrp->decrypt($_GET['ati']);
+		$ARC_RandomCode=$decrp->decrypt($_GET['rdm']);
+
+		echo "
+		<form name='reason' method='post' action='$PHP_SELF'>
+		<table border='0' align='center' cellpadding='0' cellspacing='0'>
+		<tbody>
+		<tr>
+			<td style='text-align:left !important'; class='header'>Custodian System</td>
+		</tr>
+		<tr>
+			<td><input type='hidden' name='A_ID' value='$A_ID'>
+				<input type='hidden' name='ARC_RandomCode' value='$ARC_RandomCode'>
+				<textarea name='txtTDRTOAOD_Reason' id='txtTDRTOAOD_Reason' rows='3'>$arr[TDRTOAOD_Reason]</textarea>
+				<br>*Wajib Diisi Apabila Anda Tidak Menyetujui Pengeluaran Dokumen.<br>
+			</td>
+		</tr>
+		<tr>
+			<td>
+				<center><input name='reject' type='submit' value='Tolak'/></center>
+			</td>
+		</tr>
+		<tr>
+			<td class='footer'>Powered By Custodian System</td>
+		</tr>
+		</tbody>
+		</table>
+		</form>";
+	}
+}
+
+if(isset($_POST['reject'])) {
+	$A_Status='4';
+	$A_ID=$_POST['A_ID'];
+	$ARC_RandomCode=$_POST['ARC_RandomCode'];
+
+	if (str_replace(" ", "", $_POST['txtTDRTOAOD_Reason'])==NULL){
+		echo "<meta http-equiv='refresh' content='0; url=act.mail.retdocao.php?act=".$decrp->encrypt('reject').">";
+	}
+	else {
+		$TDRTOAOD_Reason=str_replace("<br>", "\n",$_POST['txtTDRTOAOD_Reason']);
+		$query = "SELECT *
+				  FROM L_ApprovalRandomCode
+				  WHERE ARC_AID='$A_ID'
+				  AND ARC_RandomCode='$ARC_RandomCode'";
+		$sql = mysql_query($query);
+		$num = mysql_num_rows($sql);
+
+		if ($num==1) {
+
+			$query = "SELECT *
+				  	  FROM M_Approval
+				  	  WHERE A_ID='$A_ID'";
+			$sql = mysql_query($query);
+			$arr = mysql_fetch_array($sql);
+			$step=$arr['A_Step'];
+			$AppDate=$arr['A_ApprovalDate'];
+			$A_TransactionCode=$arr['A_TransactionCode'];
+			$A_ApproverID=$arr['A_ApproverID'];
+
+			if ($AppDate==NULL) {
+
+				$h_query="SELECT *
+						  FROM TD_ReturnOfAssetOwnershipDocument tdrtoaod
+						  WHERE tdrtoaod.TDRTOAOD_ReturnCode='$A_TransactionCode'
+						  AND tdrtoaod.TDRTOAOD_Delete_Time IS NULL";
+				$h_sql=mysql_query($h_query);
+				$h_arr=mysql_fetch_array($h_sql);
+
+				$query1="UPDATE TD_ReturnOfAssetOwnershipDocument
+						 SET TDRTOAOD_Status='reject', TDRTOAOD_Reason='$TDRTOAOD_Reason',
+						  	 TDRTOAOD_Update_Time=sysdate(), TDRTOAOD_Update_UserID='$A_ApproverID'
+						 WHERE TDRTOAOD_ReturnCode='$A_TransactionCode'";
+
+				// UPDATE APPROVAL
+				$query2="UPDATE M_Approval
+						 SET A_Status='$A_Status', A_ApprovalDate=sysdate(), A_Update_UserID='$A_ApproverID',
+							 A_Update_Time=sysdate()
+						 WHERE A_ID='$A_ID'";
+
+				$query3="UPDATE M_Approval
+						 SET A_Update_Time=sysdate(), A_Update_UserID='$A_ApproverID',
+						     A_Delete_Time=sysdate(), A_Delete_UserID='$A_ApproverID',
+							 A_Status='$A_Status'
+						 WHERE A_TransactionCode='$A_TransactionCode'
+						 AND A_Step>='$step'";
+				$mysqli->query($query1);
+				$mysqli->query($query2);
+				$mysqli->query($query3);
+
+				$d_query="SELECT *
+						  FROM TD_ReturnOfAssetOwnershipDocument tdrtoaod
+                          LEFT JOIN M_DocumentAssetOwnership dao
+                            ON tdrtoaod.TDRTOAOD_DocCode=dao.DAO_DocCode
+						  WHERE tdrtoaod.TDRTOAOD_ReturnCode='$h_arr[TDRTOAOD_ReturnCode]'
+						  AND tdrtoaod.TDRTOAOD_Delete_Time IS NULL
+						  ";
+				$d_sql=mysql_query($d_query);
+				while($d_arr=mysql_fetch_array($d_sql)){
+					$query="UPDATE M_DocumentAssetOwnership
+						    SET DAO_Status='4', DAO_Update_UserID='$A_ApproverID', DAO_Update_Time=sysdate()
+						    WHERE DAO_DocCode='$d_arr[DAO_DocCode]'";
+					$mysqli->query($query);
+				}
+				// mail_notif_return_doc($A_TransactionCode, $h_arr['THLOLD_UserID'], 4 );
+				mail_notif_return_doc($A_TransactionCode, $h_arr['TDRTOAOD_UserID'], 4 );
+				echo "
+				<table border='0' align='center' cellpadding='0' cellspacing='0'>
+				<tbody>
+				<tr>
+					<td class='header'>Persetujuan Berhasil</td>
+				</tr>
+				<tr>
+					<td>
+						Persetujuan Anda Telah Disimpan.<br>
+						Terima kasih.<br><br>
+						Hormat Kami,<br />Departemen Custodian<br />
+						PT Triputra Agro Persada
+					</td>
+				</tr>
+				<tr>
+					<td class='footer'>Powered By Custodian System </td>
+				</tr>
+				</tbody>
+				</table>";
+			}
+			else {
+				echo "
+			<table border='0' align='center' cellpadding='0' cellspacing='0'>
+			<tbody>
+			<tr>
+				<td class='header'>Persetujuan Gagal</td>
+			</tr>
+			<tr>
+				<td>
+					Anda tidak dapat melakukan persetujuan ini<br>
+					karena Anda telah melakukan persetujuan sebelumnya.<br>
+					Terima kasih.<br><br>
+					Hormat Kami,<br />Departemen Custodian<br />
+					PT Triputra Agro Persada
+				</td>
+			</tr>
+			<tr>
+				<td class='footer'>
+				Powered By Custodian System </td>
+			</tr>
+			</tbody>
+			</table>";
+			}
+		}
+		else {
+						echo "
+		<table border='0' align='center' cellpadding='0' cellspacing='0'>
+		<tbody>
+		<tr>
+			<td class='header'>Persetujuan Gagal</td>
+		</tr>
+		<tr>
+			<td>
+				Anda tidak dapat melakukan persetujuan ini<br>
+				karena Anda tidak memiliki hak persetujuan untuk transaksi ini.<br>
+				Terima kasih.<br><br>
+				Hormat Kami,<br />Departemen Custodian<br />
+				PT Triputra Agro Persada
+			</td>
+		</tr>
+		<tr>
+			<td class='footer'>
+			Powered By Custodian System </td>
+		</tr>
+		</tbody>
+		</table>";
+		}
 	}
 }
 ?>

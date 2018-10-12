@@ -191,8 +191,23 @@ if(isset($_GET["act"]))
 
 	if($act=='detail') {
 		$id=$_GET['id'];
+		$do=$_GET["do"];
+
+		// Cek apakah user berikut memiliki hak untuk approval
+        $cApp_query="SELECT DISTINCT dra.A_ApproverID
+        		  	 FROM TD_ReturnOfLandAcquisitionDocument tdrtolad, M_Approval dra
+        			 WHERE tdrtolad.TDRTOLAD_Delete_Time is NULL
+        			 AND dra.A_ApproverID='$_SESSION[User_ID]'
+        			 AND dra.A_Status='2'
+        			 AND dra.A_TransactionCode=tdrtolad.TDRTOLAD_ReturnCode
+        			 AND tdrtolad.TDRTOLAD_ReturnCode='$id'";
+        $approver=mysql_num_rows(mysql_query($cApp_query));
+        $appQuery=(($do=='approve')&&($approver=="1"))?"AND m_app.A_ApproverID='$_SESSION[User_ID]'":"AND m_app.A_Status='2'";
+
 		$query1 = "SELECT  tdrtolad.TDRTOLAD_ReturnCode, u.User_FullName, d.Division_Name, dp.Department_Name,
-		    			   p.Position_Name, tdrtolad.TDRTOLAD_ReturnTime
+		    			   p.Position_Name, tdrtolad.TDRTOLAD_ReturnTime, u.User_ID,
+						   tdrtolad.TDRTOLAD_Status, drs.DRS_Description, tdrtolad.TDRTOLAD_Reason,
+                           (SELECT u1.User_FullName FROM M_User u1 WHERE u1.User_ID=m_app.A_ApproverID) waitingApproval
 			   	   FROM TD_ReturnOfLandAcquisitionDocument tdrtolad
 				   LEFT JOIN M_User u
 						ON tdrtolad.TDRTOLAD_UserID=u.User_ID
@@ -205,6 +220,11 @@ if(isset($_GET["act"]))
 						ON ddp.DDP_DeptID=dp.Department_ID
 				   LEFT JOIN M_Position p
 						ON ddp.DDP_PosID=p.Position_ID
+				   LEFT JOIN M_Approval m_app
+      					ON tdrtolad.TDRTOLAD_ReturnCode=m_app.A_TransactionCode
+                     	$appQuery
+                   LEFT JOIN M_DocumentRegistrationStatus drs
+			        	ON tdrtolad.TDRTOLAD_Status=drs.DRS_Name
 			       WHERE tdrtolad.TDRTOLAD_ReturnCode='$id'";
 		$sql1 = mysql_query($query1);
 		$field1 = mysql_fetch_array($sql1);
@@ -212,11 +232,18 @@ if(isset($_GET["act"]))
 
 
 		$ActionContent ="
-		<table width='100%' id='mytable' class='stripeMe'>
-		<th colspan=3>Pengembalian Dokumen Pembebasan Lahan</th>
-		<tr>
+		<form name='app-doc' method='post' action='$PHP_SELF'>
+		<table width='100%' id='mytable' class='stripeMe'>";
+		if(($do=='approve')&&($approver=="1"))
+        	$ActionContent .="<th colspan=3>Persetujuan Pengembalian Dokumen Pembebasan Lahan</th>";
+        else
+            $ActionContent .="<th colspan=3>Pengembalian Dokumen Pembebasan Lahan</th>";
+		$ActionContent .="<tr>
 			<td width='30%'>No Pengembalian</td>
-			<td width='67%'>$field1[TDRTOLAD_ReturnCode]</td>
+			<td width='67%'>
+				<input type='hidden' name='txtTDRTOLAD_ReturnCode' id='txtTDRTOLAD_ReturnCode' value='$field1[TDRTOLAD_ReturnCode]'>
+				$field1[TDRTOLAD_ReturnCode]
+			</td>
 			<td width='3%'><a href='print-return-of-land-acquisition-document.php?id=$field1[TDRTOLAD_ReturnCode]' target='_blank'><img src='./images/icon-print.png'></a>
 			</td>
 		</tr>
@@ -226,7 +253,10 @@ if(isset($_GET["act"]))
 		</tr>
 		<tr>
 			<td>Nama</td>
-			<td colspan='2'>$field1[User_FullName]</td>
+			<td colspan='2'>
+				<input type='hidden' name='txtUser_ID' id='txtUser_ID' value='$field1[User_ID]'>
+				$field1[User_FullName]
+			</td>
 		</tr>
 		<tr>
 			<td>Divisi</td>
@@ -239,8 +269,73 @@ if(isset($_GET["act"]))
 		<tr>
 			<td>Jabatan</td>
 			<td colspan='2'>$field1[Position_Name]</td>
-		</tr>
-		</table>
+		</tr>";
+
+        if(($do=='approve')&&($approver=="1")) {
+        	$ActionContent .="
+        	<tr>
+        		<td>Persetujuan</td>
+        		<td colspan='2'>
+        			<select name='optTDRTOLAD_Status' id='optTDRTOLAD_Status'>
+        				<option value='0'>--- Menunggu Persetujuan ---</option>";
+        					$q_drs="SELECT *
+        								FROM M_DocumentRegistrationStatus
+        								WHERE (DRS_Name <> '' AND DRS_Name <> 'waiting')
+        								AND DRS_Delete_Time is NULL";
+        					$s_drs = mysql_query($q_drs);
+        					while ($f_drs=mysql_fetch_array($s_drs)) {
+        						if ($f_drs['DRS_ID']==3)
+        							$ActionContent .="<option value='$f_drs[DRS_ID]'>Setuju</option>";
+        						else if ($f_drs['DRS_ID']==4)
+        							$ActionContent .="<option value='$f_drs[DRS_ID]'>Tolak</option>";
+        					}
+        	$ActionContent .="
+        			</select>
+        		</td>
+        	</tr>
+        	<tr>
+        		<td>Keterangan Persetujuan</td>
+        		<td colspan='2'>
+        			<textarea name='txtTDRTOLAD_Reason' id='txtTDRTOLAD_Reason' cols='50' rows='2'>$arr[TDRTOLAD_Reason]</textarea>
+        			<br>*Wajib Diisi Apabila Dokumen Ditolak.
+        		</td>
+        	</tr>";
+        }else {
+        	$ActionContent .="<tr>
+        		<td>Status Dokumen</td>";
+
+        	if($field1['TDRTOLAD_Status']=="waiting") {
+        		$ActionContent .="
+        		      <td colspan='2'>Menunggu Persetujuan $field1[waitingApproval]</td>
+                </tr>";
+        	}else if($field1['TDRTOLAD_Status']=="accept") {
+        		$ActionContent .="
+        			<td colspan='2'>Disetujui</td>
+        		</tr>";
+        	}else if($field1['TDRTOLAD_Status']=="reject") {
+        		$ActionContent .="
+        			<td colspan='2'>Ditolak</td>
+        		</tr>
+        		<tr>
+        			<td>Alasan</td>
+        			<td colspan='2'>$field1[TDRTOLAD_Reason]</td>
+        		</tr>";
+        	}else {
+        		$ActionContent .="
+        		      <td colspan='2'>Draft</td>
+                </tr>";
+        	}
+        }
+        if(($do=='approve')&&($approver=="1")) {
+        	$ActionContent .="
+        	<th colspan=11>
+        		<input name='approval' type='submit' value='Simpan' class='button' onclick='return validateInput(this);'/>
+        		<input name='cancel' type='submit' value='Batal' class='button'/>
+        	</th>";
+        }
+		$ActionContent .="
+        </table>
+        </form>
 
 		<div class='detail-title'>Daftar Dokumen</div>
 		<table width='100%' id='mytable' class='stripeMe'>
@@ -392,11 +487,11 @@ if ($noPage < $jumPage)
 	$Pager .= "<a href=$PHP_SELF?page=$next>Next &gt;&gt;</a> ";
 
 /* ACTIONS */
-if(isset($_POST[cancel])) {
+if(isset($_POST['cancel'])) {
 	echo "<meta http-equiv='refresh' content='0; url=return-of-land-acquisition-document.php'>";
 }
 
-elseif(isset($_POST[adddetail])) {
+elseif(isset($_POST['adddetail'])) {
 	$regyear=date("Y");
 	$rmonth=date("n");
 
@@ -452,7 +547,7 @@ elseif(isset($_POST[adddetail])) {
 				   '$_SESSION[User_ID]', sysdate(),'$_SESSION[User_ID]',sysdate(),NULL,NULL)";
 
 	if($mysqli->query($sql)) {
-		$count=$_POST[countRow];
+		$count=$_POST['countRow'];
 
 		//Insert Detail
 		for ($i=1 ; $i<=$count ; $i++) {
@@ -461,7 +556,7 @@ elseif(isset($_POST[adddetail])) {
 
 			$sql1= "INSERT INTO TD_ReturnOfLandAcquisitionDocument
 					VALUES (NULL,'$CT_Code','$txtTDRTOLAD_DocCode','$txtTDRTOLAD_Information',
-							'waiting', sysdate(),
+							'waiting', NULL, sysdate(),
 							'$_SESSION[User_ID]','$_SESSION[User_ID]', sysdate(),NULL,NULL)";
 			$mysqli->query($sql1);
 
@@ -515,6 +610,172 @@ elseif(isset($_POST[adddetail])) {
         }
 	}
 	echo "<meta http-equiv='refresh' content='0; url=return-of-land-acquisition-document.php'>";
+}
+
+if(isset($_POST['approval'])){
+    $A_TransactionCode=$_POST['txtTDRTOLAD_ReturnCode'];
+	$A_ApproverID=$_SESSION['User_ID'];
+	$A_Status=$_POST['optTDRTOLAD_Status'];
+	$TDRTOLAD_Reason=str_replace("<br>", "\n",$_POST['txtTDRTOLAD_Reason']);
+
+	// MENCARI TAHAP APPROVAL USER TERSEBUT
+	$query = "SELECT *
+				FROM M_Approval
+				WHERE A_TransactionCode='$A_TransactionCode'
+				AND A_ApproverID='$A_ApproverID'";
+	$sql = mysql_query($query);
+	$arr = mysql_fetch_array($sql);
+	$step=$arr['A_Step'];
+	$AppDate=$arr['A_ApprovalDate'];
+
+	if ($AppDate==NULL) {
+        // MENCARI JUMLAH APPROVAL
+        $query = "SELECT MAX(A_Step) AS jStep
+                    FROM M_Approval
+                    WHERE A_TransactionCode='$A_TransactionCode'";
+        $sql = mysql_query($query);
+        $arr = mysql_fetch_array($sql);
+        $jStep=$arr['jStep'];
+
+        // UPDATE APPROVAL
+        $query = "UPDATE M_Approval
+                    SET A_Status='$A_Status', A_ApprovalDate=sysdate(), A_Update_UserID='$A_ApproverID',
+                        A_Update_Time=sysdate()
+                    WHERE A_ID='$A_ID'";
+        $sql = mysql_query($query);
+
+        // PROSES BILA "SETUJU"
+        if ($A_Status=='3') {
+            // CEK APAKAH MERUPAKAN APPROVAL FINAL
+            if ($step <> $jStep) {
+                $nStep=$step+1;
+                $query = "UPDATE M_Approval
+                            SET A_Status='2', A_Update_UserID='$A_ApproverID', A_Update_Time=sysdate()
+                            WHERE A_TransactionCode='$A_TransactionCode'
+                            AND A_Step='$nStep'";
+                if ($sql = mysql_query($query)) {
+                    mail_return_doc($A_TransactionCode);
+                    echo "<meta http-equiv='refresh' content='0; url=home.php'>";
+    			}
+            }else{
+                $query = "UPDATE TD_ReturnOfLandAcquisitionDocument
+                            SET TDRTOLAD_Status='accept', TDRTOLAD_Update_UserID='$A_ApproverID',
+                                TDRTOLAD_Update_Time=sysdate()
+                            WHERE TDRTOLAD_ReturnCode='$A_TransactionCode'
+                            AND TDRTOLAD_Delete_Time IS NULL";
+                if ($sql = mysql_query($query)) {
+                    // ACTION UNTUK GENERATE NO DOKUMEN
+                    $regyear=date("Y");
+                    $rmonth=date("n");
+
+                    // Mengubah Bulan ke Romawi
+                    switch ($rmonth)	{
+                        case 1: $regmonth="I"; break;
+                        case 2: $regmonth="II"; break;
+                        case 3: $regmonth="III"; break;
+                        case 4: $regmonth="IV"; break;
+                        case 5: $regmonth="V"; break;
+                        case 6: $regmonth="VI"; break;
+                        case 7: $regmonth="VII"; break;
+                        case 8: $regmonth="VIII"; break;
+                        case 9: $regmonth="IX"; break;
+                        case 10: $regmonth="X"; break;
+                        case 11: $regmonth="XI"; break;
+                        case 12: $regmonth="XII"; break;
+                    }
+
+                    // Cari Kode Perusahaan
+                    $query = "SELECT *
+                                FROM M_Company
+                                WHERE Company_ID='$h_arr[DLA_CompanyID]'";
+                    $sql = mysql_query($query);
+                    $field = mysql_fetch_array($sql);
+                    $Company_Code=$field['Company_Code'];
+
+                    // Cari Kode Dokumen Grup
+                    $query = "SELECT *
+                                FROM M_DocumentGroup
+                                WHERE DocumentGroup_ID ='$h_arr[DLA_GroupDocID]'";
+                    $sql = mysql_query($query);
+                    $field = mysql_fetch_array($sql);
+                    $DocumentGroup_Code=$field['DocumentGroup_Code'];
+
+                    // Cari No Dokumen Terakhir
+                    $query = "SELECT MAX(CD_SeqNo)
+                                FROM M_CodeDocument
+                                WHERE CD_Year='$regyear'
+                                -- AND CT_Action='DOUT'
+                                AND CD_GroupDocCode='$DocumentGroup_Code'
+                                AND CD_CompanyCode='$Company_Code'
+                                AND CD_Delete_Time is NULL";
+                    $sql = mysql_query($query);
+                    $field = mysql_fetch_array($sql);
+
+                    if($field[0]==NULL)
+                        $maxnum=0;
+                    else
+                        $maxnum=$field[0];
+                    $nnum=$maxnum+1;
+
+                    $d_query="SELECT *
+                              FROM TD_ReturnOfLandAcquisitionDocument tdrtolad,
+                                   M_DocumentLandAcquisition dla
+                              WHERE tdrtolad.TDRTOLAD_ReturnCode='$h_arr[TDRTOLAD_ReturnCode]'
+                              AND tdrtolad.TDRTOLAD_Delete_Time IS NULL
+                              AND tdrtolad.TDRTOLAD_DocCode=dla.DLA_Code";
+                    $d_sql=mysql_query($d_query);
+                    while($d_arr=mysql_fetch_array($d_sql)){
+                        $newnum=str_pad($nnum,3,"0",STR_PAD_LEFT);
+                        // Kode Pengeluaran Dokumen
+                        $CT_Code="$newnum/DRETN/$Company_Code/$DocumentGroup_Code/$regmonth/$regyear";
+
+                        $docStatus = 1; //Dokumen Tersedia kembali pada Custodian
+                        $query1="UPDATE M_DocumentLandAcquisition
+                                 SET DLA_Status='$docStatus', DLA_Update_UserID='$A_ApproverID',
+                                     DLA_Update_Time=sysdate()
+                                 WHERE DLA_Code='$d_arr[DLA_Code]'";
+                        // $query2="INSERT INTO M_CodeTransaction
+                        // 	   	 VALUES (NULL,'$CT_Code','$nnum','DRETN','$Company_Code','$DocumentGroup_Code',
+                        // 				 '$rmonth','$regyear','$A_ApproverID',sysdate(),
+                        // 				 '$A_ApproverID',sysdate(),NULL,NULL)";
+
+                        $mysqli->query($query1);
+                        // $mysqli->query($query2);
+                        $nnum=$nnum+1;
+                    }
+                    mail_notif_return_doc($A_TransactionCode, $h_arr['TDRTOLAD_UserID'], 3 );
+                    mail_notif_return_doc($A_TransactionCode, "cust0002", 3 );
+                }
+            }
+        }
+        // PROSES BILA "TOLAK"
+    	if ($A_Status=='4') {
+    		$query = "UPDATE TD_ReturnOfLandAcquisitionDocument
+    					SET TDRTOLAD_Status='reject', TDRTOLAD_Reason='$TDRTOLAD_Reason',
+    						TDRTOLAD_Update_Time=sysdate(), TDRTOLAD_Update_UserID='$A_ApproverID'
+    					WHERE TDRTOLAD_ReturnCode='$A_TransactionCode'";
+
+    		$query1 = "UPDATE M_Approval
+    					SET A_Delete_Time=sysdate(), A_Delete_UserID='$A_ApproverID',
+    						A_Status='$A_Status'
+    					WHERE A_TransactionCode='$A_TransactionCode'
+    					AND A_Step>'$step'";
+    		if (($sql = mysql_query($query)) && ($sql1 = mysql_query($query1))) {
+    			$txtDLA_ID=$_POST['txtDLA_ID'];
+    			$jumlah=count($txtDLA_ID);
+
+    			for ($i=0;$i<$jumlah;$i++) {
+    				$query = "UPDATE M_DocumentLandAcquisition
+    						  SET DLA_Status='4', DLA_Update_UserID='$A_ApproverID', DLA_Update_Time=sysdate()
+    						  WHERE DLA_ID='$txtDLA_ID[$i]'";
+    				$mysqli->query($query);
+    			}
+    			// mail_notif_release_doc($A_TransactionCode, $_POST['txtTHLOLD_UserID'], 4 );
+    			mail_notif_return_doc($A_TransactionCode, $_POST['txtUser_ID'], 4 );
+    			echo "<meta http-equiv='refresh' content='0; url=home.php'>";
+    		}
+    	}
+    }
 }
 
 $page->ActContent($ActionContent);

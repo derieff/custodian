@@ -238,8 +238,7 @@ function mail_notif_return_doc($retCode, $User_ID, $status){
 	//$mail->AddAttachment("images/icon_addrow.png", "icon_addrow.png");  // optional name
 
 		$ed_query="	SELECT DISTINCT Company_Name, TDRTOONLD_Information,
-						-- THROLD_Reason,
-						TDRTOONLD_UserID,TDRTOONLD_ID,User_FullName,
+						TDRTOONLD_Reason, TDRTOONLD_UserID,TDRTOONLD_ID,User_FullName,
 						DONL_NamaDokumen, DONL_NoDokumen, DONL_TahunDokumen,
                         Department_Name
 					FROM TD_ReturnOfOtherNonLegalDocuments
@@ -270,8 +269,7 @@ function mail_notif_return_doc($retCode, $User_ID, $status){
 			$edNum=$edNum+1;
 			$info=$ed_arr->TDRTOONLD_Information;
 			$docID=$ed_arr->TDRTOONLD_ID;
-			// $reason=$ed_arr->THROLD_Reason;
-			$reason="";
+			$reason=$ed_arr->TDRTOONLD_Reason;
 			$regUser=$ed_arr->TDRTOONLD_UserID;
 			$requester=$ed_arr->User_FullName;
 		}

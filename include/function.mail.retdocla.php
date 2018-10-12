@@ -27,7 +27,7 @@ function mail_return_doc($retDoc, $reminder=0){
 						ARC_AID,ARC_RandomCode
 				FROM TD_ReturnOfLandAcquisitionDocument
 				LEFT JOIN M_DocumentLandAcquisition
-					ON TDRTOLAD_DocCode=DLA_DocCode
+					ON TDRTOLAD_DocCode=DLA_Code
 				LEFT JOIN M_Approval
 					ON TDRTOLAD_ReturnCode=A_TransactionCode
 					AND A_Delete_Time IS NULL
@@ -72,7 +72,7 @@ function mail_return_doc($retDoc, $reminder=0){
 						db_master.M_Employee.Employee_Division
 					FROM TD_ReturnOfLandAcquisitionDocument
 					LEFT JOIN M_DocumentLandAcquisition
-						ON DLA_DocCode=TDRTOLAD_DocCode
+						ON DLA_Code=TDRTOLAD_DocCode
 					LEFT JOIN M_Company
 						ON Company_ID=DLA_CompanyID
 					LEFT JOIN M_User
@@ -247,15 +247,14 @@ function mail_notif_return_doc($retCode, $User_ID, $status){
 	//$mail->AddAttachment("images/icon_addrow.png", "icon_addrow.png");  // optional name
 
 		$ed_query="	SELECT DISTINCT Company_Name, TDRTOLAD_Information,
-						-- THROLD_Reason,
-						TDRTOLAD_UserID,TDRTOLAD_ID,User_FullName,
+						TDRTOLAD_Reason, TDRTOLAD_UserID,TDRTOLAD_ID,User_FullName,
 						DLA_Phase,DLA_Period,
 						DLA_Village,DLA_Block,DLA_Owner,
 						DLA_AreaStatement,DLA_PlantTotalPrice,
 						DLA_GrandTotal,DLA_DocDate,
 					FROM TD_ReturnOfLandAcquisitionDocument
 					LEFT JOIN M_DocumentLandAcquisition
-						ON DLA_DocCode=TDRTOLAD_DocCode
+						ON DLA_Code=TDRTOLAD_DocCode
 					LEFT JOIN M_Company
 						ON Company_ID=DLA_CompanyID
 					LEFT JOIN M_User
@@ -287,8 +286,7 @@ function mail_notif_return_doc($retCode, $User_ID, $status){
 			$edNum=$edNum+1;
 			$info=$ed_arr->TDRTOLAD_Information;
 			$docID=$ed_arr->TDRTOLAD_ID;
-			// $reason=$ed_arr->THROLD_Reason;
-			$reason="";
+			$reason=$ed_arr->TDRTOLAD_Reason;
 			$regUser=$ed_arr->TDRTOLAD_UserID;
 			$requester=$ed_arr->User_FullName;
 		}

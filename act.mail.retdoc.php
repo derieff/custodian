@@ -212,9 +212,7 @@ if(($_GET['cfm'])&&($_GET['ati'])&&($_GET['rdm'])) {
 		</table>";
 					}
 				}
-			}else{ //Apabila Approval Ditolak
-
-            }
+			}
 		}
 		else {
 			echo "
@@ -266,23 +264,7 @@ if(($_GET['cfm'])&&($_GET['ati'])&&($_GET['rdm'])) {
 }
 if(isset($_GET['act'])) {
 	$act=$decrp->decrypt($_GET['act']);
-	if ($act=='confirm'){
-		$userID=$decrp->decrypt($_GET['user']);
-		$docID=$decrp->decrypt($_GET['doc']);
-		$relCode=$decrp->decrypt($_GET['rel']);
-		$query = "UPDATE TD_ReturnOfLegalDocument
-					SET TDRTOLD_DocumentReceived='1', TDRTOLD_Update_UserID='$userID', TDRTOLD_Update_Time=sysdate()
-					WHERE TDRTOLD_ID='$docID'
-					AND TDRTOLD_Delete_Time IS NULL";
-		$sql = mysql_query($query);
-		if($sql){
-			mail_notif_reception_release_doc($relCode, "cust0002", 3 );
-			echo "<meta http-equiv='refresh' content='0; url=detail-of-release-other-non-legal-documents.php?id=$docID'>";
-		}else{
-			$ActionContent .="<div class='warning'>Konfirmasi Penerimaan Dokumen Gagal. Terjadi kesalahan</div>";
-		}
-	}
-	else if ($act=='reject'){
+	if ($act=='reject'){
 		$A_ID=$decrp->decrypt($_GET['ati']);
 		$ARC_RandomCode=$decrp->decrypt($_GET['rdm']);
 
@@ -320,7 +302,7 @@ if(isset($_POST['reject'])) {
 	$ARC_RandomCode=$_POST['ARC_RandomCode'];
 
 	if (str_replace(" ", "", $_POST['txtTDRTOLD_Reason'])==NULL){
-		echo "<meta http-equiv='refresh' content='0; url=act.mail.reldocla.php?act=".$decrp->encrypt('reject').">";
+		echo "<meta http-equiv='refresh' content='0; url=act.mail.retdoc.php?act=".$decrp->encrypt('reject').">";
 	}
 	else {
 		$TDRTOLD_Reason=str_replace("<br>", "\n",$_POST['txtTDRTOLD_Reason']);
@@ -338,7 +320,7 @@ if(isset($_POST['reject'])) {
 				  	  WHERE A_ID='$A_ID'";
 			$sql = mysql_query($query);
 			$arr = mysql_fetch_array($sql);
-			$step=$arr[A_Step];
+			$step=$arr['A_Step'];
 			$AppDate=$arr['A_ApprovalDate'];
 			$A_TransactionCode=$arr['A_TransactionCode'];
 			$A_ApproverID=$arr['A_ApproverID'];
@@ -346,7 +328,7 @@ if(isset($_POST['reject'])) {
 			if ($AppDate==NULL) {
 
 				$h_query="SELECT *
-						  FROM TD_ReturnOfLegalDocument tdrtold,TH_LoanOfLegalDocument thlold
+						  FROM TD_ReturnOfLegalDocument tdrtold
 						  WHERE tdrtold.TDRTOLD_ReturnCode='$A_TransactionCode'
 						  AND tdrtold.TDRTOLD_Delete_Time IS NULL";
 				$h_sql=mysql_query($h_query);
@@ -374,19 +356,21 @@ if(isset($_POST['reject'])) {
 				$mysqli->query($query3);
 
 				$d_query="SELECT *
-						  FROM TD_ReleaseOfLegalDocument tdrold, TD_LoanOfLegalDocument tdlold
-						  WHERE tdrold.TDROLD_TDRTOLD_ID='$h_arr[TDRTOLD_ID]'
-						  AND tdrold.TDROLD_Delete_Time IS NULL
-						  AND tdrold.TDROLD_TDLOLD_ID=tdlold.TDLOLD_ID";
+						  FROM TD_ReturnOfLegalDocument tdrtold
+                          LEFT JOIN M_DocumentLegal dl
+                            ON tdrtold.TDRTOLD_DocCode=dl.DL_DocCode
+						  WHERE tdrtold.TDRTOLD_ReturnCode='$h_arr[TDRTOLD_ReturnCode]'
+						  AND tdrtold.TDRTOLD_Delete_Time IS NULL
+						  ";
 				$d_sql=mysql_query($d_query);
 				while($d_arr=mysql_fetch_array($d_sql)){
 					$query="UPDATE M_DocumentLegal
-						    SET DL_Status='1', DL_Update_UserID='$A_ApproverID', DL_Update_Time=sysdate()
-						    WHERE DL_DocCode='$d_arr[TDLOLD_DocCode]'";
+						    SET DL_Status='4', DL_Update_UserID='$A_ApproverID', DL_Update_Time=sysdate()
+						    WHERE DL_DocCode='$d_arr[DL_DocCode]'";
 					$mysqli->query($query);
 				}
-				mail_notif_release_doc($A_TransactionCode, $h_arr['THLOLD_UserID'], 4 );
-				mail_notif_release_doc($A_TransactionCode, $h_arr['TDRTOLD_UserID'], 4 );
+				// mail_notif_return_doc($A_TransactionCode, $h_arr['THLOLD_UserID'], 4 );
+				mail_notif_return_doc($A_TransactionCode, $h_arr['TDRTOLD_UserID'], 4 );
 				echo "
 				<table border='0' align='center' cellpadding='0' cellspacing='0'>
 				<tbody>
