@@ -185,7 +185,7 @@ if(($_GET['cfm'])&&($_GET['ati'])&&($_GET['rdm'])) {
 							// 				 '$A_ApproverID',sysdate(),NULL,NULL)";
 
 							$mysqli->query($query1);
-							$mysqli->query($query2);
+							// $mysqli->query($query2);
 							$nnum=$nnum+1;
 						}
 						mail_notif_return_doc($A_TransactionCode, $h_arr['TDRTOLD_UserID'], 3 );
@@ -264,7 +264,7 @@ if(($_GET['cfm'])&&($_GET['ati'])&&($_GET['rdm'])) {
 		</table>";
 	}
 }
-if($_GET['act']) {
+if(isset($_GET['act'])) {
 	$act=$decrp->decrypt($_GET['act']);
 	if ($act=='confirm'){
 		$userID=$decrp->decrypt($_GET['user']);
@@ -314,7 +314,7 @@ if($_GET['act']) {
 	}
 }
 
-if(isset($_POST[reject])) {
+if(isset($_POST['reject'])) {
 	$A_Status='4';
 	$A_ID=$_POST['A_ID'];
 	$ARC_RandomCode=$_POST['ARC_RandomCode'];

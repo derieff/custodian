@@ -3,20 +3,25 @@
 = Nama Project		: Custodian																							=
 = Versi				: 1.0																								=
 = Disusun Oleh		: IT Support Application - PT Triputra Agro Persada													=
-= Developer			: Sabrina Ingrid Davita																				=
-= Dibuat Tanggal	: 31 Mei 2012																						=
-= Update Terakhir	: 31 Mei 2012																						=
+= Developer			: Outsource						             														=
+= Dibuat Tanggal	: 11 Okt 2018																						=
+= Update Terakhir	: -           																						=
 = Revisi			:																									=
 ========================================================================================================================
 -->
 <link href="./css/mobile.css" rel="stylesheet" type="text/css">
 <?PHP
 include ("./config/config_db.php");
-include ("./include/function.mail.reldocla.php");
+include ("./include/function.mail.retdocol.php");
 $decrp = new custodian_encryp;
 
 if(($_GET['cfm'])&&($_GET['ati'])&&($_GET['rdm'])) {
-	$A_Status="3";
+    $cfm = $decrp->decrypt($_GET['cfm']);
+    if($cfm == "accept"){
+    	$A_Status="3";
+    }else{
+        $A_Status="4";
+    }
 	$A_ID=$decrp->decrypt($_GET['ati']);
 	$ARC_RandomCode=$decrp->decrypt($_GET['rdm']);
 
@@ -34,17 +39,17 @@ if(($_GET['cfm'])&&($_GET['ati'])&&($_GET['rdm'])) {
 				  WHERE A_ID='$A_ID'";
 		$sql = mysql_query($query);
 		$arr = mysql_fetch_array($sql);
-		$step=$arr[A_Step];
+		$step=$arr['A_Step'];
 		$AppDate=$arr['A_ApprovalDate'];
 		$A_TransactionCode=$arr['A_TransactionCode'];
 		$A_ApproverID=$arr['A_ApproverID'];
 
 		$h_query="SELECT *
-				  FROM TH_ReleaseOfLegalDocument throold,TH_LoanOfOtherLegalDocuments thloold
-				  WHERE throold.THROOLD_ReleaseCode='$A_TransactionCode'
-				  AND throold.THROOLD_THLOOLD_Code=thloold.THLOOLD_LoanCode
-				  AND thloold.THLOOLD_Delete_Time IS NULL
-				  AND throold.THROOLD_Delete_Time IS NULL";
+				  FROM TD_ReturnOfOtherLegalDocuments tdrtoold, M_DocumentsOtherLegal dol
+				  WHERE tdrtoold.TDRTOOLD_ReturnCode='$A_TransactionCode'
+				  AND tdrtoold.TDRTOOLD_DocCode=dol.DOL_DocCode
+				  AND tdrtoold.TDRTOOLD_Delete_Time IS NULL
+				  AND dol.DOL_Delete_Time IS NULL";
 		$h_sql=mysql_query($h_query);
 		$h_arr=mysql_fetch_array($h_sql);
 
@@ -75,7 +80,7 @@ if(($_GET['cfm'])&&($_GET['ati'])&&($_GET['rdm'])) {
 								AND A_Step='$nStep'";
 					if ($sql = mysql_query($query)) {
 						// Kirim Email ke Approver selanjutnya
-						mail_release_doc($A_TransactionCode);
+						mail_return_doc($A_TransactionCode);
 						echo "
 		<table border='0' align='center' cellpadding='0' cellspacing='0'>
 		<tbody>
@@ -98,11 +103,11 @@ if(($_GET['cfm'])&&($_GET['ati'])&&($_GET['rdm'])) {
 					}
 				}
 				else {
-					$query = "UPDATE TH_ReleaseOfLegalDocument
-								SET THROOLD_Status='accept', THROOLD_Update_UserID='$A_ApproverID',
-								    THROOLD_Update_Time=sysdate()
-								WHERE THROOLD_ReleaseCode='$A_TransactionCode'
-								AND THROOLD_Delete_Time IS NULL";
+					$query = "UPDATE TD_ReturnOfOtherLegalDocuments
+								SET TDRTOOLD_Status='accept', TDRTOOLD_Update_UserID='$A_ApproverID',
+								    TDRTOOLD_Update_Time=sysdate()
+								WHERE TDRTOOLD_ReturnCode='$A_TransactionCode'
+								AND TDRTOOLD_Delete_Time IS NULL";
 					if ($sql = mysql_query($query)) {
 						// ACTION UNTUK GENERATE NO DOKUMEN
 						$regyear=date("Y");
@@ -127,7 +132,7 @@ if(($_GET['cfm'])&&($_GET['ati'])&&($_GET['rdm'])) {
 						// Cari Kode Perusahaan
 						$query = "SELECT *
 									FROM M_Company
-									WHERE Company_ID='$h_arr[THLOOLD_CompanyID]'";
+									WHERE Company_ID='$h_arr[DOL_CompanyID]'";
 						$sql = mysql_query($query);
 						$field = mysql_fetch_array($sql);
 						$Company_Code=$field['Company_Code'];
@@ -135,7 +140,7 @@ if(($_GET['cfm'])&&($_GET['ati'])&&($_GET['rdm'])) {
 						// Cari Kode Dokumen Grup
 						$query = "SELECT *
 									FROM M_DocumentGroup
-									WHERE DocumentGroup_ID ='3'";
+									WHERE DocumentGroup_ID ='$h_arr[DOL_GroupDocID]'";
 						$sql = mysql_query($query);
 						$field = mysql_fetch_array($sql);
 						$DocumentGroup_Code=$field['DocumentGroup_Code'];
@@ -144,7 +149,7 @@ if(($_GET['cfm'])&&($_GET['ati'])&&($_GET['rdm'])) {
 						$query = "SELECT MAX(CD_SeqNo)
 									FROM M_CodeDocument
 									WHERE CD_Year='$regyear'
-									AND CT_Action='DOUT'
+									-- AND CT_Action='DOUT'
 									AND CD_GroupDocCode='$DocumentGroup_Code'
 									AND CD_CompanyCode='$Company_Code'
 									AND CD_Delete_Time is NULL";
@@ -158,52 +163,33 @@ if(($_GET['cfm'])&&($_GET['ati'])&&($_GET['rdm'])) {
 						$nnum=$maxnum+1;
 
 						$d_query="SELECT *
-								  FROM TD_ReleaseOfOtherLegalDocuments tdroold,
-								  	   TD_LoanOfOtherLegalDocuments tdloold
-								  WHERE tdroold.TDROOLD_THROOLD_ID='$h_arr[THROOLD_ID]'
-								  AND tdroold.TDROOLD_Delete_Time IS NULL
-								  AND tdroold.TDROOLD_TDLOOLD_ID=tdloold.TDLOOLD_ID";
+								  FROM TD_ReturnOfOtherLegalDocuments tdrtoold,
+								  	   M_DocumentsOtherLegal dol
+								  WHERE tdrtoold.TDRTOOLD_ReturnCode='$h_arr[TDRTOOLD_ReturnCode]'
+								  AND tdrtoold.TDRTOOLD_Delete_Time IS NULL
+								  AND tdrtoold.TDRTOOLD_DocCode=dol.DOL_DocCode";
 						$d_sql=mysql_query($d_query);
 						while($d_arr=mysql_fetch_array($d_sql)){
 							$newnum=str_pad($nnum,3,"0",STR_PAD_LEFT);
 							// Kode Pengeluaran Dokumen
-							$CT_Code="$newnum/DOUT/$Company_Code/$DocumentGroup_Code/$regmonth/$regyear";
+							$CT_Code="$newnum/DRETN/$Company_Code/$DocumentGroup_Code/$regmonth/$regyear";
 
-							switch ($h_arr[THLOOLD_LoanCategoryID]) {
-								case "1":
-									$docStatus="4";
-									$code="0";
-									break;
-								case "2":
-									$docStatus="5";
-									$code=NULL;
-									break;
-								case "3":
-									$docStatus="1";
-									$code=NULL;
-									break;
-							}
+							$docStatus = 1; //Dokumen Tersedia kembali pada Custodian
 							$query1="UPDATE M_DocumentsOtherLegal
 									 SET DOL_Status='$docStatus', DOL_Update_UserID='$A_ApproverID',
 									 	 DOL_Update_Time=sysdate()
-									 WHERE DOL_DocCode='$d_arr[TDLOOLD_DocCode]'";
-							$query2="INSERT INTO M_CodeTransaction
-								   	 VALUES (NULL,'$CT_Code','$nnum','DOUT','$Company_Code','$DocumentGroup_Code',
-											 '$rmonth','$regyear','$A_ApproverID',sysdate(),
-											 '$A_ApproverID',sysdate(),NULL,NULL)";
-							$query3="UPDATE TD_ReleaseOfOtherLegalDocuments
-									 SET TDROOLD_Code='$CT_Code', TDROOLD_ReturnCode='$code',
-										 TDROOLD_Update_UserID='$A_ApproverID', TDROOLD_Update_Time=sysdate()
-									 WHERE TDROOLD_THROOLD_ID='$h_arr[THROOLD_ID]'
-									 AND TDROOLD_TDLOOLD_ID='$d_arr[TDLOOLD_ID]'";
+									 WHERE DOL_DocCode='$d_arr[DOL_DocCode]'";
+							// $query2="INSERT INTO M_CodeTransaction
+							// 	   	 VALUES (NULL,'$CT_Code','$nnum','DRETN','$Company_Code','$DocumentGroup_Code',
+							// 				 '$rmonth','$regyear','$A_ApproverID',sysdate(),
+							// 				 '$A_ApproverID',sysdate(),NULL,NULL)";
 
 							$mysqli->query($query1);
 							$mysqli->query($query2);
-							$mysqli->query($query3);
 							$nnum=$nnum+1;
 						}
-						mail_notif_release_doc($A_TransactionCode, $h_arr['THLOOLD_UserID'], 3 );
-						mail_notif_release_doc($A_TransactionCode, "cust0002", 3 );
+						mail_notif_return_doc($A_TransactionCode, $h_arr['TDRTOOLD_UserID'], 3 );
+						mail_notif_return_doc($A_TransactionCode, "cust0002", 3 );
 
 						echo "
 		<table border='0' align='center' cellpadding='0' cellspacing='0'>
@@ -226,7 +212,9 @@ if(($_GET['cfm'])&&($_GET['ati'])&&($_GET['rdm'])) {
 		</table>";
 					}
 				}
-			}
+			}else{ //Apabila Approval Ditolak
+
+            }
 		}
 		else {
 			echo "
@@ -276,14 +264,14 @@ if(($_GET['cfm'])&&($_GET['ati'])&&($_GET['rdm'])) {
 		</table>";
 	}
 }
-if($_GET['act']) {
+if(isset($_GET['act'])) {
 	$act=$decrp->decrypt($_GET['act']);
 
 	if ($act=='confirm'){
 		$userID=$decrp->decrypt($_GET['user']);
 		$docID=$decrp->decrypt($_GET['doc']);
 		$relCode=$decrp->decrypt($_GET['rel']);
-		$query = "UPDATE TH_ReleaseOfLegalDocument
+		$query = "UPDATE TH_ReleaseOfOtherLegalDocuments
 					SET THROOLD_DocumentReceived='1', THROOLD_Update_UserID='$userID', THROOLD_Update_Time=sysdate()
 					WHERE THROOLD_ID='$docID'
 					AND THROOLD_Delete_Time IS NULL";
@@ -327,7 +315,7 @@ if($_GET['act']) {
 	}
 }
 
-if(isset($_POST[reject])) {
+if(isset($_POST['reject'])) {
 	$A_Status='4';
 	$A_ID=$_POST['A_ID'];
 	$ARC_RandomCode=$_POST['ARC_RandomCode'];
@@ -359,13 +347,13 @@ if(isset($_POST[reject])) {
 			if ($AppDate==NULL) {
 
 				$h_query="SELECT *
-						  FROM TH_ReleaseOfLegalDocument throold,TH_LoanOfOtherLegalDocuments thloold
+						  FROM TH_ReleaseOfOtherLegalDocuments throold,TH_LoanOfOtherLegalDocuments thloold
 						  WHERE throold.THROOLD_ReleaseCode='$A_TransactionCode'
 						  AND throold.THROOLD_Delete_Time IS NULL";
 				$h_sql=mysql_query($h_query);
 				$h_arr=mysql_fetch_array($h_sql);
 
-				$query1="UPDATE TH_ReleaseOfLegalDocument
+				$query1="UPDATE TH_ReleaseOfOtherLegalDocuments
 						 SET THROOLD_Status='reject', THROOLD_Reason='$THROOLD_Reason',
 						  	 THROOLD_Update_Time=sysdate(), THROOLD_Update_UserID='$A_ApproverID'
 						 WHERE THROOLD_ReleaseCode='$A_TransactionCode'";
@@ -387,15 +375,15 @@ if(isset($_POST[reject])) {
 				$mysqli->query($query3);
 
 				$d_query="SELECT *
-						  FROM TD_ReleaseOfOtherLegalDocuments tdroold, TD_LoanOfOtherLegalDocuments tdloold
+						  FROM TD_ReleaseOfOtherLegalDocuments tdroold, TD_LoanOfOtherLegalDocuments tdoloold
 						  WHERE tdroold.TDROOLD_THROOLD_ID='$h_arr[THROOLD_ID]'
 						  AND tdroold.TDROOLD_Delete_Time IS NULL
-						  AND tdroold.TDROOLD_TDLOOLD_ID=tdloold.TDLOOLD_ID";
+						  AND tdroold.TDROOLD_TDOLOOLD_ID=tdoloold.TDOLOOLD_ID";
 				$d_sql=mysql_query($d_query);
 				while($d_arr=mysql_fetch_array($d_sql)){
 					$query="UPDATE M_DocumentsOtherLegal
 						    SET DOL_Status='1', DOL_Update_UserID='$A_ApproverID', DOL_Update_Time=sysdate()
-						    WHERE DOL_DocCode='$d_arr[TDLOOLD_DocCode]'";
+						    WHERE DOL_DocCode='$d_arr[TDOLOOLD_DocCode]'";
 					$mysqli->query($query);
 				}
 				mail_notif_release_doc($A_TransactionCode, $h_arr['THLOOLD_UserID'], 4 );

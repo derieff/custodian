@@ -15,11 +15,12 @@ if(!isset($_SERVER['HTTP_HOST'])){
 	$_SERVER['HTTP_HOST']='localhost/custodian';
 }
 include ("./config/config_db.php");
-include ("./include/function.mail.retdoc.php");
-include ("./include/function.mail.retdocao.php");
-include ("./include/function.mail.retdocla.php");
-include ("./include/function.mail.retdocol.php");
-include ("./include/function.mail.retdoconl.php");
+include ("./include/function.mail.returnAllDoc.php");
+// include ("./include/function.mail.retdoc.php");
+// include ("./include/function.mail.retdocao.php");
+// include ("./include/function.mail.retdocla.php");
+// include ("./include/function.mail.retdocol.php");
+// include ("./include/function.mail.retdoconl.php");
 
 $queryAssetOwnership = "SELECT tdroaod.TDROAOD_ID,FLOOR(DATEDIFF(tdroaod.TDROAOD_LeadTime,tdroaod.TDROAOD_Insert_Time)/7) ReminderLevel,
 							tdroaod.TDROAOD_Insert_UserID UserID,throaod.THROAOD_ReleaseCode RelCode,mdao.DAO_DocCode DocCode,
