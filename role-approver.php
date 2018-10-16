@@ -44,6 +44,8 @@ $page=new Template();
 	        			<option value=''>-- Pilih --</option>\
 	        			<option value='1'>Registrasi</option>\
 	        			<option value='2'>Peminjaman</option>\
+						<option value='3'>Pengeluaran</option>\
+						<option value='4'>Pengembalian</option>\
 	        		</select>\
 	        	</td>\
 				<td class='center'>\
@@ -71,6 +73,7 @@ $page=new Template();
 						<option value='19'>Lainnya (Di Luar Legal) - Semua</option>\
 						<option value='20'>Lainnya (Di Luar Legal) - Asli & Softcopy</option>\
 						<option value='21'>Lainnya (Di Luar Legal) - Hardcopy</option>\
+						<option value='22'>Semua Dokumen</option>\
 					</select>\
 				</td>\
 				<td class='center'>\
@@ -109,7 +112,7 @@ $page=new Template();
 
 <?php
 
-$arrayProses = array('1' => 'Registrasi', '2' => 'Peminjaman');
+$arrayProses = array('1' => 'Registrasi', '2' => 'Peminjaman', '3' => 'Pengeluaran', '4' => 'Pengembalian'); //Arief F - 11102018
 
 $arrayDoc = array(
 	'1' => 'Legal - Asli',
@@ -140,7 +143,8 @@ $arrayDoc = array(
 	'18' => 'Lainnya (Legal) - Hardcopy', //Arief F - 13092018
 	'19' => 'Lainnya (Di Luar Legal) - Semua', //Arief F - 13092018
 	'20' => 'Lainnya (Di Luar Legal) - Asli & Softcopy', //Arief F - 13092018
-	'21' => 'Lainnya (Di Luar Legal) - Hardcopy', //Arief F - 13092018
+	'21' => 'Lainnya (Di Luar Legal) - Hardcopy', //Arief F - 13092018,
+	'22' => 'Semua Dokumen',//Arief F - 11102018
 );
 
 $arrayStep = array('1' => '1', '2' => '2', '3' => '3', '4' => '4', '5' => '5', '6' => '6', '7' => '7');

@@ -117,18 +117,23 @@ function mail_loan_doc($loanCode,$reminder=0){
 			$requester_div=ucwords(strtolower($ed_arr->Employee_Division));
 			$asli = ($ed_arr->THLOLAD_LoanCategoryID != '3') ? ' - Asli ' : '';
 		}
+		$cap_atau_watermark = "Cap/Watermark";
 		if($row->THLOLAD_DocumentType == "ORIGINAL" ){ //Arief F - 07092018
 			$tipe_dokumen = "Asli"; //Arief F - 07092018
-		}elseif($row->THLOLAD_DocumentType == "HARDCOPY" or $row->THLOLAD_DocumentType == "SOFTCOPY"){ //Arief F - 07092018
+		}elseif($row->THLOLAD_DocumentType == "SOFTCOPY"){ //Arief F - 07092018
 			$tipe_dokumen = ucfirst(strtolower($row->THLOLAD_DocumentType)); //Arief F - 07092018
+			$cap_atau_watermark = "Cap";
+		}elseif($row->THLOLAD_DocumentType == "HARDCOPY"){ //Arief F - 07092018
+			$tipe_dokumen = ucfirst(strtolower($row->THLOLAD_DocumentType)); //Arief F - 07092018
+			$cap_atau_watermark = "Watermark";
 		}else{ //Arief F - 07092018
 			if( $row->THLOLAD_LoanCategoryID != '3') $tipe_dokumen .= "Asli"; //Arief F - 07092018
 			else $tipe_dokumen .= ""; //Arief F - 07092018
 		} //Arief F - 07092018
 		if( $row->THLOLAD_DocumentWithWatermarkOrNot == "1" ){ //Arief F - 07092018
-			$dengan_cap = " dengan Watermark"; //Arief F - 07092018
+			$dengan_cap = " dengan ".$cap_atau_watermark; //Arief F - 07092018
 		}elseif( $row->THLOLAD_DocumentWithWatermarkOrNot == "2" ){ //Arief F - 07092018
-			$dengan_cap = " tanpa Watermark"; //Arief F - 07092018
+			$dengan_cap = " tanpa ".$cap_atau_watermark; //Arief F - 07092018
 		}else{ //Arief F - 07092018
 			$dengan_cap = ""; //Arief F - 07092018
 		} //Arief F - 07092018

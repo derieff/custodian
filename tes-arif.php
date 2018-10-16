@@ -1,159 +1,52 @@
 <?php
-// echo str_pad(2139, 8, "0", STR_PAD_LEFT);
-// date_default_timezone_set("Asia/Jakarta");
-// $sekarang = date('H:i:s d-m-Y');
-// echo "Sekarang : ".$sekarang."<br>";
-// echo "Batas Waktu : ".date('H:i d-m-Y', strtotime('+150 minutes', strtotime($sekarang)));
-// include ("./include/function.mail.lodocol.php");
-// mail_loan_doc('003/REQ/AMP/DLL/IX/2018','1');
+// Fungsi header dengan mengirimkan raw data excel
+header("Content-type: application/vnd-ms-excel");
+
+// Mendefinisikan nama file ekspor "hasil-export.xls"
+header("Content-Disposition: attachment; filename=contoh-convert-sql-ke-excel.xls");
+
 include ("./config/config_db.php");
-// ACTION UNTUK GENERATE NO DOKUMEN
-$regyear=date("Y");
-$rmonth=date("n");
+$query = "SELECT donl.DONL_ID, c.Company_Name, c2.Company_Name, donl.DONL_NoDokumen, donl.DONL_NamaDokumen, donl.DONL_TahunDokumen, m_d.Department_Name, lds.LDS_Name, donl.DONL_DocCode FROM M_DocumentsOtherNonLegal donl, M_Company c, M_User u, M_LoanDetailStatus lds, M_Company c2, db_master.M_Department m_d WHERE c.Company_ID=donl.DONL_CompanyID AND donl.DONL_Delete_Time IS NULL AND donl.DONL_Status=lds.LDS_ID AND donl.DONL_RegUserID=u.User_ID AND c2.Company_ID=donl.DONL_PT_ID AND m_d.Department_Code=donl.DONL_Dept_Code";
 
-// Mengubah Bulan ke Romawi
-switch ($rmonth)	{
-	case 1: $regmonth="I"; break;
-	case 2: $regmonth="II"; break;
-	case 3: $regmonth="III"; break;
-	case 4: $regmonth="IV"; break;
-	case 5: $regmonth="V"; break;
-	case 6: $regmonth="VI"; break;
-	case 7: $regmonth="VII"; break;
-	case 8: $regmonth="VIII"; break;
-	case 9: $regmonth="IX"; break;
-	case 10: $regmonth="X"; break;
-	case 11: $regmonth="XI"; break;
-	case 12: $regmonth="XII"; break;
+$sql = mysql_query($query);
+
+$MainContent = "<table width='100%' border='1' class='stripeMe'>
+<tr>
+	<th colspan='9' align='center'>Daftar Dokumen Lainnya (Di Luar Legal)</th>
+</tr>
+<tr>
+	<th>ID</th>
+	<th>Kode Dokumen</th>
+	<th>Perusahaan</th>
+	<th>Nama PT (Dokumen)</th>
+	<th>No. Dokumen</th>
+	<th>Nama Dokumen</th>
+	<th>Tahun Dokumen</th>
+	<th>Departemen</th>
+	<th>Status</th>
+</tr>
+";
+
+while ($field = mysql_fetch_array($sql)) {
+	$regdate=strtotime($field[3]);
+	$fregdate=date("j M Y", $regdate);
+$MainContent .="
+<tr>
+	<td class='center'>$field[DONL_ID]</td>
+	<td class='center'>
+		<a href='$PHP_SELF?act=detailONL&id=$field[DONL_DocCode]' class='underline'>$field[DONL_DocCode]</a></td>
+	<td class='center'>$field[1]</td>
+	<td class='center'>$field[2]</td>
+	<td class='center'>$field[3]</td>
+	<td class='center'>$field[4]</td>
+	<td class='center'>$field[5]</td>
+	<td class='center'>$field[6]</td>
+	<td class='center'>$field[7]</td>
+</tr>
+";
+$no=$no+1;
 }
+$MainContent .="</table>";
 
-// Cari Kode Perusahaan
-$query = "SELECT *
-			FROM M_Company
-			WHERE Company_ID='3'";
-$sql = mysql_query($query);
-$field = mysql_fetch_array($sql);
-$Company_Code=$field['Company_Code'];
-
-// Cari Kode Dokumen Grup
-$query = "SELECT *
-			FROM M_DocumentGroup
-			WHERE DocumentGroup_ID ='5'";
-$sql = mysql_query($query);
-$field = mysql_fetch_array($sql);
-$DocumentGroup_Code=$field['DocumentGroup_Code'];
-
-$query = "SELECT MAX(CD_SeqNo) FROM M_CodeDocument WHERE CD_Year='18' AND CD_GroupDocCode='DLL' AND CD_CompanyCode='AMP' AND CD_Delete_Time is NULL";
-$sql = mysql_query($query);
-$field = mysql_fetch_array($sql);
-
-if($field[0]==NULL)
-	$maxnum=0;
-else
-	$maxnum=$field[0];
-$nnum=$maxnum+1;
-
-echo $nnum;
-$newnum=str_pad($nnum,3,"0",STR_PAD_LEFT);
-
-$CT_Code="$newnum/DOUT/$Company_Code/$DocumentGroup_Code/$regmonth/$regyear";
-
-echo "<hr>".$CT_Code;
-// $sa_query = "SELECT *
-//         FROM M_Approval
-//         WHERE A_TransactionCode='003/REQ/AMP/KEA/IX/2018'
-//         AND A_ApproverID='00002568'
-//         AND A_Step = '1'
-//         AND A_Delete_Time IS NULL";
-// $sa_arr = mysql_fetch_array(mysql_query($sa_query));
-// $ARC_AID = $sa_arr['A_ID'];
-// $str = rand(1,100);
-// $RandomCode = crypt('T4pagri'.$str);
-// $iSQL="INSERT INTO L_ApprovalRandomCode VALUES ('$ARC_AID', '$RandomCode')";
-// mysql_query($iSQL);
-// echo $ARC_AID."<br>";
-// echo $RandomCode;
-// // $query = "SELECT u.User_ID, u.User_Name, u.User_FullName, u.User_Email, u.User_SPV1, u.User_SPV2, u.User_Local,
-// // e.Employee_GradeCode, e.Employee_Grade
-// // FROM custodian.M_User AS u JOIN db_master.M_Employee AS e
-// // WHERE u.User_ID = e.Employee_NIK AND e.Employee_gradecode IN ('0000000005','06','0000000003','05','04','0000000004')";
-// //
-// // $sql = mysql_query($query);
-// // while($field = mysql_fetch_array($sql)){
-// //     echo "User ID : ".$field['User_ID']."<br>";
-// //     echo "Name : ".$field['User_FullName']."<br>";
-// //     echo "Employee Grade Code : ".$field['Employee_GradeCode']."<br>";
-// //     echo "Employee Grade Name : ".$field['Employee_Grade']."<br>";
-// //
-// //     echo "<hr>";
-// // }
-// $gchest = '17';
-// $query = "SELECT *
-//             FROM M_DocumentLocationStructure
-//             WHERE DLS_ID='$gchest'
-//             AND DLS_Delete_Time is NULL
-//             ORDER BY DLS_ID";
-// $sql = mysql_query($query);
-// $field = mysql_fetch_array($sql);
-//
-// $numCellChar=$field['DLS_TotalCellChar'];
-// $numCellNo=$field['DLS_TotalCellNo'];
-// $numCabin=$field['DLS_TotalCabin'];
-// $numFolder=$field['DLS_TotalFolder'];
-//
-// for($ncc=1; $ncc<=$numCellChar; $ncc++){
-// for ($ncn=1; $ncn<=$numCellNo; $ncn++){
-//     for ($nc=1; $nc<=$numCabin ;$nc++){
-//         for ($nf=1; $nf<=$numFolder ;$nf++){
-//
-//             $new_gchest=str_pad($gchest, 2, "0", STR_PAD_LEFT);
-//             $new_chr=chr($ncc+64);
-//             $new_ncn=str_pad($ncn, 2, "0", STR_PAD_LEFT);
-//             $new_nc=str_pad($nc, 2, "0", STR_PAD_LEFT);
-//             $new_nf=str_pad($nf, 3, "0", STR_PAD_LEFT);
-//
-//             $code="$new_gchest"."$new_chr"."$new_ncn"."$new_nc"."$new_nf"."F";
-//             $name="Chest $new_gchest Cell $new_chr$new_ncn Cabin $new_nc Folder $new_nf";
-//
-//             //Arief F - 14082018
-//             // Cek DL_Code ada atau tidak di table L_DocumentLocation
-//             $cek = "SELECT DL_ID FROM L_DocumentLocation WHERE DL_Code='$code'";
-//             $sql_cek = mysql_query($cek);
-//             // $cek_ada = mysql_fetch_array($s?q)
-//             $num = mysql_num_rows($sql_cek);
-//             if($num == 0){
-//                 $CompanyID = NULL;
-//                 $DocGroupID = NULL;
-//                 $get_other_component = "SELECT DL_Chest, DL_CellChar, DL_CellNo, DL_Cabin, DL_CompanyID, DL_DocGroupID
-//             		  FROM L_DocumentLocation
-//             		  WHERE DL_DocGroupID is NOT NULL AND DL_Delete_Time is NULL AND
-//             			DL_Chest='$new_gchest' AND DL_CellChar='$new_chr' AND DL_CellNo='$new_ncn' AND DL_Cabin='$new_nc'
-//             		  ORDER BY DL_ID LIMIT 0,1";
-//                 $run_sql = mysql_query($get_other_component);
-//                 $cek_available_component = mysql_num_rows($run_sql);
-//                 if($cek_available_component > 0){
-//                     $d_cac = mysql_fetch_array($run_sql);
-//                     $CompanyID = $d_cac['DL_CompanyID'];
-//                     $DocGroupID = $d_cac['DL_DocGroupID'];
-//                 }
-//                 echo $code."<br>".$name."<br>";
-//                 echo $CompanyID."<br>".$DocGroupID."<br>";
-//                 echo "gak ada<hr>";
-//                 // $sql= "INSERT INTO L_DocumentLocation
-//                 //             VALUES (NULL,'$code','$name','$new_gchest','$new_chr','$new_ncn','$new_nc',
-//                 //                     '$new_nf','$CompanyID','$DocGroupID','1','$_SESSION[User_ID]', sysdate(),'$_SESSION[User_ID]',
-//                 //                     sysdate(),NULL,NULL)";
-//                 // $mysqli->query($sql);
-//                 if($mysqli->query($sql1)) {
-//                     echo "berhasil";
-//                     $count_process++; //Arief F - 21082018
-//                 }else{
-//                     echo "gagal";
-//                 }
-//             }
-//             //End of Cek DL_Code ada atau tidak di table L_DocumentLocation
-//         }
-//     }
-// }
-// }
+echo $MainContent;
  ?>
