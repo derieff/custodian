@@ -421,7 +421,7 @@ if(($act=='approve')&&($approver=="1")) {
 		</td>
 	</tr>";
 }else {
-	$MainContent .="
+	/*$MainContent .="
 	<tr>
 		<td>Status Pendaftaran</td>";
 	if($arr[THROAOD_Status]=="waiting") {
@@ -447,7 +447,7 @@ if(($act=='approve')&&($approver=="1")) {
 	}else {
 		$MainContent .="
 		<td colspan='2'>Draft</td></tr>";
-	}
+	}*/
 }
 
 $MainContent .="</table>";

@@ -1003,6 +1003,9 @@ function removeRowFromTable() {
 	if (lastRow > 2)
 		tbl.deleteRow(lastRow - 1);
 }
-
-
+$(document).ready(function(){
+	$("#optTHLOONLD_LoanCategoryID option:first").nextAll().hide();
+	$("#optTHLOONLD_LoanCategoryID option:contains('Peminjaman Dokumen')").show();
+	$("#optTHLOONLD_LoanCategoryID option:contains('Pengolahan Dokumen')").show();
+})
 </script>
