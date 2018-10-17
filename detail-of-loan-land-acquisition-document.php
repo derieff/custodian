@@ -208,7 +208,7 @@ if(($act=='approve')&&($approver=="1")) {
 			<br>*Wajib Diisi Apabila Dokumen Ditolak.
 		</td>
 	</tr>";
-}else {
+// }else {
 	/*$MainContent .="
 		<tr>
 			<td>Status Dokumen</td>";
@@ -268,7 +268,7 @@ $no=1;
 while ($arr = mysql_fetch_array($sql)) {
 	$fperdate=date("j M Y", strtotime($arr['DLA_Period']));
 	$fdocdate=date("j M Y", strtotime($arr['DLA_DocDate']));
-	
+
 	$MainContent .="
 	<tr>
 		<td class='center'>
@@ -406,7 +406,7 @@ if(isset($_POST[approval])) {
 					* Nicholas - 24 Sept 2018			*
 					* Fix Bug skip approval				*
 					************************************/
-					
+
 					/*if ($i == $jStep) {
 						$query = "UPDATE TH_LoanOfLandAcquisitionDocument
 							SET THLOLAD_Status='accept', THLOLAD_Update_UserID='$A_ApproverID',
@@ -447,7 +447,7 @@ if(isset($_POST[approval])) {
 					* Nicholas - 24 Sept 2018			*
 					* Fix Bug skip approval				*
 					************************************/
-					
+
 					/*if ($i == $jStep) {
 						$query = "UPDATE TH_LoanOfLandAcquisitionDocument
 							SET THLOLAD_Status='accept', THLOLAD_Update_UserID='$A_ApproverID',

@@ -300,31 +300,31 @@ if(isset($_GET["act"]))
         			<br>*Wajib Diisi Apabila Dokumen Ditolak.
         		</td>
         	</tr>";
-        }else {
-        	$ActionContent .="<tr>
-        		<td>Status Dokumen</td>";
-
-        	if($field1['TDRTOLAD_Status']=="waiting") {
-        		$ActionContent .="
-        		      <td colspan='2'>Menunggu Persetujuan $field1[waitingApproval]</td>
-                </tr>";
-        	}else if($field1['TDRTOLAD_Status']=="accept") {
-        		$ActionContent .="
-        			<td colspan='2'>Disetujui</td>
-        		</tr>";
-        	}else if($field1['TDRTOLAD_Status']=="reject") {
-        		$ActionContent .="
-        			<td colspan='2'>Ditolak</td>
-        		</tr>
-        		<tr>
-        			<td>Alasan</td>
-        			<td colspan='2'>$field1[TDRTOLAD_Reason]</td>
-        		</tr>";
-        	}else {
-        		$ActionContent .="
-        		      <td colspan='2'>Draft</td>
-                </tr>";
-        	}
+        // }else {
+        	// $ActionContent .="<tr>
+        	// 	<td>Status Dokumen</td>";
+			//
+        	// if($field1['TDRTOLAD_Status']=="waiting") {
+        	// 	$ActionContent .="
+        	// 	      <td colspan='2'>Menunggu Persetujuan $field1[waitingApproval]</td>
+            //     </tr>";
+        	// }else if($field1['TDRTOLAD_Status']=="accept") {
+        	// 	$ActionContent .="
+        	// 		<td colspan='2'>Disetujui</td>
+        	// 	</tr>";
+        	// }else if($field1['TDRTOLAD_Status']=="reject") {
+        	// 	$ActionContent .="
+        	// 		<td colspan='2'>Ditolak</td>
+        	// 	</tr>
+        	// 	<tr>
+        	// 		<td>Alasan</td>
+        	// 		<td colspan='2'>$field1[TDRTOLAD_Reason]</td>
+        	// 	</tr>";
+        	// }else {
+        	// 	$ActionContent .="
+        	// 	      <td colspan='2'>Draft</td>
+            //     </tr>";
+        	// }
         }
         if(($do=='approve')&&($approver=="1")) {
         	$ActionContent .="

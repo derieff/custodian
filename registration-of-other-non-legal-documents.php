@@ -362,8 +362,6 @@ if(isset($_GET["act"]))
 
 	//Menambah Detail Dokumen
 	elseif($act=='adddetail')	{
-		//Start of Koneksi from db_master
-		include ("./config/config_db_master.php");
 		$ActionContent .="<select id='Daftar_Departemen' style='display:none;'>
 			<option value='0'>--- Pilih Departemen ---</option>";
 		$query5="SELECT Department_Code, Department_Name
@@ -376,8 +374,6 @@ if(isset($_GET["act"]))
 			<option value='$field5[Department_Code]'>$field5[Department_Name]</option>";
 		}
 		$ActionContent .="</select>";
-		include ("./config/config_db.php");
-		//End of Koneksi from db_master
 
 		$ActionContent .="<select id='Daftar_PT' style='display:none;'>
 			<option value='0'>--- Pilih PT ---</option>";

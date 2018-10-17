@@ -366,8 +366,6 @@ if(isset($_GET["act"]))
 
 	//Menambah Detail Dokumen
 	elseif($act=='adddetail')	{
-		//Start of Koneksi from db_master
-		include ("./config/config_db_master.php");
 		$ActionContent .="<select id='Daftar_Employee' style='display:none;'>
 			<option value='0'>--- Pilih Nama Pemilik ---</option>";
 		$query5="SELECT Employee_NIK, Employee_FullName
@@ -385,7 +383,7 @@ if(isset($_GET["act"]))
 		$ActionContent .="<select id='Daftar_MerkKendaraan' style='display:none;'>
 			<option value='0'>--- Pilih Merk Kendaraan ---</option>";
 		$query6="SELECT *
-				 FROM M_MerkKendaraan
+				 FROM db_master.M_MerkKendaraan
 				 WHERE MK_DeleteTime is NULL";
 		$sql6 = mysql_query($query6);
 
@@ -394,8 +392,6 @@ if(isset($_GET["act"]))
 			<option value='$field6[MK_ID]'>$field6[MK_Name]</option>";
 		}
 		$ActionContent .="</select>";
-		include ("./config/config_db.php");
-		//End of Koneksi from db_master
 
 		$code=$_GET["id"];
 		$query = "SELECT header.THROAOD_ID,

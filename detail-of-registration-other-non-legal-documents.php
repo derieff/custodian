@@ -367,7 +367,7 @@ if(($act=='approve')&&($approver=="1")) {
 			<br>*Wajib Diisi Apabila Dokumen Ditolak.
 		</td>
 	</tr>";
-}else {
+// }else {
 	/*$MainContent .="
 	<tr>
 		<td>Status Pendaftaran</td>";
@@ -662,7 +662,7 @@ else if(isset($_POST['edit'])) {
 						* Nicholas - 26 Sept 2018			*
 						* Fix Bug skip approval				*
 						************************************/
-						
+
 						/*if ($i == $jStep) {
 							$query = "UPDATE TH_RegistrationOfOtherNonLegalDocuments
 								SET THROONLD_Status='accept', THROONLD_Update_UserID='$A_ApproverID',
@@ -703,7 +703,7 @@ else if(isset($_POST['edit'])) {
 						* Nicholas - 26 Sept 2018			*
 						* Fix Bug skip approval				*
 						************************************/
-						
+
 						/*if ($i == $jStep) {
 							$query = "UPDATE TH_RegistrationOfOtherNonLegalDocuments
 								SET THROONLD_Status='accept', THROONLD_Update_UserID='$A_ApproverID',

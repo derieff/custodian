@@ -87,6 +87,7 @@ $query =  "	SELECT DISTINCT thlold.THLOLD_ID,
 						  thlold.THLOLD_Reason,
 						  c.Company_ID,
 						  lc.LoanCategory_ID,
+						  thlold.THLOLD_SoftcopyReciever,
 						  (SELECT u1.User_FullName FROM M_User u1 WHERE u1.User_ID=dla.A_ApproverID) waitingApproval
 		  	FROM TH_LoanOfLegalDocument thlold
 			LEFT JOIN M_User u
@@ -184,8 +185,19 @@ $MainContent .="
 	$MainContent .="</td>
 </tr>
 <tr>
-	<td>Kategori Permintaan</td>
-	<td colspan='2'><input type='hidden' name='optTHLOLD_LoanCategoryID' value='$arr[LoanCategory_ID]'>$arr[LoanCategory_Name]</td>
+	<td>";
+	if($arr['THLOLD_DocumentType'] != "SOFTCOPY"){ $MainContent .="Kategori Permintaan";}
+	else{ $MainContent .="Email Penerima Dokumen"; }
+	$MainContent .="</td>
+	<td colspan='2'>
+		<input type='hidden' name='optTHLOLD_LoanCategoryID' value='$arr[LoanCategory_ID]'>";
+		if($arr['THLOLD_DocumentType'] != "SOFTCOPY"){
+			$MainContent .="$arr[LoanCategory_Name]";
+		}else{
+			$MainContent .="<input id='txtTHLOLD_SoftcopyReciever' name='txtTHLOLD_SoftcopyReciever' type='hidden' value='THLOLD_SoftcopyReciever'/>
+			$arr[THLOLD_SoftcopyReciever]";
+		}
+	$MainContent .="</td>
 </tr>
 <tr>
 	<td>Keterangan</td>
@@ -222,7 +234,7 @@ if(($act=='approve')&&($approver=="1")) {
 			<br>*Wajib Diisi Apabila Dokumen Ditolak.
 		</td>
 	</tr>";
-}else {
+// }else {
 	/*$MainContent .="
 	<tr>
 		<td>Status Dokumen</td>";
@@ -438,7 +450,7 @@ if(isset($_POST[approval])) {
 					* Nicholas - 24 Sept 2018			*
 					* Fix Bug skip approval				*
 					************************************/
-					
+
 					/*if ($i == $jStep) {
 						$query = "UPDATE TH_LoanOfLegalDocument
 							SET THLOLD_Status='accept', THLOLD_Update_UserID='$A_ApproverID',
@@ -479,7 +491,7 @@ if(isset($_POST[approval])) {
 					* Nicholas - 24 Sept 2018			*
 					* Fix Bug skip approval				*
 					************************************/
-					
+
 					/*if ($i == $jStep) {
 						$query = "UPDATE TH_LoanOfLegalDocument
 							SET THLOLD_Status='accept', THLOLD_Update_UserID='$A_ApproverID',

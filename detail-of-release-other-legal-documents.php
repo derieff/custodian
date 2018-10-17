@@ -207,8 +207,7 @@ $MainContent .="
 		</td>
 	</tr>
 ";
-	}
-	else {
+	// }else {
 /*$MainContent .="
 	<tr>
 		<td>Status Dokumen</td>

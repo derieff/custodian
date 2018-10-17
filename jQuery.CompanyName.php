@@ -6,7 +6,8 @@ if($_REQUEST)
 	$GroupDocID = $_REQUEST['GroupDocID'];
     if($GroupDocID == "1" or $GroupDocID == "2"){
         $query = "SELECT DISTINCT DL_CompanyID as Company_ID, Company_Name FROM M_DocumentLegal
-            LEFT JOIN M_Company ON DL_CompanyID=Company_ID";
+            LEFT JOIN M_Company ON DL_CompanyID=Company_ID
+			WHERE DL_GroupDocID='$optTHROLD_DocumentGroupID'";
     }elseif($GroupDocID == "3"){
         $query = "SELECT DISTINCT DLA_CompanyID as Company_ID, Company_Name FROM M_DocumentLandAcquisition
             LEFT JOIN M_Company ON DLA_CompanyID=Company_ID";

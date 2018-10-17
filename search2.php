@@ -911,8 +911,8 @@ $offset = ($noPage - 1) * $dataPerPage;
 		$querylimit .="ORDER BY dol.DOL_ID LIMIT $offset, $dataPerPage";
 	}
 	elseif ($_GET['optTHROLD_DocumentGroupID']=='6'){
-		$query = "SELECT donl.DONL_ID, c.Company_Name, c2.Company_Name, donl.DONL_NoDokumen, donl.DONL_NamaDokumen,
-					donl.DONL_TahunDokumen, m_d.Department_Name,
+		$query = "SELECT donl.DONL_ID, c.Company_Name, c2.Company_Name nama_pt, donl.DONL_NoDokumen, donl.DONL_NamaDokumen,
+					donl.DONL_TahunDokumen, m_d.Department_Name nama_departemen,
 					lds.LDS_Name, donl.DONL_DocCode
 				  FROM M_DocumentsOtherNonLegal donl, M_Company c, M_User u, M_LoanDetailStatus lds,
 				  	M_Company c2, db_master.M_Department m_d
@@ -1088,24 +1088,17 @@ $arr = mysql_fetch_array($sqldg);
 		$MainContent .="
 			<table width='100%' border='1' class='stripeMe'>
 			<tr>
-				<th rowspan='2'>ID</th>
-				<th rowspan='2'>Kode Dokumen</th>
-				<th rowspan='2'>Perusahaan</th>
-				<th rowspan='2'>Merk Kendaraan</th>
-				<th rowspan='2'>Nama Pemilik</th>
-				<th rowspan='2'>No. Polisi</th>
-				<th colspan='2'>STNK</th>
-				<th colspan='2'>Pajak</th>
-				<th rowspan='2'>Status</th>
+				<th>ID</th>
+				<th>Kode Dokumen</th>
+				<th>Perusahaan</th>
+				<th>Merk Kendaraan</th>
+				<th>Nama Pemilik</th>
+				<th>No. Polisi</th>
+				<th>Masa Habis Berlaku STNK</th>
+				<th>Status</th>
 			</tr>
 			<tr>
-				<th>Start Date</th>
-				<th>Expired Date</th>
-				<th>Start Date</th>
-				<th>Expired Date</th>
-			</tr>
-			<tr>
-				<td colspan=11 align='center'>Belum Ada Data</td>
+				<td colspan=8 align='center'>Belum Ada Data</td>
 			</tr>
 			</table>
 		";
@@ -1115,24 +1108,17 @@ $arr = mysql_fetch_array($sqldg);
 			<form name='list' method='GET' action='print-asset-ownership-document-barcode.php' onsubmit='return validateBarcodePrint(this);' target='_blank'>
 			<table width='100%' border='1' class='stripeMe'>
 			<tr>
-				<th colspan='11' align='center'>Daftar Dokumen Kepemilikan Aset</th>
+				<th colspan='8' align='center'>Daftar Dokumen Kepemilikan Aset</th>
 			</tr>
 			<tr>
-				<th rowspan='2'>ID</th>
-				<th rowspan='2'>Kode Dokumen</th>
-				<th rowspan='2'>Perusahaan</th>
-				<th rowspan='2'>Merk Kendaraan</th>
-				<th rowspan='2'>Nama Pemilik</th>
-				<th rowspan='2'>No. Polisi</th>
-				<th colspan='2'>STNK</th>
-				<th colspan='2'>Pajak</th>
-				<th rowspan='2'>Status</th>
-			</tr>
-			<tr>
-				<th>Start Date</th>
-				<th>Expired Date</th>
-				<th>Start Date</th>
-				<th>Expired Date</th>
+				<th>ID</th>
+				<th>Kode Dokumen</th>
+				<th>Perusahaan</th>
+				<th>Merk Kendaraan</th>
+				<th>Nama Pemilik</th>
+				<th>No. Polisi</th>
+				<th>Masa Habis Berlaku STNK</th>
+				<th>Status</th>
 			</tr>
 		";
 
@@ -1145,16 +1131,14 @@ $arr = mysql_fetch_array($sqldg);
 			<tr>
 				<td class='center'>$field[DAO_ID]</td>
 				<td class='center'>
-					<a href='$PHP_SELF?act=detailAO&id=$field[DAO_DocCode]' class='underline'>$field[DAO_DocCode]</a></td>
-				<td class='center'>$field[1]</td>
-				<td class='center'>$field[2]</td>
-				<td class='center'>$field[3]</td>
-				<td class='center'>$field[4]</td>
-				<td class='center'>$stnk_sdate</td>
+					<a href='$PHP_SELF?act=detailAO&id=$field[DAO_DocCode]' class='underline'>$field[DAO_DocCode]</a>
+				</td>
+				<td class='center'>$field[Company_Name]</td>
+				<td class='center'>$field[MK_Name]</td>
+				<td class='center'>$field[Employee_FullName]</td>
+				<td class='center'>$field[DAO_NoPolisi]</td>
 				<td class='center'>$stnk_exdate</td>
-				<td class='center'>$pajak_sdate</td>
-				<td class='center'>$pajak_exdate</td>
-				<td class='center'>$field[9]</td>
+				<td class='center'>$field[LDS_Name]</td>
 			</tr>
 		";
 			$no=$no+1;
@@ -1175,15 +1159,12 @@ $arr = mysql_fetch_array($sqldg);
 				<th>Kode Dokumen</th>
 				<th>Perusahaan</th>
 				<th>Kategori Dokumen</th>
-				<th>Nama Dokumen</th>
-				<th>Instansi Terkait</th>
-			    <th>No. Dokumen</th>
-			    <th>Tanggal Terbit</th>
-			    <th>Tanggal Berakhir</th>
+				<th>No. Dokumen</th>
+				<th>Tanggal Berakhir Dokumen</th>
 				<th>Status</th>
 			</tr>
 			<tr>
-				<td colspan=10 align='center'>Belum Ada Data</td>
+				<td colspan=7 align='center'>Belum Ada Data</td>
 			</tr>
 			</table>
 		";
@@ -1193,18 +1174,15 @@ $arr = mysql_fetch_array($sqldg);
 			<form name='list' method='GET' action='print-other-legal-documents-barcode.php' onsubmit='return validateBarcodePrint(this);' target='_blank'>
 			<table width='100%' border='1' class='stripeMe'>
 			<tr>
-				<th colspan='10' align='center'>Daftar Dokumen Lainnya (Legal)</th>
+				<th colspan='7' align='center'>Daftar Dokumen Lainnya (Legal)</th>
 			</tr>
 			<tr>
 				<th>ID</th>
 				<th>Kode Dokumen</th>
 				<th>Perusahaan</th>
 				<th>Kategori Dokumen</th>
-				<th>Nama Dokumen</th>
-				<th>Instansi Terkait</th>
-			    <th>No. Dokumen</th>
-			    <th>Tanggal Terbit</th>
-			    <th>Tanggal Berakhir</th>
+				<th>No. Dokumen</th>
+				<th>Tanggal Berakhir Dokumen</th>
 				<th>Status</th>
 			</tr>
 		";
@@ -1216,15 +1194,13 @@ $arr = mysql_fetch_array($sqldg);
 			<tr>
 				<td class='center'>$field[DOL_ID]</td>
 				<td class='center'>
-					<a href='$PHP_SELF?act=detailOL&id=$field[DOL_DocCode]' class='underline'>$field[DOL_DocCode]</a></td>
-				<td class='center'>$field[1]</td>
-				<td class='center'>$field[2]</td>
-				<td class='center'>$field[3]</td>
-				<td class='center'>$field[4]</td>
-				<td class='center'>$field[5]</td>
-				<td class='center'>$tgl_terbit</td>
+					<a href='$PHP_SELF?act=detailOL&id=$field[DOL_DocCode]' class='underline'>$field[DOL_DocCode]</a>
+				</td>
+				<td class='center'>$field[Company_Name]</td>
+				<td class='center'>$field[DocumentCategory_Name]</td>
+				<td class='center'>$field[DOL_NoDokumen]</td>
 				<td class='center'>$tgl_berakhir</td>
-				<td class='center'>$field[8]</td>
+				<td class='center'>$field[LDS_Name]</td>
 			</tr>
 		";
 			$no=$no+1;
@@ -1246,13 +1222,11 @@ $arr = mysql_fetch_array($sqldg);
 				<th>Perusahaan</th>
 				<th>Nama PT (Dokumen)</th>
 				<th>No. Dokumen</th>
-				<th>Nama Dokumen</th>
-				<th>Tahun Dokumen</th>
 				<th>Departemen</th>
 				<th>Status</th>
 			</tr>
 			<tr>
-				<td colspan=9 align='center'>Belum Ada Data</td>
+				<td colspan=7 align='center'>Belum Ada Data</td>
 			</tr>
 			</table>
 		";
@@ -1262,7 +1236,7 @@ $arr = mysql_fetch_array($sqldg);
 			<form name='list' method='GET' action='print-other-non-legal-documents-barcode.php' onsubmit='return validateBarcodePrint(this);' target='_blank'>
 			<table width='100%' border='1' class='stripeMe'>
 			<tr>
-				<th colspan='9' align='center'>Daftar Dokumen Lainnya (Di Luar Legal)</th>
+				<th colspan='7' align='center'>Daftar Dokumen Lainnya (Di Luar Legal)</th>
 			</tr>
 			<tr>
 				<th>ID</th>
@@ -1270,8 +1244,6 @@ $arr = mysql_fetch_array($sqldg);
 				<th>Perusahaan</th>
 				<th>Nama PT (Dokumen)</th>
 				<th>No. Dokumen</th>
-				<th>Nama Dokumen</th>
-				<th>Tahun Dokumen</th>
 				<th>Departemen</th>
 				<th>Status</th>
 			</tr>
@@ -1284,14 +1256,13 @@ $arr = mysql_fetch_array($sqldg);
 			<tr>
 				<td class='center'>$field[DONL_ID]</td>
 				<td class='center'>
-					<a href='$PHP_SELF?act=detailONL&id=$field[DONL_DocCode]' class='underline'>$field[DONL_DocCode]</a></td>
-				<td class='center'>$field[1]</td>
-				<td class='center'>$field[2]</td>
-				<td class='center'>$field[3]</td>
-				<td class='center'>$field[4]</td>
-				<td class='center'>$field[5]</td>
-				<td class='center'>$field[6]</td>
-				<td class='center'>$field[7]</td>
+					<a href='$PHP_SELF?act=detailONL&id=$field[DONL_DocCode]' class='underline'>$field[DONL_DocCode]</a>
+				</td>
+				<td class='center'>$field[Company_Name]</td>
+				<td class='center'>$field[nama_pt]</td>
+				<td class='center'>$field[DONL_NoDokumen]</td>
+				<td class='center'>$field[nama_departemen]</td>
+				<td class='center'>$field[LDS_Name]</td>
 			</tr>
 		";
 			$no=$no+1;

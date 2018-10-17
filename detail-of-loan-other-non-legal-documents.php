@@ -199,7 +199,7 @@ if(($act=='approve')&&($approver=="1")) {
 			<br>*Wajib Diisi Apabila Dokumen Ditolak.
 		</td>
 	</tr>";
-}else {
+// }else {
 	/*$MainContent .="
 	<tr>
 		<td>Status Dokumen</td>";

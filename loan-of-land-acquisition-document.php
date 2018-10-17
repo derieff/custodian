@@ -27,12 +27,29 @@ function validateInputHeader(elem) {
 	var returnValue;
 	returnValue = true;
 
+	var optTHLOLAD_DocumentType = document.getElementById('optTHLOLAD_DocumentType').selectedIndex;
+    var optTHLOLAD_DocumentWithWatermarkOrNot = document.getElementById('optTHLOLAD_DocumentWithWatermarkOrNot').selectedIndex;
 	var optTHLOLAD_LoanCategoryID = document.getElementById('optTHLOLAD_LoanCategoryID').selectedIndex;
+	var txtTHLOLAD_SoftcopyReciever = document.getElementById('txtTHLOLAD_SoftcopyReciever').value;
 	var optTHLOLAD_CompanyID = document.getElementById('optTHLOLAD_CompanyID').selectedIndex;
 	var txtTHLOLAD_Information = document.getElementById('txtTHLOLAD_Information').value;
 
-		if(optTHLOLAD_LoanCategoryID == 0) {
-			alert("Tipe Permintaan Belum Dipilih!");
+		if(optTHLOLAD_DocumentType == 1 || optTHLOLAD_DocumentType == 2){
+			if(optTHLOLAD_LoanCategoryID == 0) {
+				alert("Kategori Permintaan Belum Dipilih!");
+				returnValue = false;
+			}
+		}else if(optTHLOLAD_DocumentType == 3){
+			if (txtTHLOLAD_SoftcopyReciever.replace(" ", "") == "")  {
+				alert("Email Penerima Dokumen Belum Diisi!");
+				returnValue = false;
+			}
+		}else{
+			alert("Tipe Dokumen Belum Dipilih!");
+			returnValue = false;
+		}
+		if(optTHLOLAD_DocumentWithWatermarkOrNot == 0) {
+			alert("Dokumen dengan Cap/Watermark Belum Dipilih!");
 			returnValue = false;
 		}
 		if(optTHLOLAD_CompanyID == 0) {
@@ -48,8 +65,8 @@ function validateInputHeader(elem) {
 
 //LoV UTK DAFTAR DOKUMEN
 function showList(row) {
-	var txtTHLOLD_CompanyID = document.getElementById('txtTHLOLAD_CompanyID').value;
-	var txtTHLOLD_DocumentGroupID = "3";
+	var txtTHLOLAD_CompanyID = document.getElementById('txtTHLOLAD_CompanyID').value;
+	var txtTHLOLAD_DocumentGroupID = "3";
 	var optTDLOLAD_Phase = document.getElementById('optTDLOLAD_Phase' + row).value;
 	var docCode = document.getElementById('docCode').value;
 	//var endocCode = base64.encode(docCode);
@@ -57,7 +74,7 @@ function showList(row) {
 	if (optTDLOLAD_Phase=="0")
 		alert ("Pilih Tahap GRL Pada Baris ke-"+row+" Terlebih Dahulu");
 	else
-		sList = window.open("popupDoc.php?row="+row+"&cID="+txtTHLOLD_CompanyID+"&gID="+txtTHLOLD_DocumentGroupID+"&pID="+optTDLOLAD_Phase+"&recentCode="+docCode+"", "Daftar_Dokumen", "width=800,height=500,scrollbars=yes,resizable=yes");
+		sList = window.open("popupDoc.php?row="+row+"&cID="+txtTHLOLAD_CompanyID+"&gID="+txtTHLOLAD_DocumentGroupID+"&pID="+optTDLOLAD_Phase+"&recentCode="+docCode+"", "Daftar_Dokumen", "width=800,height=500,scrollbars=yes,resizable=yes");
 }
 function remLink() {
   if (window.sList && window.sList.open && !window.sList.closed)
@@ -146,7 +163,8 @@ if(isset($_GET["act"])) {
 
 		$query = "SELECT u.User_FullName as FullName, ddp.DDP_DeptID as DeptID, ddp.DDP_DivID as DivID,
 						 ddp.DDP_PosID as PosID, dp.Department_Name as DeptName, d.Division_Name as DivName,
-						 p.Position_Name as PosName,u.User_SPV1,u.User_SPV2
+						 p.Position_Name as PosName,u.User_SPV1,u.User_SPV2,
+						 e.Employee_GradeCode, e.Employee_Grade
 				  FROM M_User u
 				  LEFT JOIN M_DivisionDepartmentPosition ddp
 					ON u.User_ID=ddp.DDP_UserID
@@ -157,6 +175,9 @@ if(isset($_GET["act"])) {
 					ON ddp.DDP_DeptID=dp.Department_ID
 				  LEFT JOIN M_Position p
 					ON ddp.DDP_PosID=p.Position_ID
+				  LEFT JOIN db_master.M_Employee AS e
+					ON u.User_ID = e.Employee_NIK
+					AND e.Employee_GradeCode IN ('0000000005','06','0000000003','05','04','0000000004')
 				  WHERE u.User_ID='$_SESSION[User_ID]'";
 		$field = mysql_fetch_array(mysql_query($query));
 
@@ -201,91 +222,111 @@ if(isset($_GET["act"])) {
 			$number=mysql_num_rows($sql);
 
 		if($field['User_SPV1']||$field['User_SPV2']){
-			if ($number>0) {
-				$ActionContent .="
-                <tr>
-                    <td>Tipe Dokumen</td>
-                    <td>
-                        <select name='optTHLOLAD_DocumentType' id='optTHLOLAD_DocumentType'>
-                            <option value=''>--- Pilih Tipe Dokumen ---</option>
-                            <option value='ORIGINAL'>Asli</option>
-                            <option value='HARDCOPY'>Hardcopy</option>
-                            <option value='SOFTCOPY'>Softcopy</option>
-                        </select>
-                    </td>
-                </tr>";
+			if( !empty($field['Employee_GradeCode']) && !empty($field['Employee_Grade']) ){
+				if ($number>0) {
+					$ActionContent .="
+	                <tr>
+	                    <td>Tipe Dokumen</td>
+	                    <td>
+	                        <select name='optTHLOLAD_DocumentType' id='optTHLOLAD_DocumentType'>
+	                            <option value=''>--- Pilih Tipe Dokumen ---</option>
+	                            <option value='ORIGINAL'>Asli</option>
+	                            <option value='HARDCOPY'>Hardcopy</option>
+	                            <option value='SOFTCOPY'>Softcopy</option>
+	                        </select>
+	                    </td>
+	                </tr>";
 
-                $ActionContent .="
-                <tr>
-                    <td>Dokumen dengan Cap/Watermark</td>
-                    <td>
-                    <select name='optTHLOLAD_DocumentWithWatermarkOrNot' id='optTHLOLAD_DocumentWithWatermarkOrNot'>
-                        <option value=''>--- Pilih Keterangan---</option>
-                        <option value='1'>Iya</option>
-                        <option value='2'>Tidak</option>
-                    </select>
-                    </td>
-                </tr>";
+	                $ActionContent .="
+	                <tr>
+	                    <td>Dokumen dengan Cap/Watermark</td>
+	                    <td>
+	                    <select name='optTHLOLAD_DocumentWithWatermarkOrNot' id='optTHLOLAD_DocumentWithWatermarkOrNot'>
+	                        <option value=''>--- Pilih Keterangan---</option>
+	                        <option value='1'>Iya</option>
+	                        <option value='2'>Tidak</option>
+	                    </select>
+	                    </td>
+	                </tr>";
 
-				$ActionContent .="
-				<tr>
-					<td>Kategori Permintaan</td>
-					<td>
-						<select name='optTHLOLAD_LoanCategoryID' id='optTHLOLAD_LoanCategoryID'>
-							<option value='0'>--- Pilih Kategori Permintaan ---</option>";
+					$ActionContent .="
+					<tr>
+						<td id='td-chg'>Kategori Permintaan</td>
+						<td>
+							<select name='optTHLOLAD_LoanCategoryID' id='optTHLOLAD_LoanCategoryID'>
+								<option value='0'>--- Pilih Kategori Permintaan ---</option>";
 
-						$query1="SELECT *
-								 FROM M_LoanCategory
-								 WHERE LoanCategory_Delete_Time is NULL";
-						$sql1 = mysql_query($query1);
+							$query1="SELECT *
+									 FROM M_LoanCategory
+									 WHERE LoanCategory_Delete_Time is NULL
+									 AND LoanCategory_ID IN ('1','2','3')";
+							$sql1 = mysql_query($query1);
 
-						while ($field1 = mysql_fetch_array($sql1) ){
-							$ActionContent .="
-							<option value='$field1[LoanCategory_ID]'>$field1[LoanCategory_Name]</option>";
-						}
-				$ActionContent .="
-						</select>
-						<input id='optTHLOLAD_Email' name='optTHLOLAD_Email' type='text' placeholder='email'/>
-					</td>
-				</tr>
-				<tr>
-					<td>Perusahaan</td>
-					<td>
-						<select name='optTHLOLAD_CompanyID' id='optTHLOLAD_CompanyID'>
-							<option value='0'>--- Pilih Perusahan ---</option>";
-						while ($field = mysql_fetch_array($sql) ){
-							$ActionContent .="
-							<option value='$field[Company_ID]'>$field[Company_Name]</option>";
-						}
-				$ActionContent .="
-						</select>
-					</td>
-				</tr>
-				<tr>
-					<td valign='top'>Alasan Permintaan</td>
-					<td><textarea name='txtTHLOLAD_Information' id='txtTHLOLAD_Information' cols='50' rows='2'></textarea></td>
-				</tr>
-				<tr>
-				<th colspan=3>
-					<input name='addheader' type='submit' value='Simpan' class='button' onclick='return validateInputHeader(this);'/>
-					<input name='cancel' type='submit' value='Batal' class='button' />
-				</th></tr>";
-			}else {
-				if(!$_POST['cancel']){
-					echo "<script>alert('Tidak Ada Dokumen Yang Dapat Melakukan Transaksi Ini.');</script>";
-				}
-				$ActionContent .="
-				<tr>
-					<td colspan='3' align='center' style='font-weight:bolder; color:red;'>
-						Tidak Ada Dokumen Yang Dapat Melakukan Transaksi Ini.
-					</td>
-				</tr>
-				<tr>
+							while ($field1 = mysql_fetch_array($sql1) ){
+								$ActionContent .="
+								<option value='$field1[LoanCategory_ID]'>$field1[LoanCategory_Name]</option>";
+							}
+					$ActionContent .="
+							</select>
+							<input id='txtTHLOLAD_SoftcopyReciever' name='txtTHLOLAD_SoftcopyReciever' type='text' />
+						</td>
+					</tr>
+					<tr>
+						<td>Perusahaan</td>
+						<td>
+							<select name='optTHLOLAD_CompanyID' id='optTHLOLAD_CompanyID'>
+								<option value='0'>--- Pilih Perusahan ---</option>";
+							while ($field = mysql_fetch_array($sql) ){
+								$ActionContent .="
+								<option value='$field[Company_ID]'>$field[Company_Name]</option>";
+							}
+					$ActionContent .="
+							</select>
+						</td>
+					</tr>
+					<tr>
+						<td valign='top'>Alasan Permintaan</td>
+						<td><textarea name='txtTHLOLAD_Information' id='txtTHLOLAD_Information' cols='50' rows='2'></textarea></td>
+					</tr>
+					<tr>
 					<th colspan=3>
-						<input name='cancel' type='submit' value='OK' class='button'/>
-					</th>
-				</tr>";
-			}
+						<input name='addheader' type='submit' value='Simpan' class='button' onclick='return validateInputHeader(this);'/>
+						<input name='cancel' type='submit' value='Batal' class='button' />
+					</th></tr>";
+				}else {
+					if(!$_POST['cancel']){
+						echo "<script>alert('Tidak Ada Dokumen Yang Dapat Melakukan Transaksi Ini.');</script>";
+					}
+					$ActionContent .="
+					<tr>
+						<td colspan='3' align='center' style='font-weight:bolder; color:red;'>
+							Tidak Ada Dokumen Yang Dapat Melakukan Transaksi Ini.
+						</td>
+					</tr>
+					<tr>
+						<th colspan=3>
+							<input name='cancel' type='submit' value='OK' class='button'/>
+						</th>
+					</tr>";
+				}
+			}else{ //Else cek jabatan minimal Dept. Head
+    			if(!$_POST['cancel']){
+    				echo "<script>alert('Anda Tidak Dapat Melakukan Transaksi Ini. Minimal jabatan Department Head.);</script>";
+    			}
+
+    			$ActionContent .="
+    			<tr>
+    				<td colspan='3' align='center' style='font-weight:bolder; color:red;'>
+    					Anda Tidak Dapat Melakukan Transaksi Ini. Minimal jabatan Department Head.<br>
+    					Mohon Hubungi Tim Custodian Untuk Verifikasi Atasan.
+    				</td>
+    			</tr>
+    			<tr>
+    				<th colspan=3>
+    					<input name='cancel' type='submit' value='OK' class='button'/>
+    				</th>
+    			</tr>";
+    		}
 		}else{
 			if(!$_POST['cancel']){
 				echo "<script>alert('Anda Tidak Dapat Melakukan Transaksi Ini karena Anda Belum Memiliki Atasan.');</script>";
@@ -323,7 +364,8 @@ if(isset($_GET["act"])) {
 						 lc.LoanCategory_ID,
 						 thlolad.THLOLAD_DocumentType,
                          thlolad.THLOLAD_DocumentWithWatermarkOrNot,
-						 thlolad.THLOLAD_Information
+						 thlolad.THLOLAD_Information,
+                         thlolad.THLOLAD_SoftcopyReciever
 				  FROM TH_LoanOfLandAcquisitionDocument thlolad
 				  LEFT JOIN M_User u
 					ON thlolad.THLOLAD_UserID=u.User_ID
@@ -417,11 +459,21 @@ if(isset($_GET["act"])) {
 			$ActionContent .="</td>
 		</tr>
 		<tr>
-			<td>Jenis Permintaan</td>
+			";
+		if( $field['THLOLAD_LoanCategoryID'] == 3 ){
+			$ActionContent .="<td>Kategori Permintaan</td>
 			<td>
 				<input name='optTHLOLAD_LoanCategoryID' type='hidden' value='$field[LoanCategory_ID]'/>
 				$field[LoanCategory_Name]
-			</td>
+			</td>";
+		}else{
+			$ActionContent .="<td>Email Penerima Dokumen</td>
+			<td>
+				<input name='optTHLOLAD_SoftcopyReciever' type='hidden' value='$field[THLOLAD_SoftcopyReciever]'/>
+				$field[THLOLAD_SoftcopyReciever]
+			</td>";
+		}
+		$ActionContent .="
 		</tr>
 		<tr>
 			<td valign='top'>Alasan Permintaan</td>
@@ -548,13 +600,38 @@ if(isset($_GET["act"])) {
 							ON ra.RA_ID=a.Approver_RoleID
 						  LEFT JOIN M_User u
 							ON a.Approver_UserID=u.User_ID
-						  WHERE (ra.RA_Name='Custodian' OR ra.RA_Name='Custodian Head')
+						  WHERE ra.RA_Name='Custodian'
 							AND a.Approver_Delete_Time is NULL
 						  ORDER BY ra.RA_ID";
 				$sql = mysql_query($query);
-				while($d=mysql_fetch_array($sql)){
-					$approvers[] = $d['User_ID'];  //Approval Untuk ke Custodian dan Custodian Head
+				$d=mysql_fetch_array($sql);
+				$approvers[] = $d['User_ID'];  //Approval Untuk ke Custodian
+
+				if($field['THLOAOD_DocumentType'] == "ORIGINAL"){
+					$query = "SELECT u.User_ID
+							  FROM M_Role_Approver ra
+							  LEFT JOIN M_Approver a
+								ON ra.RA_ID=a.Approver_RoleID
+							  LEFT JOIN M_User u
+								ON a.Approver_UserID=u.User_ID
+							  WHERE ra.RA_Name='Custodian Head'
+								AND a.Approver_Delete_Time is NULL
+							  ORDER BY ra.RA_ID";
+				}elseif($field['THLOAOD_DocumentType'] == "HARDCOPY"){
+					$query = "SELECT u.User_ID
+							  FROM M_Role_Approver ra
+							  LEFT JOIN M_Approver a
+								ON ra.RA_ID=a.Approver_RoleID
+							  LEFT JOIN M_User u
+								ON a.Approver_UserID=u.User_ID
+							  WHERE ra.RA_Name='Section Head Custodian'
+								AND a.Approver_Delete_Time is NULL
+							  ORDER BY ra.RA_ID";
 				}
+
+				$sql = mysql_query($query);
+				$d=mysql_fetch_array($sql);
+				$approvers[] = $d['User_ID'];  //Approval Terakhir
             }
 
         foreach($approvers as $n => $approver){
@@ -843,10 +920,14 @@ elseif(isset($_POST[addheader])) {
 	if($mysqli->query($sql)) {
 		$info=str_replace("<br>", "\n",$_POST['txtTHLOLAD_Information']);
 		//Insert Header Dokumen
+		if($_POST['optTHLOLAD_DocumentType'] == '3'){
+            $_POST['optTHLOLAD_LoanCategoryID'] = '4';
+        }
 		$sql1= "INSERT INTO TH_LoanOfLandAcquisitionDocument
 				VALUES (NULL,'$CT_Code',sysdate(),'$_SESSION[User_ID]',
 						'$_POST[optTHLOLAD_DocumentType]', '$_POST[optTHLOLAD_DocumentWithWatermarkOrNot]',
-						'$_POST[optTHLOLAD_LoanCategoryID]', '$_POST[optTHLOLAD_CompanyID]', '$info', '0', NULL,
+						'$_POST[optTHLOLAD_LoanCategoryID]', '$_POST[txtTHLOLAD_SoftcopyReciever]',
+						'$_POST[optTHLOLAD_CompanyID]', '$info', '0', NULL,
 						'$_SESSION[User_ID]', sysdate(),NULL,NULL)";
 		if($mysqli->query($sql1)) {
 			echo "<meta http-equiv='refresh' content='0; url=loan-of-land-acquisition-document.php?act=adddetail&id=$CT_Code'>";
@@ -1127,22 +1208,25 @@ function removeRowFromTable() {
 		tbl.deleteRow(lastRow - 1);
 }
 $(document).ready(function(){
-	$("#optTHLOLAD_Email").hide();
+	$("#txtTHLOLAD_SoftcopyReciever").hide();
 	$("#optTHLOLAD_DocumentType").change(function(){
-		$("#optTHLOLAD_Email").hide();
+		$("#txtTHLOLAD_SoftcopyReciever").hide();
 		$("#optTHLOLAD_LoanCategoryID").show();
 		if($(this).val()=="ORIGINAL"){
+			$("#td-chg").html("Kategori Permintaan");
 			$("#optTHLOLAD_LoanCategoryID option:first").nextAll().hide();
 			$("#optTHLOLAD_LoanCategoryID option:contains('Peminjaman Dokumen')").show();
 			$("#optTHLOLAD_LoanCategoryID option:contains('Pengolahan Dokumen')").show();
 		}
 		else if($(this).val()=="HARDCOPY"){
+			$("#td-chg").html("Kategori Permintaan");
 			$("#optTHLOLAD_LoanCategoryID option:first").nextAll().hide();
 			$("#optTHLOLAD_LoanCategoryID option:contains('Fotocopy Dokumen')").show();
 		}
 		else if($(this).val()=="SOFTCOPY"){
+			$("#td-chg").html("Email Penerima Dokumen");
 			$("#optTHLOLAD_LoanCategoryID").hide();
-			$("#optTHLOLAD_Email").show();
+			$("#txtTHLOLAD_SoftcopyReciever").show();
 		}
 		else{
 			$("#optTHLOLAD_LoanCategoryID option").show();
