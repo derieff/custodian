@@ -312,6 +312,7 @@ if( !empty($_GET['cfm']) && !empty($_GET['ati']) && !empty($_GET['rdm']) ) {
 								case "3":
 									$docStatus="1";
 									break;
+								default: "1";
 							}
 
 							$query1="UPDATE M_DocumentAssetOwnership

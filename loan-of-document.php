@@ -964,7 +964,7 @@ elseif(isset($_POST[addheader])) {
 	if($mysqli->query($sql)) {
 		//Insert Header Dokumen
 		$info = str_replace("<br>", "\n", $_POST['txtTHLOLD_Information']);
-        if($_POST['optTHLOLD_DocumentType'] == '3'){
+        if($_POST['optTHLOLD_DocumentType'] == 'SOFTCOPY'){
             $_POST['optTHLOLD_LoanCategoryID'] = '4';
         }
 		$sql1= "INSERT INTO TH_LoanOfLegalDocument

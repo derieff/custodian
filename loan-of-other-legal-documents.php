@@ -29,10 +29,21 @@ function validateInputHeader(elem) {
 	var optTHLOOLD_DocumentType = document.getElementById('optTHLOOLD_DocumentType').selectedIndex;
 	var optTHLOOLD_DocumentWithWatermarkOrNot = document.getElementById('optTHLOOLD_DocumentWithWatermarkOrNot').selectedIndex;
 	var optTHLOOLD_LoanCategoryID = document.getElementById('optTHLOOLD_LoanCategoryID').selectedIndex;
+	var txtTHLOOLD_SoftcopyReciever = document.getElementById('txtTHLOOLD_SoftcopyReciever').value;
 	var optTHLOOLD_CompanyID = document.getElementById('optTHLOOLD_CompanyID').selectedIndex;
 	var txtTHLOOLD_Information = document.getElementById('txtTHLOOLD_Information').value;
 
-		if(optTHLOOLD_DocumentType == 0) {
+		if(optTHLOOLD_DocumentType == 1 || optTHLOOLD_DocumentType == 2){
+			if(optTHLOOLD_LoanCategoryID == 0) {
+				alert("Kategori Permintaan Belum Dipilih!");
+				returnValue = false;
+			}
+		}else if(optTHLOOLD_DocumentType == 3){
+			if (txtTHLOOLD_SoftcopyReciever.replace(" ", "") == "")  {
+				alert("Email Penerima Dokumen Belum Diisi!");
+				returnValue = false;
+			}
+		}else{
 			alert("Tipe Dokumen Belum Dipilih!");
 			returnValue = false;
 		}
@@ -464,11 +475,21 @@ if(isset($_GET["act"])) {
 			$ActionContent .="</td>
 		</tr>
 		<tr>
-			<td>Jenis Permintaan</td>
+			";
+		if( $field['THLOOLD_LoanCategoryID'] == 3 ){
+			$ActionContent .="<td>Kategori Permintaan</td>
 			<td>
 				<input name='optTHLOOLD_LoanCategoryID' type='hidden' value='$field[LoanCategory_ID]'/>
 				$field[LoanCategory_Name]
-			</td>
+			</td>";
+		}else{
+			$ActionContent .="<td>Email Penerima Dokumen</td>
+			<td>
+				<input name='optTHLOOLD_SoftcopyReciever' type='hidden' value='$field[THLOOLD_SoftcopyReciever]'/>
+				$field[THLOOLD_SoftcopyReciever]
+			</td>";
+		}
+		$ActionContent .="
 		</tr>
 		<tr>
 			<td valign='top'>Alasan Permintaan</td>
@@ -799,10 +820,14 @@ elseif(isset($_POST['addheader'])) {
 	if($mysqli->query($sql)) {
 		//Insert Header Dokumen
 		$info = str_replace("<br>", "\n", $_POST['txtTHLOOLD_Information']);
+		if($_POST['optTHLOOLD_DocumentType'] == 'SOFTCOPY'){
+            $_POST['optTHLOOLD_LoanCategoryID'] = '4';
+        }
 		$sql1= "INSERT INTO TH_LoanOfOtherLegalDocuments
 				VALUES (NULL,'$CT_Code',sysdate(),'$_SESSION[User_ID]',
                         '$_POST[optTHLOOLD_DocumentType]', '$_POST[optTHLOOLD_DocumentWithWatermarkOrNot]',
-                        '$_POST[optTHLOOLD_LoanCategoryID]', '$_POST[optTHLOOLD_CompanyID]',
+                        '$_POST[optTHLOOLD_LoanCategoryID]', '$_POST[txtTHLOLD_SoftcopyReciever]',
+						'$_POST[optTHLOOLD_CompanyID]',
                         '$info', '0', NULL,
 						'$_SESSION[User_ID]', sysdate(),NULL,NULL)"; //Arief F - 21082018
 		if($mysqli->query($sql1)) {
@@ -839,6 +864,7 @@ elseif(isset($_POST['adddetail'])) {
 			case "3":
 				$docStatus="1";
 				break;
+			default: $docStatus="1";
 		}
 
 		$sql5= "UPDATE M_DocumentsOtherLegal

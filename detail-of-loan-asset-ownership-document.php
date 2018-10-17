@@ -79,6 +79,7 @@ $query =  "	SELECT DISTINCT thloaod.THLOAOD_ID,
 						  thloaod.THLOAOD_Reason,
 						  c.Company_ID,
 						  lc.LoanCategory_ID,
+						  thloaod.THLOAOD_SoftcopyReciever,
 						  (SELECT u1.User_FullName FROM M_User u1 WHERE u1.User_ID=dla.A_ApproverID) waitingApproval
 		  	FROM TH_LoanOfAssetOwnershipDocument thloaod
 			LEFT JOIN M_User u
@@ -170,8 +171,19 @@ $MainContent .="
 	$MainContent .="</td>
 </tr>
 <tr>
-	<td>Kategori Permintaan</td>
-	<td colspan='2'><input type='hidden' name='optTHLOAOD_LoanCategoryID' value='$arr[LoanCategory_ID]'>$arr[LoanCategory_Name]</td>
+	<td>";
+	if($arr['THLOAOD_DocumentType'] != "SOFTCOPY"){ $MainContent .="Kategori Permintaan";}
+	else{ $MainContent .="Email Penerima Dokumen"; }
+	$MainContent .="</td>
+	<td colspan='2'>
+		<input type='hidden' name='optTHLOAOD_LoanCategoryID' value='$arr[LoanCategory_ID]'>";
+		if($arr['THLOAOD_DocumentType'] != "SOFTCOPY"){
+			$MainContent .="$arr[LoanCategory_Name]";
+		}else{
+			$MainContent .="<input id='txtTHLOAOD_SoftcopyReciever' name='txtTHLOAOD_SoftcopyReciever' type='hidden' value='THLOAOD_SoftcopyReciever'/>
+			$arr[THLOAOD_SoftcopyReciever]";
+		}
+	$MainContent .="</td>
 </tr>
 <tr>
 	<td>Keterangan</td>

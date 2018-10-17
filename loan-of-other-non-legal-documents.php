@@ -37,7 +37,7 @@ function validateInputHeader(elem) {
 			returnValue = false;
 		}
 		if(optTHLOONLD_DocumentWithWatermarkOrNot == 0) {
-			alert("Keterangan Watermark Dokumen Belum Dipilih!");
+			alert("Dokumen dengan Cap/Watermark Belum Dipilih!");
 			returnValue = false;
 		}
 		if(optTHLOONLD_LoanCategoryID == 0) {

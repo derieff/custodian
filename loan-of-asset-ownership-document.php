@@ -29,19 +29,26 @@ function validateInputHeader(elem) {
 	var optTHLOAOD_DocumentType = document.getElementById('optTHLOAOD_DocumentType').selectedIndex;
 	var optTHLOAOD_DocumentWithWatermarkOrNot = document.getElementById('optTHLOAOD_DocumentWithWatermarkOrNot').selectedIndex;
 	var optTHLOAOD_LoanCategoryID = document.getElementById('optTHLOAOD_LoanCategoryID').selectedIndex;
+	var txtTHLOAOD_SoftcopyReciever = document.getElementById('txtTHLOAOD_SoftcopyReciever').value;
 	var optTHLOAOD_CompanyID = document.getElementById('optTHLOAOD_CompanyID').selectedIndex;
 	var txtTHLOAOD_Information = document.getElementById('txtTHLOAOD_Information').value;
 
-		if(optTHLOAOD_DocumentType == 0) {
+		if(optTHLOAOD_DocumentType == 1 || optTHLOAOD_DocumentType == 2){
+			if(optTHLOAOD_LoanCategoryID == 0) {
+				alert("Kategori Permintaan Belum Dipilih!");
+				returnValue = false;
+			}
+		}else if(optTHLOAOD_DocumentType == 3){
+			if (txtTHLOAOD_SoftcopyReciever.replace(" ", "") == "")  {
+				alert("Email Penerima Dokumen Belum Diisi!");
+				returnValue = false;
+			}
+		}else{
 			alert("Tipe Dokumen Belum Dipilih!");
 			returnValue = false;
 		}
 		if(optTHLOAOD_DocumentWithWatermarkOrNot == 0) {
 			alert("Keterangan Watermark Dokumen Belum Dipilih!");
-			returnValue = false;
-		}
-		if(optTHLOAOD_LoanCategoryID == 0) {
-			alert("Kategori Permintaan Belum Dipilih!");
 			returnValue = false;
 		}
 		if(optTHLOAOD_CompanyID == 0) {
@@ -464,11 +471,21 @@ if(isset($_GET["act"])) {
 			$ActionContent .="</td>
 		</tr>
 		<tr>
-			<td>Jenis Permintaan</td>
+			";
+		if( $field['THLOAOD_LoanCategoryID'] == 3 ){
+			$ActionContent .="<td>Kategori Permintaan</td>
 			<td>
 				<input name='optTHLOAOD_LoanCategoryID' type='hidden' value='$field[LoanCategory_ID]'/>
 				$field[LoanCategory_Name]
-			</td>
+			</td>";
+		}else{
+			$ActionContent .="<td>Email Penerima Dokumen</td>
+			<td>
+				<input name='optTHLOAOD_SoftcopyReciever' type='hidden' value='$field[THLOAOD_SoftcopyReciever]'/>
+				$field[THLOAOD_SoftcopyReciever]
+			</td>";
+		}
+		$ActionContent .="
 		</tr>
 		<tr>
 			<td valign='top'>Alasan Permintaan</td>
@@ -784,10 +801,14 @@ elseif(isset($_POST['addheader'])) {
 	if($mysqli->query($sql)) {
 		//Insert Header Dokumen
 		$info = str_replace("<br>", "\n", $_POST['txtTHLOAOD_Information']);
+		if($_POST['optTHLOAOD_DocumentType'] == 'SOFTCOPY'){
+            $_POST['optTHLOAOD_LoanCategoryID'] = '4';
+        }
 		$sql1= "INSERT INTO TH_LoanOfAssetOwnershipDocument
 				VALUES (NULL,'$CT_Code',sysdate(),'$_SESSION[User_ID]',
                         '$_POST[optTHLOAOD_DocumentType]', '$_POST[optTHLOAOD_DocumentWithWatermarkOrNot]',
-                        '$_POST[optTHLOAOD_LoanCategoryID]', '$_POST[optTHLOAOD_CompanyID]',
+                        '$_POST[optTHLOAOD_LoanCategoryID]', '$_POST[txtTHLOLD_SoftcopyReciever]',
+						'$_POST[optTHLOAOD_CompanyID]',
                         '$info', '0', NULL,
 						'$_SESSION[User_ID]', sysdate(),NULL,NULL)";
 		if($mysqli->query($sql1)) {
@@ -831,6 +852,7 @@ elseif(isset($_POST['adddetail'])) {
 			case "3":
 				$docStatus="1";
 				break;
+			default: $docStatus="1";
 		}
 
 		$sql5= "UPDATE M_DocumentAssetOwnership

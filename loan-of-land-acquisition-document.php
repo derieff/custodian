@@ -920,7 +920,7 @@ elseif(isset($_POST[addheader])) {
 	if($mysqli->query($sql)) {
 		$info=str_replace("<br>", "\n",$_POST['txtTHLOLAD_Information']);
 		//Insert Header Dokumen
-		if($_POST['optTHLOLAD_DocumentType'] == '3'){
+		if($_POST['optTHLOLAD_DocumentType'] == 'SOFTCOPY'){
             $_POST['optTHLOLAD_LoanCategoryID'] = '4';
         }
 		$sql1= "INSERT INTO TH_LoanOfLandAcquisitionDocument
