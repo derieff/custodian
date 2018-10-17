@@ -372,7 +372,8 @@ if(isset($_GET["act"]))
 			<option value='0'>--- Pilih Nama Pemilik ---</option>";
 		$query5="SELECT Employee_NIK, Employee_FullName
 			FROM db_master.M_Employee
-			WHERE Employee_ResignDate IS NULL";
+			WHERE Employee_ResignDate IS NULL
+			AND Employee_CompanyCode='$field[Company_Name]'";
 		$sql5 = mysql_query($query5);
 
 		while ($field5=mysql_fetch_array($sql5)) {

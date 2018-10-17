@@ -209,7 +209,7 @@ if(($act=='approve')&&($approver=="1")) {
 		</td>
 	</tr>";
 }else {
-	$MainContent .="
+	/*$MainContent .="
 		<tr>
 			<td>Status Dokumen</td>";
 	if($arr[THLOLAD_Status]=="waiting"){
@@ -233,7 +233,7 @@ if(($act=='approve')&&($approver=="1")) {
 		</tr>";
 	}else {
 		$MainContent .="<td colspan='2'>Draft</td></tr>";
-	}
+	}*/
 }
 
 $MainContent .="</table>";
