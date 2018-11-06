@@ -101,6 +101,8 @@ if(isset($_GET["act"]))
 		$sql1 = mysql_query($query1);
 		$field1 = mysql_fetch_array($sql1);
 
+		$jenis = "22"; //Semua Dokumen
+
 		$queryApprover = "
 			SELECT ma.Approver_UserID, rads.RADS_StepID, rads.RADS_RA_ID, ra.RA_Name
 			FROM M_Role_ApproverDocStepStatus rads
@@ -108,7 +110,7 @@ if(isset($_GET["act"]))
 				ON rads.RADS_RA_ID = ra.RA_ID
 			LEFT JOIN M_Approver ma
 				ON ra.RA_ID = ma.Approver_RoleID
-			WHERE rads.RADS_DocID = '22'
+			WHERE rads.RADS_DocID = '$jenis'
 				AND rads.RADS_ProsesID = '4'
 				AND ma.Approver_Delete_Time IS NULL
 				ORDER BY rads.RADS_StepID
@@ -295,31 +297,31 @@ if(isset($_GET["act"]))
         			<br>*Wajib Diisi Apabila Dokumen Ditolak.
         		</td>
         	</tr>";
-        // }else {
-        // 	$ActionContent .="<tr>
-        // 		<td>Status Dokumen</td>";
-		//
-        // 	if($field1['TDRTOOLD_Status']=="waiting") {
-        // 		$ActionContent .="
-        // 		      <td colspan='2'>Menunggu Persetujuan $field1[waitingApproval]</td>
-        //         </tr>";
-        // 	}else if($field1['TDRTOOLD_Status']=="accept") {
-        // 		$ActionContent .="
-        // 			<td colspan='2'>Disetujui</td>
-        // 		</tr>";
-        // 	}else if($field1['TDRTOOLD_Status']=="reject") {
-        // 		$ActionContent .="
-        // 			<td colspan='2'>Ditolak</td>
-        // 		</tr>
-        // 		<tr>
-        // 			<td>Alasan</td>
-        // 			<td colspan='2'>$field1[TDRTOOLD_Reason]</td>
-        // 		</tr>";
-        // 	}else {
-        // 		$ActionContent .="
-        // 		      <td colspan='2'>Draft</td>
-        //         </tr>";
-        // 	}
+        }else {
+        	$ActionContent .="<tr>
+        		<td>Status Dokumen</td>";
+
+        	if($field1['TDRTOOLD_Status']=="waiting") {
+        		$ActionContent .="
+        		      <td colspan='2'>Menunggu Persetujuan $field1[waitingApproval]</td>
+                </tr>";
+        	}else if($field1['TDRTOOLD_Status']=="accept") {
+        		$ActionContent .="
+        			<td colspan='2'>Disetujui</td>
+        		</tr>";
+        	}else if($field1['TDRTOOLD_Status']=="reject") {
+        		$ActionContent .="
+        			<td colspan='2'>Ditolak</td>
+        		</tr>
+        		<tr>
+        			<td>Alasan</td>
+        			<td colspan='2'>$field1[TDRTOOLD_Reason]</td>
+        		</tr>";
+        	}else {
+        		$ActionContent .="
+        		      <td colspan='2'>Draft</td>
+                </tr>";
+        	}
         }
         if(($do=='approve')&&($approver=="1")) {
         	$ActionContent .="

@@ -794,17 +794,20 @@ $offset = ($noPage - 1) * $dataPerPage;
 		$querylimit .="ORDER BY dla.DLA_ID LIMIT $offset, $dataPerPage";
 	}
 	elseif ($_GET['optTHROLD_DocumentGroupID']=='4'){
-		$query = "SELECT dao.DAO_ID, c.Company_Name, m_mk.MK_Name, m_e.Employee_FullName, dao.DAO_NoPolisi,
+		$query = "SELECT dao.DAO_ID, c.Company_Name, m_mk.MK_Name,
+						 -- m_e.Employee_FullName,
+						 dao.DAO_Employee_NIK,
+						 dao.DAO_NoPolisi,
 						 dao.DAO_STNK_StartDate, dao.DAO_STNK_ExpiredDate, dao.DAO_Pajak_StartDate, dao.DAO_Pajak_ExpiredDate,
 						 lds.LDS_Name, dao.DAO_DocCode
-				  FROM M_DocumentAssetOwnership dao, M_Company c, M_User u, M_LoanDetailStatus lds, db_master.M_MerkKendaraan m_mk,
-				  	db_master.M_Employee m_e
+				  FROM M_DocumentAssetOwnership dao, M_Company c, M_User u, M_LoanDetailStatus lds, db_master.M_MerkKendaraan m_mk
+				  	-- db_master.M_Employee m_e
 				  WHERE c.Company_ID=dao.DAO_CompanyID
 				  AND dao.DAO_Delete_Time IS NULL
 				  AND dao.DAO_Status=lds.LDS_ID
 				  AND dao.DAO_RegUserID=u.User_ID
 				  AND m_mk.MK_ID=dao.DAO_MK_ID
-				  AND m_e.Employee_NIK=dao.DAO_Employee_NIK
+				  -- AND m_e.Employee_NIK=dao.DAO_Employee_NIK
 				";
 
 		if ($_GET['txtSearch']) {
@@ -821,7 +824,7 @@ $offset = ($noPage - 1) * $dataPerPage;
 						OR dao.DAO_STNK_ExpiredDate LIKE '%$search%'
 						OR dao.DAO_Pajak_StartDate LIKE '%$search%'
 						OR dao.DAO_Pajak_ExpiredDate LIKE '%$search%'
-						OR m_e.Employee_FullName LIKE '%$search%'
+						-- OR m_e.Employee_FullName LIKE '%$search%'
 						OR dao.DAO_Employee_NIK LIKE '%$search%'
 						OR m_mk.MK_Name LIKE '%$search%'
 						OR dao.DAO_NoPolisi LIKE '%$search%'
@@ -1138,9 +1141,27 @@ $arr = mysql_fetch_array($sqldg);
 
 			while ($field = mysql_fetch_array($sql)) {
 				$stnk_sdate=date("j M Y", strtotime($field[5]));
-				$stnk_exdate=date("j M Y", strtotime($field[6]));
+				$stnk_exdate=(($field[6]=="0000-00-00 00:00:00")||($field[6]=="1970-01-01 01:00:00"))?"-":date("j M Y", strtotime($field[6]));
 				$pajak_sdate=date("j M Y", strtotime($field[7]));
-				$pajak_exdate=date("j M Y", strtotime($field[8]));
+				$pajak_exdate=(($field[8]=="0000-00-00 00:00:00")||($field[8]=="1970-01-01 01:00:00"))?"-":date("j M Y", strtotime($field[8]));
+
+				if(strpos($field[3], 'CO@') !== false){
+					$get_company_code = explode('CO@', $field[3]);
+					$company_code = $get_company_code[1];
+					$query7="SELECT Company_Name AS nama_pemilik
+						FROM M_Company
+						WHERE Company_code='$company_code'";
+				}else{
+					$query7="SELECT Employee_FullName AS nama_pemilik
+						FROM db_master.M_Employee
+						WHERE Employee_NIK='$field[3]'";
+				}
+				$sql7 = mysql_query($query7);
+				$nama_pemilik = "-";
+				if(mysql_num_rows($sql7) > 0){
+					$data7 = mysql_fetch_array($sql7);
+					$nama_pemilik = $data7['nama_pemilik'];
+				}
 		$MainContent .="
 			<tr>
 				<td class='center'>$field[DAO_ID]</td>
@@ -1148,7 +1169,7 @@ $arr = mysql_fetch_array($sqldg);
 					<a href='$PHP_SELF?act=detailAO&id=$field[DAO_DocCode]' class='underline'>$field[DAO_DocCode]</a></td>
 				<td class='center'>$field[1]</td>
 				<td class='center'>$field[2]</td>
-				<td class='center'>$field[3]</td>
+				<td class='center'>$nama_pemilik</td>
 				<td class='center'>$field[4]</td>
 				<td class='center'>$stnk_sdate</td>
 				<td class='center'>$stnk_exdate</td>

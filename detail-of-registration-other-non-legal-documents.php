@@ -367,8 +367,8 @@ if(($act=='approve')&&($approver=="1")) {
 			<br>*Wajib Diisi Apabila Dokumen Ditolak.
 		</td>
 	</tr>";
-// }else {
-	/*$MainContent .="
+}else {
+	$MainContent .="
 	<tr>
 		<td>Status Pendaftaran</td>";
 	if($arr[THROONLD_Status]=="waiting") {
@@ -394,7 +394,7 @@ if(($act=='approve')&&($approver=="1")) {
 	}else {
 		$MainContent .="
 		<td colspan='2'>Draft</td></tr>";
-	}*/
+	}
 }
 
 $MainContent .="</table>";

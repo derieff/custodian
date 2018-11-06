@@ -183,7 +183,9 @@ if(!isset($_SESSION['User_ID'])) {
 					dg.DocumentGroup_Name,
 					dc.DocumentCategory_Name,
 					dao.DAO_ID,
-                    m_e.Employee_FullName, m_mk.MK_Name, dao.DAO_Type, dao.DAO_Jenis,
+                    dao.DAO_Employee_NIK,
+                    -- m_e.Employee_FullName,
+                    m_mk.MK_Name, dao.DAO_Type, dao.DAO_Jenis,
        				dao.DAO_NoPolisi, dao.DAO_NoRangka, dao.DAO_NoMesin, dao.DAO_NoBPKB,
        				dao.DAO_STNK_StartDate, dao.DAO_STNK_ExpiredDate,
        				dao.DAO_Pajak_StartDate, dao.DAO_Pajak_ExpiredDate,
@@ -199,8 +201,8 @@ if(!isset($_SESSION['User_ID'])) {
 				ON dao.DAO_CompanyID=c.Company_ID
 			 LEFT JOIN M_DocumentGroup dg
 				ON dao.DAO_GroupDocID=dg.DocumentGroup_ID
-             LEFT JOIN db_master.M_Employee m_e
-                ON m_e.Employee_NIK=dao.DAO_Employee_NIK
+             -- LEFT JOIN db_master.M_Employee m_e
+             --    ON m_e.Employee_NIK=dao.DAO_Employee_NIK
              LEFT JOIN db_master.M_MerkKendaraan m_mk
                 ON m_mk.MK_ID=dao.DAO_MK_ID
 			 LEFT JOIN M_DocumentCategory dc
@@ -215,6 +217,25 @@ if(!isset($_SESSION['User_ID'])) {
 	$stnk_exdate=date("j M Y", strtotime($arrd['DAO_STNK_ExpiredDate']));
     $pajak_sdate=date("j M Y", strtotime($arrd['DAO_Pajak_StartDate']));
 	$pajak_exdate=date("j M Y", strtotime($arrd['DAO_Pajak_ExpiredDate']));
+
+    if(strpos($arrd['DAO_Employee_NIK'], 'CO@') !== false){
+        $get_company_code = explode('CO@', $arrd['DAO_Employee_NIK']);
+        $company_code = $get_company_code[1];
+        $query7="SELECT Company_Name AS nama_pemilik
+            FROM M_Company
+            WHERE Company_code='$company_code'";
+    }else{
+        $query7="SELECT Employee_FullName AS nama_pemilik
+            FROM db_master.M_Employee
+            WHERE Employee_NIK='$arrd[DAO_Employee_NIK]'";
+    }
+    $sql7 = mysql_query($query7);
+    $nama_pemilik = "-";
+    if(mysql_num_rows($sql7) > 0){
+        $data7 = mysql_fetch_array($sql7);
+        $nama_pemilik = $data7['nama_pemilik'];
+    }
+
 	/*
 	if ($jumdata==1) {
 		$style="style='page-break-after:always'";
@@ -234,7 +255,7 @@ if(!isset($_SESSION['User_ID'])) {
  			$arrd[Company_Name]
         </td>
         <td class='center'>
-			$arrd[Employee_FullName]
+			$nama_pemilik
         </td>
         <td class='center'>
 			$arrd[MK_Name]

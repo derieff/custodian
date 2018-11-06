@@ -158,19 +158,28 @@ $MainContent .="
 	}
 	$MainContent .="</td>
 </tr>
-<tr>
-	<td>Dokumen dengan Cap/Watermark</td>
-	<td colspan='2'><input type='hidden' name='optTHLOOLD_DocumentWithWatermarkOrNot' value='$arr[THLOOLD_DocumentWithWatermarkOrNot]'>";
-	if( $arr['THLOOLD_DocumentWithWatermarkOrNot'] == "1" ){
-		$MainContent .="Iya";
-	}elseif( $arr['THLOOLD_DocumentWithWatermarkOrNot'] == "2" ){
-		$MainContent .="Tidak";
-	}else{
-		$MainContent .= "-";
+";
+if( $arr['THLOOLD_DocumentType'] != "ORIGINAL" ){
+	if( $arr['THLOOLD_DocumentType'] == "HARDCOPY" ){
+		$cap_or_watermark = "Watermark";
+	}elseif( $arr['THLOOLD_DocumentType'] == "SOFTCOPY" ){
+		$cap_or_watermark = "Cap";
 	}
+$MainContent .="<tr>
+	<td>Dokumen dengan ".$cap_or_watermark."</td>
+	<td colspan='2'><input type='hidden' name='optTHLOOLD_DocumentWithWatermarkOrNot' value='$arr[THLOOLD_DocumentWithWatermarkOrNot]'>";
+		if( $arr['THLOOLD_DocumentWithWatermarkOrNot'] == "1" ){
+			$MainContent .="Iya";
+		}elseif( $arr['THLOOLD_DocumentWithWatermarkOrNot'] == "2" ){
+			$MainContent .="Tidak";
+		}else{
+			$MainContent .= "-";
+		}
 	$MainContent .="</td>
 </tr>
-<tr>
+";
+}
+$MainContent .="<tr>
 	<td>";
 	if($arr['THLOOLD_DocumentType'] != "SOFTCOPY"){ $MainContent .="Kategori Permintaan";}
 	else{ $MainContent .="Email Penerima Dokumen"; }
@@ -220,8 +229,8 @@ if(($act=='approve') && ($approver=="1")) {
 			<br>*Wajib Diisi Apabila Dokumen Ditolak.
 		</td>
 	</tr>";
-// }else {
-	/*$MainContent .="
+}else {
+	$MainContent .="
 	<tr>
 		<td>Status Dokumen</td>";
 
@@ -247,7 +256,7 @@ if(($act=='approve') && ($approver=="1")) {
 	}else {
 		$MainContent .="
 		<td colspan='2'>Draft</td></tr>";
-	}*/
+	}
 }
 
 $MainContent .="
@@ -362,17 +371,10 @@ if(isset($_POST[approval])) {
 		if ($step <> $jStep) {
 			$nStep=$step+1;
 
-			if($_POST['optTHLOOLD_DocumentType'] == "ORIGINAL" && $_POST['optTHLOOLD_DocumentType'] == "SOFTCOPY"){
-				$jenis = "17";
-			}elseif($_POST['optTHLOOLD_DocumentType'] == "HARDCOPY"){
-				$jenis = "18";
-			}else{
-				if($_POST['optTHLOOLD_LoanCategoryID'] != "3"){
-					$jenis = "17";
-				}else{
-					$jenis = "18";
-				}
-			}
+			if ($_POST['optTHLOOLD_DocumentType'] == "ORIGINAL") { $jenis = '17'; }
+			else if ($_POST['optTHLOOLD_DocumentType'] == "HARDCOPY") { $jenis = '18'; }
+			else if ($_POST['optTHLOOLD_DocumentType'] == "SOFTCOPY") { $jenis = '26'; }
+			else;
 
 			$qComp = "SELECT Company_Area FROM M_Company WHERE Company_ID = '{$_POST['txtCompany_ID']}'";
 			$aComp = mysql_fetch_array(mysql_query($qComp));

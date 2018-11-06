@@ -284,6 +284,8 @@ if(isset($_GET["act"]))
 		$fregdate=date("j M Y", strtotime($field['THROONLD_ReleaseDate']));
 		// $atasan=($field['User_SPV2'])?$field['User_SPV2']:$field['User_SPV1'];
 
+		$jenis = "22"; //Semua Dokumen
+
 		$queryApprover = "
 			SELECT ma.Approver_UserID, rads.RADS_StepID, rads.RADS_RA_ID, ra.RA_Name
 			FROM M_Role_ApproverDocStepStatus rads
@@ -291,7 +293,7 @@ if(isset($_GET["act"]))
 				ON rads.RADS_RA_ID = ra.RA_ID
 			LEFT JOIN M_Approver ma
 				ON ra.RA_ID = ma.Approver_RoleID
-			WHERE rads.RADS_DocID = '22'
+			WHERE rads.RADS_DocID = '$jenis'
 				AND rads.RADS_ProsesID = '3'
 				AND ma.Approver_Delete_Time IS NULL
 				AND ma.Approver_UserID != '0'

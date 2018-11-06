@@ -521,17 +521,24 @@ $offset = ($noPage - 1) * $dataPerPage;
 		$querylimit .="ORDER BY dla.DLA_ID LIMIT $offset, $dataPerPage";
 	}
 	elseif ($_GET['optTHROLD_DocumentGroupID']=='4'){
-		$query = "SELECT dao.DAO_ID, c.Company_Name, m_mk.MK_Name, m_e.Employee_FullName, dao.DAO_NoPolisi,
+		$query = "SELECT dao.DAO_ID,
+						c.Company_Name,
+						m_mk.MK_Name,
+						-- m_e.Employee_FullName,
+						 dao.DAO_Employee_NIK,
+						 dao.DAO_NoPolisi,
 						 dao.DAO_STNK_StartDate, dao.DAO_STNK_ExpiredDate, dao.DAO_Pajak_StartDate, dao.DAO_Pajak_ExpiredDate,
 						 lds.LDS_Name, dao.DAO_DocCode
-				  FROM M_DocumentAssetOwnership dao, M_Company c, M_User u, M_LoanDetailStatus lds, db_master.M_MerkKendaraan m_mk,
-				  	db_master.M_Employee m_e
-				  WHERE c.Company_ID=dao.DAO_CompanyID
-				  AND dao.DAO_Delete_Time IS NULL
+				  FROM M_DocumentAssetOwnership dao,
+				  	M_User u, M_LoanDetailStatus lds, db_master.M_MerkKendaraan m_mk,
+				  	M_Company c
+				  	-- db_master.M_Employee m_e
+				  WHERE dao.DAO_Delete_Time IS NULL
 				  AND dao.DAO_Status=lds.LDS_ID
 				  AND dao.DAO_RegUserID=u.User_ID
 				  AND m_mk.MK_ID=dao.DAO_MK_ID
-				  AND m_e.Employee_NIK=dao.DAO_Employee_NIK ";
+				  -- AND m_e.Employee_NIK=dao.DAO_Employee_NIK
+				  AND c.Company_ID=dao.DAO_CompanyID ";
 
 		if ($_GET[txtSearch]) {
 			$search=$_GET['txtSearch'];
@@ -547,7 +554,7 @@ $offset = ($noPage - 1) * $dataPerPage;
 						OR dao.DAO_STNK_ExpiredDate LIKE '%$search%'
 						OR dao.DAO_Pajak_StartDate LIKE '%$search%'
 						OR dao.DAO_Pajak_ExpiredDate LIKE '%$search%'
-						OR m_e.Employee_FullName LIKE '%$search%'
+						-- OR m_e.Employee_FullName LIKE '%$search%'
 						OR dao.DAO_Employee_NIK LIKE '%$search%'
 						OR m_mk.MK_Name LIKE '%$search%'
 						OR dao.DAO_NoPolisi LIKE '%$search%'
@@ -834,6 +841,25 @@ $arr = mysql_fetch_array($sqldg);
 
 			while ($field = mysql_fetch_array($sql)) {
 				$stnk_exdate=date("j M Y", strtotime($field['DAO_STNK_ExpiredDate']));
+
+				if(strpos($field['DAO_Employee_NIK'], 'CO@') !== false){
+					$get_company_code = explode('CO@', $field['DAO_Employee_NIK']);
+					$company_code = $get_company_code[1];
+					$query7="SELECT Company_Name AS nama_pemilik
+						FROM M_Company
+						WHERE Company_code='$company_code'";
+				}else{
+					$query7="SELECT Employee_FullName AS nama_pemilik
+						FROM db_master.M_Employee
+						WHERE Employee_NIK='$field[DAO_Employee_NIK]'";
+				}
+				$sql7 = mysql_query($query7);
+				$nama_pemilik = "-";
+				if(mysql_num_rows($sql7) > 0){
+					$data7 = mysql_fetch_array($sql7);
+					$nama_pemilik = $data7['nama_pemilik'];
+				}
+
 		$MainContent .="
 			<tr>
 				<td class='center'>$field[DAO_ID]</td>
@@ -842,11 +868,11 @@ $arr = mysql_fetch_array($sqldg);
 				</td>
 				<td class='center'>$field[Company_Name]</td>
 				<td class='center'>$field[MK_Name]</td>
-				<td class='center'>$field[Employee_FullName]</td>
+				<td class='center'>$nama_pemilik</td>
 				<td class='center'>$field[DAO_NoPolisi]</td>
 				<td class='center'>$stnk_exdate</td>
 				<td class='center'>$field[LDS_Name]</td>
-				<td class='center'><input name='cBarcodePrint[]' type='checkbox' value='$field[0]' /></td>
+				<td class='center'><input name='cBarcodePrint[]' type='checkbox' value='$field[DAO_DocCode]' /></td>
 				<td class='center'><a href='$PHP_SELF?act=editAO&id=$field[DAO_DocCode]'><img title='Ubah' src='./images/icon-edit1.png' width='20'></a></td>
 			</tr>
 		";
@@ -913,7 +939,7 @@ $arr = mysql_fetch_array($sqldg);
 				<td class='center'>$field[DOL_NoDokumen]</td>
 				<td class='center'>$tgl_berakhir</td>
 				<td class='center'>$field[LDS_Name]</td>
-				<td class='center'><input name='cBarcodePrint[]' type='checkbox' value='$field[0]' /></td>
+				<td class='center'><input name='cBarcodePrint[]' type='checkbox' value='$field[DOL_DocCode]' /></td>
 				<td class='center'><a href='$PHP_SELF?act=editOL&id=$field[DOL_DocCode]'><img title='Ubah' src='./images/icon-edit1.png' width='20'></a></td>
 			</tr>
 		";
@@ -979,7 +1005,7 @@ $arr = mysql_fetch_array($sqldg);
 				<td class='center'>$field[DONL_NoDokumen]</td>
 				<td class='center'>$field[nama_departemen]</td>
 				<td class='center'>$field[LDS_Name]</td>
-				<td class='center'><input name='cBarcodePrint[]' type='checkbox' value='$field[0]' /></td>
+				<td class='center'><input name='cBarcodePrint[]' type='checkbox' value='$field[DONL_DocCode]' /></td>
 				<td class='center'><a href='$PHP_SELF?act=editONL&id=$field[DONL_DocCode]'><img title='Ubah' src='./images/icon-edit1.png' width='20'></a></td>
 			</tr>
 		";
@@ -1764,7 +1790,8 @@ $MainContent .="
 						 dao.DAO_RegTime,
 						 c.Company_Name,
 						 c.Company_Code,
-						 dao.DAO_Employee_NIK, m_e.Employee_FullName nama_pemilik,
+						 dao.DAO_Employee_NIK,
+						 -- m_e.Employee_FullName nama_pemilik,
 						 dao.DAO_MK_ID, m_mk.MK_Name merk_kendaraan,
 						 dao.DAO_Type, dao.DAO_Jenis,
 						 dao.DAO_NoPolisi, dao.DAO_NoRangka, dao.DAO_NoMesin, dao.DAO_NoBPKB,
@@ -1777,13 +1804,15 @@ $MainContent .="
 						 dg.DocumentGroup_Code,
 						 dg.DocumentGroup_ID
 		  	FROM M_DocumentAssetOwnership dao, M_Company c, M_LoanDetailStatus lds,
-				 M_User u, M_DocumentGroup dg, db_master.M_Employee m_e, db_master.M_MerkKendaraan m_mk
+				 M_User u, M_DocumentGroup dg,
+				 -- db_master.M_Employee m_e,
+				 db_master.M_MerkKendaraan m_mk
 			WHERE dao.DAO_DocCode='$id'
 			AND dao.DAO_GroupDocID=dg.DocumentGroup_ID
 			AND dao.DAO_CompanyID=c.Company_ID
 			AND dao.DAO_Status=lds.LDS_ID
 			AND dao.DAO_RegUserID=u.User_ID
-			AND m_e.Employee_NIK=dao.DAO_Employee_NIK
+			-- AND m_e.Employee_NIK=dao.DAO_Employee_NIK
 			AND m_mk.MK_ID=dao.DAO_MK_ID";
 		$sql = mysql_query($query);
 		$arr = mysql_fetch_array($sql);
@@ -1798,6 +1827,24 @@ $MainContent .="
 		$pajak_sdate = date("j M Y", strtotime($arr['DAO_STNK_StartDate']));
 		if ($arr['DAO_STNK_ExpiredDate']=="0000-00-00 00:00:00") $pajak_exdate="31 Des 9999";
 		else $pajak_exdate = date("j M Y", strtotime($arr['DAO_STNK_ExpiredDate']));
+
+		if(strpos($arr['DAO_Employee_NIK'], 'CO@') !== false){
+			$get_company_code = explode('CO@', $arr['DAO_Employee_NIK']);
+			$company_code = $get_company_code[1];
+			$query7="SELECT Company_Name AS nama_pemilik
+				FROM M_Company
+				WHERE Company_code='$company_code'";
+		}else{
+			$query7="SELECT Employee_FullName AS nama_pemilik
+				FROM db_master.M_Employee
+				WHERE Employee_NIK='$arr[DAO_Employee_NIK]'";
+		}
+		$sql7 = mysql_query($query7);
+		$nama_pemilik = "-";
+		if(mysql_num_rows($sql7) > 0){
+			$data7 = mysql_fetch_array($sql7);
+			$nama_pemilik = $data7['nama_pemilik'];
+		}
 
 $MainContent ="
 	<table width='100%' border='1' class='stripeMe'>
@@ -1822,7 +1869,7 @@ $MainContent ="
 	</tr>
 	<tr>
 		<td width='30%'>Nama Pemilik</td>
-		<td width='70%'>$arr[nama_pemilik]</td>
+		<td width='70%'>$nama_pemilik</td>
 	</tr>
 	<tr>
 		<td width='30%'>Merk Kendaraan</td>
@@ -1936,18 +1983,26 @@ $MainContent ="
 			$query5="SELECT Employee_NIK, Employee_FullName
 				FROM db_master.M_Employee
 				WHERE Employee_ResignDate IS NULL
-				AND Employee_CompanyCode='$arr[Company_Code]'";
+				AND Employee_GradeCode IN ('0000000005', '06', '0000000003', '05', '04', '0000000004')
+				-- AND Employee_CompanyCode='$arr[Company_Code]'";
 			$sql5 = mysql_query($query5);
-
 			while ($field5=mysql_fetch_array($sql5)) {
-				if ($field5["Employee_NIK"]=="$arr[DAO_Employee_NIK]"){
-$MainContent .="
-				<option value='$field5[Employee_NIK]' selected='selected'>$field5[Employee_FullName]</option>";
+				$selected=($field5["Employee_NIK"] == $arr['DAO_Employee_NIK']) ? "selected='selected'":"";
+				$MainContent .="
+					<option value='$field5[Employee_NIK]' $selcted>$field5[Employee_FullName]</option>";
+			}
+
+			$query_comp = "SELECT CONCAT('CO@',Company_Code) AS id, Company_Name AS name
+					  FROM M_Company
+					  WHERE Company_Delete_Time is NULL
+					  ORDER BY Company_Name ASC";
+	  	  	$sql_comp = mysql_query($query_comp);
+			while($field_comp=mysql_fetch_array($sql_comp)){
+				if(strpos($arr['DAO_Employee_NIK'], 'CO@') !== false){
+					$selected=($field_comp["id"] == $arr['DAO_Employee_NIK']) ? "selected='selected'":"";
 				}
-				else{
-$MainContent .="
-				<option value='$field5[Employee_NIK]'>$field5[Employee_FullName]</option>";
-				}
+				$MainContent .="
+					<option value='$field_comp[id]' $selected>$field_comp[name]</option>";
 			}
 $MainContent .="
 			</select>
@@ -2023,7 +2078,16 @@ $MainContent .="
 	</tr>
 	<tr>
 		<td width='30%'>Region Perusahaan</td>
-		<td width='70%'><input type='text' name='txtDAO_Region' id='txtDAO_Region' value='$arr[DAO_Region]'></td>
+		<td width='70%'>
+			<select name='txtDAO_Region' id='txtDAO_Region'>
+				<option value=''>--- Pilih Region ---</option>
+				<option value='KALTIM' ".($arr['DAO_Region'] == "KALTIM" ? 'selected' : '').">Kaltim</option>
+				<option value='KALTENG' ".($arr['DAO_Region'] == "KALTENG" ? 'selected' : '').">Kalteng</option>
+				<option value='KALBAR' ".($arr['DAO_Region'] == "KALBAR" ? 'selected' : '').">Kalbar</option>
+				<option value='JAMBI' ".($arr['DAO_Region'] == "JAMBI" ? 'selected' : '').">Jambi</option>
+				<option value='HO' ".($arr['DAO_Region'] == "HO" ? 'selected' : '').">Head Office</option>
+			</select>
+		</td>
 	</tr>
 	<tr>
 		<td width='30%'>Keterangan Dokumen</td>

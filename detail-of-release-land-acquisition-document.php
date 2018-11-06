@@ -201,8 +201,8 @@ $MainContent .="
 		</td>
 	</tr>
 ";
-	// }else {
-/*$MainContent .="
+	}else {
+$MainContent .="
 	<tr>
 		<td>Status Dokumen</td>
 ";
@@ -262,8 +262,8 @@ $MainContent .="
 	else {
 $MainContent .="
 		<td colspan='2'>Draft</td></tr>";
-	}*/
 	}
+}
 
 $MainContent .="
 	</table>";
@@ -298,7 +298,7 @@ $MainContent .="
 	$sql = mysql_query($query);
 	$no=1;
 	while ($arr = mysql_fetch_array($sql)) {
-		if ($arr['TDRLOLAD_LeadTime']=="0000-00-00 00:00:00"){
+		if ( strpos($arr['TDRLOLAD_LeadTime'], '0000-00-00') !== false ){
 			$fLeadTime="-";
 		}
 		else {

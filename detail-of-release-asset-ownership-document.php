@@ -207,8 +207,8 @@ $MainContent .="
 		</td>
 	</tr>
 ";
-	// }else {
-/*$MainContent .="
+	}else {
+$MainContent .="
 	<tr>
 		<td>Status Dokumen</td>
 ";
@@ -268,8 +268,8 @@ $MainContent .="
 	else {
 $MainContent .="
 		<td colspan='2'>Draft</td></tr>";
-	}*/
 	}
+}
 
 $MainContent .="
 	</table>";
@@ -292,21 +292,24 @@ $MainContent .="
 
 	$query = "SELECT tdroaod.TDROAOD_ID, tdloaod.TDLOAOD_ID, tdloaod.TDLOAOD_Code,
 				     dao.DAO_ID,tdroaod.TDROAOD_Information, dao.DAO_DocCode, tdroaod.TDROAOD_LeadTime,
-                     m_e.Employee_FullName nama_pemilik,
+                     -- m_e.Employee_FullName nama_pemilik,
+					 dao.DAO_Employee_NIK,
                      m_mk.MK_Name merk_kendaraan, dao.DAO_NoPolisi,
                      dao.DAO_STNK_StartDate, dao.DAO_STNK_ExpiredDate
-				FROM TD_ReleaseOfAssetOwnershipDocument tdroaod, TD_LoanOfAssetOwnershipDocument tdloaod,
-					 M_DocumentAssetOwnership dao, db_master.M_MerkKendaraan m_mk, db_master.M_Employee m_e
+				FROM TD_ReleaseOfAssetOwnershipDocument tdroaod
+				INNER JOIN TD_LoanOfAssetOwnershipDocument tdloaod
+					ON tdroaod.TDROAOD_TDLOAOD_ID=tdloaod.TDLOAOD_ID
+				INNER JOIN M_DocumentAssetOwnership dao
+				 	ON tdloaod.TDLOAOD_DocCode=dao.DAO_DocCode
+				LEFT JOIN db_master.M_MerkKendaraan m_mk
+					ON dao.DAO_MK_ID=m_mk.MK_ID
+				-- , db_master.M_Employee m_e
 				WHERE tdroaod.TDROAOD_THROAOD_ID='$DocID'
-				AND tdroaod.TDROAOD_Delete_Time IS NULL
-				AND tdloaod.TDLOAOD_DocCode=dao.DAO_DocCode
-				AND tdroaod.TDROAOD_TDLOAOD_ID=tdloaod.TDLOAOD_ID
-                AND dao.DAO_Employee_NIK=m_e.Employee_NIK
-				AND dao.DAO_MK_ID=m_mk.MK_ID";
+				AND tdroaod.TDROAOD_Delete_Time IS NULL";
 	$sql = mysql_query($query);
 	$no=1;
 	while ($arr = mysql_fetch_array($sql)) {
-		if (($arr['TDROAOD_LeadTime']=="0000-00-00 00:00:00")||($arr['TDROAOD_LeadTime']=="1970-01-01 01:00:00")){
+		if ( (strpos($arr['TDROAOD_LeadTime'], '0000-00-00') !== false ) || ( strpos($arr['TDROAOD_LeadTime'], '1970-01-01') !== false ) ){
 			$fLeadTime="-";
 		}
 		else {
@@ -317,6 +320,24 @@ $MainContent .="
         $stnk_sdate=date("j M Y", strtotime($arr['DAO_STNK_StartDate']));
         $stnk_exdate=date("j M Y", strtotime($arr['DAO_STNK_ExpiredDate']));
 
+		if(strpos($arr['DAO_Employee_NIK'], 'CO@') !== false){
+			$get_company_code = explode('CO@', $arr['DAO_Employee_NIK']);
+			$company_code = $get_company_code[1];
+			$query7="SELECT Company_Name AS nama_pemilik
+				FROM M_Company
+				WHERE Company_code='$company_code'";
+		}else{
+			$query7="SELECT Employee_FullName AS nama_pemilik
+				FROM db_master.M_Employee
+				WHERE Employee_NIK='$arr[DAO_Employee_NIK]'";
+		}
+		$sql7 = mysql_query($query7);
+		$nama_pemilik = "-";
+		if(mysql_num_rows($sql7) > 0){
+			$data7 = mysql_fetch_array($sql7);
+			$nama_pemilik = $data7['nama_pemilik'];
+		}
+
 $MainContent .="
 		<tr>
 			<td class='center'>
@@ -326,7 +347,7 @@ $MainContent .="
 				<input name='txtTDROAOD_TDLOAOD_ID[]' type='hidden' value='$arr[TDLOAOD_ID]'>
 				<input name='txtTDLOAOD_Code[]' type='hidden' value='$arr[TDLOAOD_Code]'>$arr[TDLOAOD_Code]</td>
 			<td class='center'>$arr[DAO_DocCode]</td>
-            <td class='center'>$arr[nama_pemilik]</td>
+            <td class='center'>$nama_pemilik</td>
             <td class='center'>$arr[merk_kendaraan]</td>
             <td class='center'>$arr[DAO_NoPolisi]</td>
             <td class='center'>$stnk_sdate s/d $stnk_exdate</td>

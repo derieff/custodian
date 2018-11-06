@@ -74,7 +74,9 @@ function mail_loan_doc($loanCode,$reminder=0){
 
 
 		$ed_query="	SELECT DISTINCT	Company_Name,
-						DAO_NoPolisi, m_e.Employee_FullName nama_pemilik,
+						DAO_NoPolisi,
+						DAO_Employee_NIK,
+						-- m_e.Employee_FullName nama_pemilik,
  					    m_mk.MK_Name merk_kendaraan,
 						DAO_STNK_StartDate, DAO_STNK_ExpiredDate,
 						DAO_RegTime,THLOAOD_Reason,THLOAOD_UserID,User_FullName,
@@ -91,8 +93,8 @@ function mail_loan_doc($loanCode,$reminder=0){
 						ON THLOAOD_UserID=User_ID
 					LEFT JOIN db_master.M_MerkKendaraan m_mk
                         ON DAO_MK_ID=m_mk.MK_ID
-                    LEFT JOIN db_master.M_Employee m_e
-                        ON DAO_Employee_NIK=m_e.Employee_NIK
+                    -- LEFT JOIN db_master.M_Employee m_e
+                    --     ON DAO_Employee_NIK=m_e.Employee_NIK
 				    LEFT JOIN db_master.M_Employee
 						ON M_User.User_ID = db_master.M_Employee.Employee_NIK
 					WHERE THLOAOD_LoanCode='$loanCode'
@@ -101,16 +103,39 @@ function mail_loan_doc($loanCode,$reminder=0){
 		$edNum=1;
 
 		while ($ed_arr = mysql_fetch_object($ed_handle)) {
+			if(strpos($ed_arr->DAO_Employee_NIK, 'CO@') !== false){
+				$get_company_code = explode('CO@', $ed_arr->DAO_Employee_NIK);
+				$company_code = $get_company_code[1];
+				$query7="SELECT Company_Name AS nama_pemilik
+					FROM M_Company
+					WHERE Company_code='$company_code'";
+			}else{
+				$query7="SELECT Employee_FullName AS nama_pemilik
+					FROM db_master.M_Employee
+					WHERE Employee_NIK='$ed_arr->DAO_Employee_NIK'";
+			}
+			$sql7 = mysql_query($query7);
+			$nama_pemilik = "-";
+			if(mysql_num_rows($sql7) > 0){
+				$data7 = mysql_fetch_array($sql7);
+				$nama_pemilik = $data7['nama_pemilik'];
+			}
+
+			if(strpos($ed_arr->DAO_STNK_ExpiredDate, '0000-00-00') !== false || strpos($ed_arr->DAO_STNK_ExpiredDate, '1970-01-01') !== false){
+				$masa_habis_stnk = "-";
+			}else{
+				$masa_habis_stnk = date('d/m/Y', strtotime($ed_arr->DAO_STNK_ExpiredDate));
+			}
 
 			$body .= '
 						<TR  style=" font-size: 12px; font-family: \'lucida grande\',tahoma,verdana,arial,sans-serif;">
 							<TD align="center" valign="top">'.$edNum.'</TD>
 							<TD>'.$ed_arr->Company_Name.'<br />
 								No. Polisi : '.$ed_arr->DAO_NoPolisi.'<br />
-								Nama Pemilik : '.$ed_arr->nama_pemilik.'<br>
+								Nama Pemilik : '.$nama_pemilik.'<br>
                                 Merk Kendaraan : '.$ed_arr->merk_kendaraan.'<br>
 								Masa Berlaku STNK : '.date('d/m/Y', strtotime($ed_arr->DAO_STNK_StartDate)).' s/d
-								'.date('d/m/Y', strtotime($ed_arr->DAO_STNK_ExpiredDate)).'<br>
+								'.$masa_habis_stnk.'<br>
 								Tgl. Terbit : '.date('d/m/Y H:i:s', strtotime($ed_arr->DAO_RegTime)).'
 							</TD>
 						</TR>';
@@ -119,7 +144,6 @@ function mail_loan_doc($loanCode,$reminder=0){
 			$requester_dept=ucwords(strtolower($ed_arr->Employee_Department));
 			$requester_div=ucwords(strtolower($ed_arr->Employee_Division));
 		}
-		$cap_atau_watermark = "Cap/Watermark";
 		if($row->THLOAOD_DocumentType == "ORIGINAL" ){
 			$tipe_dokumen = "Asli";
 		}elseif($row->THLOAOD_DocumentType == "SOFTCOPY"){
@@ -129,15 +153,18 @@ function mail_loan_doc($loanCode,$reminder=0){
 			$tipe_dokumen = ucfirst(strtolower($row->THLOAOD_DocumentType));
 			$cap_atau_watermark = "Watermark";
 		}else{
-			if( $row->THLOAOD_LoanCategoryID != '3') $tipe_dokumen .= "Asli";
-			else $tipe_dokumen .= "";
+			if( $row->THLOAOD_LoanCategoryID == '1' or $row->THLOAOD_LoanCategoryID == '2' ) $tipe_dokumen = "Asli";
+			elseif( $row->THLOAOD_LoanCategoryID == '3') $tipe_dokumen = "Hardcopy";
+			elseif( $row->THLOAOD_LoanCategoryID == '4') $tipe_dokumen = "Softcopy";
+			else $tipe_dokumen = "";
 		}
-		if( $row->THLOAOD_DocumentWithWatermarkOrNot == "1" ){
-			$dengan_cap = " dengan ".$cap_atau_watermark;
-		}elseif( $row->THLOAOD_DocumentWithWatermarkOrNot == "2" ){
-			$dengan_cap = " tanpa ".$cap_atau_watermark;
-		}else{
-			$dengan_cap = "";
+		$dengan_cap = "";
+		if( $tipe_dokumen == "Hardcopy" || $tipe_dokumen == "Softcopy" ){
+			if( $row->THLOAOD_DocumentWithWatermarkOrNot == "1" ){ //Arief F - 07092018
+				$dengan_cap = " dengan ".$cap_atau_watermark; //Arief F - 07092018
+			}elseif( $row->THLOAOD_DocumentWithWatermarkOrNot == "2" ){ //Arief F - 07092018
+				$dengan_cap = " tanpa ".$cap_atau_watermark; //Arief F - 07092018
+			}
 		}
 		//$asli = ($row->THLOAOD_LoanCategoryID != '3') ? ' Asli ' : '';
 		$keteranganPermintaan = "";
@@ -174,10 +201,10 @@ function mail_loan_doc($loanCode,$reminder=0){
 				</p>
 				<p align=center>
 					<span style="border: 1px solid green;padding: 5px;margin-bottom: 15px; font-size: 13px;font-family: \'lucida grande\',tahoma,verdana,arial,sans-serif;background-color: rgb(196, 223, 155);color: white;float: left;margin-left: 15%;width: 20%;border-radius: 10px;">
-						<a target="_BLANK" style="color: white;" href="http://'.$_SERVER['HTTP_HOST'].'/custodian/act.mail.lodocao.php?cfm='.$decrp->encrypt('accept').'&ati='.$decrp->encrypt($row->ARC_AID).'&rdm='.$decrp->encrypt($row->ARC_RandomCode).'">Setuju</a>
+						<a target="_BLANK" style="color: white;" href="http://'.$_SERVER['HTTP_HOST'].'/act.mail.lodocao.php?cfm='.$decrp->encrypt('accept').'&ati='.$decrp->encrypt($row->ARC_AID).'&rdm='.$decrp->encrypt($row->ARC_RandomCode).'">Setuju</a>
 					</span>
 					<span style="border: 1px solid green;padding: 5px;margin-bottom: 15px; font-size: 13px;font-family: \'lucida grande\',tahoma,verdana,arial,sans-serif;background-color: rgb(196, 223, 155);color: white;float: right;margin-right: 15%;width: 20%;border-radius: 10px;">
-						<a target="_BLANK" style="color: white;" href="http://'.$_SERVER['HTTP_HOST'].'/custodian/act.mail.lodocao.php?act='.$decrp->encrypt('reject').'&ati='.$decrp->encrypt($row->ARC_AID).'&rdm='.$decrp->encrypt($row->ARC_RandomCode).'">Tolak</a>
+						<a target="_BLANK" style="color: white;" href="http://'.$_SERVER['HTTP_HOST'].'/act.mail.lodocao.php?act='.$decrp->encrypt('reject').'&ati='.$decrp->encrypt($row->ARC_AID).'&rdm='.$decrp->encrypt($row->ARC_RandomCode).'">Tolak</a>
 					</span><br />
 				</p>
 				</div>';
@@ -451,7 +478,9 @@ function mail_notif_loan_doc($loanCode, $User_ID, $status, $attr){
 						DAO_RegTime,THLOAOD_Reason,THLOAOD_UserID,User_FullName,
 						THLOAOD_Information,Company_ID, LoanCategory_Name,
 						DAO_STNK_StartDate, DAO_STNK_ExpiredDate,
-						DAO_NoPolisi, m_e.Employee_FullName nama_pemilik,
+						DAO_NoPolisi,
+						DAO_Employee_NIK,
+						-- m_e.Employee_FullName nama_pemilik,
  					    m_mk.MK_Name merk_kendaraan
 					FROM TH_LoanOfAssetOwnershipDocument
 					LEFT JOIN TD_LoanOfAssetOwnershipDocument
@@ -466,23 +495,46 @@ function mail_notif_loan_doc($loanCode, $User_ID, $status, $attr){
 						ON THLOAOD_UserID=User_ID
 					LEFT JOIN db_master.M_MerkKendaraan m_mk
 						ON DAO_MK_ID=m_mk.MK_ID
-					LEFT JOIN db_master.M_Employee m_e
-                        ON DAO_Employee_NIK=m_e.Employee_NIK
+					-- LEFT JOIN db_master.M_Employee m_e
+                    --     ON DAO_Employee_NIK=m_e.Employee_NIK
 					WHERE THLOAOD_LoanCode='$loanCode'
 					AND THLOAOD_Delete_Time IS NULL";
 		$ed_handle = mysql_query($ed_query);
 		$edNum=1;
 		while ($ed_arr = mysql_fetch_object($ed_handle)) {
+			if(strpos($ed_arr->DAO_Employee_NIK, 'CO@') !== false){
+				$get_company_code = explode('CO@', $ed_arr->DAO_Employee_NIK);
+				$company_code = $get_company_code[1];
+				$query7="SELECT Company_Name AS nama_pemilik
+					FROM M_Company
+					WHERE Company_code='$company_code'";
+			}else{
+				$query7="SELECT Employee_FullName AS nama_pemilik
+					FROM db_master.M_Employee
+					WHERE Employee_NIK='$ed_arr->DAO_Employee_NIK'";
+			}
+			$sql7 = mysql_query($query7);
+			$nama_pemilik = "-";
+			if(mysql_num_rows($sql7) > 0){
+				$data7 = mysql_fetch_array($sql7);
+				$nama_pemilik = $data7['nama_pemilik'];
+			}
+
+			if(strpos($ed_arr->DAO_STNK_ExpiredDate, '0000-00-00') !== false || strpos($ed_arr->DAO_STNK_ExpiredDate, '1970-01-01') !== false){
+				$masa_habis_stnk = "-";
+			}else{
+				$masa_habis_stnk = date('d/m/Y', strtotime($ed_arr->DAO_STNK_ExpiredDate));
+			}
 
 			$body .= '
 						<TR  style=" font-size: 12px; font-family: \'lucida grande\',tahoma,verdana,arial,sans-serif;">
 							<TD align="center" valign="top">'.$edNum.'</TD>
 							<TD>'.$ed_arr->Company_Name.'<br />
 								No. Polisi : '.$ed_arr->DAO_NoPolisi.'<br />
-								Nama Pemilik : '.$ed_arr->nama_pemilik.'<br>
+								Nama Pemilik : '.$nama_pemilik.'<br>
                                 Merk Kendaraan : '.$ed_arr->merk_kendaraan.'<br>
 								Masa Berlaku STNK : '.date('d/m/Y', strtotime($ed_arr->DAO_STNK_StartDate)).' s/d
-								'.date('d/m/Y', strtotime($ed_arr->DAO_STNK_ExpiredDate)).'<br>
+								'.$masa_habis_stnk.'<br>
 								Tgl. Terbit : '.date('d/m/Y H:i:s', strtotime($ed_arr->DAO_RegTime)).'
 							</TD>
 						</TR>';
@@ -499,15 +551,18 @@ function mail_notif_loan_doc($loanCode, $User_ID, $status, $attr){
 			}elseif($ed_arr->THLOAOD_DocumentType == "HARDCOPY" or $ed_arr->THLOAOD_DocumentType == "SOFTCOPY"){
 				$tipe_dokumen = ucfirst(strtolower($ed_arr->THLOAOD_DocumentType));
 			}else{
-				if( $ed_arr->THLOAOD_LoanCategoryID != '3') $tipe_dokumen .= "Asli";
-				else $tipe_dokumen .= "";
+				if( $ed_arr->THLOAOD_LoanCategoryID == '1' or $ed_arr->THLOAOD_LoanCategoryID == '2' ) $tipe_dokumen = "Asli";
+				elseif( $ed_arr->THLOAOD_LoanCategoryID == '3') $tipe_dokumen = "Hardcopy";
+				elseif( $ed_arr->THLOAOD_LoanCategoryID == '4') $tipe_dokumen = "Softcopy";
+				else $tipe_dokumen = "";
 			}
-			if( $ed_arr->THLOAOD_DocumentWithWatermarkOrNot == "1" ){
-				$dengan_cap = " dengan Watermark";
-			}elseif( $ed_arr->THLOAOD_DocumentWithWatermarkOrNot == "2" ){
-				$dengan_cap = " tanpa Watermark";
-			}else{
-				$dengan_cap = "";
+			$dengan_cap = "";
+			if( $tipe_dokumen == "Hardcopy" || $tipe_dokumen == "Softcopy" ){
+				if( $ed_arr->THLOAOD_DocumentWithWatermarkOrNot == "1" ){ //Arief F - 07092018
+					$dengan_cap = " dengan ".$cap_atau_watermark; //Arief F - 07092018
+				}elseif( $ed_arr->THLOAOD_DocumentWithWatermarkOrNot == "2" ){ //Arief F - 07092018
+					$dengan_cap = " tanpa ".$cap_atau_watermark; //Arief F - 07092018
+				}
 			}
 			$keteranganPermintaan = "";
 			if( $ed_arr->THLOAOD_Information != null or $ed_arr->THLOAOD_Information != "" ){

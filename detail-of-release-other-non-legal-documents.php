@@ -69,7 +69,7 @@ $DocID=$_GET["id"];
 $query = "SELECT DISTINCT throonld.THROONLD_ID, throonld.THROONLD_ReleaseCode, throonld.THROONLD_ReleaseDate, u.User_ID,
           u.User_FullName, c.Company_Name, throonld.THROONLD_Status, throonld.THROONLD_Information, thloonld.THLOONLD_UserID,
 		  dg.DocumentGroup_Name, dg.DocumentGroup_ID, throonld.THROONLD_Reason,c.Company_ID,thloonld.THLOONLD_LoanCategoryID,
-		  THROONLD.THROONLD_DocumentReceived
+		  throonld.THROONLD_DocumentReceived
 		  	FROM TH_ReleaseOfOtherNonLegalDocuments throonld, M_User u, M_Company c, M_Approval dra,
 				 M_DocumentGroup dg, TH_LoanOfOtherNonLegalDocuments thloonld, TD_LoanOfOtherNonLegalDocuments tdloonld
 			WHERE throonld.THROONLD_Delete_Time is NULL
@@ -139,7 +139,7 @@ $MainContent .="
 			$arr[THROONLD_ReleaseCode]
 		</td>
 		<td width='3%'>
-			<a href='print-release-of-asset-ownership-document.php?id=$arr[THROONLD_ReleaseCode]' target='_blank'><img src='./images/icon-print.png'></a>
+			<a href='print-release-of-other-non-legal-documents.php?id=$arr[THROONLD_ReleaseCode]' target='_blank'><img src='./images/icon-print.png'></a>
 		</td>";
 }
 else {
@@ -206,8 +206,8 @@ $MainContent .="
 		</td>
 	</tr>
 ";
-	// }else {
-/*$MainContent .="
+	}else {
+$MainContent .="
 	<tr>
 		<td>Status Dokumen</td>
 ";
@@ -267,8 +267,8 @@ $MainContent .="
 	else {
 $MainContent .="
 		<td colspan='2'>Draft</td></tr>";
-	}*/
 	}
+}
 
 $MainContent .="
 	</table>";
@@ -308,7 +308,7 @@ $MainContent .="
 	$sql = mysql_query($query);
 	$no=1;
 	while ($arr = mysql_fetch_array($sql)) {
-		if (($arr['TDROONLD_LeadTime']=="0000-00-00 00:00:00")||($arr['TDROONLD_LeadTime']=="1970-01-01 01:00:00")){
+		if ( (strpos($arr['TDROONLD_LeadTime'], '0000-00-00') !== false ) || ( strpos($arr['TDROONLD_LeadTime'], '1970-01-01') !== false ) ){
 			$fLeadTime="-";
 		}
 		else {

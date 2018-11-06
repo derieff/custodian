@@ -24,16 +24,16 @@ include ("./include/function.mail.regdocao.php");
 <script language="JavaScript" type="text/JavaScript">
 
 // VALIDASI INPUT BAGIAN HEADER
-function validateInputHeader(elem) {
-	var optTHROAOD_CompanyID = document.getElementById('optTHROAOD_CompanyID').selectedIndex;
-
-		if(optTHROAOD_CompanyID == 0) {
-			alert("Perusahaan Belum Dipilih!");
-			return false;
-		}
-
-	return true;
-}
+// function validateInputHeader(elem) {
+// 	var optTHROAOD_CompanyID = document.getElementById('optTHROAOD_CompanyID').selectedIndex;
+//
+// 		if(optTHROAOD_CompanyID == 0) {
+// 			alert("Perusahaan Belum Dipilih!");
+// 			return false;
+// 		}
+//
+// 	return true;
+// }
 
 // VALIDASI TANGGAL
 var dtCh= "/";
@@ -229,7 +229,7 @@ function validateInputDetail(elem) {
 }
 </script>
 <!-- Select2 -->
-<link rel="stylesheet" href="css/select2.min.css">
+<!-- <link rel="stylesheet" href="css/select2.min.css"> -->
 </head>
 
 <?PHP
@@ -311,27 +311,28 @@ if(isset($_GET["act"]))
 		</tr>";
 
 		if($field['User_SPV1']||$field['User_SPV2']){
-			$ActionContent .="
-			<tr>
-				<td>Perusahaan</td>
-				<td>
-					<select name='optTHROAOD_CompanyID' id='optTHROAOD_CompanyID' style='width:350px'>
-						<option value='0'>--- Pilih Perusahan ---</option>";
+			// $ActionContent .="
+			// <tr>
+			// 	<td>Perusahaan</td>
+			// 	<td>
+			// 		<select name='optTHROAOD_CompanyID' id='optTHROAOD_CompanyID' style='width:350px'>
+			// 			<option value='0'>--- Pilih Perusahan ---</option>";
 
-					$query = "SELECT *
-							  FROM M_Company
-							  WHERE Company_Delete_Time is NULL
-							  ORDER BY Company_Name ASC";
-					$sql = mysql_query($query);
-
-					while ($field = mysql_fetch_array($sql) ){
-						$ActionContent .="
-						<option value='$field[Company_ID]'>$field[Company_Name]</option>";
-					}
+					// $query = "SELECT *
+					// 		  FROM M_Company
+					// 		  WHERE Company_Delete_Time is NULL
+					// 		  ORDER BY Company_Name ASC";
+					// $sql = mysql_query($query);
+					//
+					// while ($field = mysql_fetch_array($sql) ){
+					// 	$ActionContent .="
+					// 	<option value='$field[Company_ID]'>$field[Company_Name]</option>";
+					// }
+			// $ActionContent .="
+			// 		</select>
+			// 	</td>
+			// </tr>
 			$ActionContent .="
-					</select>
-				</td>
-			</tr>
 			<tr>
 				<td>Keterangan</td>
 				<td><textarea name='txtTHROAOD_Information' id='txtTHROAOD_Information' cols='50' rows='2'></textarea></td>
@@ -366,20 +367,6 @@ if(isset($_GET["act"]))
 
 	//Menambah Detail Dokumen
 	elseif($act=='adddetail')	{
-		$ActionContent .="<select id='Daftar_Employee' style='display:none;'>
-			<option value='0'>--- Pilih Nama Pemilik ---</option>";
-		$query5="SELECT Employee_NIK, Employee_FullName
-			FROM db_master.M_Employee
-			WHERE Employee_ResignDate IS NULL
-			AND Employee_CompanyCode='$field[Company_Name]'";
-		$sql5 = mysql_query($query5);
-
-		while ($field5=mysql_fetch_array($sql5)) {
-			$ActionContent .="
-			<option value='$field5[Employee_NIK]'>$field5[Employee_FullName]</option>";
-		}
-		$ActionContent .="</select>";
-
 		$ActionContent .="<select id='Daftar_MerkKendaraan' style='display:none;'>
 			<option value='0'>--- Pilih Merk Kendaraan ---</option>";
 		$query6="SELECT *
@@ -407,7 +394,8 @@ if(isset($_GET["act"]))
 						 p.Position_Name as PosName,
 						 grup.DocumentGroup_Name,
 						 grup.DocumentGroup_ID,
-						 comp.Company_Name, comp.Company_ID, comp.Company_Area
+						 comp.Company_Name, comp.Company_ID, comp.Company_Area,
+						 comp.Company_code
 				  FROM TH_RegistrationOfAssetOwnershipDocument header
 				  LEFT JOIN M_User u
 					ON u.User_ID=header.THROAOD_UserID
@@ -427,6 +415,31 @@ if(isset($_GET["act"]))
 				  WHERE header.THROAOD_RegistrationCode='$code'
 				  AND header.THROAOD_Delete_Time IS NULL";
 		$field = mysql_fetch_array(mysql_query($query));
+
+		$ActionContent .="
+		<select id='Daftar_Employee' style='display:none;'>
+			<option value='0'>--- Pilih Nama Pemilik ---</option>";
+		$query5="SELECT Employee_NIK AS id, Employee_FullName AS name
+			FROM db_master.M_Employee
+			WHERE Employee_ResignDate IS NULL
+			AND Employee_GradeCode IN ('0000000005', '06', '0000000003', '05', '04', '0000000004')";
+		$sql5 = mysql_query($query5);
+
+		while ($field5=mysql_fetch_array($sql5)) {
+			$ActionContent .="
+			<option value='$field5[id]'>$field5[name]</option>";
+		}
+
+		$query_comp = "SELECT CONCAT('CO@',Company_Code) AS id, Company_Name AS name
+				  FROM M_Company
+				  WHERE Company_Delete_Time is NULL
+				  ORDER BY Company_Name ASC";
+  	  	$sql_comp = mysql_query($query_comp);
+		while($field_comp=mysql_fetch_array($sql_comp)){
+			$ActionContent .="
+				<option value='$field_comp[id]'>$field_comp[name]</option>";
+		}
+		$ActionContent .="</select>";
 
 		$DocGroup=$field['DocumentGroup_ID'];
 		$regdate=strtotime($field['THROAOD_RegistrationDate']);
@@ -515,7 +528,7 @@ if(isset($_GET["act"]))
 		</tr>
 		<tr>
 			<td>
-				<select name='optTDROAOD_Employee_NIK1' id='optTDROAOD_Employee_NIK1' class='select2'>
+				<select name='optTDROAOD_Employee_NIK1' id='optTDROAOD_Employee_NIK1'>
 					<option value='0'>--- Pilih Nama Pemilik ---</option>
 				</select>
 			</td>
@@ -861,14 +874,20 @@ elseif(isset($_POST['addheader'])) {
 	}
 
 	// Cari Kode Perusahaan
-	$query = "SELECT *
-			  FROM M_Company
-			  WHERE Company_ID='$_POST[optTHROAOD_CompanyID]'";
+	$query = "SELECT e.Employee_CompanyCode, c.Company_ID
+			FROM db_master.M_Employee e
+			INNER JOIN M_Company c
+				ON e.Employee_CompanyCode=c.Company_Code
+			WHERE Employee_NIK='$_SESSION[User_ID]'";
+	// $query = "SELECT Company_Code
+	// 		  FROM M_Company
+	// 		  WHERE Company_ID='$_POST[optTHROAOD_CompanyID]'";
 	$field = mysql_fetch_array(mysql_query($query));
-	$Company_Code=$field['Company_Code'];
+	$Company_Code=$field['Employee_CompanyCode'];
+	$Company_ID=$field['Company_ID'];
 
 	// Cari Kode Dokumen Grup
-	$query = "SELECT *
+	$query = "SELECT DocumentGroup_Code
 			  FROM M_DocumentGroup
 			  WHERE DocumentGroup_ID ='$_POST[txtTHROAOD_DocumentGroupID]'";
 	$field = mysql_fetch_array(mysql_query($query));
@@ -902,7 +921,7 @@ elseif(isset($_POST['addheader'])) {
 		$info = str_replace("<br>", "\n", $_POST['txtTHROAOD_Information']);
 		//Insert Header Dokumen
 		$sql1= "INSERT INTO TH_RegistrationOfAssetOwnershipDocument
-				VALUES (NULL,'$CT_Code',sysdate(),'$_SESSION[User_ID]','$_POST[optTHROAOD_CompanyID]',
+				VALUES (NULL,'$CT_Code',sysdate(),'$_SESSION[User_ID]','$Company_ID',
 				        '$info','$_POST[txtTHROAOD_DocumentGroupID]',
 						'0',NULL,'$_SESSION[User_ID]', sysdate(),NULL,NULL)";
 		if($mysqli->query($sql1)) {
@@ -1115,7 +1134,7 @@ $page->Show();
 }
 ?>
 <!-- Select2 -->
-<script src="js/select2.full.min.js"></script>
+<!-- <script src="js/select2.full.min.js"></script> -->
 
 <script language="JavaScript" type="text/JavaScript">
 document.getElementById('optTDROAOD_Employee_NIK1').innerHTML = $('#Daftar_Employee').html();
@@ -1159,7 +1178,7 @@ function addRowToTable() {
 	var sel = document.createElement('select');
 	sel.name = 'optTDROAOD_Employee_NIK' + iteration;
 	sel.id = 'optTDROAOD_Employee_NIK' + iteration;
-	sel.setAttribute("class", "select2");
+	// sel.setAttribute("class", "select2");
 	sel.innerHTML = $('#Daftar_Employee').html();
 	//sel.setAttribute("onchange","javascript:showType(this.value);");
 	// sel.onchange=function(){ showType(this.value);  };
@@ -1322,7 +1341,7 @@ function removeRowFromTable() {
 }
 
 
-$(function (){
-	$('.select2').select2();
-});
+// $(function (){
+// 	$('.select2').select2();
+// });
 </script>

@@ -158,19 +158,28 @@ $MainContent .="
 	}
 	$MainContent .="</td>
 </tr>
-<tr>
-	<td>Dokumen dengan Cap/Watermark</td>
-	<td colspan='2'><input type='hidden' name='optTHLOAOD_DocumentWithWatermarkOrNot' value='$arr[THLOAOD_DocumentWithWatermarkOrNot]'>";
-	if( $arr['THLOAOD_DocumentWithWatermarkOrNot'] == "1" ){
-		$MainContent .="Iya";
-	}elseif( $arr['THLOAOD_DocumentWithWatermarkOrNot'] == "2" ){
-		$MainContent .="Tidak";
-	}else{
-		$MainContent .= "-";
+";
+if( $arr['THLOAOD_DocumentType'] != "ORIGINAL" ){
+	if( $arr['THLOAOD_DocumentType'] == "HARDCOPY" ){
+		$cap_or_watermark = "Watermark";
+	}elseif( $arr['THLOAOD_DocumentType'] == "SOFTCOPY" ){
+		$cap_or_watermark = "Cap";
 	}
+$MainContent .="<tr>
+	<td>Dokumen dengan ".$cap_or_watermark."</td>
+	<td colspan='2'><input type='hidden' name='optTHLOAOD_DocumentWithWatermarkOrNot' value='$arr[THLOAOD_DocumentWithWatermarkOrNot]'>";
+		if( $arr['THLOAOD_DocumentWithWatermarkOrNot'] == "1" ){
+			$MainContent .="Iya";
+		}elseif( $arr['THLOAOD_DocumentWithWatermarkOrNot'] == "2" ){
+			$MainContent .="Tidak";
+		}else{
+			$MainContent .= "-";
+		}
 	$MainContent .="</td>
 </tr>
-<tr>
+";
+}
+$MainContent .="<tr>
 	<td>";
 	if($arr['THLOAOD_DocumentType'] != "SOFTCOPY"){ $MainContent .="Kategori Permintaan";}
 	else{ $MainContent .="Email Penerima Dokumen"; }
@@ -220,8 +229,8 @@ if(($act=='approve')&&($approver=="1")) {
 			<br>*Wajib Diisi Apabila Dokumen Ditolak.
 		</td>
 	</tr>";
-// }else {
-	/*$MainContent .="
+}else {
+	$MainContent .="
 	<tr>
 		<td>Status Dokumen</td>";
 
@@ -247,7 +256,7 @@ if(($act=='approve')&&($approver=="1")) {
 	}else {
 		$MainContent .="
 		<td colspan='2'>Draft</td></tr>";
-	}*/
+	}
 }
 
 $MainContent .="
@@ -283,7 +292,9 @@ $MainContent .="
 </tr>";
 
 $query = "SELECT tdloaod.TDLOAOD_ID, tdloaod.TDLOAOD_DocCode,
-				 m_e.Employee_FullName, m_mk.MK_Name, dao.DAO_Type, dao.DAO_Jenis,
+				 dao.DAO_Employee_NIK,
+				 -- m_e.Employee_FullName,
+				 m_mk.MK_Name, dao.DAO_Type, dao.DAO_Jenis,
 				 dao.DAO_NoPolisi, dao.DAO_NoRangka, dao.DAO_NoMesin, dao.DAO_NoBPKB,
 				 dao.DAO_STNK_StartDate, dao.DAO_STNK_ExpiredDate,
 				 dao.DAO_Pajak_StartDate, dao.DAO_Pajak_ExpiredDate,
@@ -292,8 +303,8 @@ $query = "SELECT tdloaod.TDLOAOD_ID, tdloaod.TDLOAOD_DocCode,
 			 FROM TD_LoanOfAssetOwnershipDocument tdloaod
 			 LEFT JOIN M_DocumentAssetOwnership dao
 				ON dao.DAO_DocCode=tdloaod.TDLOAOD_DocCode
-			 LEFT JOIN db_master.M_Employee m_e
-			 	ON m_e.Employee_NIK=dao.DAO_Employee_NIK
+			 -- LEFT JOIN db_master.M_Employee m_e
+			 -- 	ON m_e.Employee_NIK=dao.DAO_Employee_NIK
 			 LEFT JOIN db_master.M_MerkKendaraan m_mk
 			 	ON m_mk.MK_ID=dao.DAO_MK_ID
 		  	 WHERE tdloaod.TDLOAOD_THLOAOD_ID='$DocID'
@@ -307,13 +318,31 @@ while ($arr = mysql_fetch_array($sql)) {
 	$pajak_sdate=date("j M Y", strtotime($arr['DAO_Pajak_StartDate']));
 	$pajak_exdate=(($arr['DAO_Pajak_ExpiredDate']=="0000-00-00 00:00:00")||($arr['DAO_Pajak_ExpiredDate']=="1970-01-01 01:00:00"))?"-":date("j M Y", strtotime($arr['DAO_Pajak_ExpiredDate']));
 
+	if(strpos($arr['DAO_Employee_NIK'], 'CO@') !== false){
+		$get_company_code = explode('CO@', $arr['DAO_Employee_NIK']);
+		$company_code = $get_company_code[1];
+		$query7="SELECT Company_Name AS nama_pemilik
+			FROM M_Company
+			WHERE Company_code='$company_code'";
+	}else{
+		$query7="SELECT Employee_FullName AS nama_pemilik
+			FROM db_master.M_Employee
+			WHERE Employee_NIK='$arr[DAO_Employee_NIK]'";
+	}
+	$sql7 = mysql_query($query7);
+	$nama_pemilik = "-";
+	if(mysql_num_rows($sql7) > 0){
+		$data7 = mysql_fetch_array($sql7);
+		$nama_pemilik = $data7['nama_pemilik'];
+	}
+
 	$MainContent .="
 	<tr>
 		<td class='center'>
 			<input type='hidden' name='txtTDLOAOD_ID[]' value='$arr[TDLOAOD_ID]'/>$no
 		</td>
 		<td class='center'><input name='txtDAO_DocCode[]' type='hidden' value='$arr[TDLOAOD_DocCode]'>$arr[TDLOAOD_DocCode]</td>
-		<td class='center'><input name='txtDAO_Employee_NIK[]' type='hidden' value='$arr[Employee_FullName]'>$arr[Employee_FullName]</td>
+		<td class='center'><input name='txtDAO_Employee_NIK[]' type='hidden' value='$arr[DAO_Employee_NIK]'>$nama_pemilik</td>
 		<td class='center'><input name='txtDAO_MK_ID[]' type='hidden' value='$arr[MK_Name]'>$arr[MK_Name]</td>
 		<td class='center'><input name='txtDAO_Type[]' type='hidden' value='$arr[DAO_Type]'>$arr[DAO_Type]</td>
 		<td class='center'><input name='txtDAO_Jenis[]' type='hidden' value='$arr[DAO_Jenis]'>$arr[DAO_Jenis]</td>
@@ -390,17 +419,9 @@ if(isset($_POST[approval])) {
 		if ($step <> $jStep) {
 			$nStep=$step+1;
 
-			if($_POST['optTHLOAOD_DocumentType'] == "ORIGINAL" && $_POST['optTHLOAOD_DocumentType'] == "SOFTCOPY"){
-				$jenis = "14";
-			}elseif($_POST['optTHLOAOD_DocumentType'] == "HARDCOPY"){
-				$jenis = "15";
-			}else{
-				if($_POST['optTHLOAOD_LoanCategoryID'] != "3"){
-					$jenis = "14";
-				}else{
-					$jenis = "15";
-				}
-			}
+			if ($_POST['optTHLOAOD_DocumentType'] == "ORIGINAL") { $jenis = '14'; }
+			else if ($_POST['optTHLOAOD_DocumentType'] == "HARDCOPY") { $jenis = '15'; }
+			else if ($_POST['optTHLOAOD_DocumentType'] == "SOFTCOPY") { $jenis = '25'; }
 
 			$qComp = "SELECT Company_Area FROM M_Company WHERE Company_ID = '{$_POST['txtCompany_ID']}'";
 			$aComp = mysql_fetch_array(mysql_query($qComp));

@@ -78,13 +78,8 @@ if( !empty($_GET['cfm']) && !empty($_GET['ati']) && !empty($_GET['rdm']) ) {
 					$qComp = "SELECT Company_Area FROM M_Company WHERE Company_ID = '{$h_arr['THLOONLD_CompanyID']}'";
 					$aComp = mysql_fetch_array(mysql_query($qComp));
 
-					if($h_arr['THLOONLD_DocumentType'] == "ORIGINAL" or $h_arr['THLOONLD_DocumentType'] == "SOFTCOPY"){
-						$jenis = "20";
-					}elseif($h_arr['THLOONLD_DocumentType'] == "HARDCOPY"){
-						$jenis = "21";
-					}else{
-						$jenis = "";
-					}
+					if($h_arr['THLOONLD_DocumentType'] == "ORIGINAL"){ $jenis = "20"; }
+					else;
 
 					for ($i=$nStep; $i<=$jStep; $i++) {
 						$j = $i + 1;

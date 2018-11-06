@@ -158,8 +158,15 @@ $MainContent .="
 	}
 	$MainContent .="</td>
 </tr>
-<tr>
-	<td>Dokumen dengan Cap/Watermark</td>
+";
+if( $arr['THLOLAD_DocumentType'] != "ORIGINAL" ){
+	if( $arr['THLOLAD_DocumentType'] == "HARDCOPY" ){
+		$cap_or_watermark = "Watermark";
+	}elseif( $arr['THLOLAD_DocumentType'] == "SOFTCOPY" ){
+		$cap_or_watermark = "Cap";
+	}
+$MainContent .="<tr>
+	<td>Dokumen dengan ".$cap_or_watermark."</td>
 	<td colspan='2'><input type='hidden' name='optTHLOLAD_DocumentWithWatermarkOrNot' value='$arr[THLOLAD_DocumentWithWatermarkOrNot]'>";
 		if( $arr['THLOLAD_DocumentWithWatermarkOrNot'] == "1" ){
 			$MainContent .="Iya";
@@ -170,7 +177,9 @@ $MainContent .="
 		}
 	$MainContent .="</td>
 </tr>
-<tr>
+";
+}
+$MainContent .="<tr>
 	<td>";
 	if($arr['THLOLAD_DocumentType'] != "SOFTCOPY"){ $MainContent .="Kategori Permintaan";}
 	else{ $MainContent .="Email Penerima Dokumen"; }
@@ -220,8 +229,8 @@ if(($act=='approve')&&($approver=="1")) {
 			<br>*Wajib Diisi Apabila Dokumen Ditolak.
 		</td>
 	</tr>";
-// }else {
-	/*$MainContent .="
+}else {
+	$MainContent .="
 		<tr>
 			<td>Status Dokumen</td>";
 	if($arr[THLOLAD_Status]=="waiting"){
@@ -245,7 +254,7 @@ if(($act=='approve')&&($approver=="1")) {
 		</tr>";
 	}else {
 		$MainContent .="<td colspan='2'>Draft</td></tr>";
-	}*/
+	}
 }
 
 $MainContent .="</table>";
@@ -364,8 +373,9 @@ if(isset($_POST[approval])) {
 			}*/
 			$nStep=$step+1;
 
-			if ($_POST['optTHLOLAD_LoanCategoryID'] != '3') { $jenis = '5'; }
-			else if ($_POST['optTHLOLAD_LoanCategoryID'] == '3') { $jenis = '6'; }
+			if ($_POST['optTHLOLAD_DocumentType'] == "ORIGINAL") { $jenis = '5'; }
+			else if ($_POST['optTHLOLAD_DocumentType'] == "HARDCOPY") { $jenis = '12'; }
+			else if ($_POST['optTHLOLAD_DocumentType'] == "SOFTCOPY") { $jenis = '24'; }
 			else;
 
 			$qComp = "SELECT Company_Area FROM M_Company WHERE Company_ID = '{$_POST['txtCompany_ID']}'";

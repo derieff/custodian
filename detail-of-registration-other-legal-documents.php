@@ -357,8 +357,8 @@ if(($act=='approve')&&($approver=="1")) {
 			<br>*Wajib Diisi Apabila Dokumen Ditolak.
 		</td>
 	</tr>";
-// }else {
-	/*$MainContent .="
+}else {
+	$MainContent .="
 	<tr>
 		<td>Status Pendaftaran</td>";
 	if($arr[THROOLD_Status]=="waiting") {
@@ -384,7 +384,7 @@ if(($act=='approve')&&($approver=="1")) {
 	}else {
 		$MainContent .="
 		<td colspan='2'>Draft</td></tr>";
-	}*/
+	}
 }
 
 $MainContent .="</table>";
@@ -415,7 +415,7 @@ while ($arr = mysql_fetch_array($sql)) {
 	if((($act=='edit') && (($custodian==1)||($admin=="1"))) || (($act=='approve')&&($approver=="1")&&($custodian==1))) {
 		$DocumentCategory_ID=$arr["TDROOLD_KategoriDokumenID"];
 		$tglterbit=date("m/d/Y", strtotime($arr['TDROOLD_TglTerbit']));
-		$tglberakhir=(($arr['TDROOLD_TglBerakhir']=="0000-00-00 00:00:00")||($arr['TDROOLD_TglBerakhir']=="1970-01-01 01:00:00"))?"-":date("m/d/Y", strtotime($arr['TDROOLD_TglBerakhir']));
+		$tglberakhir=(($arr['TDROOLD_TglBerakhir']=="0000-00-00 00:00:00")||($arr['TDROOLD_TglBerakhir']=="1970-01-01 01:00:00"))?"12/31/9999":date("m/d/Y", strtotime($arr['TDROOLD_TglBerakhir']));
 
 		$MainContent .="
 		<tr>
@@ -463,7 +463,7 @@ while ($arr = mysql_fetch_array($sql)) {
 		</tr>";
 	}else {
 		$tglterbit=date("j M Y", strtotime($arr['TDROOLD_TglTerbit']));
-		$tglberakhir=(($arr['TDROOLD_TglBerakhir']=="0000-00-00 00:00:00")||($arr['TDROOLD_TglBerakhir']=="1970-01-01 01:00:00"))?"-":date("j M Y", strtotime($arr['TDROOLD_TglBerakhir']));
+		$tglberakhir=(($arr['TDROOLD_TglBerakhir']=="0000-00-00 00:00:00")||($arr['TDROOLD_TglBerakhir']=="1970-01-01 01:00:00"))?"31 Dec 9999":date("j M Y", strtotime($arr['TDROOLD_TglBerakhir']));
 
 		// include ("./config/config_db_master.php");
 		$query7="SELECT DocumentCategory_Name

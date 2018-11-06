@@ -76,13 +76,9 @@ if( !empty($_GET['cfm']) && !empty($_GET['ati']) && !empty($_GET['rdm']) ) {
 					$qComp = "SELECT Company_Area FROM M_Company WHERE Company_ID = '{$h_arr['THLOAOD_CompanyID']}'";
 					$aComp = mysql_fetch_array(mysql_query($qComp));
 
-					if($h_arr['THLOAOD_DocumentType'] == "ORIGINAL" or $h_arr['THLOAOD_DocumentType'] == "SOFTCOPY"){
-						$jenis = "14";
-					}elseif($h_arr['THLOAOD_DocumentType'] == "HARDCOPY"){
-						$jenis = "15";
-					}else{
-						$jenis = "";
-					}
+					if ($h_arr['THLOAOD_DocumentType'] == "ORIGINAL") { $jenis = '14'; }
+					else if ($h_arr['THLOAOD_DocumentType'] == "HARDCOPY") { $jenis = '15'; }
+					else if ($h_arr['THLOAOD_DocumentType'] == "SOFTCOPY") { $jenis = '25'; }
 
 					for ($i=$nStep; $i<=$jStep; $i++) {
 						$j = $i + 1;
@@ -312,7 +308,7 @@ if( !empty($_GET['cfm']) && !empty($_GET['ati']) && !empty($_GET['rdm']) ) {
 								case "3":
 									$docStatus="1";
 									break;
-								default: "1";
+								default: $docStatus="1";
 							}
 
 							$query1="UPDATE M_DocumentAssetOwnership

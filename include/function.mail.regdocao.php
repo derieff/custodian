@@ -82,7 +82,7 @@ function mail_registration_doc($regCode,$reminder=0){
 		$ed_query="	SELECT DISTINCT	Company_Name,
 						TDROAOD_NoPolisi,
 						m_mk.MK_Name merk_kendaraan,
-						m_e.Employee_FullName nama_pemilik,
+						TDROAOD_Employee_NIK,
 						TDROAOD_STNK_StartDate, TDROAOD_STNK_ExpiredDate,
 						User_FullName,
 						db_master.M_Employee.Employee_Department,
@@ -98,23 +98,44 @@ function mail_registration_doc($regCode,$reminder=0){
 						ON THROAOD_UserID=User_ID
 				    LEFT JOIN db_master.M_Employee
 						ON M_User.User_ID = db_master.M_Employee.Employee_NIK
-					LEFT JOIN db_master.M_Employee m_e
-                        ON TDROAOD_Employee_NIK=m_e.Employee_NIK
 					WHERE THROAOD_RegistrationCode='$regCode'
 					AND THROAOD_Delete_Time IS NULL";
 		$ed_handle = mysql_query($ed_query);
 		$edNum=1;
 		while ($ed_arr = mysql_fetch_object($ed_handle)) {
+			if(strpos($ed_arr->TDROAOD_Employee_NIK, 'CO@') !== false){
+				$get_company_code = explode('CO@', $ed_arr->TDROAOD_Employee_NIK);
+				$company_code = $get_company_code[1];
+				$query7="SELECT Company_Name AS nama_pemilik
+					FROM M_Company
+					WHERE Company_code='$company_code'";
+			}else{
+				$query7="SELECT Employee_FullName AS nama_pemilik
+					FROM db_master.M_Employee
+					WHERE Employee_NIK='$ed_arr->TDROAOD_Employee_NIK'";
+			}
+			$sql7 = mysql_query($query7);
+			$nama_pemilik = "-";
+			if(mysql_num_rows($sql7) > 0){
+				$data7 = mysql_fetch_array($sql7);
+				$nama_pemilik = $data7['nama_pemilik'];
+			}
+
+			if(strpos($ed_arr->TDROAOD_STNK_ExpiredDate, '0000-00-00') !== false || strpos($ed_arr->TDROAOD_STNK_ExpiredDate, '1970-01-01') !== false){
+				$masa_habis_stnk = "-";
+			}else{
+				$masa_habis_stnk = date('d/m/Y', strtotime($ed_arr->TDROAOD_STNK_ExpiredDate));
+			}
 
 			$body .= '
 						<TR  style=" font-size: 12px; font-family: \'lucida grande\',tahoma,verdana,arial,sans-serif;">
 							<TD align="center" valign="top">'.$edNum.'</TD>
 							<TD>'.$ed_arr->Company_Name.'<br />
 								No. Polisi : '.$ed_arr->TDROAOD_NoPolisi.'<br />
-								Nama Pemilik : '.$ed_arr->nama_pemilik.'<br>
+								Nama Pemilik : '.$nama_pemilik.'<br>
                                 Merk Kendaraan : '.$ed_arr->merk_kendaraan.'<br>
 								Masa Berlaku STNK : '.date('d/m/Y', strtotime($ed_arr->TDROAOD_STNK_StartDate)).' s/d
-								'.date('d/m/Y', strtotime($ed_arr->TDROAOD_STNK_ExpiredDate)).'
+								'.$masa_habis_stnk.'
 							</TD>
 						</TR>';
 			$edNum=$edNum+1;
@@ -149,22 +170,22 @@ function mail_registration_doc($regCode,$reminder=0){
 				</p>
 				<p align=center>
 					<span style="border: 1px solid green;padding: 5px;margin-bottom: 15px; font-size: 13px;font-family: \'lucida grande\',tahoma,verdana,arial,sans-serif;background-color: rgb(196, 223, 155);color: white;float: left;margin-left: 12%;width: 20%;border-radius: 10px;">
-						<a target="_BLANK" style="color: white;" href="http://'.$_SERVER['HTTP_HOST'].'/custodian/act.mail.regdocao.php?cfm='.$decrp->encrypt('accept').'&ati='.$decrp->encrypt($row->ARC_AID).'&rdm='.$decrp->encrypt($row->ARC_RandomCode).'">Setuju</a>
+						<a target="_BLANK" style="color: white;" href="http://'.$_SERVER['HTTP_HOST'].'/act.mail.regdocao.php?cfm='.$decrp->encrypt('accept').'&ati='.$decrp->encrypt($row->ARC_AID).'&rdm='.$decrp->encrypt($row->ARC_RandomCode).'">Setuju</a>
 					</span>';
 				if ($custodian==1){
 				$bodyFooter .= '
 					<span style="border: 1px solid green;padding: 5px;margin-bottom: 15px; font-size: 13px;font-family: \'lucida grande\',tahoma,verdana,arial,sans-serif;background-color: rgb(196, 223, 155);color: white;float: left;margin-left: 4%;margin-right:4%;width: 20%;border-radius: 10px;">
-						<a target="_BLANK" style="color: white;" href="http://'.$_SERVER['HTTP_HOST'].'/custodian/act.mail.regdocao.php?act='.$decrp->encrypt('reject').'&ati='.$decrp->encrypt($row->ARC_AID).'&rdm='.$decrp->encrypt($row->ARC_RandomCode).'">Tolak</a>
+						<a target="_BLANK" style="color: white;" href="http://'.$_SERVER['HTTP_HOST'].'/act.mail.regdocao.php?act='.$decrp->encrypt('reject').'&ati='.$decrp->encrypt($row->ARC_AID).'&rdm='.$decrp->encrypt($row->ARC_RandomCode).'">Tolak</a>
 					</span>
 					<span style="border: 1px solid green;padding: 5px;margin-bottom: 15px; font-size: 13px;font-family: \'lucida grande\',tahoma,verdana,arial,sans-serif;background-color: rgb(196, 223, 155);color: white;float: right;margin-right: 12%;width: 20%;border-radius: 10px;">
-						<a target="_BLANK" style="color: white;" href="http://'.$_SERVER['HTTP_HOST'].'/custodian/detail-of-registration-asset-ownership-document.php?act='.$decrp->encrypt('approve').'&ati='.$decrp->encrypt($row->ARC_AID).'&rdm='.$decrp->encrypt($row->ARC_RandomCode).'&id='.$decrp->encrypt($row->THROAOD_ID).'">Revisi</a>
+						<a target="_BLANK" style="color: white;" href="http://'.$_SERVER['HTTP_HOST'].'/detail-of-registration-asset-ownership-document.php?act='.$decrp->encrypt('approve').'&ati='.$decrp->encrypt($row->ARC_AID).'&rdm='.$decrp->encrypt($row->ARC_RandomCode).'&id='.$decrp->encrypt($row->THROAOD_ID).'">Revisi</a>
 					</span>
 					<br />';
 				}
 				else {
 				$bodyFooter .= '
 					<span style="border: 1px solid green;padding: 5px;margin-bottom: 15px; font-size: 13px;font-family: \'lucida grande\',tahoma,verdana,arial,sans-serif;background-color: rgb(196, 223, 155);color: white;float: right;margin-right: 12%;width: 20%;border-radius: 10px;">
-						<a target="_BLANK" style="color: white;" href="http://'.$_SERVER['HTTP_HOST'].'/custodian/act.mail.regdocao.php?act='.$decrp->encrypt('reject').'&ati='.$decrp->encrypt($row->ARC_AID).'&rdm='.$decrp->encrypt($row->ARC_RandomCode).'">Tolak</a>
+						<a target="_BLANK" style="color: white;" href="http://'.$_SERVER['HTTP_HOST'].'/act.mail.regdocao.php?act='.$decrp->encrypt('reject').'&ati='.$decrp->encrypt($row->ARC_AID).'&rdm='.$decrp->encrypt($row->ARC_RandomCode).'">Tolak</a>
 					</span>
 					<br>';
 				}
@@ -332,7 +353,7 @@ function mail_notif_registration_doc($regCode, $User_ID, $status, $attr){
 						THROAOD_UserID,
 						TDROAOD_NoPolisi,
 						m_mk.MK_Name merk_kendaraan,
-						m_e.Employee_FullName nama_pemilik,
+						-- m_e.Employee_FullName nama_pemilik,
 						TDROAOD_STNK_StartDate, TDROAOD_STNK_ExpiredDate,
 						User_FullName,
 						db_master.M_Employee.Employee_Department,
@@ -348,23 +369,46 @@ function mail_notif_registration_doc($regCode, $User_ID, $status, $attr){
 						ON THROAOD_UserID=User_ID
 				    LEFT JOIN db_master.M_Employee
 						ON M_User.User_ID = db_master.M_Employee.Employee_NIK
-					LEFT JOIN db_master.M_Employee m_e
-                        ON TDROAOD_Employee_NIK=m_e.Employee_NIK
+					-- LEFT JOIN db_master.M_Employee m_e
+                    --     ON TDROAOD_Employee_NIK=m_e.Employee_NIK
 					WHERE THROAOD_RegistrationCode='$regCode'
 					AND THROAOD_Delete_Time IS NULL";
 		$ed_handle = mysql_query($ed_query);
 		$edNum=1;
 		while ($ed_arr = mysql_fetch_object($ed_handle)) {
+			if(strpos($ed_arr->TDROAOD_Employee_NIK, 'CO@') !== false){
+				$get_company_code = explode('CO@', $ed_arr->TDROAOD_Employee_NIK);
+				$company_code = $get_company_code[1];
+				$query7="SELECT Company_Name AS nama_pemilik
+					FROM M_Company
+					WHERE Company_code='$company_code'";
+			}else{
+				$query7="SELECT Employee_FullName AS nama_pemilik
+					FROM db_master.M_Employee
+					WHERE Employee_NIK='$arr[TDROAOD_Employee_NIK]'";
+			}
+			$sql7 = mysql_query($query7);
+			$nama_pemilik = "-";
+			if(mysql_num_rows($sql7) > 0){
+				$data7 = mysql_fetch_array($sql7);
+				$nama_pemilik = $data7['nama_pemilik'];
+			}
+
+			if(strpos($ed_arr->TDROAOD_STNK_ExpiredDate, '0000-00-00') !== false || strpos($ed_arr->TDROAOD_STNK_ExpiredDate, '1970-01-01') !== false){
+				$masa_habis_stnk = "-";
+			}else{
+				$masa_habis_stnk = date('d/m/Y', strtotime($ed_arr->TDROAOD_STNK_ExpiredDate));
+			}
 
 			$body .= '
 						<TR  style=" font-size: 12px; font-family: \'lucida grande\',tahoma,verdana,arial,sans-serif;">
 							<TD align="center" valign="top">'.$edNum.'</TD>
 							<TD>'.$ed_arr->Company_Name.'<br />
 								No. Polisi : '.$ed_arr->TDROAOD_NoPolisi.'<br />
-								Nama Pemilik : '.$ed_arr->nama_pemilik.'<br>
+								Nama Pemilik : '.$nama_pemilik.'<br>
                                 Merk Kendaraan : '.$ed_arr->merk_kendaraan.'<br>
 								Masa Berlaku STNK : '.date('d/m/Y', strtotime($ed_arr->TDROAOD_STNK_StartDate)).' sampai
-								'.date('d/m/Y', strtotime($ed_arr->TDROAOD_STNK_ExpiredDate)).'
+								'.$masa_habis_stnk.'
 							</TD>
 						</TR>';
 			$edNum=$edNum+1;

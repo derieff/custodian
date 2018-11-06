@@ -66,7 +66,8 @@ function mail_return_doc($retDoc, $reminder=0){
 							DAO_NoDoc, TDRTOAOD_UserID,User_FullName,
 							db_master.M_Employee.Employee_Department,
 							db_master.M_Employee.Employee_Division,
-							m_e.Employee_FullName nama_pemilik,
+							-- m_e.Employee_FullName nama_pemilik,
+							DAO_Employee_NIK,
 	 					    m_mk.MK_Name merk_kendaraan, DAO_NoPolisi,
 	 					    DAO_STNK_StartDate, DAO_STNK_ExpiredDate
 					FROM TD_ReturnOfAssetOwnershipDocument
@@ -80,23 +81,46 @@ function mail_return_doc($retDoc, $reminder=0){
 						ON M_User.User_ID = db_master.M_Employee.Employee_NIK
 					LEFT JOIN db_master.M_MerkKendaraan m_mk
                         ON DAO_MK_ID=m_mk.MK_ID
-                    LEFT JOIN db_master.M_Employee m_e
-                        ON DAO_Employee_NIK=m_e.Employee_NIK
+                    -- LEFT JOIN db_master.M_Employee m_e
+                    --     ON DAO_Employee_NIK=m_e.Employee_NIK
 					WHERE TDRTOAOD_ReturnCode='$retDoc'
 					AND TDRTOAOD_Delete_Time IS NULL";
 		$ed_handle = mysql_query($ed_query);
 		$edNum=1;
 		while ($ed_arr = mysql_fetch_object($ed_handle)) {
+			if(strpos($ed_arr->DAO_Employee_NIK, 'CO@') !== false){
+				$get_company_code = explode('CO@', $ed_arr->DAO_Employee_NIK);
+				$company_code = $get_company_code[1];
+				$query7="SELECT Company_Name AS nama_pemilik
+					FROM M_Company
+					WHERE Company_code='$company_code'";
+			}else{
+				$query7="SELECT Employee_FullName AS nama_pemilik
+					FROM db_master.M_Employee
+					WHERE Employee_NIK='$ed_arr->DAO_Employee_NIK'";
+			}
+			$sql7 = mysql_query($query7);
+			$nama_pemilik = "-";
+			if(mysql_num_rows($sql7) > 0){
+				$data7 = mysql_fetch_array($sql7);
+				$nama_pemilik = $data7['nama_pemilik'];
+			}
+
+			if(strpos($ed_arr->DAO_STNK_ExpiredDate, '0000-00-00') !== false || strpos($ed_arr->DAO_STNK_ExpiredDate, '1970-01-01') !== false){
+				$masa_habis_stnk = "-";
+			}else{
+				$masa_habis_stnk = date('d/m/Y', strtotime($ed_arr->DAO_STNK_ExpiredDate));
+			}
 
 			$body .= '
 						<TR  style=" font-size: 12px; font-family: \'lucida grande\',tahoma,verdana,arial,sans-serif;">
 							<TD align="center" valign="top">'.$edNum.'</TD>
 							<TD>'.$ed_arr->Company_Name.'<br />
 								No. Polisi : '.$ed_arr->DAO_NoPolisi.'<br />
-								Nama Pemilik : '.$ed_arr->nama_pemilik.'<br>
+								Nama Pemilik : '.$nama_pemilik.'<br>
 								Merk Kendaraan : '.$ed_arr->merk_kendaraan.'<br>
 								Masa Berlaku STNK : '.date('d/m/Y', strtotime($ed_arr->DAO_STNK_StartDate)).' s/d
-								'.date('d/m/Y', strtotime($ed_arr->DAO_STNK_ExpiredDate)).'
+								'.$masa_habis_stnk.'
 							</TD>
 						</TR>';
 			$edNum=$edNum+1;
@@ -244,7 +268,8 @@ function mail_notif_return_doc($retCode, $User_ID, $status){
 
 		$ed_query="	SELECT DISTINCT Company_Name, TDRTOAOD_Information,
 						TDRTOAOD_Reason, TDRTOAOD_UserID,TDRTOAOD_ID,User_FullName,
-						m_e.Employee_FullName nama_pemilik,
+						-- m_e.Employee_FullName nama_pemilik,
+						DAO_Employee_NIK,
  					    m_mk.MK_Name merk_kendaraan, DAO_NoPolisi,
  					    DAO_STNK_StartDate, DAO_STNK_ExpiredDate
 					FROM TD_ReturnOfAssetOwnershipDocument
@@ -256,23 +281,46 @@ function mail_notif_return_doc($retCode, $User_ID, $status){
 						ON TDRTOAOD_UserID=User_ID
 					LEFT JOIN db_master.M_MerkKendaraan m_mk
                         ON DAO_MK_ID=m_mk.MK_ID
-                    LEFT JOIN db_master.M_Employee m_e
-                        ON DAO_Employee_NIK=m_e.Employee_NIK
+                    -- LEFT JOIN db_master.M_Employee m_e
+                    --     ON DAO_Employee_NIK=m_e.Employee_NIK
 					WHERE TDRTOAOD_ReturnCode='$retCode'
 					AND TDRTOAOD_Delete_Time IS NULL";
 		$ed_handle = mysql_query($ed_query);
 		$edNum=1;
 		while ($ed_arr = mysql_fetch_object($ed_handle)) {
+			if(strpos($ed_arr->DAO_Employee_NIK, 'CO@') !== false){
+				$get_company_code = explode('CO@', $ed_arr->DAO_Employee_NIK);
+				$company_code = $get_company_code[1];
+				$query7="SELECT Company_Name AS nama_pemilik
+					FROM M_Company
+					WHERE Company_code='$company_code'";
+			}else{
+				$query7="SELECT Employee_FullName AS nama_pemilik
+					FROM db_master.M_Employee
+					WHERE Employee_NIK='$ed_arr->DAO_Employee_NIK'";
+			}
+			$sql7 = mysql_query($query7);
+			$nama_pemilik = "-";
+			if(mysql_num_rows($sql7) > 0){
+				$data7 = mysql_fetch_array($sql7);
+				$nama_pemilik = $data7['nama_pemilik'];
+			}
+
+			if(strpos($ed_arr->DAO_STNK_ExpiredDate, '0000-00-00') !== false || strpos($ed_arr->DAO_STNK_ExpiredDate, '1970-01-01') !== false){
+				$masa_habis_stnk = "-";
+			}else{
+				$masa_habis_stnk = date('d/m/Y', strtotime($ed_arr->DAO_STNK_ExpiredDate));
+			}
 
 			$body .= '
 						<TR  style=" font-size: 12px; font-family: \'lucida grande\',tahoma,verdana,arial,sans-serif;">
 							<TD align="center" valign="top">'.$edNum.'</TD>
 							<TD>'.$ed_arr->Company_Name.'<br />
 								No. Polisi : '.$ed_arr->DAO_NoPolisi.'<br />
-								Nama Pemilik : '.$ed_arr->nama_pemilik.'<br>
+								Nama Pemilik : '.$nama_pemilik.'<br>
 								Merk Kendaraan : '.$ed_arr->merk_kendaraan.'<br>
 								Masa Berlaku STNK : '.date('d/m/Y', strtotime($ed_arr->DAO_STNK_StartDate)).' s/d
-								'.date('d/m/Y', strtotime($ed_arr->DAO_STNK_ExpiredDate)).'
+								'.$masa_habis_stnk.'
 							</TD>
 						</TR>';
 			$edNum=$edNum+1;

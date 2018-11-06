@@ -213,14 +213,35 @@ if(!isset($_SESSION['User_ID'])) {
 		$style="";
 	}
 
+    if(strpos($arrd['TDROAOD_Employee_NIK'], 'CO@') !== false){
+        $get_company_code = explode('CO@', $arrd['TDROAOD_Employee_NIK']);
+        $company_code = $get_company_code[1];
+        $query7="SELECT Company_Name AS nama_pemilik
+            FROM M_Company
+            WHERE Company_code='$company_code'";
+    }else{
+        $query7="SELECT Employee_FullName AS nama_pemilik
+            FROM db_master.M_Employee
+            WHERE Employee_NIK='$arrd[TDROAOD_Employee_NIK]'";
+    }
+    $sql7 = mysql_query($query7);
+    $nama_pemilik = "-";
+    if(mysql_num_rows($sql7) > 0){
+        $data7 = mysql_fetch_array($sql7);
+        $nama_pemilik = $data7['nama_pemilik'];
+    }
+
 echo ("
     <tr $style>
+        <td class='center'>
+            $nama_pemilik
+        </td>
     	<td class='center'>
- 			$arrd[TDROAOD_Employee_NIK]
-       </td>
+            $nama_pemilik
+        </td>
     	<td class='center'>
   			$arrd[TDROAOD_MK_ID]
-       </td>
+        </td>
     	<td class='center'>
   			$arrd[TDROAOD_Type]
         </td>
