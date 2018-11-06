@@ -362,6 +362,116 @@ $MainContent .="
 }
 
 /* ---------------------------- */
+/* Daftar Dokumen Belum Di Konfirmasi Penerimaannya */
+/* ---------------------------- */
+$query = "SELECT throld.THROLD_ID ID, thlold.THLOLD_LoanCode KodeTransaksi, thlold.THLOLD_LoanDate TanggalTransaksi,
+			c.Company_Name Perusahaan, drs.DRS_Description StatusTransaksi, 'detail-of-release-document.php' Link
+		FROM TH_ReleaseOfLegalDocument throld
+		INNER JOIN TH_LoanOfLegalDocument thlold
+			ON throld.THROLD_THLOLD_Code=thlold.THLOLD_LoanCode
+			AND thlold.THLOLD_UserID='$_SESSION[User_ID]'
+		INNER JOIN M_Company c
+			ON thlold.THLOLD_CompanyID=c.Company_ID
+		INNER JOIN M_DocumentRegistrationStatus drs
+			ON throld.THROLD_Status=drs.DRS_Name
+		WHERE throld.THROLD_Status='accept'
+			AND throld.THROLD_DocumentReceived IS NULL
+	UNION
+	SELECT thrlolad.THRLOLAD_ID ID, thlolad.THLOLAD_LoanCode KodeTransaksi, thlolad.THLOLAD_LoanDate TanggalTransaksi,
+			c.Company_Name Perusahaan, drs.DRS_Description StatusTransaksi, 'detail-of-release-land-acquisition-document.php' Link
+		FROM TH_ReleaseOfLandAcquisitionDocument thrlolad
+		INNER JOIN TH_LoanOfLandAcquisitionDocument thlolad
+			ON thrlolad.THRLOLAD_THLOLAD_Code=thlolad.THLOLAD_LoanCode
+			AND thlolad.THLOLAD_UserID='$_SESSION[User_ID]'
+		INNER JOIN M_Company c
+			ON thlolad.THLOLAD_CompanyID=c.Company_ID
+		INNER JOIN M_DocumentRegistrationStatus drs
+			ON thrlolad.THRLOLAD_Status=drs.DRS_Name
+		WHERE thrlolad.THRLOLAD_Status='accept'
+			AND thrlolad.THRLOLAD_DocumentReceived IS NULL
+	UNION
+	SELECT throaod.THROAOD_ID ID, thloaod.THLOAOD_LoanCode KodeTransaksi, thloaod.THLOAOD_LoanDate TanggalTransaksi,
+			c.Company_Name Perusahaan, drs.DRS_Description StatusTransaksi, 'detail-of-release-asset-ownership-document.php' Link
+		FROM TH_ReleaseOfAssetOwnershipDocument throaod
+		INNER JOIN TH_LoanOfAssetOwnershipDocument thloaod
+			ON throaod.THROAOD_THLOAOD_Code=thloaod.THLOAOD_LoanCode
+			AND thloaod.THLOAOD_UserID='$_SESSION[User_ID]'
+		INNER JOIN M_Company c
+			ON thloaod.THLOAOD_CompanyID=c.Company_ID
+		INNER JOIN M_DocumentRegistrationStatus drs
+			ON throaod.THROAOD_Status=drs.DRS_Name
+		WHERE throaod.THROAOD_Status='accept'
+			AND throaod.THROAOD_DocumentReceived IS NULL
+	UNION
+	SELECT throold.THROOLD_ID ID, thloold.THLOOLD_LoanCode KodeTransaksi, thloold.THLOOLD_LoanDate TanggalTransaksi,
+			c.Company_Name Perusahaan, drs.DRS_Description StatusTransaksi, 'detail-of-release-other-legal-documents.php' Link
+		FROM TH_ReleaseOfOtherLegalDocuments throold
+		INNER JOIN TH_LoanOfOtherLegalDocuments thloold
+			ON throold.THROOLD_THLOOLD_Code=thloold.THLOOLD_LoanCode
+			AND thloold.THLOOLD_UserID='$_SESSION[User_ID]'
+		INNER JOIN M_Company c
+			ON thloold.THLOOLD_CompanyID=c.Company_ID
+		INNER JOIN M_DocumentRegistrationStatus drs
+			ON throold.THROOLD_Status=drs.DRS_Name
+		WHERE throold.THROOLD_Status='accept'
+			AND throold.THROOLD_DocumentReceived IS NULL
+	UNION
+	SELECT throonld.THROONLD_ID ID, thloonld.THLOONLD_LoanCode KodeTransaksi, thloonld.THLOONLD_LoanDate TanggalTransaksi,
+			c.Company_Name Perusahaan, drs.DRS_Description StatusTransaksi, 'detail-of-release-other-non-legal-documents.php' Link
+		FROM TH_ReleaseOfOtherNonLegalDocuments throonld
+		INNER JOIN TH_LoanOfOtherNonLegalDocuments thloonld
+			ON throonld.THROONLD_THLOONLD_Code=thloonld.THLOONLD_LoanCode
+			AND thloonld.THLOONLD_UserID='$_SESSION[User_ID]'
+		INNER JOIN M_Company c
+			ON thloonld.THLOONLD_CompanyID=c.Company_ID
+		INNER JOIN M_DocumentRegistrationStatus drs
+			ON throonld.THROONLD_Status=drs.DRS_Name
+		WHERE throonld.THROONLD_Status='accept'
+			AND throonld.THROONLD_DocumentReceived IS NULL
+	ORDER BY TanggalTransaksi";
+$sql = mysql_query($query);
+$count= mysql_num_rows($sql);
+
+// Jika ada dokumen yang harus di konfirmasi
+if ($count>0) {
+$MainContent .="<div class='home-title'>Dokumen yang harus Anda Konfirmasi Penerimaan</div>";
+$MainContent .="
+	<table width='100%' border='1' class='stripeMe'>
+		<tr>
+			<th>Kode Transaksi</th>
+			<th>Tanggal Transaksi</th>
+			<th>Perusahaan</th>
+			<th>Status Transaksi</th>
+		</tr>
+";
+
+	while ($arr = mysql_fetch_array($sql)){
+		$TanggalTransaksi=date("j M Y", strtotime($arr['TanggalTransaksi']));
+		// $detailLink=($arr['Kategori']=="Registrasi")?"id=".$decrp->encrypt($arr[ID])."":"id=$arr[ID]";
+		// if($arr['Kategori'] == "Registrasi"){
+		// 	$detailLink = "act=".$decrp->encrypt('approve')."&id=".$decrp->encrypt($arr['ID']);
+		// }elseif($arr['Kategori'] == "Pengembalian"){
+		// 	$detailLink = "act=detail&id=".$arr['KodeTransaksi'];
+		// }else{
+			$detailLink = "id=$arr[ID]";
+		// }
+$MainContent .="
+		<tr>
+			<td class='center'>
+				<a href='$arr[Link]?$detailLink' class='underline'>$arr[KodeTransaksi]</a>
+			</td>
+			<td class='center'>$TanggalTransaksi</td>
+			<td class='center'>$arr[Perusahaan]</td>
+			<td class='center'>$arr[StatusTransaksi]</td>
+		</tr>
+";
+	}
+$MainContent .="
+	</table>";
+}
+/* End of Daftar Dokumen Belum Di Konfirmasi Penerimaannya  | Arief F - 06112018 */
+
+/* ---------------------------- */
 /* Daftar Transaksi Outstanding */
 /* ---------------------------- */
 $query = "SELECT DISTINCT throld.THROLD_ID ID, throld.THROLD_RegistrationCode KodeTransaksi, throld.THROLD_RegistrationDate TanggalTransaksi,
