@@ -29,7 +29,6 @@ if(!isset($_SESSION['User_ID']) || !(in_array ($path_parts['basename'],$_SESSION
 require_once "./include/template.inc";
 $page=new Template();
 
-include ("./config/config_db_master.php");
 $act=$_GET["act"];
 if(isset($_GET["act"]))
 {
@@ -55,7 +54,7 @@ $ActionContent ="
 	$MK_ID=$_GET["id"];
 
 	$query = "SELECT *
-				FROM M_MerkKendaraan
+				FROM db_master.M_MerkKendaraan
 				WHERE MK_ID='$MK_ID'
 				AND MK_DeleteTime is NULL
 				ORDER BY MK_ID ";
@@ -91,7 +90,7 @@ $ActionContent ="
 	$MK_ID=$_GET["id"];
 
 	$query = "SELECT *
-				FROM M_MerkKendaraan
+				FROM db_master.M_MerkKendaraan
 				WHERE MK_ID='$MK_ID'
 				AND MK_DeleteTime is NULL
 				ORDER BY MK_ID ";
@@ -127,7 +126,7 @@ if(isset($_GET['page'])){
 else $noPage = 1;
 $offset = ($noPage - 1) * $dataPerPage;
 $query = "SELECT *
-			FROM M_MerkKendaraan
+			FROM db_master.M_MerkKendaraan
 			WHERE MK_DeleteTime is NULL
 			ORDER BY MK_ID
 			LIMIT $offset, $dataPerPage";
@@ -175,7 +174,7 @@ $MainContent .="
 ";
 
 $query1 = "SELECT *
-			FROM M_MerkKendaraan
+			FROM db_master.M_MerkKendaraan
 			WHERE MK_DeleteTime is NULL";
 $sql1 = mysql_query($query1);
 $num1 = mysql_num_rows($sql1);
@@ -203,8 +202,8 @@ if(isset($_POST[cancel])) {
 	echo "<meta http-equiv='refresh' content='0; url=kendaraan.php'>";
 }
 
-elseif(isset($_POST[add])) {
-	$sql= "INSERT INTO M_MerkKendaraan
+elseif(isset($_POST['add'])) {
+	$sql= "INSERT INTO db_master.M_MerkKendaraan
 			VALUES (NULL,'$_POST[txtMK_Name]','1','$_SESSION[User_ID]',
 					sysdate(),'$_SESSION[User_ID]', sysdate(),NULL,NULL)";
 	if($mysqli->query($sql)) {
@@ -217,7 +216,7 @@ elseif(isset($_POST[add])) {
 }
 
 elseif(isset($_POST[edit])) {
-	$sql= "UPDATE M_MerkKendaraan
+	$sql= "UPDATE db_master.M_MerkKendaraan
 			SET MK_Name='$_POST[txtMK_Name]',
 				MK_UpdateUser='$_SESSION[User_ID]', MK_UpdateTime=sysdate()
 			WHERE MK_ID='$_POST[txtMK_ID]'";
@@ -230,7 +229,7 @@ elseif(isset($_POST[edit])) {
 }
 
 elseif(isset($_POST[delete])) {
-	$sql= "UPDATE M_MerkKendaraan
+	$sql= "UPDATE db_master.M_MerkKendaraan
 			SET  MK_Status='0', MK_DeleteUser='$_SESSION[User_ID]', MK_DeleteTime=sysdate()
 			WHERE MK_ID='$_POST[txtMK_ID]'";
 	if($mysqli->query($sql)) {

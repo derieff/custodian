@@ -21,10 +21,10 @@ session_start();
 <script language="JavaScript" type="text/JavaScript">
 <?php
 $assetOwnershipOpt=new stdClass();
-$assetOwnershipOpt->company=[];
-$assetOwnershipOpt->requester=[];
-$assetOwnershipOpt->year=[];
-$assetOwnershipOpt->month=[];
+$assetOwnershipOpt->company = array();
+$assetOwnershipOpt->requester = array();
+$assetOwnershipOpt->year = array();
+$assetOwnershipOpt->month = array();
 $queryAssetOwnership="SELECT DISTINCT mu.User_ID,mu.User_FullName,mc.Company_Name,mc.Company_ID,
 							MONTH(throaod.THROAOD_RegistrationDate) docMonth,YEAR(throaod.THROAOD_RegistrationDate) docYear
 						FROM TH_RegistrationOfAssetOwnershipDocument throaod
@@ -37,7 +37,7 @@ $queryAssetOwnership="SELECT DISTINCT mu.User_ID,mu.User_FullName,mc.Company_Nam
 $sqlAssetOwnership = mysql_query($queryAssetOwnership);
 while ($dataAssetOwnership = mysql_fetch_array($sqlAssetOwnership)) {
 	if(!array_key_exists($dataAssetOwnership["Company_ID"],$assetOwnershipOpt->company)){
-		array_push($assetOwnershipOpt->company,[$dataAssetOwnership["Company_ID"]=>$dataAssetOwnership["Company_Name"]]);
+		array_push($assetOwnershipOpt->company, array($dataAssetOwnership["Company_ID"]=>$dataAssetOwnership["Company_Name"]));
 	}
 	if(!in_array($dataAssetOwnership["docMonth"],$assetOwnershipOpt->company)){
 		array_push($assetOwnershipOpt->month,$dataAssetOwnership["docMonth"]);
@@ -46,14 +46,14 @@ while ($dataAssetOwnership = mysql_fetch_array($sqlAssetOwnership)) {
 		array_push($assetOwnershipOpt->year,$dataAssetOwnership["docYear"]);
 	}
 	if(!array_key_exists($dataAssetOwnership["User_ID"],$assetOwnershipOpt->requester)){
-		array_push($assetOwnershipOpt->requester,[$dataAssetOwnership["User_ID"]=>$dataAssetOwnership["User_FullName"]]);
+		array_push($assetOwnershipOpt->requester, array($dataAssetOwnership["User_ID"]=>$dataAssetOwnership["User_FullName"]));
 	}
 }
 $landAcquisitionOpt=new stdClass();
-$landAcquisitionOpt->company=[];
-$landAcquisitionOpt->requester=[];
-$landAcquisitionOpt->year=[];
-$landAcquisitionOpt->month=[];
+$landAcquisitionOpt->company = array();
+$landAcquisitionOpt->requester = array();
+$landAcquisitionOpt->year = array();
+$landAcquisitionOpt->month = array();
 $queryLandAcquisition="SELECT DISTINCT mu.User_ID,mu.User_FullName,mc.Company_Name,mc.Company_ID,
 							MONTH(thrgolad.THRGOLAD_RegistrationDate) docMonth,YEAR(thrgolad.THRGOLAD_RegistrationDate) docYear
 						FROM TH_RegistrationOfLandAcquisitionDocument thrgolad
@@ -66,7 +66,7 @@ $queryLandAcquisition="SELECT DISTINCT mu.User_ID,mu.User_FullName,mc.Company_Na
 $sqlLandAcquisition = mysql_query($queryLandAcquisition);
 while ($dataLandAcquisition = mysql_fetch_array($sqlLandAcquisition)) {
 	if(!array_key_exists($dataLandAcquisition["Company_ID"],$landAcquisitionOpt->company)){
-		array_push($landAcquisitionOpt->company,[$dataLandAcquisition["Company_ID"]=>$dataLandAcquisition["Company_Name"]]);
+		array_push($landAcquisitionOpt->company, array($dataLandAcquisition["Company_ID"]=>$dataLandAcquisition["Company_Name"]));
 	}
 	if(!in_array($dataLandAcquisition["docMonth"],$landAcquisitionOpt->company)){
 		array_push($landAcquisitionOpt->month,$dataLandAcquisition["docMonth"]);
@@ -75,21 +75,21 @@ while ($dataLandAcquisition = mysql_fetch_array($sqlLandAcquisition)) {
 		array_push($landAcquisitionOpt->year,$dataLandAcquisition["docYear"]);
 	}
 	if(!array_key_exists($dataLandAcquisition["User_ID"],$landAcquisitionOpt->requester)){
-		array_push($landAcquisitionOpt->requester,[$dataLandAcquisition["User_ID"]=>$dataLandAcquisition["User_FullName"]]);
+		array_push($landAcquisitionOpt->requester, array($dataLandAcquisition["User_ID"]=>$dataLandAcquisition["User_FullName"]));
 	}
 }
 $legalOpt=new stdClass();
-$legalOpt->type=[];
-$legalOpt->company=[];
-$legalOpt->requester=[];
-$legalOpt->year=[];
-$legalOpt->month=[];
+$legalOpt->type = array();
+$legalOpt->company = array();
+$legalOpt->requester = array();
+$legalOpt->year = array();
+$legalOpt->month = array();
 $licenseOpt=new stdClass();
-$licenseOpt->type=[];
-$licenseOpt->company=[];
-$licenseOpt->requester=[];
-$licenseOpt->year=[];
-$licenseOpt->month=[];
+$licenseOpt->type = array();
+$licenseOpt->company = array();
+$licenseOpt->requester = array();
+$licenseOpt->year = array();
+$licenseOpt->month = array();
 $queryLegal="SELECT DISTINCT mu.User_ID,mu.User_FullName,mc.Company_Name,mc.Company_ID,
 					throld.THROLD_DocumentGroupID,mdt.DocumentType_ID,mdt.DocumentType_Name,
 					MONTH(throld.THROLD_RegistrationDate) docMonth,YEAR(throld.THROLD_RegistrationDate) docYear
@@ -110,10 +110,10 @@ $sqlLegal = mysql_query($queryLegal);
 while ($dataLegal = mysql_fetch_array($sqlLegal)) {
 	if($dataLegal["THROLD_DocumentGroupID"]=='1'){
 		if(!array_key_exists($dataLegal["DocumentType_ID"],$legalOpt->type)){
-			array_push($legalOpt->type,[$dataLegal["DocumentType_ID"]=>$dataLegal["DocumentType_Name"]]);
+			array_push($legalOpt->type, array($dataLegal["DocumentType_ID"]=>$dataLegal["DocumentType_Name"]));
 		}
 		if(!array_key_exists($dataLegal["Company_ID"],$legalOpt->company)){
-			array_push($legalOpt->company,[$dataLegal["Company_ID"]=>$dataLegal["Company_Name"]]);
+			array_push($legalOpt->company, array($dataLegal["Company_ID"]=>$dataLegal["Company_Name"]));
 		}
 		if(!in_array($dataLegal["docMonth"],$legalOpt->company)){
 			array_push($legalOpt->month,$dataLegal["docMonth"]);
@@ -122,15 +122,15 @@ while ($dataLegal = mysql_fetch_array($sqlLegal)) {
 			array_push($legalOpt->year,$dataLegal["docYear"]);
 		}
 		if(!array_key_exists($dataLegal["User_ID"],$legalOpt->requester)){
-			array_push($legalOpt->requester,[$dataLegal["User_ID"]=>$dataLegal["User_FullName"]]);
+			array_push($legalOpt->requester, array($dataLegal["User_ID"]=>$dataLegal["User_FullName"]));
 		}
 	}
 	else if($dataLegal["THROLD_DocumentGroupID"]=='2'){
 		if(!array_key_exists($dataLegal["DocumentType_ID"],$licenseOpt->type)){
-			array_push($licenseOpt->type,[$dataLegal["DocumentType_ID"]=>$dataLegal["DocumentType_Name"]]);
+			array_push($licenseOpt->type, array($dataLegal["DocumentType_ID"]=>$dataLegal["DocumentType_Name"]));
 		}
 		if(!array_key_exists($dataLegal["Company_ID"],$licenseOpt->company)){
-			array_push($licenseOpt->company,[$dataLegal["Company_ID"]=>$dataLegal["Company_Name"]]);
+			array_push($licenseOpt->company, array($dataLegal["Company_ID"]=>$dataLegal["Company_Name"]));
 		}
 		if(!in_array($dataLegal["docMonth"],$licenseOpt->company)){
 			array_push($licenseOpt->month,$dataLegal["docMonth"]);
@@ -139,15 +139,15 @@ while ($dataLegal = mysql_fetch_array($sqlLegal)) {
 			array_push($licenseOpt->year,$dataLegal["docYear"]);
 		}
 		if(!array_key_exists($dataLegal["User_ID"],$licenseOpt->requester)){
-			array_push($licenseOpt->requester,[$dataLegal["User_ID"]=>$dataLegal["User_FullName"]]);
+			array_push($licenseOpt->requester, array($dataLegal["User_ID"]=>$dataLegal["User_FullName"]));
 		}
 	}
 }
 $otherLegalOpt=new stdClass();
-$otherLegalOpt->company=[];
-$otherLegalOpt->requester=[];
-$otherLegalOpt->year=[];
-$otherLegalOpt->month=[];
+$otherLegalOpt->company = array();
+$otherLegalOpt->requester = array();
+$otherLegalOpt->year = array();
+$otherLegalOpt->month = array();
 $queryOtherLegal="SELECT DISTINCT mu.User_ID,mu.User_FullName,mc.Company_Name,mc.Company_ID,
 							MONTH(throold.THROOLD_RegistrationDate) docMonth,YEAR(throold.THROOLD_RegistrationDate) docYear
 						FROM TH_RegistrationOfOtherLegalDocuments throold
@@ -160,7 +160,7 @@ $queryOtherLegal="SELECT DISTINCT mu.User_ID,mu.User_FullName,mc.Company_Name,mc
 $sqlOtherLegal = mysql_query($queryOtherLegal);
 while ($dataOtherLegal = mysql_fetch_array($sqlOtherLegal)) {
 	if(!array_key_exists($dataOtherLegal["Company_ID"],$otherLegalOpt->company)){
-		array_push($otherLegalOpt->company,[$dataOtherLegal["Company_ID"]=>$dataOtherLegal["Company_Name"]]);
+		array_push($otherLegalOpt->company, array($dataOtherLegal["Company_ID"]=>$dataOtherLegal["Company_Name"]));
 	}
 	if(!in_array($dataOtherLegal["docMonth"],$otherLegalOpt->company)){
 		array_push($otherLegalOpt->month,$dataOtherLegal["docMonth"]);
@@ -169,14 +169,14 @@ while ($dataOtherLegal = mysql_fetch_array($sqlOtherLegal)) {
 		array_push($otherLegalOpt->year,$dataOtherLegal["docYear"]);
 	}
 	if(!array_key_exists($dataOtherLegal["User_ID"],$otherLegalOpt->requester)){
-		array_push($otherLegalOpt->requester,[$dataOtherLegal["User_ID"]=>$dataOtherLegal["User_FullName"]]);
+		array_push($otherLegalOpt->requester, array($dataOtherLegal["User_ID"]=>$dataOtherLegal["User_FullName"]));
 	}
 }
 $otherNonLegalOpt=new stdClass();
-$otherNonLegalOpt->company=[];
-$otherNonLegalOpt->requester=[];
-$otherNonLegalOpt->year=[];
-$otherNonLegalOpt->month=[];
+$otherNonLegalOpt->company = array();
+$otherNonLegalOpt->requester = array();
+$otherNonLegalOpt->year = array();
+$otherNonLegalOpt->month = array();
 $queryOtherNonLegal="SELECT DISTINCT mu.User_ID,mu.User_FullName,mc.Company_Name,mc.Company_ID,
 							MONTH(throonld.THROONLD_RegistrationDate) docMonth,YEAR(throonld.THROONLD_RegistrationDate) docYear
 						FROM TH_RegistrationOfOtherNonLegalDocuments throonld
@@ -189,7 +189,7 @@ $queryOtherNonLegal="SELECT DISTINCT mu.User_ID,mu.User_FullName,mc.Company_Name
 $sqlOtherNonLegal = mysql_query($queryOtherNonLegal);
 while ($dataOtherNonLegal = mysql_fetch_array($sqlOtherNonLegal)) {
 	if(!array_key_exists($dataOtherNonLegal["Company_ID"],$otherNonLegalOpt->company)){
-		array_push($otherNonLegalOpt->company,[$dataOtherNonLegal["Company_ID"]=>$dataOtherNonLegal["Company_Name"]]);
+		array_push($otherNonLegalOpt->company, array($dataOtherNonLegal["Company_ID"]=>$dataOtherNonLegal["Company_Name"]));
 	}
 	if(!in_array($dataOtherNonLegal["docMonth"],$otherNonLegalOpt->company)){
 		array_push($otherNonLegalOpt->month,$dataOtherNonLegal["docMonth"]);
@@ -198,11 +198,11 @@ while ($dataOtherNonLegal = mysql_fetch_array($sqlOtherNonLegal)) {
 		array_push($otherNonLegalOpt->year,$dataOtherNonLegal["docYear"]);
 	}
 	if(!array_key_exists($dataOtherNonLegal["User_ID"],$otherNonLegalOpt->requester)){
-		array_push($otherNonLegalOpt->requester,[$dataOtherNonLegal["User_ID"]=>$dataOtherNonLegal["User_FullName"]]);
+		array_push($otherNonLegalOpt->requester, array($dataOtherNonLegal["User_ID"]=>$dataOtherNonLegal["User_FullName"]));
 	}
 }
 
-$allOpt=[];
+$allOpt = array();
 $allOpt[1]=$legalOpt;
 $allOpt[2]=$licenseOpt;
 $allOpt[3]=$landAcquisitionOpt;
@@ -265,6 +265,35 @@ function showType(){
 
 			setTimeout("finishAjax('optFilterTipeDokumen', '"+escape(response)+"')", 400);
 		});
+}
+
+function showCompany(){
+	var txtGroupDocID = document.getElementById('optTHROLD_DocumentGroupID').value;
+	$.post("jQuery.CompanyName.php", {
+		GroupDocID: txtGroupDocID
+	}, function(response){
+		setTimeout("finishAjax('optCompanyID', '"+escape(response)+"')", 400);
+	});
+	if(txtGroupDocID == 6){
+		$('#td-tgl-or-thn-doc').html("Tahun Dokumen");
+		$('#tanggal-dokumen').css('display', 'none');
+		$('#optTahunDokumen').css('display', 'block');
+
+		$.post("jQuery.YearOfDocument.php", {
+			GroupDocID: txtGroupDocID
+		}, function(response){
+			setTimeout("finishAjax('optTahunDokumen', '"+escape(response)+"')", 400);
+		});
+
+	}else{
+		if(txtGroupDocID == 5){
+			$('#td-tgl-or-thn-doc').html("Tanggal Terbit");
+		}else{
+			$('#td-tgl-or-thn-doc').html("Tanggal");
+		}
+		$('#tanggal-dokumen').css('display', 'block');
+		$('#optTahunDokumen').css('display', 'none');
+	}
 }
 
 // MENAMPILKAN DETAIL FILTER
@@ -535,7 +564,7 @@ $ActionContent ="
 	<tr>
 		<td>Grup Dokumen</td>
 		<td>
-			<select name='optTHROLD_DocumentGroupID' id='optTHROLD_DocumentGroupID' onchange='showFilter();'>
+			<select name='optTHROLD_DocumentGroupID' id='optTHROLD_DocumentGroupID' onchange='showCompany();'>
 				<option value='-1'>--- Pilih Grup Dokumen ---</option>";
 
 			$query = "SELECT DISTINCT DocumentGroup_ID,DocumentGroup_Name
@@ -559,19 +588,7 @@ $ActionContent .="
 		<td>Perusahaan</td>
 		<td>
 			<select name='optCompanyID' id='optCompanyID' onchange='showFilter();'>
-				<option value='-1'>--- Pilih Perusahaan ---</option>";
-
-			$query = "SELECT DISTINCT Company_ID,Company_Name 
-						FROM M_Company
-						WHERE Company_Delete_Time IS NULL";
-			$sql = mysql_query($query);
-
-			while ($field = mysql_fetch_object($sql) ){
-
-$ActionContent .="
-				<option value='".$field->Company_ID."'>".$field->Company_Name."</option>";
-			}
-$ActionContent .="
+				<option value='-1'>--- Pilih Grup Dokumen Dahulu ---</option>
 			</select>
 		</td>
 	</tr>
@@ -588,11 +605,16 @@ $ActionContent .="
 		</td>
 	</tr-->
 	<tr>
-		<td>Tanggal</td>
+		<td id='td-tgl-or-thn-doc'>Tanggal</td>
 		<td>
-			<input type='text' size='10' readonly='readonly' name='txtDateStart' id='txtDateStart' placeholder='Tanggal awal' onclick=\"javascript:NewCssCal('txtDateStart', 'MMddyyyy');\"/>
-			<span>sampai</span>
-			<input type='text' size='10' readonly='readonly' name='txtDateEnd' id='txtDateEnd'  placeholder='Tanggal akhir' onclick=\"javascript:NewCssCal('txtDateEnd', 'MMddyyyy');\"/>
+			<span id='tanggal-dokumen'>
+				<input type='text' size='10' readonly='readonly' name='txtDateStart' id='txtDateStart' placeholder='Tanggal awal' onclick=\"javascript:NewCssCal('txtDateStart', 'MMddyyyy');\"/>
+				<span>sampai</span>
+				<input type='text' size='10' readonly='readonly' name='txtDateEnd' id='txtDateEnd'  placeholder='Tanggal akhir' onclick=\"javascript:NewCssCal('txtDateEnd', 'MMddyyyy');\"/>
+			</span>
+			<select name='optTahunDokumen' id='optTahunDokumen' style='display:none'>
+				<option value='-1'>--- Pilih Grup Dokumen Dahulu ---</option>
+			</select>
 		</td>
 	</tr>
 	<tr>
@@ -601,7 +623,7 @@ $ActionContent .="
 			<select name='optDocumentStatusID' id='optDocumentStatusID' onchange='showFilter();'>
 				<option value='-1'>--- Pilih Status Dokumen ---</option>";
 
-			$query = "SELECT DISTINCT LDS_Name 
+			$query = "SELECT DISTINCT LDS_Name
 						FROM M_LoanDetailStatus
 						WHERE LDS_Delete_Time IS NULL";
 			$sql = mysql_query($query);
@@ -623,9 +645,9 @@ $ActionContent .="
 	</tr>
 	<tr>
 		<th colspan='2'>
-			<input name='listdocument' type='submit' value='Cari' class='button' onclick='return validateInput(this);'/>
-			<input name='resetFilter' type='submit' value='Reset' class='button'/>
-			<input name='export_to_excel' type='submit' value='&nbsp;Export to Excel&nbsp;' class='button-blue' />
+			<input name='listdocument' formaction='search.php' type='submit' value='Cari' class='button' onclick='return validateInput(this);'/>
+			<input name='resetFilter' type='reset' value='Reset' class='button'/>
+			<input name='export_to_excel' formaction='result-search-export-to-excel.php' type='submit' value='&nbsp;Export to Excel&nbsp;' class='button-blue' onclick='return validateInput(this);' />
 		</th>
 	</tr>";
 $ActionContent .="
@@ -637,15 +659,13 @@ $ActionContent .="
 /* ACTION */
 /* ====== */
 
-	if(isset($_GET[listdocument])) {
-
+	if(isset($_GET['listdocument'])) {
 
 // Menampilkan Dokumen
 $dataPerPage = 20;
 
 if(isset($_GET['page']))
     $noPage = $_GET['page'];
-
 else
 	$noPage = 1;
 
@@ -774,184 +794,166 @@ $offset = ($noPage - 1) * $dataPerPage;
 		$querylimit .="ORDER BY dla.DLA_ID LIMIT $offset, $dataPerPage";
 	}
 	elseif ($_GET['optTHROLD_DocumentGroupID']=='4'){
-		$query = "SELECT dla.DLA_ID, c.Company_Name, dla.DLA_Phase, dla.DLA_Period, dla.DLA_DocRevision, lds.LDS_Name,
-						 dla.DLA_Code
-				  FROM M_DocumentLandAcquisition dla, M_Company c, M_User u,  M_LoanDetailStatus lds
-				  WHERE c.Company_ID=dla.DLA_CompanyID
-				  AND dla.DLA_Delete_Time IS NULL
-				  AND dla.DLA_Status=lds.LDS_ID
-				  AND dla.DLA_RegUserID=u.User_ID ";
+		$query = "SELECT dao.DAO_ID, c.Company_Name, m_mk.MK_Name, m_e.Employee_FullName, dao.DAO_NoPolisi,
+						 dao.DAO_STNK_StartDate, dao.DAO_STNK_ExpiredDate, dao.DAO_Pajak_StartDate, dao.DAO_Pajak_ExpiredDate,
+						 lds.LDS_Name, dao.DAO_DocCode
+				  FROM M_DocumentAssetOwnership dao, M_Company c, M_User u, M_LoanDetailStatus lds, db_master.M_MerkKendaraan m_mk,
+				  	db_master.M_Employee m_e
+				  WHERE c.Company_ID=dao.DAO_CompanyID
+				  AND dao.DAO_Delete_Time IS NULL
+				  AND dao.DAO_Status=lds.LDS_ID
+				  AND dao.DAO_RegUserID=u.User_ID
+				  AND m_mk.MK_ID=dao.DAO_MK_ID
+				  AND m_e.Employee_NIK=dao.DAO_Employee_NIK
+				";
 
 		if ($_GET['txtSearch']) {
 			$search=$_GET['txtSearch'];
 			$query .="AND (
-						dla.DLA_Code LIKE '%$search%'
-						OR dla.DLA_CompanyID LIKE '%$search%'
+						dao.DAO_DocCode LIKE '%$search%'
+						OR dao.DAO_CompanyID LIKE '%$search%'
 						OR c.Company_Name LIKE '%$search%'
-						OR dla.DLA_RegUserID LIKE '%$search%'
+						OR dao.DAO_RegUserID LIKE '%$search%'
 						OR u.User_FullName LIKE '%$search%'
-						OR dla.DLA_Information LIKE '%$search%'
-						OR dla.DLA_RegTime LIKE '%$search%'
-						OR dla.DLA_Phase LIKE '%$search%'
-						OR dla.DLA_Period LIKE '%$search%'
-						OR dla.DLA_DocDate LIKE '%$search%'
-						OR dla.DLA_Block LIKE '%$search%'
-						OR dla.DLA_Village LIKE '%$search%'
-						OR dla.DLA_Owner LIKE '%$search%'
-						OR dla.DLA_Information LIKE '%$search%'
-						OR dla.DLA_AreaClass LIKE '%$search%'
-						OR dla.DLA_AreaStatement LIKE '%$search%'
-						OR dla.DLA_AreaPrice LIKE '%$search%'
-						OR dla.DLA_AreaTotalPrice LIKE '%$search%'
-						OR dla.DLA_PlantClass LIKE '%$search%'
-						OR dla.DLA_PlantQuantity LIKE '%$search%'
-						OR dla.DLA_PlantPrice LIKE '%$search%'
-						OR dla.DLA_PlantTotalPrice LIKE '%$search%'
-						OR dla.DLA_GrandTotal LIKE '%$search%'
+						OR dao.DAO_RegTime LIKE '%$search%'
 						OR lds.LDS_Name LIKE '%$search%'
+						OR dao.DAO_STNK_StartDate LIKE '%$search%'
+						OR dao.DAO_STNK_ExpiredDate LIKE '%$search%'
+						OR dao.DAO_Pajak_StartDate LIKE '%$search%'
+						OR dao.DAO_Pajak_ExpiredDate LIKE '%$search%'
+						OR m_e.Employee_FullName LIKE '%$search%'
+						OR dao.DAO_Employee_NIK LIKE '%$search%'
+						OR m_mk.MK_Name LIKE '%$search%'
+						OR dao.DAO_NoPolisi LIKE '%$search%'
+						OR dao.DAO_NoBPKB LIKE '%$search%'
+						OR dao.DAO_NoMesin LIKE '%$search%'
+						OR dao.DAO_NoRangka LIKE '%$search%'
+						OR dao.DAO_Type LIKE '%$search%'
+						OR dao.DAO_Jenis LIKE '%$search%'
+						OR dao.DAO_Lokasi_PT LIKE '%$search%'
+						OR dao.DAO_Region LIKE '%$search%'
+						OR dao.DAO_Keterangan LIKE '%$search%'
 					)";
 		}
 		else{
 			if ($_GET['optCompanyID']!=-1) {
-				$query .="AND dla.DLA_CompanyID='".$_GET['optCompanyID']."' ";
+				$query .="AND dao.DAO_CompanyID='".$_GET['optCompanyID']."' ";
 			}
 			if ($_GET['optDocumentStatusID']!=-1) {
 				$query .="AND lds.LDS_Name='".$_GET['optDocumentStatusID']."' ";
 			}
 			if($_GET['txtDateStart']!=""&&$_GET['txtDateEnd']!="") {
-				$query .="AND (dl.DLA_Period BETWEEN STR_TO_DATE('".$_GET['txtDateStart']."', '%m/%d/%Y') AND STR_TO_DATE('".$_GET['txtDateEnd']."', '%m/%d/%Y'))";
+				$query .="AND ((dao.DAO_STNK_ExpiredDate BETWEEN STR_TO_DATE('".$_GET['txtDateStart']."', '%m/%d/%Y') AND STR_TO_DATE('".$_GET['txtDateEnd']."', '%m/%d/%Y') OR (dao.DAO_Pajak_ExpiredDate BETWEEN STR_TO_DATE('".$_GET['txtDateStart']."', '%m/%d/%Y') AND STR_TO_DATE('".$_GET['txtDateEnd']."', '%m/%d/%Y'))";
 			}
 			else if($_GET['txtDateStart']!=""){
-				$query .="AND (dl.DLA_Period > STR_TO_DATE('".$_GET['txtDateStart']."', '%m/%d/%Y'))";
+				$query .="AND (
+					dao.DAO_STNK_ExpiredDate > STR_TO_DATE('".$_GET['txtDateStart']."', '%m/%d/%Y')
+					OR dao.DAO_Pajak_ExpiredDate > STR_TO_DATE('".$_GET['txtDateStart']."', '%m/%d/%Y')
+				)";
 			}
 			else if($_GET['txtDateEnd']!=""){
-				$query .="AND (dl.DLA_Period < STR_TO_DATE('".$_GET['txtDateEnd']."', '%m/%d/%Y'))";
+				$query .="AND (
+					dao.DAO_STNK_ExpiredDate < STR_TO_DATE('".$_GET['txtDateEnd']."', '%m/%d/%Y')
+					OR dao.DAO_Pajak_ExpiredDate < STR_TO_DATE('".$_GET['txtDateEnd']."', '%m/%d/%Y')
+				)";
 			}
-		// elseif ($_GET[phase]<>NULL) {
-			// $query .="AND dla.DLA_Phase='$_GET[phase]' ";
-		// }
 		}
-		$querylimit .="ORDER BY dla.DLA_ID LIMIT $offset, $dataPerPage";
+		$querylimit .="ORDER BY dao.DAO_ID LIMIT $offset, $dataPerPage";
 	}
 	elseif ($_GET['optTHROLD_DocumentGroupID']=='5'){
-		$query = "SELECT dla.DLA_ID, c.Company_Name, dla.DLA_Phase, dla.DLA_Period, dla.DLA_DocRevision, lds.LDS_Name,
-						 dla.DLA_Code
-				  FROM M_DocumentLandAcquisition dla, M_Company c, M_User u,  M_LoanDetailStatus lds
-				  WHERE c.Company_ID=dla.DLA_CompanyID
-				  AND dla.DLA_Delete_Time IS NULL
-				  AND dla.DLA_Status=lds.LDS_ID
-				  AND dla.DLA_RegUserID=u.User_ID ";
+		$query = "SELECT dol.DOL_ID, c.Company_Name, m_dc.DocumentCategory_Name,
+						 dol.DOL_NamaDokumen, dol.DOL_InstansiTerkait, dol.DOL_NoDokumen,
+						 dol.DOL_TglTerbit, dol.DOL_TglBerakhir, lds.LDS_Name, dol.DOL_DocCode
+				  FROM M_DocumentsOtherLegal dol, M_Company c, M_User u,  M_LoanDetailStatus lds,
+				  	db_master.M_DocumentCategory m_dc
+				  WHERE c.Company_ID=dol.DOL_CompanyID
+				  AND dol.DOL_Delete_Time IS NULL
+				  AND dol.DOL_Status=lds.LDS_ID
+				  AND dol.DOL_RegUserID=u.User_ID
+				  AND m_dc.DocumentCategory_ID=DOL_CategoryDocID
+				 ";
 
 		if ($_GET['txtSearch']) {
 			$search=$_GET['txtSearch'];
 			$query .="AND (
-						dla.DLA_Code LIKE '%$search%'
-						OR dla.DLA_CompanyID LIKE '%$search%'
+						dol.DOL_DocCode LIKE '%$search%'
+						OR dol.DOL_CompanyID LIKE '%$search%'
 						OR c.Company_Name LIKE '%$search%'
-						OR dla.DLA_RegUserID LIKE '%$search%'
+						OR dol.DOL_RegUserID LIKE '%$search%'
 						OR u.User_FullName LIKE '%$search%'
-						OR dla.DLA_Information LIKE '%$search%'
-						OR dla.DLA_RegTime LIKE '%$search%'
-						OR dla.DLA_Phase LIKE '%$search%'
-						OR dla.DLA_Period LIKE '%$search%'
-						OR dla.DLA_DocDate LIKE '%$search%'
-						OR dla.DLA_Block LIKE '%$search%'
-						OR dla.DLA_Village LIKE '%$search%'
-						OR dla.DLA_Owner LIKE '%$search%'
-						OR dla.DLA_Information LIKE '%$search%'
-						OR dla.DLA_AreaClass LIKE '%$search%'
-						OR dla.DLA_AreaStatement LIKE '%$search%'
-						OR dla.DLA_AreaPrice LIKE '%$search%'
-						OR dla.DLA_AreaTotalPrice LIKE '%$search%'
-						OR dla.DLA_PlantClass LIKE '%$search%'
-						OR dla.DLA_PlantQuantity LIKE '%$search%'
-						OR dla.DLA_PlantPrice LIKE '%$search%'
-						OR dla.DLA_PlantTotalPrice LIKE '%$search%'
-						OR dla.DLA_GrandTotal LIKE '%$search%'
+						OR dol.DOL_RegTime LIKE '%$search%'
 						OR lds.LDS_Name LIKE '%$search%'
+						OR m_dc.DocumentCategory_Name LIKE '%$search%'
+						OR dol.DOL_NamaDokumen LIKE '%$search%'
+						OR dol.DOL_InstansiTerkait LIKE '%$search%'
+						OR dol.DOL_NoDokumen LIKE '%$search%'
+						OR dol.DOL_TglTerbit LIKE '%$search%'
+						OR dol.DOL_TglBerakhir LIKE '%$search%'
 					)";
 		}
 		else{
 			if ($_GET['optCompanyID']!=-1) {
-				$query .="AND dla.DLA_CompanyID='".$_GET['optCompanyID']."' ";
+				$query .="AND dol.DOL_CompanyID='".$_GET['optCompanyID']."' ";
 			}
 			if ($_GET['optDocumentStatusID']!=-1) {
 				$query .="AND lds.LDS_Name='".$_GET['optDocumentStatusID']."' ";
 			}
 			if($_GET['txtDateStart']!=""&&$_GET['txtDateEnd']!="") {
-				$query .="AND (dl.DLA_Period BETWEEN STR_TO_DATE('".$_GET['txtDateStart']."', '%m/%d/%Y') AND STR_TO_DATE('".$_GET['txtDateEnd']."', '%m/%d/%Y'))";
+				$query .="AND (dol.DOL_TglTerbit BETWEEN STR_TO_DATE('".$_GET['txtDateStart']."', '%m/%d/%Y') AND STR_TO_DATE('".$_GET['txtDateEnd']."', '%m/%d/%Y'))";
 			}
 			else if($_GET['txtDateStart']!=""){
-				$query .="AND (dl.DLA_Period > STR_TO_DATE('".$_GET['txtDateStart']."', '%m/%d/%Y'))";
+				$query .="AND (dol.DOL_TglTerbit > STR_TO_DATE('".$_GET['txtDateStart']."', '%m/%d/%Y'))";
 			}
 			else if($_GET['txtDateEnd']!=""){
-				$query .="AND (dl.DLA_Period < STR_TO_DATE('".$_GET['txtDateEnd']."', '%m/%d/%Y'))";
+				$query .="AND (dol.DOL_TglTerbit < STR_TO_DATE('".$_GET['txtDateEnd']."', '%m/%d/%Y'))";
 			}
-		// elseif ($_GET[phase]<>NULL) {
-			// $query .="AND dla.DLA_Phase='$_GET[phase]' ";
-		// }
 		}
-		$querylimit .="ORDER BY dla.DLA_ID LIMIT $offset, $dataPerPage";
+		$querylimit .="ORDER BY dol.DOL_ID LIMIT $offset, $dataPerPage";
 	}
 	elseif ($_GET['optTHROLD_DocumentGroupID']=='6'){
-		$query = "SELECT dla.DLA_ID, c.Company_Name, dla.DLA_Phase, dla.DLA_Period, dla.DLA_DocRevision, lds.LDS_Name,
-						 dla.DLA_Code
-				  FROM M_DocumentLandAcquisition dla, M_Company c, M_User u,  M_LoanDetailStatus lds
-				  WHERE c.Company_ID=dla.DLA_CompanyID
-				  AND dla.DLA_Delete_Time IS NULL
-				  AND dla.DLA_Status=lds.LDS_ID
-				  AND dla.DLA_RegUserID=u.User_ID ";
+		$query = "SELECT donl.DONL_ID, c.Company_Name, c2.Company_Name, donl.DONL_NoDokumen, donl.DONL_NamaDokumen,
+					donl.DONL_TahunDokumen, m_d.Department_Name,
+					lds.LDS_Name, donl.DONL_DocCode
+				  FROM M_DocumentsOtherNonLegal donl, M_Company c, M_User u, M_LoanDetailStatus lds,
+				  	M_Company c2, db_master.M_Department m_d
+				  WHERE c.Company_ID=donl.DONL_CompanyID
+				  AND donl.DONL_Delete_Time IS NULL
+				  AND donl.DONL_Status=lds.LDS_ID
+				  AND donl.DONL_RegUserID=u.User_ID
+				  AND c2.Company_ID=donl.DONL_PT_ID
+				  AND m_d.Department_Code=donl.DONL_Dept_Code
+				 ";
 
 		if ($_GET['txtSearch']) {
 			$search=$_GET['txtSearch'];
 			$query .="AND (
-						dla.DLA_Code LIKE '%$search%'
-						OR dla.DLA_CompanyID LIKE '%$search%'
+						donl.DONL_DocCode LIKE '%$search%'
+						OR donl.DONL_CompanyID LIKE '%$search%'
 						OR c.Company_Name LIKE '%$search%'
-						OR dla.DLA_RegUserID LIKE '%$search%'
+						OR donl.DONL_RegUserID LIKE '%$search%'
 						OR u.User_FullName LIKE '%$search%'
-						OR dla.DLA_Information LIKE '%$search%'
-						OR dla.DLA_RegTime LIKE '%$search%'
-						OR dla.DLA_Phase LIKE '%$search%'
-						OR dla.DLA_Period LIKE '%$search%'
-						OR dla.DLA_DocDate LIKE '%$search%'
-						OR dla.DLA_Block LIKE '%$search%'
-						OR dla.DLA_Village LIKE '%$search%'
-						OR dla.DLA_Owner LIKE '%$search%'
-						OR dla.DLA_Information LIKE '%$search%'
-						OR dla.DLA_AreaClass LIKE '%$search%'
-						OR dla.DLA_AreaStatement LIKE '%$search%'
-						OR dla.DLA_AreaPrice LIKE '%$search%'
-						OR dla.DLA_AreaTotalPrice LIKE '%$search%'
-						OR dla.DLA_PlantClass LIKE '%$search%'
-						OR dla.DLA_PlantQuantity LIKE '%$search%'
-						OR dla.DLA_PlantPrice LIKE '%$search%'
-						OR dla.DLA_PlantTotalPrice LIKE '%$search%'
-						OR dla.DLA_GrandTotal LIKE '%$search%'
+						OR donl.DONL_RegTime LIKE '%$search%'
 						OR lds.LDS_Name LIKE '%$search%'
-					)";
+						OR c2.Company_Name LIKE '%$search%'
+						OR donl.DONL_NoDokumen LIKE '%$search%'
+						OR donl.DONL_NamaDokumen LIKE '%$search%'
+						OR donl.DONL_TahunDokumen LIKE '%$search%'
+						OR m_d.Department_Name LIKE '%$search%'
+						OR donl.DONL_Dept_Code LIKE '%$search%'
+					) ";
 		}
 		else{
 			if ($_GET['optCompanyID']!=-1) {
-				$query .="AND dla.DLA_CompanyID='".$_GET['optCompanyID']."' ";
+				$query .="AND donl.DONL_CompanyID='".$_GET['optCompanyID']."' ";
 			}
 			if ($_GET['optDocumentStatusID']!=-1) {
 				$query .="AND lds.LDS_Name='".$_GET['optDocumentStatusID']."' ";
 			}
-			if($_GET['txtDateStart']!=""&&$_GET['txtDateEnd']!="") {
-				$query .="AND (dl.DLA_Period BETWEEN STR_TO_DATE('".$_GET['txtDateStart']."', '%m/%d/%Y') AND STR_TO_DATE('".$_GET['txtDateEnd']."', '%m/%d/%Y'))";
+			else if($_GET['optTahunDokumen']!=-1){
+				$query .="AND donl.DONL_TahunDokumen = STR_TO_DATE('".$_GET['optTahunDokumen']."', '%Y')";
 			}
-			else if($_GET['txtDateStart']!=""){
-				$query .="AND (dl.DLA_Period > STR_TO_DATE('".$_GET['txtDateStart']."', '%m/%d/%Y'))";
-			}
-			else if($_GET['txtDateEnd']!=""){
-				$query .="AND (dl.DLA_Period < STR_TO_DATE('".$_GET['txtDateEnd']."', '%m/%d/%Y'))";
-			}
-		// elseif ($_GET[phase]<>NULL) {
-			// $query .="AND dla.DLA_Phase='$_GET[phase]' ";
-		// }
 		}
-		$querylimit .="ORDER BY dla.DLA_ID LIMIT $offset, $dataPerPage";
+		$querylimit .="ORDER BY donl.DONL_ID LIMIT $offset, $dataPerPage";
 	}
 
 $queryAll=$query.$querylimit;
@@ -1081,6 +1083,226 @@ $arr = mysql_fetch_array($sqldg);
 		}
 	}
 
+	elseif ($_GET['optTHROLD_DocumentGroupID']=='4'){
+		if ($num==NULL) {
+		$MainContent .="
+			<table width='100%' border='1' class='stripeMe'>
+			<tr>
+				<th rowspan='2'>ID</th>
+				<th rowspan='2'>Kode Dokumen</th>
+				<th rowspan='2'>Perusahaan</th>
+				<th rowspan='2'>Merk Kendaraan</th>
+				<th rowspan='2'>Nama Pemilik</th>
+				<th rowspan='2'>No. Polisi</th>
+				<th colspan='2'>STNK</th>
+				<th colspan='2'>Pajak</th>
+				<th rowspan='2'>Status</th>
+			</tr>
+			<tr>
+				<th>Start Date</th>
+				<th>Expired Date</th>
+				<th>Start Date</th>
+				<th>Expired Date</th>
+			</tr>
+			<tr>
+				<td colspan=11 align='center'>Belum Ada Data</td>
+			</tr>
+			</table>
+		";
+		}
+		if ($num<>NULL){
+		$MainContent .="
+			<form name='list' method='GET' action='print-asset-ownership-document-barcode.php' onsubmit='return validateBarcodePrint(this);' target='_blank'>
+			<table width='100%' border='1' class='stripeMe'>
+			<tr>
+				<th colspan='11' align='center'>Daftar Dokumen Kepemilikan Aset</th>
+			</tr>
+			<tr>
+				<th rowspan='2'>ID</th>
+				<th rowspan='2'>Kode Dokumen</th>
+				<th rowspan='2'>Perusahaan</th>
+				<th rowspan='2'>Merk Kendaraan</th>
+				<th rowspan='2'>Nama Pemilik</th>
+				<th rowspan='2'>No. Polisi</th>
+				<th colspan='2'>STNK</th>
+				<th colspan='2'>Pajak</th>
+				<th rowspan='2'>Status</th>
+			</tr>
+			<tr>
+				<th>Start Date</th>
+				<th>Expired Date</th>
+				<th>Start Date</th>
+				<th>Expired Date</th>
+			</tr>
+		";
+
+			while ($field = mysql_fetch_array($sql)) {
+				$stnk_sdate=date("j M Y", strtotime($field[5]));
+				$stnk_exdate=date("j M Y", strtotime($field[6]));
+				$pajak_sdate=date("j M Y", strtotime($field[7]));
+				$pajak_exdate=date("j M Y", strtotime($field[8]));
+		$MainContent .="
+			<tr>
+				<td class='center'>$field[DAO_ID]</td>
+				<td class='center'>
+					<a href='$PHP_SELF?act=detailAO&id=$field[DAO_DocCode]' class='underline'>$field[DAO_DocCode]</a></td>
+				<td class='center'>$field[1]</td>
+				<td class='center'>$field[2]</td>
+				<td class='center'>$field[3]</td>
+				<td class='center'>$field[4]</td>
+				<td class='center'>$stnk_sdate</td>
+				<td class='center'>$stnk_exdate</td>
+				<td class='center'>$pajak_sdate</td>
+				<td class='center'>$pajak_exdate</td>
+				<td class='center'>$field[9]</td>
+			</tr>
+		";
+			$no=$no+1;
+			}
+		$MainContent .="
+			</table>
+			</form>
+		";
+		}
+	}
+
+	elseif ($_GET['optTHROLD_DocumentGroupID']=='5'){
+		if ($num==NULL) {
+		$MainContent .="
+			<table width='100%' border='1' class='stripeMe'>
+			<tr>
+				<th>ID</th>
+				<th>Kode Dokumen</th>
+				<th>Perusahaan</th>
+				<th>Kategori Dokumen</th>
+				<th>Nama Dokumen</th>
+				<th>Instansi Terkait</th>
+			    <th>No. Dokumen</th>
+			    <th>Tanggal Terbit</th>
+			    <th>Tanggal Berakhir</th>
+				<th>Status</th>
+			</tr>
+			<tr>
+				<td colspan=10 align='center'>Belum Ada Data</td>
+			</tr>
+			</table>
+		";
+		}
+		if ($num<>NULL){
+		$MainContent .="
+			<form name='list' method='GET' action='print-other-legal-documents-barcode.php' onsubmit='return validateBarcodePrint(this);' target='_blank'>
+			<table width='100%' border='1' class='stripeMe'>
+			<tr>
+				<th colspan='10' align='center'>Daftar Dokumen Lainnya (Legal)</th>
+			</tr>
+			<tr>
+				<th>ID</th>
+				<th>Kode Dokumen</th>
+				<th>Perusahaan</th>
+				<th>Kategori Dokumen</th>
+				<th>Nama Dokumen</th>
+				<th>Instansi Terkait</th>
+			    <th>No. Dokumen</th>
+			    <th>Tanggal Terbit</th>
+			    <th>Tanggal Berakhir</th>
+				<th>Status</th>
+			</tr>
+		";
+
+			while ($field = mysql_fetch_array($sql)) {
+				$tgl_terbit=date("j M Y", strtotime($field[6]));
+				$tgl_berakhir=date("j M Y", strtotime($field[7]));
+		$MainContent .="
+			<tr>
+				<td class='center'>$field[DOL_ID]</td>
+				<td class='center'>
+					<a href='$PHP_SELF?act=detailOL&id=$field[DOL_DocCode]' class='underline'>$field[DOL_DocCode]</a></td>
+				<td class='center'>$field[1]</td>
+				<td class='center'>$field[2]</td>
+				<td class='center'>$field[3]</td>
+				<td class='center'>$field[4]</td>
+				<td class='center'>$field[5]</td>
+				<td class='center'>$tgl_terbit</td>
+				<td class='center'>$tgl_berakhir</td>
+				<td class='center'>$field[8]</td>
+			</tr>
+		";
+			$no=$no+1;
+			}
+		$MainContent .="
+			</table>
+			</form>
+		";
+		}
+	}
+
+	elseif ($_GET['optTHROLD_DocumentGroupID']=='6'){
+		if ($num==NULL) {
+		$MainContent .="
+			<table width='100%' border='1' class='stripeMe'>
+			<tr>
+				<th>ID</th>
+				<th>Kode Dokumen</th>
+				<th>Perusahaan</th>
+				<th>Nama PT (Dokumen)</th>
+				<th>No. Dokumen</th>
+				<th>Nama Dokumen</th>
+				<th>Tahun Dokumen</th>
+				<th>Departemen</th>
+				<th>Status</th>
+			</tr>
+			<tr>
+				<td colspan=9 align='center'>Belum Ada Data</td>
+			</tr>
+			</table>
+		";
+		}
+		if ($num<>NULL){
+		$MainContent .="
+			<form name='list' method='GET' action='print-other-non-legal-documents-barcode.php' onsubmit='return validateBarcodePrint(this);' target='_blank'>
+			<table width='100%' border='1' class='stripeMe'>
+			<tr>
+				<th colspan='9' align='center'>Daftar Dokumen Lainnya (Di Luar Legal)</th>
+			</tr>
+			<tr>
+				<th>ID</th>
+				<th>Kode Dokumen</th>
+				<th>Perusahaan</th>
+				<th>Nama PT (Dokumen)</th>
+				<th>No. Dokumen</th>
+				<th>Nama Dokumen</th>
+				<th>Tahun Dokumen</th>
+				<th>Departemen</th>
+				<th>Status</th>
+			</tr>
+		";
+
+			while ($field = mysql_fetch_array($sql)) {
+				$regdate=strtotime($field[3]);
+				$fregdate=date("j M Y", $regdate);
+		$MainContent .="
+			<tr>
+				<td class='center'>$field[DONL_ID]</td>
+				<td class='center'>
+					<a href='$PHP_SELF?act=detailONL&id=$field[DONL_DocCode]' class='underline'>$field[DONL_DocCode]</a></td>
+				<td class='center'>$field[1]</td>
+				<td class='center'>$field[2]</td>
+				<td class='center'>$field[3]</td>
+				<td class='center'>$field[4]</td>
+				<td class='center'>$field[5]</td>
+				<td class='center'>$field[6]</td>
+				<td class='center'>$field[7]</td>
+			</tr>
+		";
+			$no=$no+1;
+			}
+		$MainContent .="
+			</table>
+			</form>
+		";
+		}
+	}
+
 		$sql1 = mysql_query($query);
 		$num1 = mysql_num_rows($sql1);
 
@@ -1144,7 +1366,6 @@ if($_GET["act"]){
 		$sql = mysql_query($query);
 		$admin = mysql_num_rows($sql);
 
-
 	//Melihat Detail Dokumen Legal, License, Others
 	if(($act=='detail') || ($act=='edit') ){
 		$id=$_GET["id"];
@@ -1191,13 +1412,8 @@ if($_GET["act"]){
 		$fregdate=date("j M Y", $regdate);
 		$pubdate=strtotime($arr['DL_PubDate']);
 		$fpubdate=date("j M Y", $pubdate);
-		if ($arr['DL_ExpDate']=="0000-00-00 00:00:00"){
-			$fexpdate="-";
-		}
-		else {
-		$expdate=strtotime($arr['DL_ExpDate']);
-		$fexpdate=date("j M Y", $expdate);
-		}
+		if ($arr['DL_ExpDate']=="0000-00-00 00:00:00") $fexpdate="31 Des 9999";
+		else $fexpdate=date("j M Y", strtotime($arr['DL_ExpDate']));
 
 $MainContent ="
 	<table width='100%' border='1' class='stripeMe'>
@@ -1261,7 +1477,7 @@ $MainContent ="
 		<td width='70%'>$arr[DL_Instance]</td>
 	</tr>
 	<tr>
-		<td width='30%'>Lokasi DoKumen</td>
+		<td width='30%'>Lokasi Dokumen</td>
 		<td width='70%'>$arr[DL_Location]</td>
 	</tr>
 	<tr>
@@ -1841,12 +2057,326 @@ $MainContent .="
 ";
 	}
 
+	//Melihat Detail Dokumen Kepemilikan Aset
+	if(($act=='detailAO') || ($act=='edit') ){
+		$id=$_GET["id"];
+		$query = "SELECT dao.DAO_DocCode,
+						 u.User_FullName,
+						 dao.DAO_RegTime,
+						 c.Company_Name, c.Company_Code,
+						 m_e.Employee_FullName nama_pemilik, m_mk.MK_Name merk_kendaraan,
+						 dao.DAO_Type, dao.DAO_Jenis,
+						 dao.DAO_NoPolisi, dao.DAO_NoRangka, dao.DAO_NoMesin, dao.DAO_NoBPKB,
+						 dao.DAO_STNK_StartDate, dao.DAO_STNK_ExpiredDate, dao.DAO_Pajak_StartDate, dao.DAO_Pajak_ExpiredDate,
+						 dao.DAO_Lokasi_PT, dao.DAO_Region, dao.DAO_Keterangan,
+						 dao.DAO_Location, dao.DAO_Softcopy,
+						 lds.LDS_Name
+		  	FROM M_DocumentAssetOwnership dao, M_Company c, M_LoanDetailStatus lds,
+				 M_User u, db_master.M_Employee m_e, db_master.M_MerkKendaraan m_mk
+			WHERE dao.DAO_DocCode='$id'
+			AND dao.DAO_CompanyID=c.Company_ID
+			AND dao.DAO_Status=lds.LDS_ID
+			AND dao.DAO_RegUserID=u.User_ID
+			AND m_e.Employee_NIK=dao.DAO_Employee_NIK
+			AND m_mk.MK_ID=dao.DAO_MK_ID";
+		$sql = mysql_query($query);
+		$arr = mysql_fetch_array($sql);
+	}
+	if($act=='detailAO') {
+		$fregdate = date("j M Y", strtotime($arr['DAO_RegTime']));
+
+		$stnk_sdate = date("j M Y", strtotime($arr['DAO_STNK_StartDate']));
+		if ($arr['DAO_STNK_ExpiredDate']=="0000-00-00 00:00:00") $stnk_exdate="31 Des 9999";
+		else $stnk_exdate = date("j M Y", strtotime($arr['DAO_STNK_ExpiredDate']));
+
+		$pajak_sdate = date("j M Y", strtotime($arr['DAO_STNK_StartDate']));
+		if ($arr['DAO_STNK_ExpiredDate']=="0000-00-00 00:00:00") $pajak_exdate="31 Des 9999";
+		else $pajak_exdate = date("j M Y", strtotime($arr['DAO_STNK_ExpiredDate']));
+
+$MainContent ="
+	<table width='100%' border='1' class='stripeMe'>
+	<tr>
+		<th colspan='2'>Detail Dokumen Kepemilikan Aset</th>
+	</tr>
+	<tr>
+		<td width='30%'>Kode Dokumen</td>
+		<td width='70%'><input type='hidden' name='DAO_DocCode' value='$arr[DAO_DocCode]'>$arr[DAO_DocCode]</td>
+	</tr>
+	<tr>
+		<td width='30%'>Nama Pendaftar</td>
+		<td width='70%'>$arr[User_FullName]</td>
+	</tr>
+	<tr>
+		<td width='30%'>Tanggal Pendaftaran</td>
+		<td width='70%'><input type='hidden' name='DAO_RegTime' value='$arr[DAO_RegTime]'>$fregdate</td>
+	</tr>
+	<tr>
+		<td width='30%'>Perusahaan</td>
+		<td width='70%'><input type='hidden' name='Company_Name' value='$arr[Company_Code]'>$arr[Company_Name]</td>
+	</tr>
+	<tr>
+		<td width='30%'>Nama Pemilik</td>
+		<td width='70%'>$arr[nama_pemilik]</td>
+	</tr>
+	<tr>
+		<td width='30%'>Merk Kendaraan</td>
+		<td width='70%'>$arr[merk_kendaraan]</td>
+	</tr>
+	<tr>
+		<td width='30%'>Tipe Kendaraan</td>
+		<td width='70%'>$arr[DAO_Type]</td>
+	</tr>
+	<tr>
+		<td width='30%'>Jenis Kendaraan</td>
+		<td width='70%'>$arr[DAO_Jenis]</td>
+	</tr>
+	<tr>
+		<td width='30%'>No. Polisi</td>
+		<td width='70%'>$arr[DAO_NoPolisi]</td>
+	</tr>
+	<tr>
+		<td width='30%'>No. Rangka</td>
+		<td width='70%'>$arr[DAO_NoRangka]</td>
+	</tr>
+	<tr>
+		<td width='30%'>No. Mesin</td>
+		<td width='70%'>$arr[DAO_NoMesin]</td>
+	</tr>
+	<tr>
+		<td width='30%'>No. BPKB</td>
+		<td width='70%'>$arr[DAO_NoBPKB]</td>
+	</tr>
+	<tr>
+		<td width='30%'>Masa Berlaku STNK</td>
+		<td width='70%'>$stnk_sdate s/d $stnk_exdate</td>
+	</tr>
+	<tr>
+		<td width='30%'>Masa Berlaku Pajak</td>
+		<td width='70%'>$pajak_sdate s/d $pajak_exdate</td>
+	</tr>
+	<tr>
+		<td width='30%'>Lokasi Perusahan</td>
+		<td width='70%'>$arr[DAO_Lokasi_PT]</td>
+	</tr>
+	<tr>
+		<td width='30%'>Region Perusahan</td>
+		<td width='70%'>$arr[DAO_Region]</td>
+	</tr>
+	<tr>
+		<td width='30%'>Keterangan Dokumen</td>
+		<td width='70%'>$arr[DAO_Keterangan]</td>
+	</tr>
+	<tr>
+		<td width='30%'>Lokasi Dokumen</td>
+		<td width='70%'>$arr[DAO_Location]</td>
+	</tr>
+	<tr>
+		<td width='30%'>Status</td>
+		<td width='70%'>$arr[LDS_Name]</td>
+	</tr>";
+	if ((($custodian==1)||($admin=="1")) && ($arr['DAO_Softcopy']<> NULL) ) {
+$MainContent .="
+	<tr>
+		<td width='30%'>Softcopy Dokumen</td>
+		<td width='70%'>
+			<a href='$arr[DAO_Softcopy]' class='underline'>[Download Softcopy]</a>
+		</td>
+	</tr>";
+	}
+$MainContent .="
+	</table>
+";
+	}
+
+	//Melihat Detail Dokumen Lainnya Legal
+	if(($act=='detailOL') || ($act=='edit') ){
+		$id=$_GET["id"];
+		$query = "SELECT dol.DOL_DocCode,
+						 u.User_FullName,
+						 dol.DOL_RegTime,
+						 c.Company_Name, c.Company_Code,
+						 m_dc.DocumentCategory_Name kategori_dokumen, dol.DOL_NamaDokumen,
+						 dol.DOL_InstansiTerkait, dol.DOL_NoDokumen, dol.DOL_TglTerbit, dol.DOL_TglBerakhir,
+						 dol.DOL_Location, dol.DOL_Softcopy,
+						 lds.LDS_Name
+			FROM M_DocumentsOtherLegal dol, M_Company c, M_LoanDetailStatus lds,
+				 M_User u, db_master.M_DocumentCategory m_dc
+			WHERE dol.DOL_DocCode='$id'
+			AND dol.DOL_CompanyID=c.Company_ID
+			AND dol.DOL_Status=lds.LDS_ID
+			AND dol.DOL_RegUserID=u.User_ID
+			AND m_dc.DocumentCategory_ID=dol.DOL_CategoryDocID";
+		$sql = mysql_query($query);
+		$arr = mysql_fetch_array($sql);
+	}
+	if($act=='detailOL') {
+		$fregdate = date("j M Y", strtotime($arr['DOL_RegTime']));
+
+		$tgl_terbit = date("j M Y", strtotime($arr['DOL_TglTerbit']));
+		if ($arr['DOL_TglBerakhir']=="0000-00-00 00:00:00") $tgl_berakhir="31 Des 9999";
+		else $tgl_berakhir = date("j M Y", strtotime($arr['DOL_TglBerakhir']));
+
+	$MainContent ="
+	<table width='100%' border='1' class='stripeMe'>
+	<tr>
+		<th colspan='2'>Detail Dokumen Lainnya (Legal)</th>
+	</tr>
+	<tr>
+		<td width='30%'>Kode Dokumen</td>
+		<td width='70%'><input type='hidden' name='DOL_DocCode' value='$arr[DOL_DocCode]'>$arr[DOL_DocCode]</td>
+	</tr>
+	<tr>
+		<td width='30%'>Nama Pendaftar</td>
+		<td width='70%'>$arr[User_FullName]</td>
+	</tr>
+	<tr>
+		<td width='30%'>Tanggal Pendaftaran</td>
+		<td width='70%'><input type='hidden' name='DOL_RegTime' value='$arr[DOL_RegTime]'>$fregdate</td>
+	</tr>
+	<tr>
+		<td width='30%'>Perusahaan</td>
+		<td width='70%'><input type='hidden' name='Company_Name' value='$arr[Company_Code]'>$arr[Company_Name]</td>
+	</tr>
+	<tr>
+		<td width='30%'>Kategori Dokumen</td>
+		<td width='70%'>$arr[kategori_dokumen]</td>
+	</tr>
+	<tr>
+		<td width='30%'>Nama Dokumen</td>
+		<td width='70%'>$arr[DOL_NamaDokumen]</td>
+	</tr>
+	<tr>
+		<td width='30%'>Instansi Terkait</td>
+		<td width='70%'>$arr[DOL_InstansiTerkait]</td>
+	</tr>
+	<tr>
+		<td width='30%'>No. Dokumen</td>
+		<td width='70%'>$arr[DOL_NoDokumen]</td>
+	</tr>
+	<tr>
+		<td width='30%'>Tanggal Terbit Dokumen</td>
+		<td width='70%'>$tgl_terbit</td>
+	</tr>
+	<tr>
+		<td width='30%'>Tanggal Berakhir Dokumen</td>
+		<td width='70%'>$tgl_berakhir</td>
+	</tr>
+	<tr>
+		<td width='30%'>Lokasi Dokumen</td>
+		<td width='70%'>$arr[DOL_Location]</td>
+	</tr>
+	<tr>
+		<td width='30%'>Status</td>
+		<td width='70%'>$arr[LDS_Name]</td>
+	</tr>";
+	if ((($custodian==1)||($admin=="1")) && ($arr['DOL_Softcopy']<> NULL) ) {
+	$MainContent .="
+	<tr>
+		<td width='30%'>Softcopy Dokumen</td>
+		<td width='70%'>
+			<a href='$arr[DOL_Softcopy]' class='underline'>[Download Softcopy]</a>
+		</td>
+	</tr>";
+	}
+	$MainContent .="
+	</table>
+	";
+	}
+
+	//Melihat Detail Dokumen Lainnya Di Luar Legal
+	if(($act=='detailONL') || ($act=='edit') ){
+		$id=$_GET["id"];
+		$query = "SELECT donl.DONL_DocCode,
+						 u.User_FullName,
+						 donl.DONL_RegTime,
+						 c.Company_Name, c.Company_Code,
+						 c2.Company_Name nama_pt, donl.DONL_NoDokumen,
+						 donl.DONL_NamaDokumen, donl.DONL_TahunDokumen, m_d.Department_Name nama_departemen,
+						 donl.DONL_Location, donl.DONL_Softcopy,
+						 lds.LDS_Name
+			FROM M_DocumentsOtherNonLegal donl, M_Company c, M_LoanDetailStatus lds,
+				 M_User u, M_Company c2, db_master.M_Department m_d
+			WHERE donl.DONL_DocCode='$id'
+			AND donl.DONL_CompanyID=c.Company_ID
+			AND donl.DONL_Status=lds.LDS_ID
+			AND donl.DONL_RegUserID=u.User_ID
+			AND c2.Company_ID=donl.DONL_PT_ID
+			AND m_d.Department_Code=donl.DONL_Dept_Code";
+		$sql = mysql_query($query);
+		$arr = mysql_fetch_array($sql);
+	}
+	if($act=='detailONL') {
+		$fregdate = date("j M Y", strtotime($arr['DONL_RegTime']));
+
+	$MainContent ="
+	<table width='100%' border='1' class='stripeMe'>
+	<tr>
+		<th colspan='2'>Detail Dokumen Lainnya (Di Luar Legal)</th>
+	</tr>
+	<tr>
+		<td width='30%'>Kode Dokumen</td>
+		<td width='70%'><input type='hidden' name='DOL_DocCode' value='$arr[DONL_DocCode]'>$arr[DONL_DocCode]</td>
+	</tr>
+	<tr>
+		<td width='30%'>Nama Pendaftar</td>
+		<td width='70%'>$arr[User_FullName]</td>
+	</tr>
+	<tr>
+		<td width='30%'>Tanggal Pendaftaran</td>
+		<td width='70%'><input type='hidden' name='DOL_RegTime' value='$arr[DONL_RegTime]'>$fregdate</td>
+	</tr>
+	<tr>
+		<td width='30%'>Perusahaan</td>
+		<td width='70%'><input type='hidden' name='Company_Name' value='$arr[Company_Code]'>$arr[Company_Name]</td>
+	</tr>
+	<tr>
+		<td width='30%'>Nama Perusahaan Pada Dokumen</td>
+		<td width='70%'>$arr[nama_pt]</td>
+	</tr>
+	<tr>
+		<td width='30%'>No. Dokumen</td>
+		<td width='70%'>$arr[DONL_NoDokumen]</td>
+	</tr>
+	<tr>
+		<td width='30%'>Nama Dokumen</td>
+		<td width='70%'>$arr[DONL_NamaDokumen]</td>
+	</tr>
+	<tr>
+		<td width='30%'>Tahun Dokumen</td>
+		<td width='70%'>$arr[DONL_TahunDokumen]</td>
+	</tr>
+	<tr>
+		<td width='30%'>Nama Departemen Pada Dokumen</td>
+		<td width='70%'>$arr[nama_departemen]</td>
+	</tr>
+	<tr>
+		<td width='30%'>Lokasi Dokumen</td>
+		<td width='70%'>$arr[DONL_Location]</td>
+	</tr>
+	<tr>
+		<td width='30%'>Status</td>
+		<td width='70%'>$arr[LDS_Name]</td>
+	</tr>";
+	if ((($custodian==1)||($admin=="1")) && ($arr['DONL_Softcopy']<> NULL) ) {
+	$MainContent .="
+	<tr>
+		<td width='30%'>Softcopy Dokumen</td>
+		<td width='70%'>
+			<a href='$arr[DONL_Softcopy]' class='underline'>[Download Softcopy]</a>
+		</td>
+	</tr>";
+	}
+	$MainContent .="
+	</table>
+	";
+	}
+
 
 /* ====== */
 /* ACTION */
 /* ====== */
 //print_r($_GET);die();
-if(isset($_POST[cancel])) {
+if(isset($_POST['cancel'])) {
 	echo "<meta http-equiv='refresh' content='0; url=document-list2.php'>";
 
 }

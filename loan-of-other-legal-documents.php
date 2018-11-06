@@ -257,6 +257,7 @@ if(isset($_GET["act"])) {
 						}
 				$ActionContent .="
 						</select>
+						<input id='optTHLOOLD_Email' name='optTHLOOLD_Email' type='text' placeholder='email'/>
 					</td>
 				</tr>
 				<tr>
@@ -1020,5 +1021,27 @@ function removeRowFromTable() {
 		tbl.deleteRow(lastRow - 1);
 }
 
-
+$(document).ready(function(){
+	$("#optTHLOOLD_Email").hide();
+	$("#optTHLOOLD_DocumentType").change(function(){
+		$("#optTHLOOLD_Email").hide();
+		$("#optTHLOOLD_LoanCategoryID").show();
+		if($(this).val()=="ORIGINAL"){
+			$("#optTHLOOLD_LoanCategoryID option:first").nextAll().hide();
+			$("#optTHLOOLD_LoanCategoryID option:contains('Peminjaman Dokumen')").show();
+			$("#optTHLOOLD_LoanCategoryID option:contains('Pengolahan Dokumen')").show();
+		}
+		else if($(this).val()=="HARDCOPY"){
+			$("#optTHLOOLD_LoanCategoryID option:first").nextAll().hide();
+			$("#optTHLOOLD_LoanCategoryID option:contains('Fotocopy Dokumen')").show();
+		}
+		else if($(this).val()=="SOFTCOPY"){
+			$("#optTHLOOLD_LoanCategoryID").hide();
+			$("#optTHLOOLD_Email").show();
+		}
+		else{
+			$("#optTHLOOLD_LoanCategoryID option").show();
+		}
+	})
+})
 </script>

@@ -384,6 +384,7 @@ if(($act=='approve')&&($approver=="1")) {
 		</td>
 	</tr>";
 }else {
+	/*
 	$MainContent .="
 	<tr>
 		<td>Status Pendaftaran</td>";
@@ -410,7 +411,7 @@ if(($act=='approve')&&($approver=="1")) {
 	}else {
 		$MainContent .="
 		<td colspan='2'>Draft</td></tr>";
-	}
+	}*/
 }
 
 $MainContent .="</table>";

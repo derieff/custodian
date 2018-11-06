@@ -15,11 +15,12 @@ if(!isset($_SERVER['HTTP_HOST'])){
 	$_SERVER['HTTP_HOST']='localhost/custodian';
 }
 include ("./config/config_db.php");
-include ("./include/function.mail.retdoc.php");
-include ("./include/function.mail.retdocao.php");
-include ("./include/function.mail.retdocla.php");
-include ("./include/function.mail.retdocol.php");
-include ("./include/function.mail.retdoconl.php");
+include ("./include/function.mail.returnAllDoc.php");
+// include ("./include/function.mail.retdoc.php");
+// include ("./include/function.mail.retdocao.php");
+// include ("./include/function.mail.retdocla.php");
+// include ("./include/function.mail.retdocol.php");
+// include ("./include/function.mail.retdoconl.php");
 
 $queryAssetOwnership = "SELECT tdroaod.TDROAOD_ID,FLOOR(DATEDIFF(tdroaod.TDROAOD_LeadTime,tdroaod.TDROAOD_Insert_Time)/7) ReminderLevel,
 							tdroaod.TDROAOD_Insert_UserID UserID,throaod.THROAOD_ReleaseCode RelCode,mdao.DAO_DocCode DocCode,
@@ -34,7 +35,7 @@ $queryAssetOwnership = "SELECT tdroaod.TDROAOD_ID,FLOOR(DATEDIFF(tdroaod.TDROAOD
 							AND throaod.THROAOD_Delete_Time IS NULL
 						LEFT JOIN TD_LoanOfAssetOwnershipDocument tdloaod ON tdroaod.TDROAOD_TDLOAOD_ID=tdloaod.TDLOAOD_ID
 							AND tdloaod.TDLOAOD_Delete_Time IS NULL
-						INNER JOIN M_User mu 
+						INNER JOIN M_User mu
 							ON tdroaod.TDROAOD_Insert_UserID=mu.User_ID
 							AND mu.User_Delete_Time IS NULL
 						INNER JOIN M_DocumentAssetOwnership mdao
@@ -72,7 +73,7 @@ $queryLandAcquisition = "SELECT tdrlolad.TDRLOLAD_ID,tdrlolad.TDRLOLAD_Insert_Us
 								AND thrlolad.THRLOLAD_Delete_Time IS NULL
 							LEFT JOIN TD_LoanOfLandAcquisitionDocument tdlolad ON tdrlolad.TDRLOLAD_TDLOLAD_ID=tdlolad.TDLOLAD_ID
 								AND tdlolad.TDLOLAD_Delete_Time IS NULL
-							INNER JOIN M_User mu 
+							INNER JOIN M_User mu
 								ON tdrlolad.TDRLOLAD_Insert_UserID=mu.User_ID
 								AND mu.User_Delete_Time IS NULL
 							INNER JOIN M_DocumentLandAcquisition mdla
@@ -108,7 +109,7 @@ $queryLegal = "SELECT tdrold.TDROLD_ID,tdrold.TDROLD_Insert_UserID UserID,mdl.DL
 					ON thlold.THLOLD_LoanCode=throld.THROLD_THLOLD_Code
 				LEFT JOIN TD_LoanOfLegalDocument tdlold
 					ON tdrold.TDROLD_TDLOLD_ID=tdlold.TDLOLD_ID
-				INNER JOIN M_User mu 
+				INNER JOIN M_User mu
 					ON tdrold.TDROLD_Insert_UserID=mu.User_ID
 					AND mu.User_Delete_Time IS NULL
 				INNER JOIN M_DocumentLegal mdl
@@ -124,7 +125,7 @@ $queryLegal = "SELECT tdrold.TDROLD_ID,tdrold.TDROLD_Insert_UserID UserID,mdl.DL
 					ON mdg.DocumentGroup_ID=mdl.DL_GroupDocID
 				LEFT JOIN db_master.M_Employee me
 					ON mu.User_ID = me.Employee_NIK
-				LEFT JOIN TD_ReturnOfLegalDocument tdrtold 
+				LEFT JOIN TD_ReturnOfLegalDocument tdrtold
 					ON tdlold.TDLOLD_DocCode=tdrtold.TDRTOLD_DocCode
 					AND tdrtold.TDRTOLD_Delete_Time IS NULL
 				WHERE throld.THROLD_Delete_Time IS NULL
@@ -147,16 +148,16 @@ $queryOtherLegal = "SELECT tdroold.TDROOLD_ID,FLOOR(DATEDIFF(tdroold.TDROOLD_Lea
 						AND throold.THROOLD_Delete_Time IS NULL
 					LEFT JOIN TD_LoanOfOtherLegalDocuments tdloold ON tdroold.TDROOLD_TDLOOLD_ID=tdloold.TDLOOLD_ID
 						AND tdloold.TDLOOLD_Delete_Time IS NULL
-					INNER JOIN M_User mu 
+					INNER JOIN M_User mu
 						ON tdroold.TDROOLD_Insert_UserID=mu.User_ID
 						AND mu.User_Delete_Time IS NULL
 					INNER JOIN M_DocumentsOtherLegal mdol
 						ON mdol.DOL_DocCode=tdloold.TDLOOLD_DocCode
 						AND mdol.DOL_Delete_Time IS NULL
-					LEFT JOIN TH_LoanOfOtherLegalDocuments thloold 
+					LEFT JOIN TH_LoanOfOtherLegalDocuments thloold
 						ON tdloold.TDLOOLD_THLOOLD_ID=thloold.THLOOLD_ID
 						AND thloold.THLOOLD_Delete_Time IS NULL
-					LEFT JOIN TD_ReturnOfOtherLegalDocuments tdrtoold 
+					LEFT JOIN TD_ReturnOfOtherLegalDocuments tdrtoold
 						ON tdloold.TDLOOLD_DocCode=tdrtoold.TDRTOOLD_DocCode
 						AND tdrtoold.TDRTOOLD_Delete_Time IS NULL
 					LEFT JOIN M_DocumentCategory mdc
@@ -185,13 +186,13 @@ $queryOtherNonLegal = "SELECT tdroonld.TDROONLD_ID,FLOOR(DATEDIFF(tdroonld.TDROO
 							AND tdloonld.TDLOONLD_Delete_Time IS NULL
 						INNER JOIN M_User mu ON tdroonld.TDROONLD_Insert_UserID=mu.User_ID
 							AND mu.User_Delete_Time IS NULL
-						INNER JOIN M_DocumentsOtherNonLegal mdonl 
+						INNER JOIN M_DocumentsOtherNonLegal mdonl
 							ON mdonl.DONL_DocCode=tdloonld.TDLOONLD_DocCode
 							AND mdonl.DONL_Delete_Time IS NULL
-						LEFT JOIN TH_LoanOfOtherNonLegalDocuments thloonld 
+						LEFT JOIN TH_LoanOfOtherNonLegalDocuments thloonld
 							ON tdloonld.TDLOONLD_THLOONLD_ID=thloonld.THLOONLD_ID
 							AND thloonld.THLOONLD_Delete_Time IS NULL
-						LEFT JOIN TD_ReturnOfOtherNonLegalDocuments tdrtoonld 
+						LEFT JOIN TD_ReturnOfOtherNonLegalDocuments tdrtoonld
 							ON tdloonld.TDLOONLD_DocCode=tdrtoonld.TDRTOONLD_DocCode
 							AND tdrtoonld.TDRTOONLD_Delete_Time IS NULL
 						LEFT JOIN M_DocumentGroup mdg
@@ -365,7 +366,7 @@ while ($dataOtherLegal = mysql_fetch_array($sqlOtherLegal)) {
 	array_push($listDoc,[
 		"DocCode"=>$dataOtherLegal['DocCode'],
 		"TDROOLD_ID"=>$dataOtherLegal['TDROOLD_ID'],
-		"Company_Name"=>$dataOtherLegal['Company_Name'],
+		// "Company_Name"=>$dataOtherLegal['Company_Name'],
 		"DocumentCategory_Name"=>$dataOtherLegal['DocumentCategory_Name'],
 		"DOL_NamaDokumen"=>$dataOtherLegal['DOL_NamaDokumen'],
 		"DOL_InstansiTerkait"=>$dataOtherLegal['DOL_InstansiTerkait'],

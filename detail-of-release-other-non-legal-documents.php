@@ -208,7 +208,7 @@ $MainContent .="
 ";
 	}
 	else {
-$MainContent .="
+/*$MainContent .="
 	<tr>
 		<td>Status Dokumen</td>
 ";
@@ -268,7 +268,7 @@ $MainContent .="
 	else {
 $MainContent .="
 		<td colspan='2'>Draft</td></tr>";
-	}
+	}*/
 	}
 
 $MainContent .="

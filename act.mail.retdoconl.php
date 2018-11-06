@@ -12,7 +12,7 @@
 <link href="./css/mobile.css" rel="stylesheet" type="text/css">
 <?PHP
 include ("./config/config_db.php");
-include ("./include/function.mail.retdocla.php");
+include ("./include/function.mail.retdoconl.php");
 $decrp = new custodian_encryp;
 
 if(($_GET['cfm'])&&($_GET['ati'])&&($_GET['rdm'])) {
@@ -45,11 +45,11 @@ if(($_GET['cfm'])&&($_GET['ati'])&&($_GET['rdm'])) {
 		$A_ApproverID=$arr['A_ApproverID'];
 
 		$h_query="SELECT *
-				  FROM TD_ReturnOfLandAcquisitionDocument tdrtolad, M_DocumentLandAcquisition dla
-				  WHERE tdrtolad.TDRTOLAD_ReturnCode='$A_TransactionCode'
-				  AND tdrtolad.TDRTOLAD_DocCode=dla.DLA_Code
-				  AND tdrtolad.TDRTOLAD_Delete_Time IS NULL
-				  AND dla.DLA_Delete_Time IS NULL";
+				  FROM TD_ReturnOfOtherLegalNonDocuments tdrtoonld, M_DocumentsOtherNonLegal donl
+				  WHERE tdrtoonld.TDRTOONLD_ReturnCode='$A_TransactionCode'
+				  AND tdrtoonld.TDRTOONLD_DocCode=donl.DONL_DocCode
+				  AND tdrtoonld.TDRTOONLD_Delete_Time IS NULL
+				  AND donl.DONL_Delete_Time IS NULL";
 		$h_sql=mysql_query($h_query);
 		$h_arr=mysql_fetch_array($h_sql);
 
@@ -103,11 +103,11 @@ if(($_GET['cfm'])&&($_GET['ati'])&&($_GET['rdm'])) {
 					}
 				}
 				else {
-					$query = "UPDATE TD_ReturnOfLandAcquisitionDocument
-								SET TDRTOLAD_Status='accept', TDRTOLAD_Update_UserID='$A_ApproverID',
-								    TDRTOLAD_Update_Time=sysdate()
-								WHERE TDRTOLAD_ReturnCode='$A_TransactionCode'
-								AND TDRTOLAD_Delete_Time IS NULL";
+					$query = "UPDATE TD_ReturnOfOtherLegalNonDocuments
+								SET TDRTOONLD_Status='accept', TDRTOONLD_Update_UserID='$A_ApproverID',
+								    TDRTOONLD_Update_Time=sysdate()
+								WHERE TDRTOONLD_ReturnCode='$A_TransactionCode'
+								AND TDRTOONLD_Delete_Time IS NULL";
 					if ($sql = mysql_query($query)) {
 						// ACTION UNTUK GENERATE NO DOKUMEN
 						$regyear=date("Y");
@@ -132,7 +132,7 @@ if(($_GET['cfm'])&&($_GET['ati'])&&($_GET['rdm'])) {
 						// Cari Kode Perusahaan
 						$query = "SELECT *
 									FROM M_Company
-									WHERE Company_ID='$h_arr[DLA_CompanyID]'";
+									WHERE Company_ID='$h_arr[DONL_CompanyID]'";
 						$sql = mysql_query($query);
 						$field = mysql_fetch_array($sql);
 						$Company_Code=$field['Company_Code'];
@@ -140,7 +140,7 @@ if(($_GET['cfm'])&&($_GET['ati'])&&($_GET['rdm'])) {
 						// Cari Kode Dokumen Grup
 						$query = "SELECT *
 									FROM M_DocumentGroup
-									WHERE DocumentGroup_ID ='$h_arr[DLA_GroupDocID]'";
+									WHERE DocumentGroup_ID ='$h_arr[DONL_GroupDocID]'";
 						$sql = mysql_query($query);
 						$field = mysql_fetch_array($sql);
 						$DocumentGroup_Code=$field['DocumentGroup_Code'];
@@ -163,11 +163,11 @@ if(($_GET['cfm'])&&($_GET['ati'])&&($_GET['rdm'])) {
 						$nnum=$maxnum+1;
 
 						$d_query="SELECT *
-								  FROM TD_ReturnOfLandAcquisitionDocument tdrtolad,
-								  	   M_DocumentLandAcquisition dla
-								  WHERE tdrtolad.TDRTOLAD_ReturnCode='$h_arr[TDRTOLAD_ReturnCode]'
-								  AND tdrtolad.TDRTOLAD_Delete_Time IS NULL
-								  AND tdrtolad.TDRTOLAD_DocCode=dla.DLA_Code";
+								  FROM TD_ReturnOfOtherLegalNonDocuments tdrtoonld,
+								  	   M_DocumentsOtherNonLegal donl
+								  WHERE tdrtoonld.TDRTOONLD_ReturnCode='$h_arr[TDRTOONLD_ReturnCode]'
+								  AND tdrtoonld.TDRTOONLD_Delete_Time IS NULL
+								  AND tdrtoonld.TDRTOONLD_DocCode=donl.DONL_DocCode";
 						$d_sql=mysql_query($d_query);
 						while($d_arr=mysql_fetch_array($d_sql)){
 							$newnum=str_pad($nnum,3,"0",STR_PAD_LEFT);
@@ -175,10 +175,10 @@ if(($_GET['cfm'])&&($_GET['ati'])&&($_GET['rdm'])) {
 							$CT_Code="$newnum/DRETN/$Company_Code/$DocumentGroup_Code/$regmonth/$regyear";
 
 							$docStatus = 1; //Dokumen Tersedia kembali pada Custodian
-							$query1="UPDATE M_DocumentLandAcquisition
-									 SET DLA_Status='$docStatus', DLA_Update_UserID='$A_ApproverID',
-									 	 DLA_Update_Time=sysdate()
-									 WHERE DLA_Code='$d_arr[DLA_Code]'";
+							$query1="UPDATE M_DocumentsOtherNonLegal
+									 SET DONL_Status='$docStatus', DONL_Update_UserID='$A_ApproverID',
+									 	 DONL_Update_Time=sysdate()
+									 WHERE DONL_DocCode='$d_arr[DONL_DocCode]'";
 							// $query2="INSERT INTO M_CodeTransaction
 							// 	   	 VALUES (NULL,'$CT_Code','$nnum','DRETN','$Company_Code','$DocumentGroup_Code',
 							// 				 '$rmonth','$regyear','$A_ApproverID',sysdate(),
@@ -188,7 +188,7 @@ if(($_GET['cfm'])&&($_GET['ati'])&&($_GET['rdm'])) {
 							$mysqli->query($query2);
 							$nnum=$nnum+1;
 						}
-						mail_notif_return_doc($A_TransactionCode, $h_arr['TDRTOLAD_UserID'], 3 );
+						mail_notif_return_doc($A_TransactionCode, $h_arr['TDRTOONLD_UserID'], 3 );
 						mail_notif_return_doc($A_TransactionCode, "cust0002", 3 );
 
 						echo "
@@ -279,7 +279,7 @@ if(isset($_GET['act'])) {
 		<tr>
 			<td><input type='hidden' name='A_ID' value='$A_ID'>
 				<input type='hidden' name='ARC_RandomCode' value='$ARC_RandomCode'>
-				<textarea name='txtTDRTOLAD_Reason' id='txtTDRTOLAD_Reason' rows='3'>$arr[TDRTOLAD_Reason]</textarea>
+				<textarea name='txtTDRTOONLD_Reason' id='txtTDRTOONLD_Reason' rows='3'>$arr[TDRTOONLD_Reason]</textarea>
 				<br>*Wajib Diisi Apabila Anda Tidak Menyetujui Pengeluaran Dokumen.<br>
 			</td>
 		</tr>
@@ -302,11 +302,11 @@ if(isset($_POST['reject'])) {
 	$A_ID=$_POST['A_ID'];
 	$ARC_RandomCode=$_POST['ARC_RandomCode'];
 
-    if (str_replace(" ", "", $_POST['txtTDRTOLAD_Reason'])==NULL){
-		echo "<meta http-equiv='refresh' content='0; url=act.mail.retdocla.php?act=".$decrp->encrypt('reject').">";
+	if (str_replace(" ", "", $_POST['txtTDRTOONLD_Reason'])==NULL){
+		echo "<meta http-equiv='refresh' content='0; url=act.mail.retdoconl.php?act=".$decrp->encrypt('reject').">";
 	}
 	else {
-		$TDRTOLAD_Reason=str_replace("<br>", "\n",$_POST['txtTDRTOLAD_Reason']);
+		$TDRTOONLD_Reason=str_replace("<br>", "\n",$_POST['txtTDRTOONLD_Reason']);
 		$query = "SELECT *
 				  FROM L_ApprovalRandomCode
 				  WHERE ARC_AID='$A_ID'
@@ -326,19 +326,19 @@ if(isset($_POST['reject'])) {
 			$A_TransactionCode=$arr['A_TransactionCode'];
 			$A_ApproverID=$arr['A_ApproverID'];
 
-			if ($AppDate==NULL) {
+            if ($AppDate==NULL) {
 
 				$h_query="SELECT *
-						  FROM TD_ReturnOfLandAcquisitionDocument tdrtolad
-						  WHERE tdrtolad.TDRTOLAD_ReturnCode='$A_TransactionCode'
-						  AND tdrtolad.TDRTOLAD_Delete_Time IS NULL";
+						  FROM TD_ReturnOfOtherNonLegalDocuments tdrtoonld
+						  WHERE tdrtoonld.TDRTOONLD_ReturnCode='$A_TransactionCode'
+						  AND tdrtoonld.TDRTOONLD_Delete_Time IS NULL";
 				$h_sql=mysql_query($h_query);
 				$h_arr=mysql_fetch_array($h_sql);
 
-				$query1="UPDATE TD_ReturnOfLandAcquisitionDocument
-						 SET TDRTOLAD_Status='reject', TDRTOLAD_Reason='$TDRTOLAD_Reason',
-						  	 TDRTOLAD_Update_Time=sysdate(), TDRTOLAD_Update_UserID='$A_ApproverID'
-						 WHERE TDRTOLAD_ReturnCode='$A_TransactionCode'";
+                $query1="UPDATE TD_ReturnOfOtherNonLegalDocuments
+						 SET TDRTOONLD_Status='reject', TDRTOONLD_Reason='$TDRTOONLD_Reason',
+						  	 TDRTOONLD_Update_Time=sysdate(), TDRTOONLD_Update_UserID='$A_ApproverID'
+						 WHERE TDRTOONLD_ReturnCode='$A_TransactionCode'";
 
 				// UPDATE APPROVAL
 				$query2="UPDATE M_Approval
@@ -357,21 +357,21 @@ if(isset($_POST['reject'])) {
 				$mysqli->query($query3);
 
 				$d_query="SELECT *
-						  FROM TD_ReturnOfLandAcquisitionDocument tdrtolad
-                          LEFT JOIN M_DocumentLandAcquisition dla
-                            ON tdrtolad.TDRTOLAD_DocCode=dla.DLA_Code
-						  WHERE tdrtolad.TDRTOLAD_ReturnCode='$h_arr[TDRTOLAD_ReturnCode]'
-						  AND tdrtolad.TDRTOLAD_Delete_Time IS NULL
+						  FROM TD_ReturnOfOtherNonLegalDocuments tdrtoonld
+                          LEFT JOIN M_DocumentsOtherNonLegal donl
+                            ON tdrtoonld.TDRTOONLD_DocCode=donl.DONL_DocCode
+						  WHERE tdrtoonld.TDRTOONLD_ReturnCode='$h_arr[TDRTOONLD_ReturnCode]'
+						  AND tdrtoonld.TDRTOONLD_Delete_Time IS NULL
 						  ";
 				$d_sql=mysql_query($d_query);
 				while($d_arr=mysql_fetch_array($d_sql)){
-					$query="UPDATE M_DocumentLandAcquisition
-						    SET DLA_Status='4', DLA_Update_UserID='$A_ApproverID', DLA_Update_Time=sysdate()
-						    WHERE DLA_Code='$d_arr[DLA_Code]'";
+					$query="UPDATE M_DocumentsOtherNonLegal
+						    SET DONL_Status='4', DONL_Update_UserID='$A_ApproverID', DONL_Update_Time=sysdate()
+						    WHERE DONL_DocCode='$d_arr[DONL_DocCode]'";
 					$mysqli->query($query);
 				}
 				// mail_notif_return_doc($A_TransactionCode, $h_arr['THLOLD_UserID'], 4 );
-				mail_notif_return_doc($A_TransactionCode, $h_arr['TDRTOLAD_UserID'], 4 );
+				mail_notif_return_doc($A_TransactionCode, $h_arr['TDRTOONLD_UserID'], 4 );
 				echo "
 				<table border='0' align='center' cellpadding='0' cellspacing='0'>
 				<tbody>

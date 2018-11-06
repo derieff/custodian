@@ -649,7 +649,7 @@ if(($act=='approve')&&($approver=="1")) {
 		</td>
 	</tr>";
 }else {
-	$MainContent .="
+	/*$MainContent .="
 	<tr>
 		<td>Status Dokumen</td>";
 	if($arr[THRGOLAD_RegStatus]=="waiting"){
@@ -675,7 +675,7 @@ if(($act=='approve')&&($approver=="1")) {
 	}else {
 		$MainContent .="
 		<td colspan='2'>Draft</td></tr>";
-	}
+	}*/
 }
 
 if((($act=='edit') && (($custodian==1)||($admin=="1"))) || (($act=='approve')&&($approver=="1")&& ($custodian==1))) {
