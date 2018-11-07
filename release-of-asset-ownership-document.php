@@ -285,35 +285,25 @@ if(isset($_GET["act"]))
 		$fregdate=date("j M Y", strtotime($field['THROAOD_ReleaseDate']));
 		// $atasan=($field['User_SPV2'])?$field['User_SPV2']:$field['User_SPV1'];
 
-		$query = "SELECT u.User_ID, ra.RA_Name
-				  FROM M_Role_Approver ra
-				  LEFT JOIN M_Approver a
-					ON ra.RA_ID=a.Approver_RoleID
-				  LEFT JOIN M_User u
-					ON a.Approver_UserID=u.User_ID
-				  WHERE
-				  	(ra.RA_Name='Custodian' or ra.RA_Name='Section Head Custodian')
-					AND a.Approver_Delete_Time is NULL
-				  ";
-		$sql = mysql_query($query);
-		while($d = mysql_fetch_array($sql)){
-			$approvers[] = $d['User_ID'];  //Approval Untuk ke Custodian
-		}
+		$jenis = "22"; //Semua Dokumen
 
-			$query = "SELECT u.User_ID, ra.RA_Name
-					  FROM M_Role_Approver ra
-					  LEFT JOIN M_Approver a
-						ON ra.RA_ID=a.Approver_RoleID
-					  LEFT JOIN M_User u
-						ON a.Approver_UserID=u.User_ID
-					  WHERE
-						ra.RA_Name='Custodian Head'
-						AND a.Approver_Delete_Time is NULL
-					  ";
-			$sql = mysql_query($query);
-			while($d = mysql_fetch_array($sql)){
-				$approvers[] = $d['User_ID'];  //Approval Untuk ke Custodian
-			}
+		$queryApprover = "
+			SELECT ma.Approver_UserID, rads.RADS_StepID, rads.RADS_RA_ID, ra.RA_Name
+			FROM M_Role_ApproverDocStepStatus rads
+			LEFT JOIN M_Role_Approver ra
+				ON rads.RADS_RA_ID = ra.RA_ID
+			LEFT JOIN M_Approver ma
+				ON ra.RA_ID = ma.Approver_RoleID
+			WHERE rads.RADS_DocID = '$jenis'
+				AND rads.RADS_ProsesID = '3'
+				AND ma.Approver_Delete_Time IS NULL
+				AND ma.Approver_UserID != '0'
+				ORDER BY rads.RADS_StepID
+		";
+		$sqlApprover=mysql_query($queryApprover);
+		while($d = mysql_fetch_array($sqlApprover)){
+			$approvers[] = $d['Approver_UserID'];  //Approval Untuk ke Custodian
+		}
 
 		$ActionContent ="
 		<form name='add-detaildoc' method='post' action='$PHP_SELF' >
@@ -366,13 +356,16 @@ if(isset($_GET["act"]))
 		<div style='space'>&nbsp;</div>";
 
 		$query="SELECT tdloaod.TDLOAOD_ID, tdloaod.TDLOAOD_Code, dao.DAO_DocCode,
-		 			-- dao.DAO_NoDoc,
-					   m_e.Employee_FullName nama_pemilik,
+		 			   -- dao.DAO_NoDoc,
+					   dao.DAO_Employee_NIK,
+					   -- m_e.Employee_FullName nama_pemilik,
 					   m_mk.MK_Name merk_kendaraan, dao.DAO_NoPolisi,
 					   dao.DAO_STNK_StartDate, dao.DAO_STNK_ExpiredDate,
 					   thloaod.THLOAOD_LoanCategoryID
 				FROM TD_LoanOfAssetOwnershipDocument tdloaod, TH_LoanOfAssetOwnershipDocument thloaod, TH_ReleaseOfAssetOwnershipDocument throaod,
-					 M_DocumentAssetOwnership dao, db_master.M_Employee m_e, db_master.M_MerkKendaraan m_mk
+					 M_DocumentAssetOwnership dao,
+					 -- db_master.M_Employee m_e,
+					 db_master.M_MerkKendaraan m_mk
 				WHERE throaod.THROAOD_ReleaseCode='$code'
 				AND throaod.THROAOD_Delete_Time IS NULL
 				AND throaod.THROAOD_THLOAOD_Code=thloaod.THLOAOD_LoanCode
@@ -380,7 +373,7 @@ if(isset($_GET["act"]))
 				AND tdloaod.TDLOAOD_Response='0'
 				AND tdloaod.TDLOAOD_Delete_Time IS NULL
 				AND dao.DAO_DocCode=tdloaod.TDLOAOD_DocCode
-				AND dao.DAO_Employee_NIK=m_e.Employee_NIK
+				-- AND dao.DAO_Employee_NIK=m_e.Employee_NIK
 				AND dao.DAO_MK_ID=m_mk.MK_ID";
 		$sql = mysql_query($query);
 		$i=0;
@@ -408,6 +401,24 @@ if(isset($_GET["act"]))
 			// 		$LeadTime = date('m/d/Y',strtotime("+7 day", strtotime($field['THROAOD_ReleaseDate'])));
 			// 	}
 			// }
+			if(strpos($arr['DAO_Employee_NIK'], 'CO@') !== false){
+				$get_company_code = explode('CO@', $arr['DAO_Employee_NIK']);
+				$company_code = $get_company_code[1];
+				$query7="SELECT Company_Name AS nama_pemilik
+					FROM M_Company
+					WHERE Company_code='$company_code'";
+			}else{
+				$query7="SELECT Employee_FullName AS nama_pemilik
+					FROM db_master.M_Employee
+					WHERE Employee_NIK='$arr[DAO_Employee_NIK]'";
+			}
+			$sql7 = mysql_query($query7);
+			$nama_pemilik = "-";
+			if(mysql_num_rows($sql7) > 0){
+				$data7 = mysql_fetch_array($sql7);
+				$nama_pemilik = $data7['nama_pemilik'];
+			}
+
 			$LeadTime=($arr['THLOAOD_LoanCategoryID']=="1")?date('m/d/Y',strtotime("+7 day", strtotime($field['THROAOD_ReleaseDate']))):"";
 
 			$ActionContent .="
@@ -416,7 +427,7 @@ if(isset($_GET["act"]))
 					<input id='TDLOAOD_ID[]' name='TDLOAOD_ID[]' type='checkbox' value='$arr[TDLOAOD_ID]'>
 				</td>
 				<td class='center'><input id='DAO_DocCode[]' name='DAO_DocCode[]' type='hidden' value='$arr[DAO_DocCode]'>$arr[DAO_DocCode]</td>
-				<td class='center'>$arr[nama_pemilik]</td>
+				<td class='center'>$nama_pemilik</td>
 				<td class='center'>$arr[merk_kendaraan]</td>
 				<td class='center'>$arr[DAO_NoPolisi]</td>
 				<td class='center'>$stnk_sdate s/d $stnk_exdate</td>
@@ -652,7 +663,7 @@ elseif(isset($_POST[addheader])) {
 		//Insert Header Dokumen
 		$sql1= "INSERT INTO TH_ReleaseOfAssetOwnershipDocument
 				VALUES (NULL,'$CT_Code',sysdate(),'$_SESSION[User_ID]','$_POST[txtTHROAOD_THLOAOD_Code]',
-					    '$info','0',NULL,NULL,'$_SESSION[User_ID]', sysdate(),NULL,NULL)";
+					    '$info','0',NULL,NULL,NULL,'$_SESSION[User_ID]', sysdate(),NULL,NULL)";
 		if($mysqli->query($sql1)) {
 			echo "<meta http-equiv='refresh' content='0; url=release-of-asset-ownership-document.php?act=adddetail&id=$CT_Code'>";
 		}

@@ -46,15 +46,36 @@ function validateInputHeader(elem) {
 	var returnValue;
 	returnValue = true;
 
+    var optTHLOLD_DocumentType = document.getElementById('optTHLOLD_DocumentType').selectedIndex;
+    var optTHLOLD_DocumentWithWatermarkOrNot = document.getElementById('optTHLOLD_DocumentWithWatermarkOrNot').selectedIndex;
 	var optTHLOLD_LoanCategoryID = document.getElementById('optTHLOLD_LoanCategoryID').selectedIndex;
+    var txtTHLOLD_SoftcopyReciever = document.getElementById('txtTHLOLD_SoftcopyReciever').value;
 	var optTHLOLD_CompanyID = document.getElementById('optTHLOLD_CompanyID').selectedIndex;
 	var optTHLOLD_DocumentGroupID = document.getElementById('optTHLOLD_DocumentGroupID').selectedIndex;
 	var txtTHLOLD_Information = document.getElementById('txtTHLOLD_Information').value;
 
-		if(optTHLOLD_LoanCategoryID == 0) {
-			alert("Tipe Permintaan Belum Dipilih!");
+        if(optTHLOLD_DocumentType == 1 || optTHLOLD_DocumentType == 2){
+            if(optTHLOLD_LoanCategoryID == 0) {
+    			alert("Kategori Permintaan Belum Dipilih!");
+    			returnValue = false;
+    		}
+        }else if(optTHLOLD_DocumentType == 3){
+            if (txtTHLOLD_SoftcopyReciever.replace(" ", "") == "")  {
+    			alert("Email Penerima Dokumen Belum Diisi!");
+    			returnValue = false;
+    		}
+        }else{
+            alert("Tipe Dokumen Belum Dipilih!");
 			returnValue = false;
-		}
+        }
+        if(optTHLOLD_DocumentType == 2 || optTHLOLD_DocumentType == 3){
+            if(optTHLOLD_DocumentWithWatermarkOrNot == 0) {
+                if( optTHLOLD_DocumentType == 2 ){ var cap_or_watermark = "Watermark";}
+                if( optTHLOLD_DocumentType == 3 ){ var cap_or_watermark = "Cap";}
+    			alert("Dokumen dengan "+cap_or_watermark+" Belum Dipilih!");
+    			returnValue = false;
+    		}
+        }
 		if(optTHLOLD_CompanyID == 0) {
 			alert("Perusahaan Belum Dipilih!");
 			returnValue = false;
@@ -68,6 +89,24 @@ function validateInputHeader(elem) {
 			returnValue = false;
 		}
 	return returnValue;
+}
+
+function chg_DocWatermarkOrNot(x){
+    if(x.value == "ORIGINAL"){
+        $('#doc-with-watermark-or-not-val').html("");
+        $('#optTHLOLD_DocumentWithWatermarkOrNot').css('display', 'none');
+        $('#optTHLOLD_DocumentWithWatermarkOrNot').val("0");
+    }else if(x.value == "HARDCOPY"){
+        document.getElementById('doc-with-watermark-or-not-val').innerHTML = "Dokumen dengan Watermark";
+            $('#optTHLOLD_DocumentWithWatermarkOrNot').css('display', 'block');
+    }else if(x.value == "SOFTCOPY"){
+        document.getElementById('doc-with-watermark-or-not-val').innerHTML = "Dokumen dengan Cap";
+            $('#optTHLOLD_DocumentWithWatermarkOrNot').css('display', 'block');
+    }else{
+        document.getElementById('doc-with-watermark-or-not-val').innerHTML = "Dokumen dengan Cap/Watermark";
+        $('#optTHLOLD_DocumentWithWatermarkOrNot').css('display', 'block');
+        $('#optTHLOLD_DocumentWithWatermarkOrNot').val("0");
+    }
 }
 
 //LoV UTK DAFTAR DOKUMEN
@@ -174,7 +213,8 @@ if(isset($_GET["act"])) {
 
 		$query = "SELECT u.User_FullName as FullName, ddp.DDP_DeptID as DeptID, ddp.DDP_DivID as DivID,
 						 ddp.DDP_PosID as PosID, dp.Department_Name as DeptName, d.Division_Name as DivName,
-						 p.Position_Name as PosName,u.User_SPV1,u.User_SPV2
+						 p.Position_Name as PosName,u.User_SPV1,u.User_SPV2,
+						 e.Employee_GradeCode, e.Employee_Grade
 				  FROM M_User u
 				  LEFT JOIN M_DivisionDepartmentPosition ddp
 					ON u.User_ID=ddp.DDP_UserID
@@ -185,6 +225,9 @@ if(isset($_GET["act"])) {
 					ON ddp.DDP_DeptID=dp.Department_ID
 				  LEFT JOIN M_Position p
 					ON ddp.DDP_PosID=p.Position_ID
+                  LEFT JOIN db_master.M_Employee AS e
+                    ON u.User_ID = e.Employee_NIK
+                    AND e.Employee_GradeCode IN ('0000000005','06','0000000003','05','04','0000000004')
 				  WHERE u.User_ID='$_SESSION[User_ID]'";
 		$sql = mysql_query($query);
 		$field = mysql_fetch_array($sql);
@@ -220,110 +263,131 @@ if(isset($_GET["act"])) {
 		</tr>";
 
 		if($field['User_SPV1']||$field['User_SPV2']){
-			$query="SELECT DISTINCT c.Company_ID, c.Company_Name
-					FROM M_DocumentLegal dl
-					INNER JOIN M_Company c
-						ON dl.DL_CompanyID = c.Company_ID
-					WHERE dl.DL_Delete_Time is NULL
-					AND dl.DL_Status='1'
-					ORDER BY c.Company_Name ASC";
-			$sql = mysql_query($query);
-			$number=mysql_num_rows($sql);
+            if( !empty($field['Employee_GradeCode']) && !empty($field['Employee_Grade']) ){
 
-			if ($number>0) {
-                $ActionContent .="
-                <tr>
-                    <td>Tipe Dokumen</td>
-                    <td>
-                        <select name='optTHLOLD_DocumentType' id='optTHLOLD_DocumentType'>
-                            <option value=''>--- Pilih Tipe Dokumen ---</option>
-                            <option value='ORIGINAL'>Asli</option>
-                            <option value='HARDCOPY'>Hardcopy</option>
-                            <option value='SOFTCOPY'>Softcopy</option>
-                        </select>
-                    </td>
-                </tr>";
+    			$query="SELECT DISTINCT c.Company_ID, c.Company_Name
+    					FROM M_DocumentLegal dl
+    					INNER JOIN M_Company c
+    						ON dl.DL_CompanyID = c.Company_ID
+    					WHERE dl.DL_Delete_Time is NULL
+    					AND dl.DL_Status='1'
+    					ORDER BY c.Company_Name ASC";
+    			$sql = mysql_query($query);
+    			$number=mysql_num_rows($sql);
 
-                $ActionContent .="
-                <tr>
-                    <td>Dokumen dengan Cap/Watermark</td>
-                    <td>
-                    <select name='optTHLOLD_DocumentWithWatermarkOrNot' id='optTHLOLD_DocumentWithWatermarkOrNot'>
-                        <option value=''>--- Pilih Keterangan ---</option>
-                        <option value='1'>Iya</option>
-                        <option value='2'>Tidak</option>
-                    </select>
-                    </td>
-                </tr>";
+    			if ($number>0) {
+                    $ActionContent .="
+                    <tr>
+                        <td>Tipe Dokumen</td>
+                        <td>
+                            <select name='optTHLOLD_DocumentType' id='optTHLOLD_DocumentType' onchange='chg_DocWatermarkOrNot(this)'>
+                                <option value=''>--- Pilih Tipe Dokumen ---</option>
+                                <option value='ORIGINAL'>Asli</option>
+                                <option value='HARDCOPY'>Hardcopy</option>
+                                <option value='SOFTCOPY'>Softcopy</option>
+                            </select>
+                        </td>
+                    </tr>";
 
-				$ActionContent .="
-				<tr>
-					<td>Kategori Permintaan</td>
-					<td>
-						<select name='optTHLOLD_LoanCategoryID' id='optTHLOLD_LoanCategoryID'>
-							<option value='0'>--- Pilih Kategori Permintaan ---</option>";
+                    $ActionContent .="
+                    <tr>
+                        <td id='doc-with-watermark-or-not-val'>Dokumen dengan Cap/Watermark</td>
+                        <td>
+                            <select name='optTHLOLD_DocumentWithWatermarkOrNot' id='optTHLOLD_DocumentWithWatermarkOrNot'>
+                                <option value=''>--- Pilih Keterangan ---</option>
+                                <option value='1'>Iya</option>
+                                <option value='2'>Tidak</option>
+                            </select>
+                        </td>
+                    </tr>";
 
-						$query1= "SELECT *
-								  FROM M_LoanCategory
-								  WHERE LoanCategory_Delete_Time is NULL";
-						$sql1 = mysql_query($query1);
+    				$ActionContent .="
+    				<tr>
+    					<td id='td-chg'>Kategori Permintaan</td>
+    					<td>
+    						<select name='optTHLOLD_LoanCategoryID' id='optTHLOLD_LoanCategoryID'>
+    							<option value='0'>--- Pilih Kategori Permintaan ---</option>";
 
-						while ($field1 = mysql_fetch_array($sql1) ){
-							$ActionContent .="
-							<option value='$field1[LoanCategory_ID]'>$field1[LoanCategory_Name]</option>";
-						}
-				$ActionContent .="
-						</select>
-						<input id='optTHLOLD_Email' name='optTHLOLD_Email' type='text' placeholder='email'/>
-					</td>
-				</tr>
-				<tr>
-					<td>Perusahaan</td>
-					<td>
-						<select name='optTHLOLD_CompanyID' id='optTHLOLD_CompanyID' onChange='showGroup()' style='width:350px'>
-							<option value='0'>--- Pilih Perusahan ---</option>";
-						while ($field = mysql_fetch_array($sql) ){
-							$ActionContent .="
-							<option value='$field[Company_ID]'>$field[Company_Name]</option>";
-						}
-				$ActionContent .="
-						</select>
-					</td>
-				</tr>
-				<tr>
-					<td>Grup Dokumen</td>
-					<td>
-						<select name='optTHLOLD_DocumentGroupID' id='optTHLOLD_DocumentGroupID'>
-							<option value='0'> - Pilih Perusahaan Terlebih Dahulu- </option>
-						</select>
-					</td>
-				</tr>
-				<tr>
-					<td valign='top'>Alasan Permintaan</td>
-					<td><textarea name='txtTHLOLD_Information' id='txtTHLOLD_Information' cols='50' rows='2'></textarea></td>
-				</tr>
-				<tr>
-					<th colspan=3>
-						<input name='addheader' type='submit' value='Simpan' class='button' onclick='return validateInputHeader(this);'/>
-						<input name='cancel' type='submit' value='Batal' class='button' />
-					</th>
-				</tr>";
-			}else {
-				if(!$_POST['cancel']){
-					echo "<script>alert('Tidak Ada Dokumen Yang Dapat Melakukan Transaksi Ini.');</script>";
-				}
-				$ActionContent .="
-				<tr>
-					<td colspan='3' align='center' style='font-weight:bolder; color:red;'>
-						Tidak Ada Dokumen Yang Dapat Melakukan Transaksi Ini.
-					</td>
-				</tr>
-				<tr>
-					<th colspan=3>
-						<input name='cancel' type='submit' value='OK' class='button'/>
-					</th>
-				</tr>";
-			}
+    						$query1= "SELECT *
+    								  FROM M_LoanCategory
+    								  WHERE LoanCategory_Delete_Time is NULL
+                                      AND LoanCategory_ID IN ('1','2','3')";
+    						$sql1 = mysql_query($query1);
+
+    						while ($field1 = mysql_fetch_array($sql1) ){
+    							$ActionContent .="
+    							<option value='$field1[LoanCategory_ID]'>$field1[LoanCategory_Name]</option>";
+    						}
+    				$ActionContent .="
+    						</select>
+    						<input id='txtTHLOLD_SoftcopyReciever' name='txtTHLOLD_SoftcopyReciever' type='text' />
+    					</td>
+    				</tr>
+    				<tr>
+    					<td>Perusahaan</td>
+    					<td>
+    						<select name='optTHLOLD_CompanyID' id='optTHLOLD_CompanyID' onChange='showGroup()' style='width:350px'>
+    							<option value='0'>--- Pilih Perusahan ---</option>";
+    						while ($field = mysql_fetch_array($sql) ){
+    							$ActionContent .="
+    							<option value='$field[Company_ID]'>$field[Company_Name]</option>";
+    						}
+    				$ActionContent .="
+    						</select>
+    					</td>
+    				</tr>
+    				<tr>
+    					<td>Grup Dokumen</td>
+    					<td>
+    						<select name='optTHLOLD_DocumentGroupID' id='optTHLOLD_DocumentGroupID'>
+    							<option value='0'> - Pilih Perusahaan Terlebih Dahulu- </option>
+    						</select>
+    					</td>
+    				</tr>
+    				<tr>
+    					<td valign='top'>Alasan Permintaan</td>
+    					<td><textarea name='txtTHLOLD_Information' id='txtTHLOLD_Information' cols='50' rows='2'></textarea></td>
+    				</tr>
+    				<tr>
+    					<th colspan=3>
+    						<input name='addheader' type='submit' value='Simpan' class='button' onclick='return validateInputHeader(this);'/>
+    						<input name='cancel' type='submit' value='Batal' class='button' />
+    					</th>
+    				</tr>";
+    			}else {
+    				if(!$_POST['cancel']){
+    					echo "<script>alert('Tidak Ada Dokumen Yang Dapat Melakukan Transaksi Ini.');</script>";
+    				}
+    				$ActionContent .="
+    				<tr>
+    					<td colspan='3' align='center' style='font-weight:bolder; color:red;'>
+    						Tidak Ada Dokumen Yang Dapat Melakukan Transaksi Ini.
+    					</td>
+    				</tr>
+    				<tr>
+    					<th colspan=3>
+    						<input name='cancel' type='submit' value='OK' class='button'/>
+    					</th>
+    				</tr>";
+    			}
+            }else{ //Else cek jabatan minimal Dept. Head
+    			if(!$_POST['cancel']){
+    				echo "<script>alert('Anda Tidak Dapat Melakukan Transaksi Ini. Minimal jabatan Department Head.);</script>";
+    			}
+
+    			$ActionContent .="
+    			<tr>
+    				<td colspan='3' align='center' style='font-weight:bolder; color:red;'>
+    					Anda Tidak Dapat Melakukan Transaksi Ini. Minimal jabatan Department Head.<br>
+    					Mohon Hubungi Tim Custodian Untuk Verifikasi Atasan.
+    				</td>
+    			</tr>
+    			<tr>
+    				<th colspan=3>
+    					<input name='cancel' type='submit' value='OK' class='button'/>
+    				</th>
+    			</tr>";
+    		}
 		}else{
 			if(!$_POST['cancel']){
 				echo "<script>alert('Anda Tidak Dapat Melakukan Transaksi Ini karena Anda Belum Memiliki Atasan.');</script>";
@@ -364,7 +428,8 @@ if(isset($_GET["act"])) {
                          thlold.THLOLD_DocumentType,
                          thlold.THLOLD_DocumentWithWatermarkOrNot,
 						 dg.DocumentGroup_Name, dg.DocumentGroup_ID,
-						 thlold.THLOLD_Information
+						 thlold.THLOLD_Information,
+                         thlold.THLOLD_SoftcopyReciever
 				  FROM TH_LoanOfLegalDocument thlold
 				  LEFT JOIN M_User u
 					ON thlold.THLOLD_UserID=u.User_ID
@@ -438,17 +503,28 @@ if(isset($_GET["act"])) {
 			<td colspan='2'><input type='hidden' name='optTHLOLD_DocumentType' value='$field[THLOLD_DocumentType]'>";
             if( $field['THLOLD_DocumentType'] == "ORIGINAL" ){
 				$ActionContent .="Asli";
-			}elseif( $field['THLOLD_DocumentType'] == "HARDCOPY" or $field['THLOLD_DocumentType'] == "SOFTCOPY" ){
-				$ActionContent .= ucfirst(strtolower($field['THLOLD_DocumentType']));
+            }elseif( $field['THLOLD_DocumentType'] == "HARDCOPY" ){
+				$ActionContent .="Hardcopy";
+			}elseif( $field['THLOLD_DocumentType'] == "SOFTCOPY" ){
+				$ActionContent .="Softcopy";
 			}else{
-				if( $field['THLOLD_LoanCategoryID'] != '3') $ActionContent .= "Asli";
-				else $ActionContent .= "Hardcopy";
+				if( $field['LoanCategory_ID'] < 3) $ActionContent .= "Asli";
+				elseif( $field['LoanCategory_ID'] == 3 ) $ActionContent .= "Hardcopy";
+				elseif( $field['LoanCategory_ID'] == 4) $ActionContent .= "Softcopy";
+				else $ActionContent .= "";
 			}
 			$ActionContent .="</td>
-		</tr>
-		<tr>
-			<td>Dokumen dengan Cap/Watermark</td>
-			<td colspan='2'><input type='hidden' name='optTHLOLD_DocumentWithWatermarkOrNot' value='$field[THLOLD_DocumentWithWatermarkOrNot]'>";
+        </tr>
+		";
+		if( $field['THLOLD_DocumentType'] != "ORIGINAL" ){
+			if( $field['THLOLD_DocumentType'] == "HARDCOPY" ){
+				$cap_or_watermark = "Watermark";
+			}elseif( $field['THLOLD_DocumentType'] == "SOFTCOPY" ){
+				$cap_or_watermark = "Cap";
+			}
+		$ActionContent .="<tr>
+			<td>Dokumen dengan ".$cap_or_watermark."</td>
+			<td colspan='2'><input type='hidden' name='optTHLOLD_LoanCategoryID' value='$field[THLOLD_DocumentWithWatermarkOrNot]'>";
 				if( $field['THLOLD_DocumentWithWatermarkOrNot'] == "1" ){
 					$ActionContent .="Iya";
 				}elseif( $field['THLOLD_DocumentWithWatermarkOrNot'] == "2" ){
@@ -457,14 +533,25 @@ if(isset($_GET["act"])) {
 					$ActionContent .= "-";
 				}
 			$ActionContent .="</td>
-		</tr>
-		<tr>
-			<td>Jenis Permintaan</td>
+		</tr>";
+		}
+		$ActionContent .="<tr>
+			";
+        if( $field['LoanCategory_ID'] != 4 ){
+            $ActionContent .="<td>Kategori Permintaan</td>
 			<td>
 				<input name='optTHLOLD_LoanCategoryID' type='hidden' value='$field[LoanCategory_ID]'/>
 				$field[LoanCategory_Name]
-			</td>
-		</tr>
+			</td>";
+        }else{
+			$ActionContent .="<td>Email Penerima Dokumen</td>
+			<td>
+				<input name='txtTHLOLD_SoftcopyReciever' type='hidden' value='$field[THLOLD_SoftcopyReciever]'/>
+				$field[THLOLD_SoftcopyReciever]
+			</td>";
+        }
+		$ActionContent .="
+        </tr>
 		<tr>
 			<td>Grup Dokumen</td>
 			<td>
@@ -533,9 +620,96 @@ if(isset($_GET["act"])) {
 		<tr>
 			<td>";
 
-			/* PROSES APPROVAL */
-			$user=$_SESSION['User_ID'];
+			// /* PROSES APPROVAL */
+			// $user=$_SESSION['User_ID'];
 
+        //     //Cek Jabatan Pengaju
+        //     $query="SELECT Employee_Grade
+        //         FROM db_master.M_Employee
+        //         WHERE Employee_NIK='".$user."'
+        //          AND Employee_GradeCode
+        //             IN ('0000000005', '06', '0000000003', '05', '04', '0000000004')";
+        //     $sql=mysql_query($query);
+        //     $obj=mysql_fetch_object($sql);
+        //     $jabatan=$obj->Employee_Grade;
+        //     $approvers = array();
+        //     if( $jabatan != null ){
+        //         if( $jabatan != "DIVISION HEAD" ){
+        //             //ATASAN LANGSUNG
+        //             $query="SELECT User_SPV1, User_SPV2
+        //                     FROM M_User
+        //                     WHERE User_ID='$user'";
+        //             $sql=mysql_query($query);
+        //             $obj=mysql_fetch_object($sql);
+        //             $atasan1=$obj->User_SPV1;
+        //             $atasan2=$obj->User_SPV2;
+        //
+        //             if($atasan2){
+        //                 $atasan=$atasan2;
+        //             }else{
+        //                 $atasan=$atasan1;
+        //             }
+        //             $approvers[] = $atasan; //Approval Step ke 1
+        //         }
+		// 		//Jika pengaju adalah Divison Head tidak dibutuhkan approval dari atasan langsung
+        //
+        //         if($field['THLOLD_DocumentType'] == "ORIGINAL" or $field['THLOLD_DocumentType'] == "SOFTCOPY"){
+        //             if($DocumentGroup_ID == '2' or $field['THLOLD_DocumentType'] == "ORIGINAL"){ //jika dokumen asli dan lisensi
+        //                 //Approval CEO Region atau Direktur Region
+        //                 $region = $field['Company_Area'];
+        //                 $query="SELECT u.User_ID
+        //                           FROM M_Role_Approver ra
+        //                           LEFT JOIN M_Approver a
+        //                             ON ra.RA_ID=a.Approver_RoleID
+        //                           LEFT JOIN M_User u
+        //                             ON a.Approver_UserID=u.User_ID
+        //                           WHERE ra.RA_Name= 'CEO - $region'
+        //                             AND a.Approver_Delete_Time is NULL
+        //                           ORDER BY ra.RA_ID";
+        //                 $sql=mysql_query($query);
+        //                 $obj=mysql_fetch_object($sql);
+        //                 if( $obj->User_ID != null){
+        //                     $approvers[] = $obj->User_ID;
+        //                 }
+        //             }
+        //             //Approval Chief External Relation atau CER
+        //             $query="SELECT Employee_NIK
+        //                 FROM db_master.M_Employee
+        //                 WHERE Employee_ResignDate IS null
+        //                     AND Employee_Position = 'CHIEF EXTERNAL RELATION'
+        //                 ORDER BY Employee_NIK
+        //                 LIMIT 0,1";
+        //             $sql=mysql_query($query);
+        //             $obj=mysql_fetch_object($sql);
+        //             $CER=$obj->Employee_NIK;
+        //             $approvers[] = $CER; //Approval Step ke 2
+        //         }
+        //
+        //         $query = "SELECT u.User_ID
+        //                   FROM M_Role_Approver ra
+        //                   LEFT JOIN M_Approver a
+        //                     ON ra.RA_ID=a.Approver_RoleID
+        //                   LEFT JOIN M_User u
+        //                     ON a.Approver_UserID=u.User_ID
+        //                   WHERE ra.RA_Name='Custodian'
+        //                     AND a.Approver_Delete_Time is NULL
+        //                   ORDER BY ra.RA_ID";
+        //         $sql = mysql_query($query);
+        //         $d=mysql_fetch_array($sql);
+        //         $approvers[] = $d['User_ID'];  //Approval Untuk ke Custodian
+        //
+        //     }
+        // foreach($approvers as $n => $approver){
+        //     $ActionContent .= "<input type='text' name='txtA_ApproverID[]' value='$approver' readonly='true' class='readonly' />";
+        // }
+        // $ActionContent .= "<hr>";
+
+        /* PROSES APPROVAL */
+        $user=$_SESSION['User_ID'];
+
+        $result = array();
+
+        for($sApp=1;$sApp<10;$sApp++) {
             //Cek Jabatan Pengaju
             $query="SELECT Employee_Grade
                 FROM db_master.M_Employee
@@ -545,11 +719,12 @@ if(isset($_GET["act"])) {
             $sql=mysql_query($query);
             $obj=mysql_fetch_object($sql);
             $jabatan=$obj->Employee_Grade;
-            $approvers = array();
+            // echo $jabatan;
+            $atasan = "";
             if( $jabatan != null ){
                 if( $jabatan != "DIVISION HEAD" ){
                     //ATASAN LANGSUNG
-                    $query="SELECT User_SPV1, User_SPV2
+                    $query="SELECT User_SPV1,User_SPV2
                             FROM M_User
                             WHERE User_ID='$user'";
                     $sql=mysql_query($query);
@@ -562,133 +737,80 @@ if(isset($_GET["act"])) {
                     }else{
                         $atasan=$atasan1;
                     }
-                    $approvers[] = $atasan; //Approval Step ke 1
-                }
-				//Jika pengaju adalah Divison Head tidak dibutuhkan approval dari atasan langsung
 
-                if($field['THLOLD_DocumentType'] == "ORIGINAL" or $field['THLOLD_DocumentType'] == "SOFTCOPY"){
-                    //Approval Chief External Relation atau CER
                     $query="SELECT Employee_NIK
-                        FROM db_master.M_Employee
-                        WHERE Employee_ResignDate IS null
-                            AND Employee_Position = 'CHIEF EXTERNAL RELATION'
-                        ORDER BY Employee_NIK
-                        LIMIT 0,1";
-                    $sql=mysql_query($query);
-                    $obj=mysql_fetch_object($sql);
-                    $CER=$obj->Employee_NIK;
-                    $approvers[] = $CER; //Approval Step ke 2
+                            FROM db_master.M_Employee
+                            WHERE Employee_NIK='".$atasan."'
+                            AND Employee_Position NOT LIKE '%SECTION%'
+                            AND Employee_Position NOT LIKE '%SUB DEP%'";
+                    $canApprove=mysql_num_rows(mysql_query($query));
+
+                    if($canApprove){
+                        $user = $atasan;
+                        array_push($result, $user);
+                        $ats = $user;
+                        break;
+                    }else{
+                        $user = $atasan;
+                        $sApp=3;
+                    }
+
+                    $obj1 = mysql_fetch_object(mysql_query("SELECT User_SPV1, User_SPV2 FROM M_User WHERE User_ID = '$ats'"));
+                    array_push($result, $obj1->User_SPV1);
+                    // $approvers[] = $atasan; //Approval Step ke 1
                 }
-
-                $query = "SELECT u.User_ID
-						  FROM M_Role_Approver ra
-						  LEFT JOIN M_Approver a
-							ON ra.RA_ID=a.Approver_RoleID
-						  LEFT JOIN M_User u
-							ON a.Approver_UserID=u.User_ID
-						  WHERE (ra.RA_Name='Custodian' OR ra.RA_Name='Custodian Head')
-							AND a.Approver_Delete_Time is NULL
-						  ORDER BY ra.RA_ID";
-				$sql = mysql_query($query);
-				while($d=mysql_fetch_array($sql)){
-					$approvers[] = $d['User_ID'];  //Approval Untuk ke Custodian dan Custodian Head
-				}
+                //Jika pengaju adalah Divison Head tidak dibutuhkan approval dari atasan langsung
             }
-
-        foreach($approvers as $n => $approver){
-            $ActionContent .= "<input type='hidden' name='txtA_ApproverID[]' value='$approver' readonly='true' class='readonly' />";
         }
 
-			// $result = array();
-            //
-			// for($sApp=1;$sApp<10;$sApp++) {
-			// 	//ATASAN LANGSUNG
-			// 	$query="SELECT User_SPV1,User_SPV2
-			// 			FROM M_User
-			// 			WHERE User_ID='$user'";
-			// 			//echo $query; echo '<br />';
-			// 	$sql=mysql_query($query);
-			// 	$obj=mysql_fetch_object($sql);
-			// 	$atasan1=$obj->User_SPV1;
-			// 	$atasan2=$obj->User_SPV2;
-            //
-			// 	if($atasan2){
-			// 		$sApp=3;
-			// 		$atasan=$atasan2;
-			// 	}else{
-			// 		$atasan=$atasan1;
-			// 	}
-            //
-			// 	$query="SELECT Employee_NIK
-			// 			FROM db_master.M_Employee
-			// 			WHERE Employee_NIK='".$atasan."'
-			// 			AND Employee_Position NOT LIKE '%SECTION%'
-			// 			AND Employee_Position NOT LIKE '%SUB DEP%'";
-			// 	$canApprove=mysql_num_rows(mysql_query($query));
-            //
-			// 	if($canApprove){
-			// 		$user = $atasan;
-			// 		array_push($result, $user);
-			// 		$ats = $user;
-			// 		break;
-			// 	}else{
-			// 		$user = $atasan;
-			// 		$sApp=3;
-			// 	}
-			// }
+        if ($field['THLOLD_DocumentType'] == "ORIGINAL") {
+            if($DocumentGroup_ID == "1"){
+                $jenis = '1'; $proses = '2';
+            }elseif($DocumentGroup_ID == "2"){
+                $jenis = '3'; $proses = '2';
+            }
+        }
+        else if ($field['THLOLD_DocumentType'] == "HARDCOPY") { $jenis = '9'; $proses = '2'; }
+        else if ($field['THLOLD_DocumentType'] == "SOFTCOPY") { $jenis = '23'; $proses = '2'; }
+        else;
 
-			// $obj1 = mysql_fetch_object(mysql_query("SELECT User_SPV1, User_SPV2 FROM M_User WHERE User_ID = '$ats'"));
-			// array_push($result, $obj1->User_SPV1);
+        $query = "
+            SELECT ma.Approver_UserID, rads.RADS_StepID
+            FROM M_Role_ApproverDocStepStatus rads
+            LEFT JOIN M_Role_Approver ra
+                ON rads.RADS_RA_ID = ra.RA_ID
+            LEFT JOIN M_Approver ma
+                ON ra.RA_ID = ma.Approver_RoleID
+            WHERE rads.RADS_DocID = '{$jenis}'
+                AND rads.RADS_ProsesID = '{$proses}'
+                AND ma.Approver_Delete_Time IS NULL
+                AND (ra.RA_Name NOT LIKE '%CEO%' OR ra.RA_Name = 'CEO - {$field['Company_Area']}')
+                ORDER BY rads.RADS_StepID
+        ";
+        // echo $query;
+        $sql=mysql_query($query);
 
-			/*$query="SELECT a.Approver_UserID
-					FROM M_Approver a
-					LEFT JOIN M_Role_Approver ra
-						ON ra.RA_ID=a.Approver_RoleID
-					WHERE a.Approver_Delete_Time is NULL
-					ORDER BY ra.RA_ID";*/
+        $output = array();
+        while($obj=mysql_fetch_object($sql)){
+            $output[$obj->RADS_StepID] = $obj->Approver_UserID;
+            //$ActionContent .="
+            //<input type='text' name='txtA_ApproverID[]' value='".$obj->Approver_UserID."' readonly='true' class='readonly'/>";
+        }
+        // print_r ($output);
+        // AKHIR PROSES APPROVAL
 
-			// if ($field['DocumentGroup_ID'] == '1' && $field['LoanCategory_ID'] != '3') { $jenis = '1'; $proses = '2'; }
-			// else if ($field['DocumentGroup_ID'] == '1' && $field['LoanCategory_ID'] == '3') { $jenis = '2'; $proses = '2'; }
-			// else if ($field['DocumentGroup_ID'] == '2' && $field['LoanCategory_ID'] != '3') { $jenis = '3'; $proses = '2'; }
-			// else if ($field['DocumentGroup_ID'] == '2' && $field['LoanCategory_ID'] == '3') { $jenis = '4'; $proses = '2'; }
-			// else;
+        $i = 0;
+        $newArray = array();
+        foreach ($output as $k => $v) {
+            if ($v == '0') { $newArray[$k] = $result[$i]; $i++; } else { $newArray[$k] = $v; }
+        }
 
-			// $query = "
-				// SELECT ma.Approver_UserID, rads.RADS_StepID
-				// FROM M_Role_ApproverDocStepStatus rads
-				// LEFT JOIN M_Role_Approver ra
-				// 	ON rads.RADS_RA_ID = ra.RA_ID
-				// LEFT JOIN M_Approver ma
-				// 	ON ra.RA_ID = ma.Approver_RoleID
-				// WHERE rads.RADS_DocID = '{$jenis}'
-				// 	AND rads.RADS_ProsesID = '{$proses}'
-				// 	AND ma.Approver_Delete_Time IS NULL
-				// 	AND (ra.RA_Name NOT LIKE '%CEO%' OR ra.RA_Name = 'CEO - {$field['Company_Area']}')
-				// 	ORDER BY rads.RADS_StepID
-			// ";
-			// $sql=mysql_query($query);
-            //
-			// $output = array();
-			// while($obj=mysql_fetch_object($sql)){
-			// 	$output[$obj->RADS_StepID] = $obj->Approver_UserID;
-			// 	//$ActionContent .="
-			// 	//<input type='text' name='txtA_ApproverID[]' value='".$obj->Approver_UserID."' readonly='true' class='readonly'/>";
-			// }
-			//print_r ($output);
-			// AKHIR PROSES APPROVAL
+        $key = array_search('', $newArray);
+        if (false !== $key) unset($newArray[$key]);
 
-			// $i = 0;
-			// $newArray = array();
-			// foreach ($output as $k => $v) {
-			// 	if ($v == '0') { $newArray[$k] = $result[$i]; $i++; } else { $newArray[$k] = $v; }
-			// }
-
-			// $key = array_search('', $newArray);
-			// if (false !== $key) unset($newArray[$key]);
-            //
-			// foreach ($newArray as $key => $value) {
-			// 	$ActionContent .= "<input type='text' name='txtA_ApproverID[$key]' value='$value' readonly='true' class='readonly' />";
-			// }
+        foreach ($newArray as $key => $value) {
+            $ActionContent .= "<input type='hidden' name='txtA_ApproverID[$key]' value='$value' readonly='true' class='readonly' />";
+        }
 
 		$ActionContent .="
 			</td>
@@ -886,10 +1008,14 @@ elseif(isset($_POST[addheader])) {
 	if($mysqli->query($sql)) {
 		//Insert Header Dokumen
 		$info = str_replace("<br>", "\n", $_POST['txtTHLOLD_Information']);
+        if($_POST['optTHLOLD_DocumentType'] == 'SOFTCOPY'){
+            $_POST['optTHLOLD_LoanCategoryID'] = '4';
+        }
 		$sql1= "INSERT INTO TH_LoanOfLegalDocument
 				VALUES (NULL,'$CT_Code',sysdate(),'$_SESSION[User_ID]',
                         '$_POST[optTHLOLD_DocumentType]', '$_POST[optTHLOLD_DocumentWithWatermarkOrNot]',
-				        '$_POST[optTHLOLD_LoanCategoryID]', '$_POST[optTHLOLD_CompanyID]', '$_POST[optTHLOLD_DocumentGroupID]',
+				        '$_POST[optTHLOLD_LoanCategoryID]', '$_POST[txtTHLOLD_SoftcopyReciever]',
+                        '$_POST[optTHLOLD_CompanyID]', '$_POST[optTHLOLD_DocumentGroupID]',
 						'$info', '0', NULL,
 						'$_SESSION[User_ID]', sysdate(),NULL,NULL)";
 		if($mysqli->query($sql1)) {
@@ -927,6 +1053,7 @@ elseif(isset($_POST['adddetail'])) {
 			case "3":
 				$docStatus="1";
 				break;
+            default: $docStatus="1";
 		}
 
 		$sql5= "UPDATE M_DocumentLegal
@@ -1188,22 +1315,25 @@ function removeRowFromTable() {
 }
 
 $(document).ready(function(){
-	$("#optTHLOLD_Email").hide();
+	$("#txtTHLOLD_SoftcopyReciever").hide();
 	$("#optTHLOLD_DocumentType").change(function(){
-		$("#optTHLOLD_Email").hide();
+		$("#txtTHLOLD_SoftcopyReciever").hide();
 		$("#optTHLOLD_LoanCategoryID").show();
 		if($(this).val()=="ORIGINAL"){
+            $("#td-chg").html("Kategori Permintaan");
 			$("#optTHLOLD_LoanCategoryID option:first").nextAll().hide();
 			$("#optTHLOLD_LoanCategoryID option:contains('Peminjaman Dokumen')").show();
 			$("#optTHLOLD_LoanCategoryID option:contains('Pengolahan Dokumen')").show();
 		}
 		else if($(this).val()=="HARDCOPY"){
+            $("#td-chg").html("Kategori Permintaan");
 			$("#optTHLOLD_LoanCategoryID option:first").nextAll().hide();
 			$("#optTHLOLD_LoanCategoryID option:contains('Fotocopy Dokumen')").show();
 		}
 		else if($(this).val()=="SOFTCOPY"){
+            $("#td-chg").html("Email Penerima Dokumen");
 			$("#optTHLOLD_LoanCategoryID").hide();
-			$("#optTHLOLD_Email").show();
+			$("#txtTHLOLD_SoftcopyReciever").show();
 		}
 		else{
 			$("#optTHLOLD_LoanCategoryID option").show();

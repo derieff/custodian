@@ -87,6 +87,7 @@ $query =  "	SELECT DISTINCT thlold.THLOLD_ID,
 						  thlold.THLOLD_Reason,
 						  c.Company_ID,
 						  lc.LoanCategory_ID,
+						  thlold.THLOLD_SoftcopyReciever,
 						  (SELECT u1.User_FullName FROM M_User u1 WHERE u1.User_ID=dla.A_ApproverID) waitingApproval
 		  	FROM TH_LoanOfLegalDocument thlold
 			LEFT JOIN M_User u
@@ -171,21 +172,41 @@ $MainContent .="
 	}
 	$MainContent .="</td>
 </tr>
-<tr>
-	<td>Dokumen dengan Cap/Watermark</td>
-	<td colspan='2'><input type='hidden' name='optTHLOLD_DocumentWithWatermarkOrNot' value='$arr[THLOLD_DocumentWithWatermarkOrNot]'>";
-	if( $arr['THLOLD_DocumentWithWatermarkOrNot'] == "1" ){
-		$MainContent .="Iya";
-	}elseif( $arr['THLOLD_DocumentWithWatermarkOrNot'] == "2" ){
-		$MainContent .="Tidak";
-	}else{
-		$MainContent .= "-";
+";
+if( $arr['THLOLD_DocumentType'] != "ORIGINAL" ){
+	if( $arr['THLOLD_DocumentType'] == "HARDCOPY" ){
+		$cap_or_watermark = "Watermark";
+	}elseif( $arr['THLOLD_DocumentType'] == "SOFTCOPY" ){
+		$cap_or_watermark = "Cap";
 	}
+$MainContent .="<tr>
+	<td>Dokumen dengan ".$cap_or_watermark."</td>
+	<td colspan='2'><input type='hidden' name='optTHLOLD_DocumentWithWatermarkOrNot' value='$arr[THLOLD_DocumentWithWatermarkOrNot]'>";
+		if( $arr['THLOLD_DocumentWithWatermarkOrNot'] == "1" ){
+			$MainContent .="Iya";
+		}elseif( $arr['THLOLD_DocumentWithWatermarkOrNot'] == "2" ){
+			$MainContent .="Tidak";
+		}else{
+			$MainContent .= "-";
+		}
 	$MainContent .="</td>
 </tr>
-<tr>
-	<td>Kategori Permintaan</td>
-	<td colspan='2'><input type='hidden' name='optTHLOLD_LoanCategoryID' value='$arr[LoanCategory_ID]'>$arr[LoanCategory_Name]</td>
+";
+}
+$MainContent .="<tr>
+	<td>";
+	if($arr['THLOLD_DocumentType'] != "SOFTCOPY"){ $MainContent .="Kategori Permintaan";}
+	else{ $MainContent .="Email Penerima Dokumen"; }
+	$MainContent .="</td>
+	<td colspan='2'>
+		<input type='hidden' name='optTHLOLD_LoanCategoryID' value='$arr[LoanCategory_ID]'>";
+		if($arr['THLOLD_DocumentType'] != "SOFTCOPY"){
+			$MainContent .="$arr[LoanCategory_Name]";
+		}else{
+			$MainContent .="<input id='txtTHLOLD_SoftcopyReciever' name='txtTHLOLD_SoftcopyReciever' type='hidden' value='THLOLD_SoftcopyReciever'/>
+			$arr[THLOLD_SoftcopyReciever]";
+		}
+	$MainContent .="</td>
 </tr>
 <tr>
 	<td>Keterangan</td>
@@ -223,7 +244,7 @@ if(($act=='approve')&&($approver=="1")) {
 		</td>
 	</tr>";
 }else {
-	/*$MainContent .="
+	$MainContent .="
 	<tr>
 		<td>Status Dokumen</td>";
 
@@ -249,7 +270,7 @@ if(($act=='approve')&&($approver=="1")) {
 	}else {
 		$MainContent .="
 		<td colspan='2'>Draft</td></tr>";
-	}*/
+	}
 }
 
 $MainContent .="
@@ -372,22 +393,29 @@ if(isset($_POST[approval])) {
 		if ($step <> $jStep) {
 			$nStep=$step+1;
 
-			// if ($_POST['txtDL_GroupDocID'] == '1' && $_POST['optTHLOLD_LoanCategoryID'] != '3') { $jenis = '1'; }
-			// else if ($_POST['txtDL_GroupDocID'] == '1' && $_POST['optTHLOLD_LoanCategoryID'] == '3') { $jenis = '2'; }
-			// else if ($_POST['txtDL_GroupDocID'] == '2' && $_POST['optTHLOLD_LoanCategoryID'] != '3') { $jenis = '3'; }
-			// else if ($_POST['txtDL_GroupDocID'] == '2' && $_POST['optTHLOLD_LoanCategoryID'] == '3') { $jenis = '4'; }
-			// else;
-			if($_POST['optTHLOLD_DocumentType'] == "ORIGINAL" && $_POST['optTHLOLD_DocumentType'] == "SOFTCOPY"){ //Arief F - 05092018
-				$jenis = "8"; //Arief F - 05092018
-			}elseif($_POST['optTHLOLD_DocumentType'] == "HARDCOPY"){ //Arief F - 05092018
-				$jenis = "9"; //Arief F - 05092018
-			}else{ //Arief F - 05092018
-				if($_POST['optTHLOLD_LoanCategoryID'] != "3"){ //Arief F - 05092018
-					$jenis = "8"; //Arief F - 05092018
-				}else{ //Arief F - 05092018
-					$jenis = "9"; //Arief F - 05092018
-				} //Arief F - 05092018
-			} //Arief F - 05092018
+			if($_POST['optTHLOLD_DocumentType'] == "ORIGINAL"){
+				if($_POST['optTHLOLD_LoanCategoryID'] == '1'){
+					$jenis = "1";
+				}elseif($_POST['optTHLOLD_LoanCategoryID'] == '2'){
+					$jenis = "3";
+				}
+			}elseif($_POST['optTHLOLD_DocumentType'] == "HARDCOPY"){
+				$jenis = "9";
+			}elseif($_POST['optTHLOLD_DocumentType'] == "SOFTCOPY"){
+				$jenis = "23";
+			}else{
+				// if($_POST['optTHLOLD_LoanCategoryID'] == '1' or $_POST['optTHLOLD_LoanCategoryID'] == '2'){
+				// 	if($_POST['THLOLD_DocumentGroupID'] == '1'){
+				// 		$jenis = "1";
+				// 	}elseif($_POST['THLOLD_DocumentGroupID'] == '2'){
+				// 		$jenis = "3";
+				// 	}
+				// }elseif($_POST['optTHLOLD_LoanCategoryID'] == '3'){
+				// 	$jenis = "9";
+				// }else{
+				// 	$jenis = "23";
+				// }
+			}
 
 			$qComp = "SELECT Company_Area FROM M_Company WHERE Company_ID = '{$_POST['txtCompany_ID']}'";
 			$aComp = mysql_fetch_array(mysql_query($qComp));
@@ -438,7 +466,7 @@ if(isset($_POST[approval])) {
 					* Nicholas - 24 Sept 2018			*
 					* Fix Bug skip approval				*
 					************************************/
-					
+
 					/*if ($i == $jStep) {
 						$query = "UPDATE TH_LoanOfLegalDocument
 							SET THLOLD_Status='accept', THLOLD_Update_UserID='$A_ApproverID',
@@ -479,7 +507,7 @@ if(isset($_POST[approval])) {
 					* Nicholas - 24 Sept 2018			*
 					* Fix Bug skip approval				*
 					************************************/
-					
+
 					/*if ($i == $jStep) {
 						$query = "UPDATE TH_LoanOfLegalDocument
 							SET THLOLD_Status='accept', THLOLD_Update_UserID='$A_ApproverID',

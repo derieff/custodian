@@ -246,7 +246,7 @@ elseif($grup==3){
 				(SELECT COUNT(tdlolad.TDLOLAD_DocCode)
 					FROM TD_LoanOfLandAcquisitionDocument tdlolad
 					INNER JOIN TH_LoanOfLandAcquisitionDocument thlolad ON tdlolad.TDLOLAD_THLOLAD_ID=thlolad.THLOLAD_ID
-						AND thlolad.THLOLAD_UserID='".$_SESSION['User_ID']."' 
+						AND thlolad.THLOLAD_UserID='".$_SESSION['User_ID']."'
 						AND thlolad.THLOLAD_Delete_Time IS NULL
 					INNER JOIN TD_ReleaseOfLandAcquisitionDocument tdrlolad ON tdrlolad.TDRLOLAD_TDLOLAD_ID=tdlolad.TDLOLAD_ID
 						AND tdrlolad.TDRLOLAD_ReturnCode='0' AND tdrlolad.TDRLOLAD_Delete_Time IS NULL
@@ -259,7 +259,7 @@ elseif($grup==3){
 						AND tdrtolad.TDRTOLAD_ID IS NULL) Total
 			FROM TD_LoanOfLandAcquisitionDocument tdlolad
 			INNER JOIN TH_LoanOfLandAcquisitionDocument thlolad ON tdlolad.TDLOLAD_THLOLAD_ID=thlolad.THLOLAD_ID
-				AND thlolad.THLOLAD_UserID='".$_SESSION['User_ID']."' 
+				AND thlolad.THLOLAD_UserID='".$_SESSION['User_ID']."'
 				AND thlolad.THLOLAD_Delete_Time IS NULL
 			INNER JOIN TD_ReleaseOfLandAcquisitionDocument tdrlolad ON tdrlolad.TDRLOLAD_TDLOLAD_ID=tdlolad.TDLOLAD_ID
 				AND tdrlolad.TDRLOLAD_ReturnCode='0' AND tdrlolad.TDRLOLAD_Delete_Time IS NULL
@@ -318,7 +318,7 @@ elseif($grup==3){
 							(SELECT COUNT(tdlolad.TDLOLAD_DocCode)
 								FROM TD_LoanOfLandAcquisitionDocument tdlolad
 								INNER JOIN TH_LoanOfLandAcquisitionDocument thlolad ON tdlolad.TDLOLAD_THLOLAD_ID=thlolad.THLOLAD_ID
-									AND thlolad.THLOLAD_UserID='".$_SESSION['User_ID']."' 
+									AND thlolad.THLOLAD_UserID='".$_SESSION['User_ID']."'
 									AND thlolad.THLOLAD_Delete_Time IS NULL
 								INNER JOIN TD_ReleaseOfLandAcquisitionDocument tdrlolad ON tdrlolad.TDRLOLAD_TDLOLAD_ID=tdlolad.TDLOLAD_ID
 									AND tdrlolad.TDRLOLAD_ReturnCode='0' AND tdrlolad.TDRLOLAD_Delete_Time IS NULL
@@ -342,7 +342,7 @@ elseif($grup==3){
 							) Total
 						FROM TD_LoanOfLandAcquisitionDocument tdlolad
 						INNER JOIN TH_LoanOfLandAcquisitionDocument thlolad ON tdlolad.TDLOLAD_THLOLAD_ID=thlolad.THLOLAD_ID
-							AND thlolad.THLOLAD_UserID='".$_SESSION['User_ID']."' 
+							AND thlolad.THLOLAD_UserID='".$_SESSION['User_ID']."'
 							AND thlolad.THLOLAD_Delete_Time IS NULL
 						INNER JOIN TD_ReleaseOfLandAcquisitionDocument tdrlolad ON tdrlolad.TDRLOLAD_TDLOLAD_ID=tdlolad.TDLOLAD_ID
 							AND tdrlolad.TDRLOLAD_ReturnCode='0' AND tdrlolad.TDRLOLAD_Delete_Time IS NULL
@@ -395,7 +395,7 @@ elseif($grup==4){
 			  (SELECT COUNT(tdloaod.TDLOAOD_DocCode) Total
 				FROM TD_LoanOfAssetOwnershipDocument tdloaod
 				INNER JOIN TH_LoanOfAssetOwnershipDocument thloaod ON tdloaod.TDLOAOD_THLOAOD_ID=thloaod.THLOAOD_ID
-					AND thloaod.THLOAOD_UserID='".$_SESSION['User_ID']."' 
+					AND thloaod.THLOAOD_UserID='".$_SESSION['User_ID']."'
 					AND thloaod.THLOAOD_Delete_Time IS NULL
 				INNER JOIN TD_ReleaseOfAssetOwnershipDocument tdrloaod ON tdrloaod.TDROAOD_TDLOAOD_ID=tdloaod.TDLOAOD_ID
 					AND tdrloaod.TDROAOD_ReturnCode='0'
@@ -412,7 +412,7 @@ elseif($grup==4){
 				  AND tdrtoaod.TDRTOAOD_ID IS NULL) Total
 			FROM TD_LoanOfAssetOwnershipDocument tdloaod
 			INNER JOIN TH_LoanOfAssetOwnershipDocument thloaod ON tdloaod.TDLOAOD_THLOAOD_ID=thloaod.THLOAOD_ID
-				AND thloaod.THLOAOD_UserID='".$_SESSION['User_ID']."' 
+				AND thloaod.THLOAOD_UserID='".$_SESSION['User_ID']."'
 				AND thloaod.THLOAOD_Delete_Time IS NULL
 			INNER JOIN TD_ReleaseOfAssetOwnershipDocument tdrloaod ON tdrloaod.TDROAOD_TDLOAOD_ID=tdloaod.TDLOAOD_ID
 				AND tdrloaod.TDROAOD_ReturnCode='0'
@@ -477,7 +477,7 @@ elseif($grup==4){
 						(SELECT COUNT(tdloaod.TDLOAOD_DocCode) Total
 							FROM TD_LoanOfAssetOwnershipDocument tdloaod
 							INNER JOIN TH_LoanOfAssetOwnershipDocument thloaod ON tdloaod.TDLOAOD_THLOAOD_ID=thloaod.THLOAOD_ID
-								AND thloaod.THLOAOD_UserID='".$_SESSION['User_ID']."' 
+								AND thloaod.THLOAOD_UserID='".$_SESSION['User_ID']."'
 								AND thloaod.THLOAOD_Delete_Time IS NULL
 							INNER JOIN TD_ReleaseOfAssetOwnershipDocument tdrloaod ON tdrloaod.TDROAOD_TDLOAOD_ID=tdloaod.TDLOAOD_ID
 								AND tdrloaod.TDROAOD_ReturnCode='0'
@@ -505,7 +505,7 @@ elseif($grup==4){
 						) Total
 						FROM TD_LoanOfAssetOwnershipDocument tdloaod
 						INNER JOIN TH_LoanOfAssetOwnershipDocument thloaod ON tdloaod.TDLOAOD_THLOAOD_ID=thloaod.THLOAOD_ID
-							AND thloaod.THLOAOD_UserID='".$_SESSION['User_ID']."' 
+							AND thloaod.THLOAOD_UserID='".$_SESSION['User_ID']."'
 							AND thloaod.THLOAOD_Delete_Time IS NULL
 						INNER JOIN TD_ReleaseOfAssetOwnershipDocument tdrloaod ON tdrloaod.TDROAOD_TDLOAOD_ID=tdloaod.TDLOAOD_ID
 							AND tdrloaod.TDROAOD_ReturnCode='0'
@@ -564,7 +564,7 @@ elseif($grup==5){
 			  (SELECT COUNT(tdloold.TDLOOLD_ID) Total
 				FROM  TD_LoanOfOtherLegalDocuments tdloold
 				INNER JOIN TH_LoanOfOtherLegalDocuments thloold ON tdloold.TDLOOLD_THLOOLD_ID=thloold.THLOOLD_ID
-					AND thloold.THLOOLD_UserID='".$_SESSION['User_ID']."' 
+					AND thloold.THLOOLD_UserID='".$_SESSION['User_ID']."'
 					AND thloold.THLOOLD_Delete_Time IS NULL
 				INNER JOIN TD_ReleaseOfOtherLegalDocuments tdrloold ON tdrloold.TDROOLD_TDLOOLD_ID=tdloold.TDLOOLD_ID
 				  AND tdrloold.TDROOLD_ReturnCode='0'
@@ -576,7 +576,7 @@ elseif($grup==5){
 				WHERE tdloold.TDLOOLD_Delete_Time IS NULL) Total
 			FROM  TD_LoanOfOtherLegalDocuments tdloold
 			INNER JOIN TH_LoanOfOtherLegalDocuments thloold ON tdloold.TDLOOLD_THLOOLD_ID=thloold.THLOOLD_ID
-				AND thloold.THLOOLD_UserID='".$_SESSION['User_ID']."' 
+				AND thloold.THLOOLD_UserID='".$_SESSION['User_ID']."'
 				AND thloold.THLOOLD_Delete_Time IS NULL
 			INNER JOIN TD_ReleaseOfOtherLegalDocuments tdrloold ON tdrloold.TDROOLD_TDLOOLD_ID=tdloold.TDLOOLD_ID
 			  AND tdrloold.TDROOLD_ReturnCode='0'
@@ -634,7 +634,7 @@ elseif($grup==5){
 							(SELECT COUNT(tdloold.TDLOOLD_ID) Total
 								FROM  TD_LoanOfOtherLegalDocuments tdloold
 								INNER JOIN TH_LoanOfOtherLegalDocuments thloold ON tdloold.TDLOOLD_THLOOLD_ID=thloold.THLOOLD_ID
-									AND thloold.THLOOLD_UserID='".$_SESSION['User_ID']."' 
+									AND thloold.THLOOLD_UserID='".$_SESSION['User_ID']."'
 									AND thloold.THLOOLD_Delete_Time IS NULL
 								INNER JOIN TD_ReleaseOfOtherLegalDocuments tdrloold ON tdrloold.TDROOLD_TDLOOLD_ID=tdloold.TDLOOLD_ID
 								  AND tdrloold.TDROOLD_ReturnCode='0'
@@ -656,7 +656,7 @@ elseif($grup==5){
 							) Total
 						FROM  TD_LoanOfOtherLegalDocuments tdloold
 						INNER JOIN TH_LoanOfOtherLegalDocuments thloold ON tdloold.TDLOOLD_THLOOLD_ID=thloold.THLOOLD_ID
-							AND thloold.THLOOLD_UserID='".$_SESSION['User_ID']."' 
+							AND thloold.THLOOLD_UserID='".$_SESSION['User_ID']."'
 							AND thloold.THLOOLD_Delete_Time IS NULL
 						INNER JOIN TD_ReleaseOfOtherLegalDocuments tdrloold ON tdrloold.TDROOLD_TDLOOLD_ID=tdloold.TDLOOLD_ID
 						  AND tdrloold.TDROOLD_ReturnCode='0'
@@ -706,7 +706,7 @@ elseif($grup==6){
 			  (SELECT COUNT(tdloonld.TDLOONLD_ID) Total
 				FROM TD_LoanOfOtherNonLegalDocuments tdloonld
 				INNER JOIN TH_LoanOfOtherNonLegalDocuments thloonld ON tdloonld.TDLOONLD_THLOONLD_ID=thloonld.THLOONLD_ID
-					AND thloonld.THLOONLD_UserID='".$_SESSION['User_ID']."' 
+					AND thloonld.THLOONLD_UserID='".$_SESSION['User_ID']."'
 					AND thloonld.THLOONLD_Delete_Time IS NULL
 				INNER JOIN M_DocumentsOtherNonLegal donl ON donl.DONL_DocCode=tdloonld.TDLOONLD_DocCode
 				  AND donl.DONL_Status='4'
@@ -720,7 +720,7 @@ elseif($grup==6){
 				WHERE tdloonld.TDLOONLD_Delete_Time IS NULL) Total
 			FROM TD_LoanOfOtherNonLegalDocuments tdloonld
 			INNER JOIN TH_LoanOfOtherNonLegalDocuments thloonld ON tdloonld.TDLOONLD_THLOONLD_ID=thloonld.THLOONLD_ID
-				AND thloonld.THLOONLD_UserID='".$_SESSION['User_ID']."' 
+				AND thloonld.THLOONLD_UserID='".$_SESSION['User_ID']."'
 				AND thloonld.THLOONLD_Delete_Time IS NULL
 			INNER JOIN M_DocumentsOtherNonLegal donl ON donl.DONL_DocCode=tdloonld.TDLOONLD_DocCode
 			  AND donl.DONL_Status='4'
@@ -779,7 +779,7 @@ elseif($grup==6){
 							(SELECT COUNT(tdloonld.TDLOONLD_ID) Total
 								FROM TD_LoanOfOtherNonLegalDocuments tdloonld
 								INNER JOIN TH_LoanOfOtherNonLegalDocuments thloonld ON tdloonld.TDLOONLD_THLOONLD_ID=thloonld.THLOONLD_ID
-									AND thloonld.THLOONLD_UserID='".$_SESSION['User_ID']."' 
+									AND thloonld.THLOONLD_UserID='".$_SESSION['User_ID']."'
 									AND thloonld.THLOONLD_Delete_Time IS NULL
 								INNER JOIN M_DocumentsOtherNonLegal donl ON donl.DONL_DocCode=tdloonld.TDLOONLD_DocCode
 								  AND donl.DONL_Status='4'
@@ -802,7 +802,7 @@ elseif($grup==6){
 							) Total
 						FROM TD_LoanOfOtherNonLegalDocuments tdloonld
 						INNER JOIN TH_LoanOfOtherNonLegalDocuments thloonld ON tdloonld.TDLOONLD_THLOONLD_ID=thloonld.THLOONLD_ID
-							AND thloonld.THLOONLD_UserID='".$_SESSION['User_ID']."' 
+							AND thloonld.THLOONLD_UserID='".$_SESSION['User_ID']."'
 							AND thloonld.THLOONLD_Delete_Time IS NULL
 						INNER JOIN M_DocumentsOtherNonLegal donl ON donl.DONL_DocCode=tdloonld.TDLOONLD_DocCode
 						  AND donl.DONL_Status='4'

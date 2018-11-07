@@ -81,9 +81,13 @@ function showFilter(){
 		document.getElementById('optFilterHeader').innerHTML='';//reset opt(hapus semua pilihan)
 	}
 	//isi pilihan baru sesuai dengan group dokumen
-	if (document.getElementById('optTHROLD_DocumentGroupID').value>=3){
+	if (document.getElementById('optTHROLD_DocumentGroupID').value >= 3){
 		//Selain legal dan lisensi
-		document.getElementById('optPhase').style.display = "inline";
+		if(document.getElementById('optTHROLD_DocumentGroupID').value == 3){
+			document.getElementById('optPhase').style.display = "inline"; //Hanya Pembebasan Lahan
+		}else{
+			document.getElementById('optPhase').style.display = "none";
+		}
 		document.getElementById('optFilterHeader').options[0]=new Option('--- Pilih Keterangan Dokumen ---', '0');
 		document.getElementById('optFilterHeader').options[1]=new Option('Perusahaan', '1');
 		document.getElementById('optFilterHeader').options[2]=new Option('Status', '5');
@@ -342,13 +346,13 @@ $ActionContent ="
 			$sql = mysql_query($query);
 
 			while ($field = mysql_fetch_object($sql) ){
-				if(!empty($_GET['optTHROLD_DocumentGroupID']) && ($_GET['optTHROLD_DocumentGroupID'] == $field->DocumentGroup_ID) ){
-$ActionContent .="
-				<option value='".$field->DocumentGroup_ID."' selected>".$field->DocumentGroup_Name."</option>";
-				}else{
+// 				if(!empty($_GET['optTHROLD_DocumentGroupID']) && ($_GET['optTHROLD_DocumentGroupID'] == $field->DocumentGroup_ID) ){
+// $ActionContent .="
+// 				<option value='".$field->DocumentGroup_ID."' selected>".$field->DocumentGroup_Name."</option>";
+// 				}else{
 $ActionContent .="
 				<option value='".$field->DocumentGroup_ID."'>".$field->DocumentGroup_Name."</option>";
-				}
+				// }
 
 			}
 $ActionContent .="
@@ -414,7 +418,8 @@ else
 
 $offset = ($noPage - 1) * $dataPerPage;
 	if ($_GET['optTHROLD_DocumentGroupID'] == '1' or $_GET['optTHROLD_DocumentGroupID'] == '2'){
-		$query = "SELECT dl.DL_DocCode, c.Company_Name, dc.DocumentCategory_Name, dt.DocumentType_Name, lds.LDS_Name,
+		$query = "SELECT dl.DL_DocCode, c.Company_Name, dc.DocumentCategory_Name, dt.DocumentType_Name,
+						 dl.DL_Information3, lds.LDS_Name,
 						 dg.DocumentGroup_Name, dl.DL_ID
 				  FROM M_DocumentLegal dl, M_Company c, M_DocumentCategory dc, M_DocumentType dt,
 			  		   M_LoanDetailStatus lds, M_DocumentGroup dg, M_DocumentInformation1 di1, M_DocumentInformation2 di2, M_User u
@@ -516,16 +521,24 @@ $offset = ($noPage - 1) * $dataPerPage;
 		$querylimit .="ORDER BY dla.DLA_ID LIMIT $offset, $dataPerPage";
 	}
 	elseif ($_GET['optTHROLD_DocumentGroupID']=='4'){
-		$query = "SELECT dao.DAO_ID, c.Company_Name, lds.LDS_Name,
-						 dao.DAO_DocCode
-				  FROM M_DocumentAssetOwnership dao, M_Company c, M_User u,  M_LoanDetailStatus lds
-				  	-- db_master.M_Employee m_e, db_master.M_MerkKendaraan m_mk
-				  WHERE c.Company_ID=dao.DAO_CompanyID
-				  AND dao.DAO_Delete_Time IS NULL
+		$query = "SELECT dao.DAO_ID,
+						c.Company_Name,
+						m_mk.MK_Name,
+						-- m_e.Employee_FullName,
+						 dao.DAO_Employee_NIK,
+						 dao.DAO_NoPolisi,
+						 dao.DAO_STNK_StartDate, dao.DAO_STNK_ExpiredDate, dao.DAO_Pajak_StartDate, dao.DAO_Pajak_ExpiredDate,
+						 lds.LDS_Name, dao.DAO_DocCode
+				  FROM M_DocumentAssetOwnership dao,
+				  	M_User u, M_LoanDetailStatus lds, db_master.M_MerkKendaraan m_mk,
+				  	M_Company c
+				  	-- db_master.M_Employee m_e
+				  WHERE dao.DAO_Delete_Time IS NULL
 				  AND dao.DAO_Status=lds.LDS_ID
 				  AND dao.DAO_RegUserID=u.User_ID
-				  -- AND dao.DAO_Employee_NIK=m_e.Employee_NIK
-				  -- AND dao.DAO_MK_ID=m_mk.MK_ID";
+				  AND m_mk.MK_ID=dao.DAO_MK_ID
+				  -- AND m_e.Employee_NIK=dao.DAO_Employee_NIK
+				  AND c.Company_ID=dao.DAO_CompanyID ";
 
 		if ($_GET[txtSearch]) {
 			$search=$_GET['txtSearch'];
@@ -536,22 +549,23 @@ $offset = ($noPage - 1) * $dataPerPage;
 						OR dao.DAO_RegUserID LIKE '%$search%'
 						OR u.User_FullName LIKE '%$search%'
 						OR dao.DAO_RegTime LIKE '%$search%'
-						-- OR m_e.Employee_FullName LIKE '%$search%'
-						-- OR m_mk.MK_Name LIKE '%$search%'
-						OR dao.DAO_Type LIKE '%$search%'
-						OR dao.DAO_Jenis LIKE '%$search%'
-						OR dao.DAO_NoPolisi LIKE '%$search%'
-						OR dao.DAO_NoRangka LIKE '%$search%'
-						OR dao.DAO_NoMesin LIKE '%$search%'
-						OR dao.DAO_NoBPKB LIKE '%$search%'
+						OR lds.LDS_Name LIKE '%$search%'
 						OR dao.DAO_STNK_StartDate LIKE '%$search%'
 						OR dao.DAO_STNK_ExpiredDate LIKE '%$search%'
 						OR dao.DAO_Pajak_StartDate LIKE '%$search%'
 						OR dao.DAO_Pajak_ExpiredDate LIKE '%$search%'
+						-- OR m_e.Employee_FullName LIKE '%$search%'
+						OR dao.DAO_Employee_NIK LIKE '%$search%'
+						OR m_mk.MK_Name LIKE '%$search%'
+						OR dao.DAO_NoPolisi LIKE '%$search%'
+						OR dao.DAO_NoBPKB LIKE '%$search%'
+						OR dao.DAO_NoMesin LIKE '%$search%'
+						OR dao.DAO_NoRangka LIKE '%$search%'
+						OR dao.DAO_Type LIKE '%$search%'
+						OR dao.DAO_Jenis LIKE '%$search%'
 						OR dao.DAO_Lokasi_PT LIKE '%$search%'
 						OR dao.DAO_Region LIKE '%$search%'
 						OR dao.DAO_Keterangan LIKE '%$search%'
-						OR dao.DAO_Location LIKE '%$search%'
 					)";
 		}
 		if ($_GET[optFilterHeader]==1) {
@@ -564,13 +578,16 @@ $offset = ($noPage - 1) * $dataPerPage;
 	}
 
 	elseif ($_GET['optTHROLD_DocumentGroupID']=='5'){
-		// echo "asdasdasd";
-		$query = "SELECT dol.DOL_ID, c.Company_Name, lds.LDS_Name, dol.DOL_DocCode
-				  FROM M_DocumentsOtherLegal dol, M_Company c, M_User u,  M_LoanDetailStatus lds
+		$query = "SELECT dol.DOL_ID, c.Company_Name, m_dc.DocumentCategory_Name,
+						 dol.DOL_NamaDokumen, dol.DOL_InstansiTerkait, dol.DOL_NoDokumen,
+						 dol.DOL_TglTerbit, dol.DOL_TglBerakhir, lds.LDS_Name, dol.DOL_DocCode
+				  FROM M_DocumentsOtherLegal dol, M_Company c, M_User u,  M_LoanDetailStatus lds,
+				  	db_master.M_DocumentCategory m_dc
 				  WHERE c.Company_ID=dol.DOL_CompanyID
 				  AND dol.DOL_Delete_Time IS NULL
 				  AND dol.DOL_Status=lds.LDS_ID
-				  AND dol.DOL_RegUserID=u.User_ID ";
+				  AND dol.DOL_RegUserID=u.User_ID
+				  AND m_dc.DocumentCategory_ID=DOL_CategoryDocID ";
 
 		if ($_GET[txtSearch]) {
 			$search=$_GET['txtSearch'];
@@ -581,12 +598,13 @@ $offset = ($noPage - 1) * $dataPerPage;
 						OR dol.DOL_RegUserID LIKE '%$search%'
 						OR u.User_FullName LIKE '%$search%'
 						OR dol.DOL_RegTime LIKE '%$search%'
+						OR lds.LDS_Name LIKE '%$search%'
+						OR m_dc.DocumentCategory_Name LIKE '%$search%'
 						OR dol.DOL_NamaDokumen LIKE '%$search%'
 						OR dol.DOL_InstansiTerkait LIKE '%$search%'
 						OR dol.DOL_NoDokumen LIKE '%$search%'
 						OR dol.DOL_TglTerbit LIKE '%$search%'
 						OR dol.DOL_TglBerakhir LIKE '%$search%'
-						OR dol.DOL_Location LIKE '%$search%'
 					)";
 		}
 		if ($_GET[optFilterHeader]==1) {
@@ -599,13 +617,17 @@ $offset = ($noPage - 1) * $dataPerPage;
 	}
 
 	elseif ($_GET['optTHROLD_DocumentGroupID']=='6'){
-		$query = "SELECT donl.DONL_ID, c.Company_Name, lds.LDS_Name,
-						 donl.DONL_DocCode
-				  FROM M_DocumentsOtherNonLegal donl, M_Company c, M_User u,  M_LoanDetailStatus lds
+		$query = "SELECT donl.DONL_ID, c.Company_Name, c2.Company_Name nama_pt, donl.DONL_NoDokumen, donl.DONL_NamaDokumen,
+					donl.DONL_TahunDokumen, m_d.Department_Name nama_departemen,
+					lds.LDS_Name, donl.DONL_DocCode
+				  FROM M_DocumentsOtherNonLegal donl, M_Company c, M_User u, M_LoanDetailStatus lds,
+				  	M_Company c2, db_master.M_Department m_d
 				  WHERE c.Company_ID=donl.DONL_CompanyID
 				  AND donl.DONL_Delete_Time IS NULL
 				  AND donl.DONL_Status=lds.LDS_ID
-				  AND donl.DONL_RegUserID=u.User_ID ";
+				  AND donl.DONL_RegUserID=u.User_ID
+				  AND c2.Company_ID=donl.DONL_PT_ID
+				  AND m_d.Department_Code=donl.DONL_Dept_Code ";
 
 		if ($_GET[txtSearch]) {
 			$search=$_GET['txtSearch'];
@@ -616,12 +638,13 @@ $offset = ($noPage - 1) * $dataPerPage;
 						OR donl.DONL_RegUserID LIKE '%$search%'
 						OR u.User_FullName LIKE '%$search%'
 						OR donl.DONL_RegTime LIKE '%$search%'
-						OR donl.DONL_PT_ID LIKE '%$search%'
+						OR lds.LDS_Name LIKE '%$search%'
+						OR c2.Company_Name LIKE '%$search%'
 						OR donl.DONL_NoDokumen LIKE '%$search%'
 						OR donl.DONL_NamaDokumen LIKE '%$search%'
 						OR donl.DONL_TahunDokumen LIKE '%$search%'
-						OR donl.DONL_DeptCode LIKE '%$search%'
-						OR donl.DONL_Location LIKE '%$search%'
+						OR m_d.Department_Name LIKE '%$search%'
+						OR donl.DONL_Dept_Code LIKE '%$search%'
 					)";
 		}
 		if ($_GET[optFilterHeader]==1) {
@@ -650,11 +673,12 @@ $arr = mysql_fetch_array($sqldg);
 				<th>Perusahaan</th>
 				<th>Kategori</th>
 				<th>Tipe</th>
+				<th>Keterangan 3</th>
 				<th>Status</th>
 				<th>Cetak Barcode</th>
 			</tr>
 			<tr>
-				<td colspan=7 align='center'>Belum Ada Data</td>
+				<td colspan=8 align='center'>Belum Ada Data</td>
 			</tr>
 			</table>
 		";
@@ -664,7 +688,7 @@ $arr = mysql_fetch_array($sqldg);
 			<form name='list' method='GET' target='_blank' action='print-document-barcode.php' onsubmit='return validateBarcodePrint(this);'>
 			<table width='100%' border='1' class='stripeMe'>
 			<tr>
-				<th colspan=8 align='center'>Daftar Dokumen $arr[DocumentGroup_Name]</th>
+				<th colspan=9 align='center'>Daftar Dokumen $arr[DocumentGroup_Name]</th>
 			</tr>
 			<tr>
 				<th>ID</th>
@@ -672,6 +696,7 @@ $arr = mysql_fetch_array($sqldg);
 				<th>Perusahaan</th>
 				<th>Kategori</th>
 				<th>Tipe</th>
+				<th>Keterangan 3</th>
 				<th>Status</th>
 				<th>Cetak Barcode</th>
 				<th></th>
@@ -689,6 +714,7 @@ $arr = mysql_fetch_array($sqldg);
 				<td class='center'>$field[2]</td>
 				<td class='center'>$field[3]</td>
 				<td class='center'>$field[4]</td>
+				<td class='center'>$field[5]</td>
 				<td class='center'><input name='cBarcodePrint[]' type='checkbox' value='$field[0]' /></td>
 				<td class='center'><a href='$PHP_SELF?act=edit&id=$field[0]'><img title='Ubah' src='./images/icon-edit1.png' width='20'></a></td>
 			</tr>
@@ -779,26 +805,34 @@ $arr = mysql_fetch_array($sqldg);
 				<th>ID</th>
 				<th>Kode Dokumen</th>
 				<th>Perusahaan</th>
+				<th>Merk Kendaraan</th>
+				<th>Nama Pemilik</th>
+				<th>No. Polisi</th>
+				<th>Masa Habis Berlaku STNK</th>
 				<th>Status</th>
 				<th>Cetak Barcode</th>
 			</tr>
 			<tr>
-				<td colspan=7 align='center'>Belum Ada Data</td>
+				<td colspan=9 align='center'>Belum Ada Data</td>
 			</tr>
 			</table>
 		";
 		}
 		if ($num<>NULL){
 		$MainContent .="
-			<form name='list' method='GET' target='_blank' action='print-document-barcode.php' onsubmit='return validateBarcodePrint(this);'>
+			<form name='list' method='GET' action='print-asset-ownership-document-barcode.php' onsubmit='return validateBarcodePrint(this);' target='_blank'>
 			<table width='100%' border='1' class='stripeMe'>
 			<tr>
-				<th colspan=8 align='center'>Daftar Dokumen Kepemilikan Aset</th>
+				<th colspan='10' align='center'>Daftar Dokumen Kepemilikan Aset</th>
 			</tr>
 			<tr>
 				<th>ID</th>
 				<th>Kode Dokumen</th>
 				<th>Perusahaan</th>
+				<th>Merk Kendaraan</th>
+				<th>Nama Pemilik</th>
+				<th>No. Polisi</th>
+				<th>Masa Habis Berlaku STNK</th>
 				<th>Status</th>
 				<th>Cetak Barcode</th>
 				<th></th>
@@ -806,16 +840,40 @@ $arr = mysql_fetch_array($sqldg);
 		";
 
 			while ($field = mysql_fetch_array($sql)) {
+				$stnk_exdate=date("j M Y", strtotime($field['DAO_STNK_ExpiredDate']));
+
+				if(strpos($field['DAO_Employee_NIK'], 'CO@') !== false){
+					$get_company_code = explode('CO@', $field['DAO_Employee_NIK']);
+					$company_code = $get_company_code[1];
+					$query7="SELECT Company_Name AS nama_pemilik
+						FROM M_Company
+						WHERE Company_code='$company_code'";
+				}else{
+					$query7="SELECT Employee_FullName AS nama_pemilik
+						FROM db_master.M_Employee
+						WHERE Employee_NIK='$field[DAO_Employee_NIK]'";
+				}
+				$sql7 = mysql_query($query7);
+				$nama_pemilik = "-";
+				if(mysql_num_rows($sql7) > 0){
+					$data7 = mysql_fetch_array($sql7);
+					$nama_pemilik = $data7['nama_pemilik'];
+				}
+
 		$MainContent .="
 			<tr>
 				<td class='center'>$field[DAO_ID]</td>
 				<td class='center'>
-					<a href='$PHP_SELF?act=detail& id=$field[0]' class='underline'>$field[DAO_DocCode]</a>
+					<a href='$PHP_SELF?act=detailAO&id=$field[DAO_DocCode]' class='underline'>$field[DAO_DocCode]</a>
 				</td>
 				<td class='center'>$field[Company_Name]</td>
+				<td class='center'>$field[MK_Name]</td>
+				<td class='center'>$nama_pemilik</td>
+				<td class='center'>$field[DAO_NoPolisi]</td>
+				<td class='center'>$stnk_exdate</td>
 				<td class='center'>$field[LDS_Name]</td>
-				<td class='center'><input name='cBarcodePrint[]' type='checkbox' value='$field[0]' /></td>
-				<td class='center'><a href='$PHP_SELF?act=editAO&id=$field[0]'><img title='Ubah' src='./images/icon-edit1.png' width='20'></a></td>
+				<td class='center'><input name='cBarcodePrint[]' type='checkbox' value='$field[DAO_DocCode]' /></td>
+				<td class='center'><a href='$PHP_SELF?act=editAO&id=$field[DAO_DocCode]'><img title='Ubah' src='./images/icon-edit1.png' width='20'></a></td>
 			</tr>
 		";
 			$no=$no+1;
@@ -836,26 +894,32 @@ $arr = mysql_fetch_array($sqldg);
 				<th>ID</th>
 				<th>Kode Dokumen</th>
 				<th>Perusahaan</th>
+				<th>Kategori Dokumen</th>
+				<th>No. Dokumen</th>
+				<th>Tanggal Berakhir Dokumen</th>
 				<th>Status</th>
 				<th>Cetak Barcode</th>
 			</tr>
 			<tr>
-				<td colspan=7 align='center'>Belum Ada Data</td>
+				<td colspan=8 align='center'>Belum Ada Data</td>
 			</tr>
 			</table>
 		";
 		}
 		if ($num<>NULL){
 		$MainContent .="
-			<form name='list' method='GET' target='_blank' action='print-document-barcode.php' onsubmit='return validateBarcodePrint(this);'>
+			<<form name='list' method='GET' action='print-other-legal-documents-barcode.php' onsubmit='return validateBarcodePrint(this);' target='_blank'>
 			<table width='100%' border='1' class='stripeMe'>
 			<tr>
-				<th colspan=8 align='center'>Daftar Dokumen Lainnya (Legal)</th>
+				<th colspan='9' align='center'>Daftar Dokumen Lainnya (Legal)</th>
 			</tr>
 			<tr>
 				<th>ID</th>
 				<th>Kode Dokumen</th>
 				<th>Perusahaan</th>
+				<th>Kategori Dokumen</th>
+			    <th>No. Dokumen</th>
+			    <th>Tanggal Berakhir Dokumen</th>
 				<th>Status</th>
 				<th>Cetak Barcode</th>
 				<th></th>
@@ -863,16 +927,20 @@ $arr = mysql_fetch_array($sqldg);
 		";
 
 			while ($field = mysql_fetch_array($sql)) {
+				$tgl_berakhir=date("j M Y", strtotime($field['DOL_TglBerakhir']));
 		$MainContent .="
 			<tr>
 				<td class='center'>$field[DOL_ID]</td>
 				<td class='center'>
-					<a href='$PHP_SELF?act=detail&id=$field[0]' class='underline'>$field[DOL_DocCode]</a>
+					<a href='$PHP_SELF?act=detailOL&id=$field[DOL_DocCode]' class='underline'>$field[DOL_DocCode]</a>
 				</td>
 				<td class='center'>$field[Company_Name]</td>
+				<td class='center'>$field[DocumentCategory_Name]</td>
+				<td class='center'>$field[DOL_NoDokumen]</td>
+				<td class='center'>$tgl_berakhir</td>
 				<td class='center'>$field[LDS_Name]</td>
-				<td class='center'><input name='cBarcodePrint[]' type='checkbox' value='$field[0]' /></td>
-				<td class='center'><a href='$PHP_SELF?act=editOL&id=$field[0]'><img title='Ubah' src='./images/icon-edit1.png' width='20'></a></td>
+				<td class='center'><input name='cBarcodePrint[]' type='checkbox' value='$field[DOL_DocCode]' /></td>
+				<td class='center'><a href='$PHP_SELF?act=editOL&id=$field[DOL_DocCode]'><img title='Ubah' src='./images/icon-edit1.png' width='20'></a></td>
 			</tr>
 		";
 			$no=$no+1;
@@ -893,26 +961,32 @@ $arr = mysql_fetch_array($sqldg);
 				<th>ID</th>
 				<th>Kode Dokumen</th>
 				<th>Perusahaan</th>
+				<th>Nama PT (Dokumen)</th>
+				<th>No. Dokumen</th>
+				<th>Departemen</th>
 				<th>Status</th>
 				<th>Cetak Barcode</th>
 			</tr>
 			<tr>
-				<td colspan=7 align='center'>Belum Ada Data</td>
+				<td colspan=8 align='center'>Belum Ada Data</td>
 			</tr>
 			</table>
 		";
 		}
 		if ($num<>NULL){
 		$MainContent .="
-			<form name='list' method='GET' target='_blank' action='print-document-barcode.php' onsubmit='return validateBarcodePrint(this);'>
+			<form name='list' method='GET' action='print-other-non-legal-documents-barcode.php' onsubmit='return validateBarcodePrint(this);' target='_blank'>
 			<table width='100%' border='1' class='stripeMe'>
 			<tr>
-				<th colspan=8 align='center'>Daftar Dokumen Lainnya (Di Luar Legal)</th>
+				<th colspan=9 align='center'>Daftar Dokumen Lainnya (Di Luar Legal)</th>
 			</tr>
 			<tr>
 				<th>ID</th>
 				<th>Kode Dokumen</th>
 				<th>Perusahaan</th>
+				<th>Nama PT (Dokumen)</th>
+				<th>No. Dokumen</th>
+				<th>Departemen</th>
 				<th>Status</th>
 				<th>Cetak Barcode</th>
 				<th></th>
@@ -924,12 +998,15 @@ $arr = mysql_fetch_array($sqldg);
 			<tr>
 				<td class='center'>$field[DONL_ID]</td>
 				<td class='center'>
-					<a href='$PHP_SELF?act=detail& id=$field[0]' class='underline'>$field[DONL_DocCode]</a>
+					<a href='$PHP_SELF?act=detailONL&id=$field[DONL_DocCode]' class='underline'>$field[DONL_DocCode]</a>
 				</td>
 				<td class='center'>$field[Company_Name]</td>
+				<td class='center'>$field[nama_pt]</td>
+				<td class='center'>$field[DONL_NoDokumen]</td>
+				<td class='center'>$field[nama_departemen]</td>
 				<td class='center'>$field[LDS_Name]</td>
-				<td class='center'><input name='cBarcodePrint[]' type='checkbox' value='$field[0]' /></td>
-				<td class='center'><a href='$PHP_SELF?act=editOL&id=$field[0]'><img title='Ubah' src='./images/icon-edit1.png' width='20'></a></td>
+				<td class='center'><input name='cBarcodePrint[]' type='checkbox' value='$field[DONL_DocCode]' /></td>
+				<td class='center'><a href='$PHP_SELF?act=editONL&id=$field[DONL_DocCode]'><img title='Ubah' src='./images/icon-edit1.png' width='20'></a></td>
 			</tr>
 		";
 			$no=$no+1;
@@ -1005,7 +1082,6 @@ if($_GET["act"]){
 				  AND MUR_Delete_Time IS NULL";
 		$sql = mysql_query($query);
 		$admin = mysql_num_rows($sql);
-
 
 	//Melihat Detail Dokumen Legal, License, Others
 	if(($act=='detail') || ($act=='edit') ){
@@ -1706,12 +1782,806 @@ $MainContent .="
 ";
 	}
 
+	//Melihat Detail Dokumen Kepemilikan Aset
+	if(($act=='detailAO') || ($act=='editAO') ){
+		$id=$_GET["id"];
+		$query = "SELECT dao.DAO_DocCode,
+						 u.User_FullName,
+						 dao.DAO_RegTime,
+						 c.Company_Name,
+						 c.Company_Code,
+						 dao.DAO_Employee_NIK,
+						 -- m_e.Employee_FullName nama_pemilik,
+						 dao.DAO_MK_ID, m_mk.MK_Name merk_kendaraan,
+						 dao.DAO_Type, dao.DAO_Jenis,
+						 dao.DAO_NoPolisi, dao.DAO_NoRangka, dao.DAO_NoMesin, dao.DAO_NoBPKB,
+						 dao.DAO_STNK_StartDate, dao.DAO_STNK_ExpiredDate, dao.DAO_Pajak_StartDate, dao.DAO_Pajak_ExpiredDate,
+						 dao.DAO_Lokasi_PT, dao.DAO_Region, dao.DAO_Keterangan,
+						 dao.DAO_Location,
+						 dao.DAO_Softcopy,
+						 lds.LDS_Name,
+						 dg.DocumentGroup_Name,
+						 dg.DocumentGroup_Code,
+						 dg.DocumentGroup_ID
+		  	FROM M_DocumentAssetOwnership dao, M_Company c, M_LoanDetailStatus lds,
+				 M_User u, M_DocumentGroup dg,
+				 -- db_master.M_Employee m_e,
+				 db_master.M_MerkKendaraan m_mk
+			WHERE dao.DAO_DocCode='$id'
+			AND dao.DAO_GroupDocID=dg.DocumentGroup_ID
+			AND dao.DAO_CompanyID=c.Company_ID
+			AND dao.DAO_Status=lds.LDS_ID
+			AND dao.DAO_RegUserID=u.User_ID
+			-- AND m_e.Employee_NIK=dao.DAO_Employee_NIK
+			AND m_mk.MK_ID=dao.DAO_MK_ID";
+		$sql = mysql_query($query);
+		$arr = mysql_fetch_array($sql);
+	}
+	if($act=='detailAO') {
+		$fregdate = date("j M Y", strtotime($arr['DAO_RegTime']));
+
+		$stnk_sdate = date("j M Y", strtotime($arr['DAO_STNK_StartDate']));
+		if ($arr['DAO_STNK_ExpiredDate']=="0000-00-00 00:00:00") $stnk_exdate="31 Des 9999";
+		else $stnk_exdate = date("j M Y", strtotime($arr['DAO_STNK_ExpiredDate']));
+
+		$pajak_sdate = date("j M Y", strtotime($arr['DAO_STNK_StartDate']));
+		if ($arr['DAO_STNK_ExpiredDate']=="0000-00-00 00:00:00") $pajak_exdate="31 Des 9999";
+		else $pajak_exdate = date("j M Y", strtotime($arr['DAO_STNK_ExpiredDate']));
+
+		if(strpos($arr['DAO_Employee_NIK'], 'CO@') !== false){
+			$get_company_code = explode('CO@', $arr['DAO_Employee_NIK']);
+			$company_code = $get_company_code[1];
+			$query7="SELECT Company_Name AS nama_pemilik
+				FROM M_Company
+				WHERE Company_code='$company_code'";
+		}else{
+			$query7="SELECT Employee_FullName AS nama_pemilik
+				FROM db_master.M_Employee
+				WHERE Employee_NIK='$arr[DAO_Employee_NIK]'";
+		}
+		$sql7 = mysql_query($query7);
+		$nama_pemilik = "-";
+		if(mysql_num_rows($sql7) > 0){
+			$data7 = mysql_fetch_array($sql7);
+			$nama_pemilik = $data7['nama_pemilik'];
+		}
+
+$MainContent ="
+	<table width='100%' border='1' class='stripeMe'>
+	<tr>
+		<th colspan='2'>Detail Dokumen $arr[DocumentGroup_Name]</th>
+	</tr>
+	<tr>
+		<td width='30%'>Kode Dokumen</td>
+		<td width='70%'><input type='hidden' name='DL_DocCode' value='$arr[DAO_DocCode]'>$arr[DAO_DocCode]</td>
+	</tr>
+	<tr>
+		<td width='30%'>Nama Pendaftar</td>
+		<td width='70%'>$arr[User_FullName]</td>
+	</tr>
+	<tr>
+		<td width='30%'>Tanggal Pendaftaran</td>
+		<td width='70%'><input type='hidden' name='DL_RegTime' value='$arr[DAO_RegTime]'>$fregdate</td>
+	</tr>
+	<tr>
+		<td width='30%'>Perusahaan</td>
+		<td width='70%'><input type='hidden' name='Company_Name' value='$arr[Company_Code]'>$arr[Company_Name]</td>
+	</tr>
+	<tr>
+		<td width='30%'>Nama Pemilik</td>
+		<td width='70%'>$nama_pemilik</td>
+	</tr>
+	<tr>
+		<td width='30%'>Merk Kendaraan</td>
+		<td width='70%'>$arr[merk_kendaraan]</td>
+	</tr>
+	<tr>
+		<td width='30%'>Tipe Kendaraan</td>
+		<td width='70%'>$arr[DAO_Type]</td>
+	</tr>
+	<tr>
+		<td width='30%'>Jenis Kendaraan</td>
+		<td width='70%'>$arr[DAO_Jenis]</td>
+	</tr>
+	<tr>
+		<td width='30%'>No. Polisi</td>
+		<td width='70%'>$arr[DAO_NoPolisi]</td>
+	</tr>
+	<tr>
+		<td width='30%'>No. Rangka</td>
+		<td width='70%'>$arr[DAO_NoRangka]</td>
+	</tr>
+	<tr>
+		<td width='30%'>No. Mesin</td>
+		<td width='70%'>$arr[DAO_NoMesin]</td>
+	</tr>
+	<tr>
+		<td width='30%'>No. BPKB</td>
+		<td width='70%'>$arr[DAO_NoBPKB]</td>
+	</tr>
+	<tr>
+		<td width='30%'>Masa Berlaku STNK</td>
+		<td width='70%'>$stnk_sdate s/d $stnk_exdate</td>
+	</tr>
+	<tr>
+		<td width='30%'>Masa Berlaku Pajak</td>
+		<td width='70%'>$pajak_sdate s/d $pajak_exdate</td>
+	</tr>
+	<tr>
+		<td width='30%'>Lokasi Perusahan</td>
+		<td width='70%'>$arr[DAO_Lokasi_PT]</td>
+	</tr>
+	<tr>
+		<td width='30%'>Region Perusahan</td>
+		<td width='70%'>$arr[DAO_Region]</td>
+	</tr>
+	<tr>
+		<td width='30%'>Keterangan Dokumen</td>
+		<td width='70%'>$arr[DAO_Keterangan]</td>
+	</tr>
+	<tr>
+		<td width='30%'>Lokasi DoKumen</td>
+		<td width='70%'>$arr[DAO_Location]</td>
+	</tr>
+	<tr>
+		<td width='30%'>Status</td>
+		<td width='70%'>$arr[LDS_Name]</td>
+	</tr>";
+	if ((($custodian==1)||($admin=="1")) && ($arr['DAO_Softcopy']<> NULL) ) {
+$MainContent .="
+	<tr>
+		<td width='30%'>Softcopy Dokumen</td>
+		<td width='70%'>
+			<a href='$arr[DAO_Softcopy]' class='underline'>[Download Softcopy]</a>
+		</td>
+	</tr>";
+	}
+$MainContent .="
+	</table>
+";
+	}
+
+	if(($act=='editAO') && (($custodian==1)||($admin=="1"))){
+		$fregdate = date("j M Y", strtotime($arr['DAO_RegTime']));
+
+		$stnk_sdate = date("j M Y", strtotime($arr['DAO_STNK_StartDate']));
+		if ($arr['DAO_STNK_ExpiredDate']=="0000-00-00 00:00:00") $stnk_exdate="31 Des 9999";
+		else $stnk_exdate = date("j M Y", strtotime($arr['DAO_STNK_ExpiredDate']));
+
+		$pajak_sdate = date("j M Y", strtotime($arr['DAO_STNK_StartDate']));
+		if ($arr['DAO_STNK_ExpiredDate']=="0000-00-00 00:00:00") $pajak_exdate="31 Des 9999";
+		else $pajak_exdate = date("j M Y", strtotime($arr['DAO_STNK_ExpiredDate']));
+
+$MainContent ="
+	<form enctype='multipart/form-data' action='' method='POST'>
+	<table width='100%' border='1' class='stripeMe'>
+	<tr>
+		<th colspan='2'>Detail Dokumen Kepemilikan Aset</th>
+	</tr>
+	<tr>
+		<td width='30%'>Kode Dokumen</td>
+		<td width='70%'><input type='hidden' name='DAO_DocCode' value='$arr[DAO_DocCode]'>$arr[DAO_DocCode]</td>
+	</tr>
+	<tr>
+		<td width='30%'>Nama Pendaftar</td>
+		<td width='70%'>$arr[User_FullName]</td>
+	</tr>
+	<tr>
+		<td width='30%'>Tanggal Pendaftaran</td>
+		<td width='70%'><input type='hidden' name='DAO_RegTime' value='$arr[DAO_RegTime]'>$fregdate</td>
+	</tr>
+	<tr>
+		<td width='30%'>Perusahaan</td>
+		<td width='70%'><input type='hidden' name='Company_Name' value='$arr[Company_Code]'>$arr[Company_Name]</td>
+	</tr>
+	<tr>
+		<td width='30%'>Nama Pemilik</td>
+		<td width='70%'>
+
+				<select name='txtDAO_EMployee_NIK' id='txtDAO_EMployee_NIK'>
+					<option value='0'>--- Pilih Nama Pemilik ---</option>";
+			$query5="SELECT Employee_NIK, Employee_FullName
+				FROM db_master.M_Employee
+				WHERE Employee_ResignDate IS NULL
+				AND Employee_GradeCode IN ('0000000005', '06', '0000000003', '05', '04', '0000000004')
+				-- AND Employee_CompanyCode='$arr[Company_Code]'";
+			$sql5 = mysql_query($query5);
+			while ($field5=mysql_fetch_array($sql5)) {
+				$selected=($field5["Employee_NIK"] == $arr['DAO_Employee_NIK']) ? "selected='selected'":"";
+				$MainContent .="
+					<option value='$field5[Employee_NIK]' $selcted>$field5[Employee_FullName]</option>";
+			}
+
+			$query_comp = "SELECT CONCAT('CO@',Company_Code) AS id, Company_Name AS name
+					  FROM M_Company
+					  WHERE Company_Delete_Time is NULL
+					  ORDER BY Company_Name ASC";
+	  	  	$sql_comp = mysql_query($query_comp);
+			while($field_comp=mysql_fetch_array($sql_comp)){
+				if(strpos($arr['DAO_Employee_NIK'], 'CO@') !== false){
+					$selected=($field_comp["id"] == $arr['DAO_Employee_NIK']) ? "selected='selected'":"";
+				}
+				$MainContent .="
+					<option value='$field_comp[id]' $selected>$field_comp[name]</option>";
+			}
+$MainContent .="
+			</select>
+		</td>
+	</tr>
+	<tr>
+		<td width='30%'>Merk Kendaraan</td>
+		<td>
+			<select name='txtDAO_MK_ID' id='txtDAO_MK_ID'>
+					<option value='0'>--- Pilih Merk Kendaraan ---</option>";
+			$query6="SELECT *
+					 FROM db_master.M_MerkKendaraan
+					 WHERE MK_DeleteTime is NULL";
+			$sql6 = mysql_query($query6);
+
+			while ($field6=mysql_fetch_array($sql6)) {
+				if ($field6["MK_ID"]==$arr['DAO_MK_ID']){
+$MainContent .="
+				<option value='$field6[MK_ID]' selected='selected'>$field6[MK_Name]</option>";
+				}
+				else{
+$MainContent .="
+				<option value='$field6[MK_ID]'>$field6[MK_Name]</option>";
+				}
+			}
+$MainContent .="
+			</select>
+		</td>
+	</tr>
+	<tr>
+		<td width='30%'>Tipe Kendaraan</td>
+		<td width='70%'><input name='txtDAO_Type' id='txtDAO_Type' type='text' value='$arr[DAO_Type]'></td>
+	</tr>
+	<tr>
+		<td width='30%'>Jenis Kendaraan</td>
+		<td width='70%'><input type='text' name='txtDAO_Jenis' id='txtDAO_Jenis' value='$arr[DAO_Jenis]'></td>
+	</tr>
+	<tr>
+		<td width='30%'>Nomor Polisi</td>
+		<td width='70%'><input type='text' name='txtDAO_NoPolisi' id='txtDAO_NoPolisi' value='$arr[DAO_NoPolisi]'></td>
+	</tr>
+	<tr>
+		<td width='30%'>Nomor Rangka</td>
+		<td width='70%'><input type='text' name='txtDAO_NoRangka' id='txtDAO_NoRangka' value='$arr[DAO_NoRangka]'></td>
+	</tr>
+	<tr>
+		<td width='30%'>Nomor Mesin</td>
+		<td width='70%'><input type='text' name='txtDAO_NoMesin' id='txtDAO_NoMesin' value='$arr[DAO_NoMesin]'></td>
+	</tr>
+	<tr>
+		<td width='30%'>Nomor BPKB</td>
+		<td width='70%'><input type='text' name='txtDAO_NoBPKB' id='txtDAO_NoBPKB' value='$arr[DAO_NoBPKB]'></td>
+	</tr>
+	<tr>
+		<td width='30%'>Masa Berlaku STNK</td>
+		<td width='70%'>
+			<input type='text' name='txtDAO_STNK_StartDate' id='txtDAO_STNK_StartDate' size='7' value='$stnk_sdate' onclick=\"javascript:NewCssCal('txtDAO_STNK_StartDate', 'MMddyyyy');\">
+			s/d
+			<input type='text' name='txtDAO_STNK_ExpiredDate' id='txtDAO_STNK_ExpiredDate' size='7' value='$stnk_exdate' onclick=\"javascript:NewCssCal('txtDAO_STNK_ExpiredDate', 'MMddyyyy');\">
+		</td>
+	</tr>
+	<tr>
+		<td width='30%'>Masa Berlaku Pajak</td>
+		<td width='70%'>
+			<input type='text' name='txtDAO_Pajak_StartDate' id='txtDAO_Pajak_StartDate' size='7' value='$stnk_sdate' onclick=\"javascript:NewCssCal('txtDAO_Pajak_StartDate', 'MMddyyyy');\">
+			s/d
+			<input type='text' name='txtDAO_Pajak_ExpiredDate' id='txtDAO_Pajak_ExpiredDate' size='7' value='$stnk_exdate' onclick=\"javascript:NewCssCal('txtDAO_Pajak_ExpiredDate', 'MMddyyyy');\">
+		</td>
+	</tr>
+	<tr>
+		<td width='30%'>Lokasi Perusahaan</td>
+		<td width='70%'><input type='text' name='txtDAO_Lokasi_PT' id='txtDAO_Lokasi_PT' value='$arr[DAO_Lokasi_PT]'></td>
+	</tr>
+	<tr>
+		<td width='30%'>Region Perusahaan</td>
+		<td width='70%'>
+			<select name='txtDAO_Region' id='txtDAO_Region'>
+				<option value=''>--- Pilih Region ---</option>
+				<option value='KALTIM' ".($arr['DAO_Region'] == "KALTIM" ? 'selected' : '').">Kaltim</option>
+				<option value='KALTENG' ".($arr['DAO_Region'] == "KALTENG" ? 'selected' : '').">Kalteng</option>
+				<option value='KALBAR' ".($arr['DAO_Region'] == "KALBAR" ? 'selected' : '').">Kalbar</option>
+				<option value='JAMBI' ".($arr['DAO_Region'] == "JAMBI" ? 'selected' : '').">Jambi</option>
+				<option value='HO' ".($arr['DAO_Region'] == "HO" ? 'selected' : '').">Head Office</option>
+			</select>
+		</td>
+	</tr>
+	<tr>
+		<td width='30%'>Keterangan Dokumen</td>
+		<td width='70%'><input type='text' name='txtDAO_Keterangan' id='txtDAO_Keterangan' value='$arr[DAO_Keterangan]'></td>
+	</tr>
+	<tr>
+		<td width='30%'>Lokasi Dokumen</td>
+		<td width='70%'>$arr[DAO_Location]</td>
+	</tr>
+	<tr>
+		<td width='30%'>Status</td>
+		<td width='70%'>$arr[LDS_Name]</td>
+	</tr>";
+		if ((($custodian==1)||($admin=="1")) && ($arr['DAO_Softcopy']==NULL) ) {
+$MainContent .="
+	<tr>
+		<td width='30%'>Upload Softcopy Dokumen</td>
+		<td width='70%'>
+			<input name='userfile' type='file' size='30'/>
+			<input type='submit' value='Upload' name='uploadAO' class='button-small' />
+		</td>
+	</tr>";
+		}
+
+		elseif ((($custodian==1)||($admin=="1")) && ($arr['DAO_Softcopy']<> NULL) ) {
+$MainContent .="
+	<tr>
+		<td width='30%'>Softcopy Dokumen</td>
+		<td width='70%'>
+			<a href='$arr[DAO_Softcopy]' class='underline'>[Download Softcopy]</a><br>
+			<input name='userfile' type='file' size='30'/>
+			<input type='submit' value='Upload' name='uploadAO' class='button-small' />
+		</td>
+	</tr>";
+		}
+
+$MainContent .="
+	<th colspan='2'>
+		<input name='editAO' type='submit' value='Simpan' class='button' onclick='return validateInputEdit(this);'/>
+		<input name='cancel' type='submit' value='Batal' class='button'/>
+	</th>
+	</table>
+	</form>
+";
+	}
+
+	//Melihat Detail Dokumen Lainnya Legal
+	if(($act=='detailOL') || ($act=='editOL') ){
+		$id=$_GET["id"];
+		$query = "SELECT dol.DOL_DocCode,
+						 u.User_FullName,
+						 dol.DOL_RegTime,
+						 c.Company_Name,
+						 c.Company_Code,
+						 dol.DOL_CategoryDocID, m_dc.DocumentCategory_Name kategori_dokumen,
+						 dol.DOL_NamaDokumen, dol.DOL_InstansiTerkait, dol.DOL_NoDokumen,
+						 dol.DOL_TglTerbit, dol.DOL_TglBerakhir,
+						 dol.DOL_Location,
+						 dol.DOL_Softcopy,
+						 lds.LDS_Name,
+						 dg.DocumentGroup_Name,
+						 dg.DocumentGroup_Code,
+						 dg.DocumentGroup_ID
+		  	FROM M_DocumentsOtherLegal dol, M_Company c, M_LoanDetailStatus lds,
+				 M_User u, M_DocumentGroup dg, db_master.M_DocumentCategory m_dc
+			WHERE dol.DOL_DocCode='$id'
+			AND dol.DOL_GroupDocID=dg.DocumentGroup_ID
+			AND dol.DOL_CompanyID=c.Company_ID
+			AND dol.DOL_Status=lds.LDS_ID
+			AND dol.DOL_RegUserID=u.User_ID
+			AND m_dc.DocumentCategory_ID=dol.DOL_CategoryDocID";
+		$sql = mysql_query($query);
+		$arr = mysql_fetch_array($sql);
+	}
+	if($act=='detailOL') {
+		$fregdate = date("j M Y", strtotime($arr['DOL_RegTime']));
+
+		$tgl_terbit = date("j M Y", strtotime($arr['DOL_TglTerbit']));
+		if ($arr['DOL_TglBerakhir']=="0000-00-00 00:00:00") $tgl_berakhir="31 Des 9999";
+		else $tgl_berakhir = date("j M Y", strtotime($arr['DOL_TglBerakhir']));
+
+$MainContent ="
+	<table width='100%' border='1' class='stripeMe'>
+	<tr>
+		<th colspan='2'>Detail Dokumen Lainnya (Legal)</th>
+	</tr>
+	<tr>
+		<td width='30%'>Kode Dokumen</td>
+		<td width='70%'><input type='hidden' name='DOL_DocCode' value='$arr[DOL_DocCode]'>$arr[DOL_DocCode]</td>
+	</tr>
+	<tr>
+		<td width='30%'>Nama Pendaftar</td>
+		<td width='70%'>$arr[User_FullName]</td>
+	</tr>
+	<tr>
+		<td width='30%'>Tanggal Pendaftaran</td>
+		<td width='70%'><input type='hidden' name='DOL_RegTime' value='$arr[DOL_RegTime]'>$fregdate</td>
+	</tr>
+	<tr>
+		<td width='30%'>Perusahaan</td>
+		<td width='70%'><input type='hidden' name='Company_Name' value='$arr[Company_Code]'>$arr[Company_Name]</td>
+	</tr>
+	<tr>
+		<td width='30%'>Kategori Dokumen</td>
+		<td width='70%'>$arr[kategori_dokumen]</td>
+	</tr>
+	<tr>
+		<td width='30%'>Nama Dokumen</td>
+		<td width='70%'>$arr[DOL_NamaDokumen]</td>
+	</tr>
+	<tr>
+		<td width='30%'>Instansi Terkait</td>
+		<td width='70%'>$arr[DOL_InstansiTerkait]</td>
+	</tr>
+	<tr>
+		<td width='30%'>No. Dokumen</td>
+		<td width='70%'>$arr[DOL_NoDokumen]</td>
+	</tr>
+	<tr>
+		<td width='30%'>Tanggal Terbit Dokumen</td>
+		<td width='70%'>$tgl_terbit</td>
+	</tr>
+	<tr>
+		<td width='30%'>Tanggal Berakhir Dokumen</td>
+		<td width='70%'>$tgl_berakhir</td>
+	</tr>
+	<tr>
+		<td width='30%'>Lokasi Dokumen</td>
+		<td width='70%'>$arr[DOL_Location]</td>
+	</tr>
+	<tr>
+		<td width='30%'>Status</td>
+		<td width='70%'>$arr[LDS_Name]</td>
+	</tr>";
+	if ((($custodian==1)||($admin=="1")) && ($arr['DOL_Softcopy']<> NULL) ) {
+$MainContent .="
+	<tr>
+		<td width='30%'>Softcopy Dokumen</td>
+		<td width='70%'>
+			<a href='$arr[DOL_Softcopy]' class='underline'>[Download Softcopy]</a>
+		</td>
+	</tr>";
+	}
+$MainContent .="
+	</table>
+";
+	}
+
+	if(($act=='editOL') && (($custodian==1)||($admin=="1"))){
+		$fregdate = date("j M Y", strtotime($arr['DOL_RegTime']));
+
+		$tgl_terbit = date("j M Y", strtotime($arr['DOL_TglTerbit']));
+		if ($arr['DOL_TglBerakhir']=="0000-00-00 00:00:00") $tgl_berakhir="31 Des 9999";
+		else $tgl_berakhir = date("j M Y", strtotime($arr['DOL_TglBerakhir']));
+
+$MainContent ="
+	<form enctype='multipart/form-data' action='' method='POST'>
+	<table width='100%' border='1' class='stripeMe'>
+	<tr>
+		<th colspan='2'>Detail Dokumen Lainnya (Legal)</th>
+	</tr>
+	<tr>
+		<td width='30%'>Kode Dokumen</td>
+		<td width='70%'><input type='hidden' name='DOL_DocCode' value='$arr[DOL_DocCode]'>$arr[DOL_DocCode]</td>
+	</tr>
+	<tr>
+		<td width='30%'>Nama Pendaftar</td>
+		<td width='70%'>$arr[User_FullName]</td>
+	</tr>
+	<tr>
+		<td width='30%'>Tanggal Pendaftaran</td>
+		<td width='70%'><input type='hidden' name='DOL_RegTime' value='$arr[DOL_RegTime]'>$fregdate</td>
+	</tr>
+	<tr>
+		<td width='30%'>Perusahaan</td>
+		<td width='70%'><input type='hidden' name='Company_Name' value='$arr[Company_Code]'>$arr[Company_Name]</td>
+	</tr>
+	<tr>
+		<td width='30%'>Kategori Dokumen</td>
+		<td width='70%'>
+
+				<select name='txtDOL_CategoryDocID' id='txtDOL_CategoryDocID'>
+					<option value='0'>--- Pilih Kategori Dokumen ---</option>";
+			$query5="SELECT DocumentCategory_ID, DocumentCategory_Name
+				FROM db_master.M_DocumentCategory
+				WHERE DocumentCategory_Delete_Time IS NULL";
+			$sql5 = mysql_query($query5);
+
+			while ($field5=mysql_fetch_array($sql5)) {
+				if ($field5["DocumentCategory_ID"]=="$arr[DOL_CategoryDocID]"){
+$MainContent .="
+				<option value='$field5[DocumentCategory_ID]' selected='selected'>$field5[DocumentCategory_Name]</option>";
+				}
+				else{
+$MainContent .="
+				<option value='$field5[DocumentCategory_ID]'>$field5[DocumentCategory_Name]</option>";
+				}
+			}
+$MainContent .="
+			</select>
+		</td>
+	</tr>
+	<tr>
+		<td width='30%'>Nama Dokumen</td>
+		<td width='70%'><input name='txtDOL_NamaDokumen' id='txtDOL_NamaDokumen' type='text' value='$arr[DOL_NamaDokumen]'></td>
+	</tr>
+	<tr>
+		<td width='30%'>Instansi Terkait</td>
+		<td width='70%'><input type='text' name='txtDOL_InstansiTerkait' id='txtDOL_InstansiTerkait' value='$arr[DOL_InstansiTerkait]'></td>
+	</tr>
+	<tr>
+		<td width='30%'>Nomor Dokumen</td>
+		<td width='70%'><input type='text' name='txtDOL_NoDokumen' id='txtDOL_NoDokumen' value='$arr[DOL_NoDokumen]'></td>
+	</tr>
+	<tr>
+		<td width='30%'>Tanggal Terbit Dokumen</td>
+		<td width='70%'>
+			<input type='text' name='txtDOL_TglTerbit' id='txtDOL_TglTerbit' size='7' value='$tgl_terbit' onclick=\"javascript:NewCssCal('txtDOL_TglTerbit', 'MMddyyyy');\">
+		</td>
+	</tr>
+	<tr>
+		<td width='30%'>Tanggal Berakhir Dokumen</td>
+		<td width='70%'>
+			<input type='text' name='txtDOL_TglBerakhir' id='txtDOL_TglBerakhir' size='7' value='$tgl_berakhir' onclick=\"javascript:NewCssCal('txtDOL_TglBerakhir', 'MMddyyyy');\">
+		</td>
+	</tr>
+	<tr>
+		<td width='30%'>Lokasi Dokumen</td>
+		<td width='70%'>$arr[DOL_Location]</td>
+	</tr>
+	<tr>
+		<td width='30%'>Status</td>
+		<td width='70%'>$arr[LDS_Name]</td>
+	</tr>";
+		if ((($custodian==1)||($admin=="1")) && ($arr['DOL_Softcopy']==NULL) ) {
+$MainContent .="
+	<tr>
+		<td width='30%'>Upload Softcopy Dokumen</td>
+		<td width='70%'>
+			<input name='userfile' type='file' size='30'/>
+			<input type='submit' value='Upload' name='uploadOL' class='button-small' />
+		</td>
+	</tr>";
+		}
+
+		elseif ((($custodian==1)||($admin=="1")) && ($arr['DOL_Softcopy']<> NULL) ) {
+$MainContent .="
+	<tr>
+		<td width='30%'>Softcopy Dokumen</td>
+		<td width='70%'>
+			<a href='$arr[DOL_Softcopy]' class='underline'>[Download Softcopy]</a><br>
+			<input name='userfile' type='file' size='30'/>
+			<input type='submit' value='Upload' name='uploadOL' class='button-small' />
+		</td>
+	</tr>";
+		}
+
+$MainContent .="
+	<th colspan='2'>
+		<input name='editOL' type='submit' value='Simpan' class='button' onclick='return validateInputEdit(this);'/>
+		<input name='cancel' type='submit' value='Batal' class='button'/>
+	</th>
+	</table>
+	</form>
+";
+	}
+
+	//Melihat Detail Dokumen Lainnya Di Luar Legal
+	if(($act=='detailONL') || ($act=='editONL') ){
+		$id=$_GET["id"];
+		$query = "SELECT donl.DONL_DocCode,
+						 u.User_FullName,
+						 donl.DONL_RegTime,
+						 c.Company_Name, c.Company_Code,
+						 donl.DONL_PT_ID, c2.Company_Name nama_pt,
+						 donl.DONL_NoDokumen, donl.DONL_NamaDokumen, donl.DONL_TahunDokumen,
+						 donl.DONL_Dept_Code, m_d.Department_Name nama_departemen,
+						 donl.DONL_Location,
+						 donl.DONL_Softcopy,
+						 lds.LDS_Name
+			FROM M_DocumentsOtherNonLegal donl
+			LEFT JOIN M_Company c
+				ON donl.DONL_CompanyID=c.Company_ID
+			LEFT JOIN M_LoanDetailStatus lds
+				ON donl.DONL_Status=lds.LDS_ID
+			LEFT JOIN M_User u
+				ON donl.DONL_RegUserID=u.User_ID
+			LEFT JOIN M_Company c2
+				ON c2.Company_ID=donl.DONL_PT_ID
+			LEFT JOIN db_master.M_Department m_d
+				ON m_d.Department_Code=donl.DONL_Dept_Code
+			WHERE donl.DONL_DocCode='$id'";
+		$sql = mysql_query($query);
+		$arr = mysql_fetch_array($sql);
+	}
+	if($act=='detailONL') {
+		$fregdate = date("j M Y", strtotime($arr['DONL_RegTime']));
+
+	$MainContent ="
+	<table width='100%' border='1' class='stripeMe'>
+	<tr>
+		<th colspan='2'>Detail Dokumen Lainnya (Di Luar Legal)</th>
+	</tr>
+	<tr>
+		<td width='30%'>Kode Dokumen</td>
+		<td width='70%'><input type='hidden' name='DONL_DocCode' value='$arr[DONL_DocCode]'>$arr[DONL_DocCode]</td>
+	</tr>
+	<tr>
+		<td width='30%'>Nama Pendaftar</td>
+		<td width='70%'>$arr[User_FullName]</td>
+	</tr>
+	<tr>
+		<td width='30%'>Tanggal Pendaftaran</td>
+		<td width='70%'><input type='hidden' name='DONL_RegTime' value='$arr[DONL_RegTime]'>$fregdate</td>
+	</tr>
+	<tr>
+		<td width='30%'>Perusahaan</td>
+		<td width='70%'><input type='hidden' name='Company_Name' value='$arr[Company_Code]'>$arr[Company_Name]</td>
+	</tr>
+	<tr>
+		<td width='30%'>Nama Perusahaan Pada Dokumen</td>
+		<td width='70%'>$arr[nama_pt]</td>
+	</tr>
+	<tr>
+		<td width='30%'>No. Dokumen</td>
+		<td width='70%'>$arr[DONL_NoDokumen]</td>
+	</tr>
+	<tr>
+		<td width='30%'>Nama Dokumen</td>
+		<td width='70%'>$arr[DONL_NamaDokumen]</td>
+	</tr>
+	<tr>
+		<td width='30%'>Tahun Dokumen</td>
+		<td width='70%'>$arr[DONL_TahunDokumen]</td>
+	</tr>
+	<tr>
+		<td width='30%'>Nama Departemen Pada Dokumen</td>
+		<td width='70%'>$arr[nama_departemen]</td>
+	</tr>
+	<tr>
+		<td width='30%'>Lokasi Dokumen</td>
+		<td width='70%'>$arr[DONL_Location]</td>
+	</tr>
+	<tr>
+		<td width='30%'>Status</td>
+		<td width='70%'>$arr[LDS_Name]</td>
+	</tr>";
+	if ((($custodian==1)||($admin=="1")) && ($arr['DONL_Softcopy']<> NULL) ) {
+	$MainContent .="
+	<tr>
+		<td width='30%'>Softcopy Dokumen</td>
+		<td width='70%'>
+			<a href='$arr[DOL_Softcopy]' class='underline'>[Download Softcopy]</a>
+		</td>
+	</tr>";
+	}
+	$MainContent .="
+	</table>
+	";
+	}
+
+	if(($act=='editONL') && (($custodian==1)||($admin=="1"))){
+		$fregdate = date("j M Y", strtotime($arr['DONL_RegTime']));
+
+	$MainContent ="
+	<form enctype='multipart/form-data' action='' method='POST'>
+	<table width='100%' border='1' class='stripeMe'>
+	<tr>
+		<th colspan='2'>Detail Dokumen Lainnya (Di Luar Legal)</th>
+	</tr>
+	<tr>
+		<td width='30%'>Kode Dokumen</td>
+		<td width='70%'><input type='hidden' name='DONL_DocCode' value='$arr[DONL_DocCode]'>$arr[DONL_DocCode]</td>
+	</tr>
+	<tr>
+		<td width='30%'>Nama Pendaftar</td>
+		<td width='70%'>$arr[User_FullName]</td>
+	</tr>
+	<tr>
+		<td width='30%'>Tanggal Pendaftaran</td>
+		<td width='70%'><input type='hidden' name='DONL_RegTime' value='$arr[DONL_RegTime]'>$fregdate</td>
+	</tr>
+	<tr>
+		<td width='30%'>Perusahaan</td>
+		<td width='70%'><input type='hidden' name='Company_Name' value='$arr[Company_Code]'>$arr[Company_Name]</td>
+	</tr>
+	<tr>
+		<td width='30%'>Nama Perusahaan Pada Dokumen</td>
+		<td width='70%'>
+
+				<select name='txtDONL_PT_ID' id='txtDONL_PT_ID'>
+					<option value='0'>--- Pilih Nama Perusahaan ---</option>";
+			$query5="SELECT Company_ID, Company_Name, Company_Code
+				FROM M_Company
+				WHERE Company_Delete_Time IS NULL";
+			$sql5 = mysql_query($query5);
+
+			while ($field5=mysql_fetch_array($sql5)) {
+				if ($field5["Company_ID"]=="$arr[DONL_PT_ID]"){
+	$MainContent .="
+				<option value='$field5[Company_ID]' selected='selected'>$field5[Company_Name]</option>";
+				}
+				else{
+	$MainContent .="
+				<option value='$field5[Company_ID]'>$field5[Company_Name]</option>";
+				}
+			}
+	$MainContent .="
+			</select>
+		</td>
+	</tr>
+	<tr>
+		<td width='30%'>Nomor Dokumen</td>
+		<td width='70%'><input type='text' name='txtDONL_NoDokumen' id='txtDONL_NoDokumen' value='$arr[DONL_NoDokumen]'></td>
+	</tr>
+	<tr>
+		<td width='30%'>Nama Dokumen</td>
+		<td width='70%'><input name='txtDONL_NamaDokumen' id='txtDONL_NamaDokumen' type='text' value='$arr[DONL_NamaDokumen]'></td>
+	</tr>
+	<tr>
+		<td width='30%'>Tahun Dokumen</td>
+		<td width='70%'><input type='text' name='txtDONL_TahunDokumen' id='txtDONL_TahunDokumen' value='$arr[DONL_TahunDokumen]'></td>
+	</tr>
+	<tr>
+		<td width='30%'>Nama Departemen Pada Dokumen</td>
+		<td width='70%'>
+
+				<select name='txtDONL_Dept_Code' id='txtDONL_Dept_Code'>
+					<option value='0'>--- Pilih Nama Departemen ---</option>";
+			$query6="SELECT Department_Code, Department_Name
+				FROM db_master.M_Department
+				WHERE Department_InactiveTime IS NULL";
+			$sql6 = mysql_query($query6);
+
+			while ($field6=mysql_fetch_array($sql6)) {
+				if ($field6["Department_Code"]=="$arr[DONL_Dept_Code]"){
+	$MainContent .="
+				<option value='$field6[Department_Code]' selected='selected'>$field6[Department_Name]</option>";
+				}
+				else{
+	$MainContent .="
+				<option value='$field6[Department_Code]'>$field6[Department_Name]</option>";
+				}
+			}
+	$MainContent .="
+			</select>
+		</td>
+	</tr>
+	<tr>
+		<td width='30%'>Lokasi Dokumen</td>
+		<td width='70%'>$arr[DONL_Location]</td>
+	</tr>
+	<tr>
+		<td width='30%'>Status</td>
+		<td width='70%'>$arr[LDS_Name]</td>
+	</tr>";
+		if ((($custodian==1)||($admin=="1")) && ($arr['DONL_Softcopy']==NULL) ) {
+	$MainContent .="
+	<tr>
+		<td width='30%'>Upload Softcopy Dokumen</td>
+		<td width='70%'>
+			<input name='userfile' type='file' size='30'/>
+			<input type='submit' value='Upload' name='uploadONL' class='button-small' />
+		</td>
+	</tr>";
+		}
+
+		elseif ((($custodian==1)||($admin=="1")) && ($arr['DONL_Softcopy']<> NULL) ) {
+	$MainContent .="
+	<tr>
+		<td width='30%'>Softcopy Dokumen</td>
+		<td width='70%'>
+			<a href='$arr[DONL_Softcopy]' class='underline'>[Download Softcopy]</a><br>
+			<input name='userfile' type='file' size='30'/>
+			<input type='submit' value='Upload' name='uploadONL' class='button-small' />
+		</td>
+	</tr>";
+		}
+
+	$MainContent .="
+	<th colspan='2'>
+		<input name='editONL' type='submit' value='Simpan' class='button' onclick='return validateInputEdit(this);'/>
+		<input name='cancel' type='submit' value='Batal' class='button'/>
+	</th>
+	</table>
+	</form>
+	";
+	}
 
 /* ====== */
 /* ACTION */
 /* ====== */
 //print_r($_GET);die();
-if(isset($_POST[cancel])) {
+if(isset($_POST['cancel'])) {
 	echo "<meta http-equiv='refresh' content='0; url=document-list.php'>";
 
 }
@@ -1782,6 +2652,77 @@ else if($_POST['editLA']) {
 		}
 	}
 }
+
+else if($_POST['editAO']) {
+	$txtSTNKSDate=date('Y-m-d H:i:s', strtotime($_POST['txtDAO_STNK_StartDate']));
+	$txtSTNKExpDate=date('Y-m-d H:i:s', strtotime($_POST['txtDAO_STNK_ExpiredDate']));
+	if 	($txtSTNKExpDate=="1970-01-01 08:00:00"){
+		$txtSTNKExpDate="";
+	}
+	$txtPajakSDate=date('Y-m-d H:i:s', strtotime($_POST['txtDAO_Pajak_StartDate']));
+	$txtPajakExpDate=date('Y-m-d H:i:s', strtotime($_POST['txtDAO_Pajak_ExpiredDate']));
+	if 	($txtPajakExpDate=="1970-01-01 08:00:00"){
+		$txtPajakExpDate="";
+	}
+
+	$query = "UPDATE M_DocumentAssetOwnership
+			  SET DAO_Employee_NIK='$_POST[txtDAO_EMployee_NIK]',
+			  	  DAO_MK_ID='$_POST[txtDAO_MK_ID]',
+			  	  DAO_Type='$_POST[txtDAO_Type]',
+				  DAO_Jenis='$_POST[txtDAO_Jenis]',
+				  DAO_NoPolisi='$_POST[txtDAO_NoPolisi]',
+				  DAO_NoRangka='$_POST[txtDAO_NoRangka]',
+				  DAO_NoMesin='$_POST[txtDAO_NoMesin]',
+				  DAO_NoBPKB='$_POST[txtDAO_NoBPKB]',
+			  	  DAO_STNK_StartDate='$txtSTNKSDate',
+				  DAO_STNK_ExpiredDate='$txtSTNKExpDate',
+				  DAO_Pajak_StartDate='$txtPajakSDate',
+				  DAO_Pajak_ExpiredDate='$txtPajakExpDate',
+				  DAO_Lokasi_PT='$_POST[txtDAO_Lokasi_PT]',
+				  DAO_Region='$_POST[txtDAO_Region]',
+				  DAO_Keterangan='$_POST[txtDAO_Keterangan]',
+			  	  DAO_Update_Time=sysdate(),
+			      DAO_Update_UserID='$_SESSION[User_ID]'
+			  WHERE DAO_DocCode='$_POST[DAO_DocCode]'";
+	if ($mysqli->query($query))
+		echo "<meta http-equiv='refresh' content='0; url=document-list.php'>";
+}
+
+else if($_POST['editOL']) {
+	$txtTglTerbit=date('Y-m-d H:i:s', strtotime($_POST['txtDOL_TglTerbit']));
+	$txtTglBerakhir=date('Y-m-d H:i:s', strtotime($_POST['txtDOL_TglBerakhir']));
+	if 	($txtExpDate=="1970-01-01 08:00:00"){
+		$txtExpDate="";
+	}
+
+	$query = "UPDATE M_DocumentsOtherLegal
+			  SET DOL_NamaDokumen='$_POST[txtDOL_NamaDokumen]',
+				  DOL_InstansiTerkait='$_POST[txtDOL_InstansiTerkait]',
+				  DOL_NoDokumen='$_POST[txtDOL_NoDokumen]',
+			  	  DOL_TglTerbit='$txtTglTerbit',
+				  DOL_TglBerakhir='$txtTglBerakhir',
+			  	  DOL_Update_Time=sysdate(),
+			      DOL_Update_UserID='$_SESSION[User_ID]'
+			  WHERE DOL_DocCode='$_POST[DOL_DocCode]'";
+	if ($mysqli->query($query))
+		echo "<meta http-equiv='refresh' content='0; url=document-list.php'>";
+}
+
+else if($_POST['editONL']) {
+
+	$query = "UPDATE M_DocumentsOtherNonLegal
+			  SET DONL_PT_ID='$_POST[txtDONL_PT_ID]',
+			  	  DONL_NoDokumen='$_POST[txtDONL_NoDokumen]',
+			  	  DONL_NamaDokumen='$_POST[txtDONL_NamaDokumen]',
+				  DONL_TahunDokumen='$_POST[txtDONL_TahunDokumen]',
+				  DONL_Dept_Code='$_POST[txtDONL_Dept_Code]',
+			  	  DONL_Update_Time=sysdate(),
+			      DONL_Update_UserID='$_SESSION[User_ID]'
+			  WHERE DONL_DocCode='$_POST[DONL_DocCode]'";
+	if ($mysqli->query($query))
+		echo "<meta http-equiv='refresh' content='0; url=document-list.php'>";
+}
+
 else if($_POST['upload']){
 	$DL_DocCode=$_POST[DL_DocCode];
 	$Company_Name=$_POST[Company_Name];
@@ -1877,6 +2818,151 @@ else if($_POST['uploadLA']){
 		}
 	}
 }
+
+else if($_POST['uploadAO']){
+	$DAO_DocCode=$_POST[DAO_DocCode];
+	$Company_Name=$_POST[Company_Name];
+	$DocumentGroup_Code=$_POST[DocumentGroup_Code];
+	$regdate=strtotime($_POST['DAO_RegTime']);
+	$DAO_RegTime=date("Y", $regdate);
+
+	$uploaddir = "SOFTCOPY/$Company_Name/$DocumentGroup_Code/$DAO_RegTime/";
+	if ( ! is_dir($uploaddir)) {
+		$oldumask = umask(0);
+		mkdir("$uploaddir", 0777, true); // or even 01777 so you get the sticky bit set
+		chmod("/$Company_Name", 0777);
+		chmod("/$DocumentGroup_Code", 0777);
+		chmod("/$DAO_RegTime", 0777);
+		umask($oldumask);
+	}
+	$uploadFile = $_FILES['userfile'];
+	$extractFile = pathinfo($uploadFile['name']);
+
+	$newName = $DAO_DocCode.'.'.$extractFile['extension'];
+	$sameName = 0;
+	if ($handle = opendir("$uploaddir")) {
+		while (false !== ($file = readdir($handle))) {
+			if ($file==$newName) {
+				if(strpos($newName,$DAO_DocCode) !== false)  {
+					$sameName++; // Tambah data file yang sama
+					$newName = $DAO_DocCode.'('.$sameName.')'.'.'.$extractFile['extension'];
+				}
+			}
+		}
+		closedir($handle);
+	}
+
+	if ($DocumentGroup_Code == 'KEA') {
+		$query="UPDATE M_DocumentAssetOwnership
+				SET DAO_Softcopy='$uploaddir$newName',
+					DAO_Update_UserID='$_SESSION[User_ID]',
+					DAO_Update_Time=sysdate()
+				WHERE DAO_DocCode='$DAO_DocCode'";
+	}
+
+	if ($mysqli->query($query)){
+		if(move_uploaded_file($uploadFile['tmp_name'],$uploaddir.$newName)){
+			echo "<meta http-equiv='refresh' content='0; url=document-list.php?act=editAO&id=$DAO_DocCode'>";
+		}
+	}
+}
+
+else if($_POST['uploadOL']){
+	$DOL_DocCode=$_POST[DOL_DocCode];
+	$Company_Name=$_POST[Company_Name];
+	$DocumentGroup_Code=$_POST[DocumentGroup_Code];
+	$regdate=strtotime($_POST['DOL_RegTime']);
+	$DOL_RegTime=date("Y", $regdate);
+
+	$uploaddir = "SOFTCOPY/$Company_Name/$DocumentGroup_Code/$DL_RegTime/";
+	if ( ! is_dir($uploaddir)) {
+		$oldumask = umask(0);
+		mkdir("$uploaddir", 0777, true); // or even 01777 so you get the sticky bit set
+		chmod("/$Company_Name", 0777);
+		chmod("/$DocumentGroup_Code", 0777);
+		chmod("/$DOL_RegTime", 0777);
+		umask($oldumask);
+	}
+	$uploadFile = $_FILES['userfile'];
+	$extractFile = pathinfo($uploadFile['name']);
+
+	$newName = $DOL_DocCode.'.'.$extractFile['extension'];
+	$sameName = 0;
+	if ($handle = opendir("$uploaddir")) {
+		while (false !== ($file = readdir($handle))) {
+			if ($file==$newName) {
+				if(strpos($newName,$DOL_DocCode) !== false)  {
+					$sameName++; // Tambah data file yang sama
+					$newName = $DOL_DocCode.'('.$sameName.')'.'.'.$extractFile['extension'];
+				}
+			}
+		}
+		closedir($handle);
+	}
+
+	if ($DocumentGroup_Code == 'DLL') {
+		$query="UPDATE M_DocumentsOtherLegal
+				SET DOL_Softcopy='$uploaddir$newName',
+					DOL_Update_UserID='$_SESSION[User_ID]',
+					DOL_Update_Time=sysdate()
+				WHERE DOL_DocCode='$DOL_DocCode'";
+	}
+
+	if ($mysqli->query($query)){
+		if(move_uploaded_file($uploadFile['tmp_name'],$uploaddir.$newName)){
+			echo "<meta http-equiv='refresh' content='0; url=document-list.php?act=editOL&id=$DOL_DocCode'>";
+		}
+	}
+}
+
+else if($_POST['uploadONL']){
+	$DONL_DocCode=$_POST[DONL_DocCode];
+	$Company_Name=$_POST[Company_Name];
+	$DocumentGroup_Code=$_POST[DocumentGroup_Code];
+	$regdate=strtotime($_POST['DONL_RegTime']);
+	$DONL_RegTime=date("Y", $regdate);
+
+	$uploaddir = "SOFTCOPY/$Company_Name/$DocumentGroup_Code/$DL_RegTime/";
+	if ( ! is_dir($uploaddir)) {
+		$oldumask = umask(0);
+		mkdir("$uploaddir", 0777, true); // or even 01777 so you get the sticky bit set
+		chmod("/$Company_Name", 0777);
+		chmod("/$DocumentGroup_Code", 0777);
+		chmod("/$DL_RegTime", 0777);
+		umask($oldumask);
+	}
+	$uploadFile = $_FILES['userfile'];
+	$extractFile = pathinfo($uploadFile['name']);
+
+	$newName = $DONL_DocCode.'.'.$extractFile['extension'];
+	$sameName = 0;
+	if ($handle = opendir("$uploaddir")) {
+		while (false !== ($file = readdir($handle))) {
+			if ($file==$newName) {
+				if(strpos($newName,$DONL_DocCode) !== false)  {
+					$sameName++; // Tambah data file yang sama
+					$newName = $DONL_DocCode.'('.$sameName.')'.'.'.$extractFile['extension'];
+				}
+			}
+		}
+		closedir($handle);
+	}
+
+	if ($DocumentGroup_Code == 'DLNL') {
+		$query="UPDATE M_DocumentsOtherNonLegal
+				SET DONL_Softcopy='$uploaddir$newName',
+					DONL_Update_UserID='$_SESSION[User_ID]',
+					DONL_Update_Time=sysdate()
+				WHERE DONL_DocCode='$DONL_DocCode'";
+	}
+
+	if ($mysqli->query($query)){
+		if(move_uploaded_file($uploadFile['tmp_name'],$uploaddir.$newName)){
+			echo "<meta http-equiv='refresh' content='0; url=document-list.php?act=editONL&id=$DONL_DocCode'>";
+		}
+	}
+}
+
 }
 
 $page->ActContent($ActionContent);

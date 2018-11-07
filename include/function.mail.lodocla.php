@@ -127,16 +127,19 @@ function mail_loan_doc($loanCode,$reminder=0){
 			$tipe_dokumen = ucfirst(strtolower($row->THLOLAD_DocumentType)); //Arief F - 07092018
 			$cap_atau_watermark = "Watermark";
 		}else{ //Arief F - 07092018
-			if( $row->THLOLAD_LoanCategoryID != '3') $tipe_dokumen .= "Asli"; //Arief F - 07092018
-			else $tipe_dokumen .= ""; //Arief F - 07092018
+			if( $row->THLOLAD_LoanCategoryID == '1' or $row->THLOLAD_LoanCategoryID == '2' ) $tipe_dokumen = "Asli";
+			elseif( $row->THLOLAD_LoanCategoryID == '3') $tipe_dokumen = "Hardcopy";
+			elseif( $row->THLOLAD_LoanCategoryID == '4') $tipe_dokumen = "Softcopy";
+			else $tipe_dokumen = ""; //Arief F - 07092018
 		} //Arief F - 07092018
-		if( $row->THLOLAD_DocumentWithWatermarkOrNot == "1" ){ //Arief F - 07092018
-			$dengan_cap = " dengan ".$cap_atau_watermark; //Arief F - 07092018
-		}elseif( $row->THLOLAD_DocumentWithWatermarkOrNot == "2" ){ //Arief F - 07092018
-			$dengan_cap = " tanpa ".$cap_atau_watermark; //Arief F - 07092018
-		}else{ //Arief F - 07092018
-			$dengan_cap = ""; //Arief F - 07092018
-		} //Arief F - 07092018
+		$dengan_cap = "";
+		if( $tipe_dokumen == "Hardcopy" || $tipe_dokumen == "Softcopy" ){
+			if( $row->THLOLAD_DocumentWithWatermarkOrNot == "1" ){ //Arief F - 07092018
+				$dengan_cap = " dengan ".$cap_atau_watermark; //Arief F - 07092018
+			}elseif( $row->THLOLAD_DocumentWithWatermarkOrNot == "2" ){ //Arief F - 07092018
+				$dengan_cap = " tanpa ".$cap_atau_watermark; //Arief F - 07092018
+			}
+		}
 		// $asli = ($row->THLOLAD_LoanCategoryID != '3') ? ' Asli ' : '';
 		$keteranganPermintaan = ""; //Arief F - 07092018
 		if( $row->THLOLAD_Information != null or $row->THLOLAD_Information != "" ){ //Arief F - 07092018
@@ -170,8 +173,8 @@ function mail_loan_doc($loanCode,$reminder=0){
 				</p>
 				<p><span style="margin-bottom: 15px; font-size: 13px;font-family: \'lucida grande\',tahoma,verdana,arial,sans-serif;">Untuk itu dimohon Bapak/Ibu dapat memberikan persetujuan permintaan dokumen di atas. Terima kasih.  </span><br />
 				</p>
-				<p align=center><span style="border: 1px solid green;padding: 5px;margin-bottom: 15px; font-size: 13px;font-family: \'lucida grande\',tahoma,verdana,arial,sans-serif;background-color: rgb(196, 223, 155);color: white;float: left;margin-left: 15%;width: 20%;border-radius: 10px;"><a target="_BLANK" style="color: white;" href="http://'.$_SERVER['HTTP_HOST'].'/custodian/act.mail.lodocla.php?cfm='.$decrp->encrypt('accept').'&ati='.$decrp->encrypt($row->ARC_AID).'&rdm='.$decrp->encrypt($row->ARC_RandomCode).'">Setuju</a></span>
-				<span style="border: 1px solid green;padding: 5px;margin-bottom: 15px; font-size: 13px;font-family: \'lucida grande\',tahoma,verdana,arial,sans-serif;background-color: rgb(196, 223, 155);color: white;float: right;margin-right: 15%;width: 20%;border-radius: 10px;"><a target="_BLANK" style="color: white;" href="http://'.$_SERVER['HTTP_HOST'].'/custodian/act.mail.lodocla.php?act='.$decrp->encrypt('reject').'&ati='.$decrp->encrypt($row->ARC_AID).'&rdm='.$decrp->encrypt($row->ARC_RandomCode).'">Tolak</a></span><br />
+				<p align=center><span style="border: 1px solid green;padding: 5px;margin-bottom: 15px; font-size: 13px;font-family: \'lucida grande\',tahoma,verdana,arial,sans-serif;background-color: rgb(196, 223, 155);color: white;float: left;margin-left: 15%;width: 20%;border-radius: 10px;"><a target="_BLANK" style="color: white;" href="http://'.$_SERVER['HTTP_HOST'].'/act.mail.lodocla.php?cfm='.$decrp->encrypt('accept').'&ati='.$decrp->encrypt($row->ARC_AID).'&rdm='.$decrp->encrypt($row->ARC_RandomCode).'">Setuju</a></span>
+				<span style="border: 1px solid green;padding: 5px;margin-bottom: 15px; font-size: 13px;font-family: \'lucida grande\',tahoma,verdana,arial,sans-serif;background-color: rgb(196, 223, 155);color: white;float: right;margin-right: 15%;width: 20%;border-radius: 10px;"><a target="_BLANK" style="color: white;" href="http://'.$_SERVER['HTTP_HOST'].'/act.mail.lodocla.php?act='.$decrp->encrypt('reject').'&ati='.$decrp->encrypt($row->ARC_AID).'&rdm='.$decrp->encrypt($row->ARC_RandomCode).'">Tolak</a></span><br />
 				</p>
 				</div>';
 
@@ -465,16 +468,19 @@ function mail_notif_loan_doc($loanCode, $User_ID, $status, $attr){
 			}elseif($ed_arr->THLOLAD_DocumentType == "HARDCOPY" or $ed_arr->THLOLAD_DocumentType == "SOFTCOPY"){ //Arief F - 07092018
 				$tipe_dokumen = ucfirst(strtolower($ed_arr->THLOLAD_DocumentType)); //Arief F - 07092018
 			}else{ //Arief F - 07092018
-				if( $ed_arr->THLOLAD_LoanCategoryID != '3') $tipe_dokumen .= "Asli"; //Arief F - 07092018
-				else $tipe_dokumen .= ""; //Arief F - 07092018
+				if( $ed_arr->THLOLAD_LoanCategoryID == '1' or $ed_arr->THLOLAD_LoanCategoryID == '2' ) $tipe_dokumen = "Asli";
+				elseif( $ed_arr->THLOLAD_LoanCategoryID == '3') $tipe_dokumen = "Hardcopy";
+				elseif( $ed_arr->THLOLAD_LoanCategoryID == '4') $tipe_dokumen = "Softcopy";
+				else $tipe_dokumen = ""; //Arief F - 07092018
 			} //Arief F - 07092018
-			if( $ed_arr->THLOLAD_DocumentWithWatermarkOrNot == "1" ){ //Arief F - 07092018
-				$dengan_cap = " dengan Watermark"; //Arief F - 07092018
-			}elseif( $ed_arr->THLOLAD_DocumentWithWatermarkOrNot == "2" ){ //Arief F - 07092018
-				$dengan_cap = " tanpa Watermark"; //Arief F - 07092018
-			}else{ //Arief F - 07092018
-				$dengan_cap = ""; //Arief F - 07092018
-			} //Arief F - 07092018
+			$dengan_cap = "";
+			if( $tipe_dokumen == "Hardcopy" || $tipe_dokumen == "Softcopy" ){
+				if( $ed_arr->THLOLAD_DocumentWithWatermarkOrNot == "1" ){ //Arief F - 07092018
+					$dengan_cap = " dengan ".$cap_atau_watermark; //Arief F - 07092018
+				}elseif( $ed_arr->THLOLAD_DocumentWithWatermarkOrNot == "2" ){ //Arief F - 07092018
+					$dengan_cap = " tanpa ".$cap_atau_watermark; //Arief F - 07092018
+				}
+			}
 			// $asli = ($row->THLOLAD_LoanCategoryID != '3') ? ' Asli ' : '';
 			$keteranganPermintaan = ""; //Arief F - 07092018
 			if( $ed_arr->THLOLAD_Information != null or $ed_arr->THLOLAD_Information != "" ){ //Arief F - 07092018

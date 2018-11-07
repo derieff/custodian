@@ -77,13 +77,10 @@ if( !empty($_GET['cfm']) && !empty($_GET['ati']) && !empty($_GET['rdm']) ) {
 					$qComp = "SELECT Company_Area FROM M_Company WHERE Company_ID = '{$h_arr['THLOOLD_CompanyID']}'";
 					$aComp = mysql_fetch_array(mysql_query($qComp));
 
-					if($h_arr['THLOOLD_DocumentType'] == "ORIGINAL" or $h_arr['THLOOLD_DocumentType'] == "SOFTCOPY"){
-						$jenis = "17";
-					}elseif($h_arr['THLOOLD_DocumentType'] == "HARDCOPY"){
-						$jenis = "18";
-					}else{
-						$jenis = "";
-					}
+					if ($h_arr['THLOOLD_DocumentType'] == "ORIGINAL") { $jenis = '17'; }
+					else if ($h_arr['THLOOLD_DocumentType'] == "HARDCOPY") { $jenis = '18'; }
+					else if ($h_arr['THLOOLD_DocumentType'] == "SOFTCOPY") { $jenis = '26'; }
+					else;
 
 					for ($i=$nStep; $i<=$jStep; $i++) {
 						$j = $i + 1;
@@ -314,6 +311,7 @@ if( !empty($_GET['cfm']) && !empty($_GET['ati']) && !empty($_GET['rdm']) ) {
 								case "3":
 									$docStatus="1";
 									break;
+								default: $docStatus="1";
 							}
 
 							$query1="UPDATE M_DocumentsOtherLegal

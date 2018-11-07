@@ -182,6 +182,8 @@ if(isset($_GET["act"]))
 		$sql1 = mysql_query($query1);
 		$field1 = mysql_fetch_array($sql1);
 
+		$jenis = "22"; //Semua Dokumen
+
 		$queryApprover = "
 			SELECT ma.Approver_UserID, rads.RADS_StepID, rads.RADS_RA_ID, ra.RA_Name
 			FROM M_Role_ApproverDocStepStatus rads
@@ -189,7 +191,7 @@ if(isset($_GET["act"]))
 				ON rads.RADS_RA_ID = ra.RA_ID
 			LEFT JOIN M_Approver ma
 				ON ra.RA_ID = ma.Approver_RoleID
-			WHERE rads.RADS_DocID = '22'
+			WHERE rads.RADS_DocID = '$jenis'
 				AND rads.RADS_ProsesID = '4'
 				AND ma.Approver_Delete_Time IS NULL
 				ORDER BY rads.RADS_StepID
@@ -441,7 +443,9 @@ if(isset($_GET["act"]))
 
 		$queryd = "SELECT dao.DAO_DocCode, c.Company_Name, dg.DocumentGroup_Name,
 						  dao.DAO_ID,tdrtoaod.TDRTOAOD_Information,
-						  m_e.Employee_FullName, m_mk.MK_Name, dao.DAO_Type, dao.DAO_Jenis,
+						  -- m_e.Employee_FullName,
+						  dao.DAO_Employee_NIK,
+						  m_mk.MK_Name, dao.DAO_Type, dao.DAO_Jenis,
 						  dao.DAO_NoPolisi, dao.DAO_NoRangka, dao.DAO_NoMesin, dao.DAO_NoBPKB,
 						  dao.DAO_STNK_StartDate, dao.DAO_STNK_ExpiredDate,
 						  dao.DAO_Pajak_StartDate, dao.DAO_Pajak_ExpiredDate,
@@ -459,16 +463,42 @@ if(isset($_GET["act"]))
 		$sqld = mysql_query($queryd);
 		while ($arrd = mysql_fetch_array($sqld)) {
 			$stnk_sdate=date("j M Y", strtotime($arrd['DAO_STNK_StartDate']));
-			$stnk_exdate=(($arrd['DAO_STNK_ExpiredDate']=="0000-00-00 00:00:00")||($arrd['DAO_STNK_ExpiredDate']=="1970-01-01 01:00:00"))?"-":date("j M Y", strtotime($arrd['DAO_STNK_ExpiredDate']));
+			if ( (strpos($arr['DAO_STNK_ExpiredDate'], '0000-00-00') !== false ) || ( strpos($arr['DAO_STNK_ExpiredDate'], '1970-01-01') !== false ) ){
+				$stnk_exdate = "-";
+			}else{
+				$stnk_exdate = date("j M Y", strtotime($arrd['DAO_STNK_ExpiredDate']));
+			}
 
 			$pajak_sdate=date("j M Y", strtotime($arrd['DAO_Pajak_StartDate']));
-			$pajak_exdate=(($arrd['DAO_Pajak_ExpiredDate']=="0000-00-00 00:00:00")||($arrd['DAO_Pajak_ExpiredDate']=="1970-01-01 01:00:00"))?"-":date("j M Y", strtotime($arrd['DAO_Pajak_ExpiredDate']));
+			if ( (strpos($arr['DAO_Pajak_ExpiredDate'], '0000-00-00') !== false ) || ( strpos($arr['DAO_Pajak_ExpiredDate'], '1970-01-01') !== false ) ){
+				$pajak_exdate = "-";
+			}else{
+				$pajak_exdate = date("j M Y", strtotime($arrd['DAO_Pajak_ExpiredDate']));
+			}
+
+			if(strpos($arrd['DAO_Employee_NIK'], 'CO@') !== false){
+				$get_company_code = explode('CO@', $arrd['DAO_Employee_NIK']);
+				$company_code = $get_company_code[1];
+				$query7="SELECT Company_Name AS nama_pemilik
+					FROM M_Company
+					WHERE Company_code='$company_code'";
+			}else{
+				$query7="SELECT Employee_FullName AS nama_pemilik
+					FROM db_master.M_Employee
+					WHERE Employee_NIK='$arrd[DAO_Employee_NIK]'";
+			}
+			$sql7 = mysql_query($query7);
+			$nama_pemilik = "-";
+			if(mysql_num_rows($sql7) > 0){
+				$data7 = mysql_fetch_array($sql7);
+				$nama_pemilik = $data7['nama_pemilik'];
+			}
 
 			$ActionContent .="
 			<tr>
 				<td align='center'>$arrd[DAO_DocCode]</td>
 				<td align='center'>$arrd[Company_Name]</td>
-				<td align='center'>$arrd[Employee_FullName]</td>
+				<td align='center'>$nama_pemilik</td>
 				<td align='center'>$arrd[MK_Name]</td>
 				<td align='center'>$arrd[DAO_Type]</td>
 				<td align='center'>$arrd[DAO_Jenis]</td>

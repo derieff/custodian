@@ -384,7 +384,6 @@ if(($act=='approve')&&($approver=="1")) {
 		</td>
 	</tr>";
 }else {
-	/*
 	$MainContent .="
 	<tr>
 		<td>Status Pendaftaran</td>";
@@ -411,7 +410,7 @@ if(($act=='approve')&&($approver=="1")) {
 	}else {
 		$MainContent .="
 		<td colspan='2'>Draft</td></tr>";
-	}*/
+	}
 }
 
 $MainContent .="</table>";
@@ -453,7 +452,7 @@ while ($arr = mysql_fetch_array($sql)) {
 	if((($act=='edit') && (($custodian==1)||($admin=="1"))) || (($act=='approve')&&($approver=="1")&&($custodian==1))) {
 		$DocumentCategory_ID=$arr["DocumentCategory_ID"];
 		$fpubdate=date("m/d/Y", strtotime($arr['TDROLD_DatePublication']));
-		$fexpdate=(($arr['TDROLD_DateExpired']=="0000-00-00 00:00:00")||($arr['TDROLD_DateExpired']=="1970-01-01 01:00:00"))?"-":date("m/d/Y", strtotime($arr['TDROLD_DateExpired']));
+		$fexpdate=(($arr['TDROLD_DateExpired']=="0000-00-00 00:00:00")||($arr['TDROLD_DateExpired']=="1970-01-01 01:00:00"))?"12/31/9999":date("m/d/Y", strtotime($arr['TDROLD_DateExpired']));
 
 		$MainContent .="
 		<tr>
@@ -559,8 +558,8 @@ while ($arr = mysql_fetch_array($sql)) {
 			</td>
 		</tr>";
 	}else {
-		$fpubdate=date("j M Y", strtotime($arr['TDROLD_DatePublication']));
-		$fexpdate=(($arr['TDROLD_DateExpired']=="0000-00-00 00:00:00")||($arr['TDROLD_DateExpired']=="1970-01-01 01:00:00"))?"-":date("m/d/Y", strtotime($arr['TDROLD_DateExpired']));
+		$fpubdate=date("m/d/Y", strtotime($arr['TDROLD_DatePublication']));
+		$fexpdate=(($arr['TDROLD_DateExpired']=="0000-00-00 00:00:00")||($arr['TDROLD_DateExpired']=="1970-01-01 01:00:00"))?"12/31/9999":date("m/d/Y", strtotime($arr['TDROLD_DateExpired']));
 
 		$MainContent .="
 		<tr>
@@ -739,7 +738,7 @@ else if(isset($_POST[edit])) {
 						* Nicholas - 26 Sept 2018			*
 						* Fix Bug skip approval				*
 						************************************/
-						
+
 						/*if ($i == $jStep) {
 							$query = "UPDATE TH_RegistrationOfLegalDocument
 								SET THROLD_Status='accept', THROLD_Update_UserID='$A_ApproverID',
@@ -780,7 +779,7 @@ else if(isset($_POST[edit])) {
 						* Nicholas - 26 Sept 2018			*
 						* Fix Bug skip approval				*
 						************************************/
-						
+
 						/*if ($i == $jStep) {
 							$query = "UPDATE TH_RegistrationOfLegalDocument
 								SET THROLD_Status='accept', THROLD_Update_UserID='$A_ApproverID',

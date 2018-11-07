@@ -69,7 +69,7 @@ $DocID=$_GET["id"];
 $query = "SELECT DISTINCT throaod.THROAOD_ID, throaod.THROAOD_ReleaseCode, throaod.THROAOD_ReleaseDate, u.User_ID,
           u.User_FullName, c.Company_Name, throaod.THROAOD_Status, throaod.THROAOD_Information, thloaod.THLOAOD_UserID,
 		  dg.DocumentGroup_Name, dg.DocumentGroup_ID, throaod.THROAOD_Reason,c.Company_ID,thloaod.THLOAOD_LoanCategoryID,
-		  throaod.THROAOD_DocumentReceived
+		  throaod.THROAOD_DocumentReceived, throaod.THROAOD_ReasonOfDocumentCancel
 		  	FROM TH_ReleaseOfAssetOwnershipDocument throaod, M_User u, M_Company c, M_Approval dra,
 				 M_DocumentGroup dg, TH_LoanOfAssetOwnershipDocument thloaod, TD_LoanOfAssetOwnershipDocument tdloaod
 			WHERE throaod.THROAOD_Delete_Time is NULL
@@ -85,7 +85,7 @@ $query = "SELECT DISTINCT throaod.THROAOD_ID, throaod.THROAOD_ReleaseCode, throa
 $query = "SELECT DISTINCT throaod.THROAOD_ID, throaod.THROAOD_ReleaseCode, throaod.THROAOD_ReleaseDate, u.User_ID,
           u.User_FullName, c.Company_Name, throaod.THROAOD_Status, throaod.THROAOD_Information, thloaod.THLOAOD_UserID,
 		  dg.DocumentGroup_Name, dg.DocumentGroup_ID, throaod.THROAOD_Reason,c.Company_ID,thloaod.THLOAOD_LoanCategoryID,
-		  throaod.THROAOD_DocumentReceived
+		  throaod.THROAOD_DocumentReceived, throaod.THROAOD_ReasonOfDocumentCancel
 		  	FROM TH_ReleaseOfAssetOwnershipDocument throaod, M_User u, M_Company c, M_Approval dra,
 				 M_DocumentGroup dg, TH_LoanOfAssetOwnershipDocument thloaod, TD_LoanOfAssetOwnershipDocument tdloaod
 			WHERE throaod.THROAOD_Delete_Time is NULL
@@ -94,6 +94,7 @@ $query = "SELECT DISTINCT throaod.THROAOD_ID, throaod.THROAOD_ReleaseCode, throa
 			AND throaod.THROAOD_UserID=u.User_ID
 			AND dra.A_TransactionCode=throaod.THROAOD_ReleaseCode
 			AND throaod.THROAOD_ID='$DocID'
+			AND thloaod.THLOAOD_UserID='$_SESSION[User_ID]'
 			AND dg.DocumentGroup_ID='4'";
 	}
 
@@ -101,7 +102,7 @@ $sql = mysql_query($query);
 $arr = mysql_fetch_array($sql);
 
 $showFormKonfirmasiPenerimaanDokumen = 0;
-if( $arr['THROAOD_DocumentReceived'] != 1 && $arr['THROAOD_Status']=="accept" && ($arr['User_ID'] == $_SESSION['User_ID'])){ //Arief F - 21092018
+if( $arr['THROAOD_DocumentReceived'] == NULL && $arr['THROAOD_Status']=="accept" && ($arr['THLOAOD_UserID'] == $_SESSION['User_ID'])){ //Arief F - 21092018
 	//Jika user adalah pengaju (untuk mengonfirmasi dokumen sudah diteriim atau tidak)
 	$showFormKonfirmasiPenerimaanDokumen = 1;
 } //Arief F - 21092018
@@ -207,9 +208,8 @@ $MainContent .="
 		</td>
 	</tr>
 ";
-	}
-	else {
-/*$MainContent .="
+	}else {
+$MainContent .="
 	<tr>
 		<td>Status Dokumen</td>
 ";
@@ -239,11 +239,19 @@ $MainContent .="
 			<td>Dokumen sudah diterima</td>
 			<td colspan='2'>
 				<select name='optTHROAOD_DocumentReceived' id='optTHROAOD_DocumentReceived'>
-					<option value='0'>--- Belum ---</option>
+					<option value='0'>--- Menungu Konfirmasi ---</option>
 					<option value='1'>Sudah</option>
+					<option value='2'>Batal</option>
 				</select>
 			</td>
-		</tr>"; //Arief F - 21092018
+		</tr>
+		<tr>
+			<td>Ket. Batal Terima Dokumen</td>
+			<td colspan='2'>
+				<textarea name='txtTHROAOD_ReasonOfDocumentCancel' id='txtTHROAOD_ReasonOfDocumentCancel' cols='50' rows='2'>$arr[THROAOD_ReasonOfDocumentCancel]</textarea>
+				<br>*Wajib Diisi Apabila Dokumen Batal Diterima.
+			</td>
+		</tr>";
 		} //Arief F - 21092018
 
 		if($arr['THROAOD_DocumentReceived'] == 1){ //Arief F - 21092018
@@ -253,7 +261,21 @@ $MainContent .="
 				<td colspan='2'>
 					Sudah
 				</td>
-			</tr>"; //Arief F - 21092018
+			</tr>";
+		}elseif($arr['THROAOD_DocumentReceived'] == 2){ //Arief F - 21092018
+			$MainContent .="
+			<tr>
+				<td>Dokumen sudah diterima</td>
+				<td colspan='2'>
+					Batal
+				</td>
+			</tr>
+			<tr>
+				<td>Ket. Batal Terima Dokumen</td>
+				<td colspan='2'>
+					$arr[THROAOD_ReasonOfDocumentCancel]
+				</td>
+			</tr>";
 		} //Arief F - 21092018
 	}
 	else if($arr[THROAOD_Status]=="reject") {
@@ -269,8 +291,8 @@ $MainContent .="
 	else {
 $MainContent .="
 		<td colspan='2'>Draft</td></tr>";
-	}*/
 	}
+}
 
 $MainContent .="
 	</table>";
@@ -293,21 +315,24 @@ $MainContent .="
 
 	$query = "SELECT tdroaod.TDROAOD_ID, tdloaod.TDLOAOD_ID, tdloaod.TDLOAOD_Code,
 				     dao.DAO_ID,tdroaod.TDROAOD_Information, dao.DAO_DocCode, tdroaod.TDROAOD_LeadTime,
-                     m_e.Employee_FullName nama_pemilik,
+                     -- m_e.Employee_FullName nama_pemilik,
+					 dao.DAO_Employee_NIK,
                      m_mk.MK_Name merk_kendaraan, dao.DAO_NoPolisi,
                      dao.DAO_STNK_StartDate, dao.DAO_STNK_ExpiredDate
-				FROM TD_ReleaseOfAssetOwnershipDocument tdroaod, TD_LoanOfAssetOwnershipDocument tdloaod,
-					 M_DocumentAssetOwnership dao, db_master.M_MerkKendaraan m_mk, db_master.M_Employee m_e
+				FROM TD_ReleaseOfAssetOwnershipDocument tdroaod
+				INNER JOIN TD_LoanOfAssetOwnershipDocument tdloaod
+					ON tdroaod.TDROAOD_TDLOAOD_ID=tdloaod.TDLOAOD_ID
+				INNER JOIN M_DocumentAssetOwnership dao
+				 	ON tdloaod.TDLOAOD_DocCode=dao.DAO_DocCode
+				LEFT JOIN db_master.M_MerkKendaraan m_mk
+					ON dao.DAO_MK_ID=m_mk.MK_ID
+				-- , db_master.M_Employee m_e
 				WHERE tdroaod.TDROAOD_THROAOD_ID='$DocID'
-				AND tdroaod.TDROAOD_Delete_Time IS NULL
-				AND tdloaod.TDLOAOD_DocCode=dao.DAO_DocCode
-				AND tdroaod.TDROAOD_TDLOAOD_ID=tdloaod.TDLOAOD_ID
-                AND dao.DAO_Employee_NIK=m_e.Employee_NIK
-				AND dao.DAO_MK_ID=m_mk.MK_ID";
+				AND tdroaod.TDROAOD_Delete_Time IS NULL";
 	$sql = mysql_query($query);
 	$no=1;
 	while ($arr = mysql_fetch_array($sql)) {
-		if (($arr['TDROAOD_LeadTime']=="0000-00-00 00:00:00")||($arr['TDROAOD_LeadTime']=="1970-01-01 01:00:00")){
+		if ( (strpos($arr['TDROAOD_LeadTime'], '0000-00-00') !== false ) || ( strpos($arr['TDROAOD_LeadTime'], '1970-01-01') !== false ) ){
 			$fLeadTime="-";
 		}
 		else {
@@ -318,6 +343,24 @@ $MainContent .="
         $stnk_sdate=date("j M Y", strtotime($arr['DAO_STNK_StartDate']));
         $stnk_exdate=date("j M Y", strtotime($arr['DAO_STNK_ExpiredDate']));
 
+		if(strpos($arr['DAO_Employee_NIK'], 'CO@') !== false){
+			$get_company_code = explode('CO@', $arr['DAO_Employee_NIK']);
+			$company_code = $get_company_code[1];
+			$query7="SELECT Company_Name AS nama_pemilik
+				FROM M_Company
+				WHERE Company_code='$company_code'";
+		}else{
+			$query7="SELECT Employee_FullName AS nama_pemilik
+				FROM db_master.M_Employee
+				WHERE Employee_NIK='$arr[DAO_Employee_NIK]'";
+		}
+		$sql7 = mysql_query($query7);
+		$nama_pemilik = "-";
+		if(mysql_num_rows($sql7) > 0){
+			$data7 = mysql_fetch_array($sql7);
+			$nama_pemilik = $data7['nama_pemilik'];
+		}
+
 $MainContent .="
 		<tr>
 			<td class='center'>
@@ -327,7 +370,7 @@ $MainContent .="
 				<input name='txtTDROAOD_TDLOAOD_ID[]' type='hidden' value='$arr[TDLOAOD_ID]'>
 				<input name='txtTDLOAOD_Code[]' type='hidden' value='$arr[TDLOAOD_Code]'>$arr[TDLOAOD_Code]</td>
 			<td class='center'>$arr[DAO_DocCode]</td>
-            <td class='center'>$arr[nama_pemilik]</td>
+            <td class='center'>$nama_pemilik</td>
             <td class='center'>$arr[merk_kendaraan]</td>
             <td class='center'>$arr[DAO_NoPolisi]</td>
             <td class='center'>$stnk_sdate s/d $stnk_exdate</td>
@@ -368,13 +411,17 @@ if(isset($_POST['konfirmasi_penerimaandokumen'])){
 	$optTHROAOD_DocumentReceived=$_POST['optTHROAOD_DocumentReceived'];
 
 	$query = "UPDATE TH_ReleaseOfAssetOwnershipDocument
-				SET THROAOD_DocumentReceived='$optTHROAOD_DocumentReceived', THROAOD_Update_UserID='$_SESSION[User_ID]', THROAOD_Update_Time=sysdate()
+				SET THROAOD_DocumentReceived='$optTHROAOD_DocumentReceived',
+				THROAOD_ReasonOfDocumentCancel='$_POST[txtTHROAOD_ReasonOfDocumentCancel]',
+				THROAOD_Update_UserID='$_SESSION[User_ID]', THROAOD_Update_Time=sysdate()
 				WHERE THROAOD_ID='$txtTHROAOD_ID'
 				AND THROAOD_Delete_Time IS NULL";
 	$sql = mysql_query($query);
 	if($sql){
-		mail_notif_reception_release_doc($_POST['txtA_TransactionCode'], $_SESSION['User_ID'], 3,1);
-		mail_notif_reception_release_doc($_POST['txtA_TransactionCode'], "cust0002", 3 );
+		if($optTHROAOD_DocumentReceived == "1" ) $status = 3;//Sudah Diterima
+		elseif($optTHROAOD_DocumentReceived == "2" ) $status = 4;
+		mail_notif_reception_release_doc($_POST['txtA_TransactionCode'], $_SESSION['User_ID'], $status,1);
+		mail_notif_reception_release_doc($_POST['txtA_TransactionCode'], "cust0002", $status );
 		echo "<meta http-equiv='refresh' content='0; url=detail-of-release-asset-ownership-document.php?id=$txtTHROAOD_ID'>";
 	}else{
 		$ActionContent .="<div class='warning'>Konfirmasi Penerimaan Dokumen Gagal. Terjadi kesalahan</div>";

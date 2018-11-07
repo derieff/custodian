@@ -1,5 +1,5 @@
-<?PHP 
-/* 
+<?PHP
+/*
 =========================================================================================================================
 = Nama Project		: Custodian																							=
 = Versi				: 1.0.1																								=
@@ -13,7 +13,7 @@
 					  ($pers=$not_ext[$a]/$jumdata*100;																	=
 =========================================================================================================================
 */
-session_start(); 
+session_start();
 ?>
 <?PHP include ("./config/config_db.php"); ?>
 <!DOCTYPE html PUBLIC "-//W3C//Dth XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/Dth/xhtml1-transitional.dth">
@@ -72,16 +72,16 @@ if(!isset($_SESSION['User_ID'])) {
 			LEFT JOIN M_DocumentGroup dg
 				ON dg.DocumentGroup_ID='3'
 			LEFT JOIN M_User u
-				ON thrgolad.THRGOLAD_UserID=u.User_ID 
+				ON thrgolad.THRGOLAD_UserID=u.User_ID
 			LEFT JOIN M_DivisionDepartmentPosition ddp
-				ON ddp.DDP_UserID=u.User_ID 
+				ON ddp.DDP_UserID=u.User_ID
 			LEFT JOIN M_Division d
-				ON ddp.DDP_DivID=d.Division_ID 
+				ON ddp.DDP_DivID=d.Division_ID
 			LEFT JOIN M_Department dp
-				ON ddp.DDP_DeptID=dp.Department_ID 
+				ON ddp.DDP_DeptID=dp.Department_ID
 			LEFT JOIN M_Position p
-				ON ddp.DDP_PosID=p.Position_ID 
-			WHERE thrgolad.THRGOLAD_RegistrationCode='$id' 
+				ON ddp.DDP_PosID=p.Position_ID
+			WHERE thrgolad.THRGOLAD_RegistrationCode='$id'
 			AND thrgolad.THRGOLAD_Delete_Time is NULL";
 	$sql = mysql_query($query);
 	$arr = mysql_fetch_array($sql);
@@ -150,18 +150,18 @@ if(!isset($_SESSION['User_ID'])) {
 								TDRGOLAD_DocDate,
 								TDRGOLAD_Block,
 								TDRGOLAD_Village,
-								TDRGOLAD_Owner, 
+								TDRGOLAD_Owner,
 							    TDRGOLAD_Information,
 								TDRGOLAD_AreaClass,
 								TDRGOLAD_AreaPrice,
 								TDRGOLAD_AreaStatement,
-								TDRGOLAD_AreaTotalPrice, 
+								TDRGOLAD_AreaTotalPrice,
 							    TDRGOLAD_PlantClass,
 								TDRGOLAD_PlantQuantity,
 								TDRGOLAD_PlantPrice,
 								TDRGOLAD_Revision,
 								TDRGOLAD_PlantTotalPrice,
-							    TDRGOLAD_GrandTotal, 
+							    TDRGOLAD_GrandTotal,
 								THRGOLAD_Information,
 								TDRGOLAD_ID
 				FROM TH_RegistrationOfLandAcquisitionDocument
@@ -176,7 +176,7 @@ if(!isset($_SESSION['User_ID'])) {
 	$sqld = mysql_query($queryd);
 	$objhd=mysql_fetch_object($sqlhd);
 	$fperdate=date("j M Y", strtotime($objhd->THRGOLAD_Period));
-	
+
 ?>
 <table cellpadding='0' cellspacing='0'  width="100%" style="border:none;">
     <tr>
@@ -225,9 +225,9 @@ if(!isset($_SESSION['User_ID'])) {
        	<th rowspan='2'>Total</th>
 		<th rowspan='2'>Keterangan</th>
 	<?PHP
-	$t_query="SELECT * 
-				FROM M_LandAcquisitionAttribute 
-				WHERE LAA_Delete_Time is NULL 
+	$t_query="SELECT *
+				FROM M_LandAcquisitionAttribute
+				WHERE LAA_Delete_Time is NULL
 				ORDER BY LAA_ID ";
 	$t_sql=mysql_query($t_query);
 	$counts=mysql_num_rows($t_sql);
@@ -247,12 +247,12 @@ if(!isset($_SESSION['User_ID'])) {
 	</tr>
 </thead>
 <tbody>
-<?	
+<?
 	$tHa=0; $tSumHa=0; $tQty=0; $tSumQty=0; $tSum=0;
 
 	while ($arrd = mysql_fetch_array($sqld)) {
 		$fdocdate=date("j M Y", strtotime($arrd['TDRGOLAD_DocDate']));
-		
+
 		/*
 		if ($jumdata==10) {
 			$style="style='page-break-after:always'";
@@ -262,7 +262,7 @@ if(!isset($_SESSION['User_ID'])) {
 		{
 			$style="";
 		}*/
-		
+
 		$TDRGOLAD_AreaStatement=number_format($arrd[TDRGOLAD_AreaStatement],2,',','.');
 		$TDRGOLAD_AreaPrice=number_format($arrd[TDRGOLAD_AreaPrice],0,',','.');
 		$TDRGOLAD_AreaTotalPrice=number_format($arrd[TDRGOLAD_AreaTotalPrice],0,',','.');
@@ -270,14 +270,14 @@ if(!isset($_SESSION['User_ID'])) {
 		$TDRGOLAD_PlantPrice=number_format($arrd[TDRGOLAD_PlantPrice],0,',','.');
 		$TDRGOLAD_PlantTotalPrice=number_format($arrd[TDRGOLAD_PlantTotalPrice],0,',','.');
 		$TDRGOLAD_GrandTotal=number_format($arrd[TDRGOLAD_GrandTotal],0,',','.');
-		
+
 		// TOTAL
-		$tHa=$tHa+$arrd[TDRGOLAD_AreaStatement]; 
-		$tSumHa=$tSumHa+$arrd[TDRGOLAD_AreaTotalPrice]; 
-		$tQty=$tQty+$arrd[TDRGOLAD_PlantQuantity]; 
-		$tSumQty=$tSumQty+$arrd[TDRGOLAD_PlantTotalPrice]; 
+		$tHa=$tHa+$arrd[TDRGOLAD_AreaStatement];
+		$tSumHa=$tSumHa+$arrd[TDRGOLAD_AreaTotalPrice];
+		$tQty=$tQty+$arrd[TDRGOLAD_PlantQuantity];
+		$tSumQty=$tSumQty+$arrd[TDRGOLAD_PlantTotalPrice];
 		$tSum=$tSum+$arrd[TDRGOLAD_GrandTotal];
-		
+
 		echo "
 		<tr $style>
 			<td align='center'>$fdocdate</td>
@@ -298,17 +298,17 @@ if(!isset($_SESSION['User_ID'])) {
 					FROM TD_RegistrationOfLandAcquisitionDocumentDetail
 					LEFT JOIN M_LandAcquisitionAttributeStatus
 						ON TDRGOLADD_AttributeStatusID=LAAS_ID
-					WHERE TDRGOLADD_TDRGOLAD_ID='$arrd[TDRGOLAD_ID]' 
+					WHERE TDRGOLADD_TDRGOLAD_ID='$arrd[TDRGOLAD_ID]'
 					AND TDRGOLADD_Delete_Time IS NULL";
 		$at_sql = mysql_query($at_query);
-		
+
 		$kelengkapan=1;
 		while (($at_arr = mysql_fetch_array($at_sql))&&($kelengkapan<'15')) {
 			if ($at_arr[LAAS_ID]=='1')
 				$ext[$kelengkapan]=intval($ext[$kelengkapan])+1;
 			if ($at_arr[LAAS_ID]=='2')
 				$not_ext[$kelengkapan]=intval($not_ext[$kelengkapan])+1;
-				
+
 			echo"<td align='center'>$at_arr[LAAS_Symbol]</td>";
 			$kelengkapan++;
 		}
@@ -340,11 +340,11 @@ if(!isset($_SESSION['User_ID'])) {
    <tr>
    		<td colspan="14" align="right">Persentase Data Tidak Lengkap</td>
 <?PHP
-	
+
 		for ($a=1;$a<$kelengkapan;$a++){
 		$pers=$not_ext[$a]/$jumdata*100;
 		$pers=number_format($pers,0,',','.');
-		
+
 		echo "<td>$pers%</td>";
 		}
 ?>
@@ -355,7 +355,7 @@ if(!isset($_SESSION['User_ID'])) {
 		for ($a=1;$a<$kelengkapan;$a++){
 			if ($not_ext[$a]==NULL)
 				echo"<td>0</td>";
-			else 
+			else
 				echo"<td>$not_ext[$a]</td>";
 		}
 ?>
@@ -378,10 +378,10 @@ if(!isset($_SESSION['User_ID'])) {
 <table cellpadding='0' cellspacing='0'  width="100%" class="detail" style="border:none;">
 <tr>
 	<td><b><u>KETERANGAN TAMBAHAN:</u></b></td>
-</tr>  
+</tr>
 <tr>
 	<td><?PHP echo"<pre>$objhd->THRGOLAD_Information</pre>";?></td>
-</tr>  
+</tr>
 </table>
 <table cellpadding='0' cellspacing='0'  width='80%' border='1' align='left' cellpadding="0" cellspacing="0">
 	<tr>

@@ -35,12 +35,11 @@ IF ($txtTHLOLD_DocumentGroupID=="4"){
 
 	$query="SELECT DISTINCT c.Company_Name, dg.DocumentGroup_Name,
 				dao.DAO_RegTime, dao.DAO_DocCode,
-				e.Employee_FullName, mk.MK_Name, dao.DAO_Type, dao.DAO_Jenis, dao.DAO_NoPolisi, dao.DAO_NoRangka,
+				dao.DAO_Employee_NIK,
+				mk.MK_Name, dao.DAO_Type, dao.DAO_Jenis, dao.DAO_NoPolisi, dao.DAO_NoRangka,
 				dao.DAO_NoMesin, dao.DAO_NoBPKB, dao.DAO_STNK_StartDate, dao.DAO_STNK_ExpiredDate, dao.DAO_Pajak_StartDate,
 				dao.DAO_Pajak_ExpiredDate, dao.DAO_Lokasi_PT, dao.DAO_Region, dao.DAO_Keterangan
 			FROM M_DocumentAssetOwnership dao
-			LEFT JOIN db_master.M_Employee e
-				ON dao.DAO_Employee_NIK=e.Employee_NIK
 			LEFT JOIN db_master.M_MerkKendaraan mk
 				ON dao.DAO_MK_ID=mk.MK_ID
 			LEFT JOIN M_Company c
@@ -155,10 +154,28 @@ IF ($txtTHLOLD_DocumentGroupID=="4"){
 				$pajak_exdate="-";
 			else
 				$pajak_exdate=date("d M Y", strtotime($arr['DAO_Pajak_ExpiredDate']));
+
+			if(strpos($arr['DAO_Employee_NIK'], 'CO@') !== false){
+				$get_company_code = explode('CO@', $arr['DAO_Employee_NIK']);
+				$company_code = $get_company_code[1];
+				$query7="SELECT Company_Name AS nama_pemilik
+					FROM M_Company
+					WHERE Company_code='$company_code'";
+			}else{
+				$query7="SELECT Employee_FullName AS nama_pemilik
+					FROM db_master.M_Employee
+					WHERE Employee_NIK='$arr[DAO_Employee_NIK]'";
+			}
+			$sql7 = mysql_query($query7);
+			$nama_pemilik = "-";
+			if(mysql_num_rows($sql7) > 0){
+				$data7 = mysql_fetch_array($sql7);
+				$nama_pemilik = $data7['nama_pemilik'];
+			}
 			?>
 			<tr>
 				<td align='center'><u><a href="javascript:pick('<?= $arr['DAO_DocCode'] ?>','<?= $_GET['row'] ?>')"><?= $arr['DAO_DocCode'] ?></a></u></td>
-				<td align='center'><?= $arr['Employee_FullName'] ?></td>
+				<td align='center'><?= $nama_pemilik ?></td>
 				<td align='center'><?= $arr['MK_Name'] ?></td>
 				<td align='center'><?= $arr['DAO_Type'] ?></td>
 				<td align='center'><?= $arr['DAO_Jenis'] ?></td>

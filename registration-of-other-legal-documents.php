@@ -302,8 +302,6 @@ if(isset($_GET["act"]))
 
 	//Menambah Detail Dokumen
 	elseif($act=='adddetail')	{
-		//Start of Koneksi from db_master
-		include ("./config/config_db_master.php");
 		$ActionContent .="<select id='Daftar_KategoriDokumen' style='display:none;'>
 			<option value='0'>--- Pilih Kategori Dokumen ---</option>";
 		$query5="SELECT DocumentCategory_ID, DocumentCategory_Name
@@ -316,8 +314,6 @@ if(isset($_GET["act"]))
 			<option value='$field5[DocumentCategory_ID]'>$field5[DocumentCategory_Name]</option>";
 		}
 		$ActionContent .="</select>";
-		include ("./config/config_db.php");
-		//End of Koneksi from db_master
 
 		$code=$_GET["id"];
 		$query = "SELECT header.THROOLD_ID,

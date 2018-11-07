@@ -5,11 +5,36 @@ if($_REQUEST) {
 	$optTHROLD_DocumentGroupID = $_REQUEST['optTHROLD_DocumentGroupID'];
 	$optFilterHeader = $_REQUEST['optFilterHeader'];
 
+	if ($optFilterHeader=="0") {
+		?>
+		<option value='0'>--- Pilih Grup Dokumen Terlebih Dahulu ---</option>
+		<?php
+	}
+
 	if ($optFilterHeader=="1") {
-		$query="SELECT * 
-				FROM M_Company
-				WHERE Company_Delete_Time is NULL
-				ORDER BY Company_Name";
+		if($optTHROLD_DocumentGroupID == "1" or $optTHROLD_DocumentGroupID == "2"){
+	        $query = "SELECT DISTINCT DL_CompanyID as Company_ID, Company_Name FROM M_DocumentLegal
+	            LEFT JOIN M_Company ON DL_CompanyID=Company_ID
+				WHERE DL_GroupDocID='$optTHROLD_DocumentGroupID'";
+	    }elseif($optTHROLD_DocumentGroupID == "3"){
+	        $query = "SELECT DISTINCT DLA_CompanyID as Company_ID, Company_Name FROM M_DocumentLandAcquisition
+	            LEFT JOIN M_Company ON DLA_CompanyID=Company_ID";
+	    }elseif($optTHROLD_DocumentGroupID == "4"){
+	        $query = "SELECT DISTINCT DAO_CompanyID as Company_ID, Company_Name FROM M_DocumentAssetOwnership
+	            LEFT JOIN M_Company ON DAO_CompanyID=Company_ID";
+	    }elseif($optTHROLD_DocumentGroupID == "5"){
+	        $query = "SELECT DISTINCT DOL_CompanyID as Company_ID, Company_Name FROM M_DocumentsOtherLegal
+	            LEFT JOIN M_Company ON DOL_CompanyID=Company_ID";
+	    }elseif($optTHROLD_DocumentGroupID == "6"){
+	        $query = "SELECT DISTINCT DONL_CompanyID as Company_ID, Company_Name FROM M_DocumentsOtherNonLegal
+	            LEFT JOIN M_Company ON DONL_CompanyID=Company_ID";
+	    }else{
+	        $query = "";
+	    }
+		// $query="SELECT *
+		// 		FROM M_Company
+		// 		WHERE Company_Delete_Time is NULL
+		// 		ORDER BY Company_Name";
 		$sql = mysql_query($query);?>
 		<option value="0">--- Pilih Perusahaan ---</option>
 		<?php
@@ -18,7 +43,7 @@ if($_REQUEST) {
 		<?php
 		}
 	}
-	
+
 	if ($optFilterHeader=="2") {
 		$query="SELECT DISTINCT dc.DocumentCategory_ID, dc.DocumentCategory_Name
 				FROM L_DocumentGroupCategoryType dgct, M_DocumentCategory dc
@@ -63,7 +88,7 @@ if($_REQUEST) {
 		<?php
 		}
 	}
-	
+
 	if ($optFilterHeader=="5") {
 		$query="SELECT *
 				FROM M_LoanDetailStatus
@@ -76,7 +101,7 @@ if($_REQUEST) {
 		<?php
 		}
 	}?>
-	
-<?php	
+
+<?php
 }
 ?>

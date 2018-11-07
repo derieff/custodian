@@ -155,12 +155,6 @@ $MainContent .="
 	$MainContent .="</td>
 </tr>
 <tr>
-	<td>Dokumen dengan Cap/Watermark</td>
-	<td colspan='2'><input type='hidden' name='optTHLOONLD_DocumentWithWatermarkOrNot' value='$arr[THLOONLD_DocumentWithWatermarkOrNot]'>
-		".( $arr['THLOONLD_DocumentWithWatermarkOrNot'] == '1' ? 'Iya' : 'Tidak' )."
-	</td>
-</tr>
-<tr>
 	<td>Kategori Permintaan</td>
 	<td colspan='2'><input type='hidden' name='optTHLOONLD_LoanCategoryID' value='$arr[LoanCategory_ID]'>$arr[LoanCategory_Name]</td>
 </tr>
@@ -200,7 +194,7 @@ if(($act=='approve')&&($approver=="1")) {
 		</td>
 	</tr>";
 }else {
-	/*$MainContent .="
+	$MainContent .="
 	<tr>
 		<td>Status Dokumen</td>";
 
@@ -226,7 +220,7 @@ if(($act=='approve')&&($approver=="1")) {
 	}else {
 		$MainContent .="
 		<td colspan='2'>Draft</td></tr>";
-	}*/
+	}
 }
 
 $MainContent .="
@@ -337,18 +331,9 @@ if(isset($_POST[approval])) {
 		// CEK APAKAH MERUPAKAN APPROVAL FINAL
 		if ($step <> $jStep) {
 			$nStep=$step+1;
-
-			if($_POST['optTHLOONLD_DocumentType'] == "ORIGINAL" && $_POST['optTHLOONLD_DocumentType'] == "SOFTCOPY"){
-				$jenis = "20";
-			}elseif($_POST['optTHLOONLD_DocumentType'] == "HARDCOPY"){
-				$jenis = "21";
-			}else{
-				if($_POST['optTHLOONLD_LoanCategoryID'] != "3"){
-					$jenis = "20";
-				}else{
-					$jenis = "21";
-				}
-			}
+			
+			if ($_POST['optTHLOONLD_DocumentType'] == "ORIGINAL") { $jenis = '20'; }
+			else;
 
 			$qComp = "SELECT Company_Area FROM M_Company WHERE Company_ID = '{$_POST['txtCompany_ID']}'";
 			$aComp = mysql_fetch_array(mysql_query($qComp));

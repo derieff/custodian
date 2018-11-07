@@ -80,17 +80,31 @@ if( !empty($_GET['cfm']) && !empty($_GET['ati']) && !empty($_GET['rdm']) ) {
 					// else if ($h_arr['THLOLD_DocumentGroupID'] == '2' && $h_arr['THLOLD_LoanCategoryID'] == '3') { $jenis = '4'; }
 					// else;
 
-					if($h_arr['THLOLD_DocumentType'] == "ORIGINAL" or $h_arr['THLOLD_DocumentType'] == "SOFTCOPY"){ //Arief F - 05092018
-						$jenis = "8"; //Arief F - 05092018
-					}elseif($h_arr['THLOLD_DocumentType'] == "HARDCOPY"){ //Arief F - 05092018
-						$jenis = "9"; //Arief F - 05092018
-					}else{ //Arief F - 05092018
-						if($h_arr['THLOLD_LoanCategoryID'] != "3"){ //Arief F - 05092018
-							$jenis = "8"; //Arief F - 05092018
-						}else{ //Arief F - 05092018
-							$jenis = "9"; //Arief F - 05092018
-						} //Arief F - 05092018
-					} //Arief F - 05092018
+					// Edit Approval versi 2.0.0 terbaru //Arief F - 05092018
+					if($h_arr['THLOLD_DocumentType'] == "ORIGINAL"){
+						if($h_arr['THLOLD_DocumentGroupID'] == '1'){
+							$jenis = "1";
+						}elseif($h_arr['THLOLD_DocumentGroupID'] == '2'){
+							$jenis = "3";
+						}
+					}elseif($h_arr['THLOLD_DocumentType'] == "HARDCOPY"){
+						$jenis = "9";
+					}elseif($h_arr['THLOLD_DocumentType'] == "SOFTCOPY"){
+						$jenis = "23";
+					}else{
+						if($h_arr['THLOLD_LoanCategoryID'] == '1' or $h_arr['THLOLD_LoanCategoryID'] == '2'){
+							if($h_arr['THLOLD_DocumentGroupID'] == '1'){
+								$jenis = "1";
+							}elseif($h_arr['THLOLD_DocumentGroupID'] == '2'){
+								$jenis = "3";
+							}
+						}elseif($h_arr['THLOLD_LoanCategoryID'] == '3'){
+							$jenis = "9";
+						}else{
+							$jenis = "23";
+						}
+					}
+					// End of Edit Approval versi 2.0.0 terbaru //Arief F - 05092018
 
 					$qComp = "SELECT Company_Area FROM M_Company WHERE Company_ID = '{$h_arr['THLOLD_CompanyID']}'";
 					$aComp = mysql_fetch_array(mysql_query($qComp));
@@ -324,6 +338,7 @@ if( !empty($_GET['cfm']) && !empty($_GET['ati']) && !empty($_GET['rdm']) ) {
 								case "3":
 									$docStatus="1";
 									break;
+								default: $docStatus="1";
 							}
 
 							$query1="UPDATE M_DocumentLegal

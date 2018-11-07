@@ -72,17 +72,12 @@ if( !empty($_GET['cfm']) && !empty($_GET['ati']) && !empty($_GET['rdm']) ) {
 					// else if ($h_arr['THLOLAD_LoanCategoryID'] == '3') { $jenis = '6'; }
 					// else;
 
-					if($h_arr['THLOLAD_DocumentType'] == "ORIGINAL" or $h_arr['THLOLAD_DocumentType'] == "SOFTCOPY"){ //Arief F - 05092018
-						$jenis = "11"; //Arief F - 05092018
-					}elseif($h_arr['THLOLAD_DocumentType'] == "HARDCOPY"){ //Arief F - 05092018
-						$jenis = "12"; //Arief F - 05092018
-					}else{ //Arief F - 05092018
-						if($h_arr['THLOLAD_LoanCategoryID'] != "3"){ //Arief F - 05092018
-							$jenis = "11"; //Arief F - 05092018
-						}else{ //Arief F - 05092018
-							$jenis = "12"; //Arief F - 05092018
-						} //Arief F - 05092018
-					} //Arief F - 05092018
+					// Edit Approval versi 2.0.0 terbaru //Arief F - 05092018
+					if ($h_arr['THLOLAD_DocumentType'] == "ORIGINAL") { $jenis = '5'; }
+					else if ($h_arr['THLOLAD_DocumentType']  == "HARDCOPY") { $jenis = '12'; }
+					else if ($h_arr['THLOLAD_DocumentType']== "SOFTCOPY") { $jenis = '24'; }
+					else;
+					// End of Edit Approval versi 2.0.0 terbaru //Arief F - 05092018
 
 					$qComp = "SELECT Company_Area FROM M_Company WHERE Company_ID = '{$h_arr['THLOLAD_CompanyID']}'";
 					$aComp = mysql_fetch_array(mysql_query($qComp));
@@ -315,6 +310,7 @@ if( !empty($_GET['cfm']) && !empty($_GET['ati']) && !empty($_GET['rdm']) ) {
 								case "3":
 									$docStatus="1";
 									break;
+								default: $docStatus="1";
 							}
 
 							$query1="UPDATE M_DocumentLandAcquisition

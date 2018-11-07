@@ -286,6 +286,7 @@ $query="SELECT DISTINCT throld.THROAOD_ID,
 						throld.THROAOD_RegistrationDate,
 						u.User_ID,
 						u.User_FullName,
+						c.Company_Code,
 						c.Company_Name,
 						throld.THROAOD_Status,
 						throld.THROAOD_Information,
@@ -312,6 +313,9 @@ $arr = mysql_fetch_array(mysql_query($query));
 $fregdate=date("j M Y", strtotime($arr['THROAOD_RegistrationDate']));
 $regUser=$arr['User_ID'];
 $DocumentGroup_ID=$arr["DocumentGroup_ID"];
+$Company_ID = $arr['Company_ID'];
+$Company_Code = $arr['Company_Code'];
+$Company_Name = $arr['Company_Name'];
 
 // Cek apakah Staff Custodian atau bukan.
 // Staff Custodian memiliki wewenang untuk print registrasi dokumen.
@@ -372,15 +376,16 @@ $MainContent .="
 <tr>
 	<td>Nama Pendaftar</td>
 	<td colspan='2'><input name='txtDAO_RegUserID' type='hidden' value='$regUser'>$arr[User_FullName]</td>
-</tr>
-<tr>
-	<td>Nama Perusahaan</td>
-	<td colspan='2'><input type='hidden' name='txtCompany_ID' value='$arr[Company_ID]' readonly='true' class='readonly'/>$arr[Company_Name]</td>
-</tr>
-<tr>
-	<td>Grup Dokumen</td>
-	<td colspan='2'><input name='txtDAO_GroupDocID' id='txtDAO_GroupDocID' type='hidden' value='$DocumentGroup_ID'>$arr[DocumentGroup_Name]</td>
-</tr>
+</tr>";
+// <tr>
+// 	<td>Nama Perusahaan</td>
+// 	<td colspan='2'><input type='hidden' name='txtCompany_ID' value='$arr[Company_ID]' readonly='true' class='readonly'/>$arr[Company_Name]</td>
+// </tr>
+// <tr>
+// 	<td>Grup Dokumen</td>
+// 	<td colspan='2'><input name='txtDAO_GroupDocID' id='txtDAO_GroupDocID' type='hidden' value='$DocumentGroup_ID'>$arr[DocumentGroup_Name]</td>
+// </tr>
+$MainContent .="
 <tr>
 	<td>Keterangan</td>";
 
@@ -421,7 +426,7 @@ if(($act=='approve')&&($approver=="1")) {
 		</td>
 	</tr>";
 }else {
-	/*$MainContent .="
+	$MainContent .="
 	<tr>
 		<td>Status Pendaftaran</td>";
 	if($arr[THROAOD_Status]=="waiting") {
@@ -447,7 +452,7 @@ if(($act=='approve')&&($approver=="1")) {
 	}else {
 		$MainContent .="
 		<td colspan='2'>Draft</td></tr>";
-	}*/
+	}
 }
 
 $MainContent .="</table>";
@@ -510,13 +515,26 @@ while ($arr = mysql_fetch_array($sql)) {
 
 			$query5="SELECT Employee_NIK, Employee_FullName
 				FROM db_master.M_Employee
-				WHERE Employee_ResignDate IS NULL";
+				WHERE Employee_ResignDate IS NULL
+				AND Employee_GradeCode IN ('0000000005', '06', '0000000003', '05', '04', '0000000004')";
 			$sql5 = mysql_query($query5);
 
 			while ($field5=mysql_fetch_array($sql5)) {
 				$selected=($field5["Employee_NIK"]=="$Employee_NIK")?"selected='selected'":"";
 				$MainContent .="
 					<option value='$field5[Employee_NIK]' $selected>$field5[Employee_FullName]</option>";
+			}
+			$query_comp = "SELECT CONCAT('CO@',Company_Code) AS id, Company_Name AS name
+					  FROM M_Company
+					  WHERE Company_Delete_Time is NULL
+					  ORDER BY Company_Name ASC";
+	  	  	$sql_comp = mysql_query($query_comp);
+			while($field_comp=mysql_fetch_array($sql_comp)){
+				if(strpos($arr['TDROAOD_Employee_NIK'], 'CO@') !== false){
+					$selected=($field_comp["id"] == $arr['TDROAOD_Employee_NIK']) ? "selected='selected'":"";
+				}
+				$MainContent .="
+					<option value='$field_comp[id]' $selected>$field_comp[name]</option>";
 			}
 		$MainContent .="
 				</select>
@@ -604,16 +622,22 @@ while ($arr = mysql_fetch_array($sql)) {
 		$pajak_sdate=date("j M Y", strtotime($arr['TDROAOD_Pajak_StartDate']));
 		$pajak_exdate=(($arr['TDROAOD_Pajak_ExpiredDate']=="0000-00-00 00:00:00")||($arr['TDROAOD_Pajak_ExpiredDate']=="1970-01-01 01:00:00"))?"-":date("j M Y", strtotime($arr['TDROAOD_Pajak_ExpiredDate']));
 
-		//include ("./config/config_db_master.php");
-		$query7="SELECT Employee_FullName
-			FROM db_master.M_Employee
-			WHERE Employee_NIK='$arr[TDROAOD_Employee_NIK]'
-				#Employee_ResignDate IS NULL";
+		if(strpos($arr['TDROAOD_Employee_NIK'], 'CO@') !== false){
+			$get_company_code = explode('CO@', $arr['TDROAOD_Employee_NIK']);
+			$company_code = $get_company_code[1];
+			$query7="SELECT Company_Name AS nama_pemilik
+				FROM M_Company
+				WHERE Company_code='$company_code'";
+		}else{
+			$query7="SELECT Employee_FullName AS nama_pemilik
+				FROM db_master.M_Employee
+				WHERE Employee_NIK='$arr[TDROAOD_Employee_NIK]'";
+		}
 		$sql7 = mysql_query($query7);
 		$nama_pemilik = "-";
 		if(mysql_num_rows($sql7) > 0){
 			$data7 = mysql_fetch_array($sql7);
-			$nama_pemilik = $data7['Employee_FullName'];
+			$nama_pemilik = $data7['nama_pemilik'];
 		}
 		$query8="SELECT MK_Name
 			FROM db_master.M_MerkKendaraan
@@ -625,7 +649,6 @@ while ($arr = mysql_fetch_array($sql)) {
 			$data8 = mysql_fetch_array($sql8);
 			$merk_kendaraan = $data8['MK_Name'];
 		}
-		//include ("./config/config_db.php");
 
 		$MainContent .="
 		<tr>
@@ -821,7 +844,7 @@ else if(isset($_POST[edit])) {
 						* Nicholas - 26 Sept 2018			*
 						* Fix Bug skip approval				*
 						************************************/
-						
+
 						/*if ($i == $jStep) {
 							$query = "UPDATE TH_RegistrationOfAssetOwnershipDocument
 								SET THROAOD_Status='accept', THROAOD_Update_UserID='$A_ApproverID',
@@ -862,7 +885,7 @@ else if(isset($_POST[edit])) {
 						* Nicholas - 26 Sept 2018			*
 						* Fix Bug skip approval				*
 						************************************/
-						
+
 						/*if ($i == $jStep) {
 							$query = "UPDATE TH_RegistrationOfAssetOwnershipDocument
 								SET THROAOD_Status='accept', THROAOD_Update_UserID='$A_ApproverID',

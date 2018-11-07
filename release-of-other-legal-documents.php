@@ -285,36 +285,26 @@ if(isset($_GET["act"]))
 		$fregdate=date("j M Y", strtotime($field['THROOLD_ReleaseDate']));
 		// $atasan=($field['User_SPV2'])?$field['User_SPV2']:$field['User_SPV1'];
 
-		$query = "SELECT u.User_ID, ra.RA_Name
-				  FROM M_Role_Approver ra
-				  LEFT JOIN M_Approver a
-					ON ra.RA_ID=a.Approver_RoleID
-				  LEFT JOIN M_User u
-					ON a.Approver_UserID=u.User_ID
-				  WHERE
-				  	(ra.RA_Name='Custodian' or ra.RA_Name='Section Head Custodian')
-					AND a.Approver_Delete_Time is NULL
-				  ";
-		$sql = mysql_query($query);
-		while($d = mysql_fetch_array($sql)){
-			$approvers[] = $d['User_ID'];  //Approval Untuk ke Custodian
+		$jenis = "22"; //Semua Dokumen
+
+		$queryApprover = "
+			SELECT ma.Approver_UserID, rads.RADS_StepID, rads.RADS_RA_ID, ra.RA_Name
+			FROM M_Role_ApproverDocStepStatus rads
+			LEFT JOIN M_Role_Approver ra
+				ON rads.RADS_RA_ID = ra.RA_ID
+			LEFT JOIN M_Approver ma
+				ON ra.RA_ID = ma.Approver_RoleID
+			WHERE rads.RADS_DocID = '$jenis'
+				AND rads.RADS_ProsesID = '3'
+				AND ma.Approver_Delete_Time IS NULL
+				AND ma.Approver_UserID != '0'
+				ORDER BY rads.RADS_StepID
+		";
+		$sqlApprover=mysql_query($queryApprover);
+		while($d = mysql_fetch_array($sqlApprover)){
+			$approvers[] = $d['Approver_UserID'];  //Approval Untuk ke Custodian
 		}
 
-			$query = "SELECT u.User_ID, ra.RA_Name
-					  FROM M_Role_Approver ra
-					  LEFT JOIN M_Approver a
-						ON ra.RA_ID=a.Approver_RoleID
-					  LEFT JOIN M_User u
-						ON a.Approver_UserID=u.User_ID
-					  WHERE
-					  	ra.RA_Name='Custodian Head'
-						AND a.Approver_Delete_Time is NULL
-					  ";
-			$sql = mysql_query($query);
-			while($d = mysql_fetch_array($sql)){
-				$approvers[] = $d['User_ID'];  //Approval Untuk ke Custodian
-			}
-		
 		$ActionContent ="
 		<form name='add-detaildoc' method='post' action='$PHP_SELF' >
 		<table width='100%' id='mytable' class='stripeMe'>
@@ -647,7 +637,7 @@ elseif(isset($_POST[addheader])) {
 		//Insert Header Dokumen
 		$sql1= "INSERT INTO TH_ReleaseOfOtherLegalDocuments
 				VALUES (NULL,'$CT_Code',sysdate(),'$_SESSION[User_ID]','$_POST[txtTHROOLD_THLOOLD_Code]',
-					    '$info','0',NULL,NULL,'$_SESSION[User_ID]', sysdate(),NULL,NULL)";
+					    '$info','0',NULL,NULL,NULL,'$_SESSION[User_ID]', sysdate(),NULL,NULL)";
 		if($mysqli->query($sql1)) {
 			echo "<meta http-equiv='refresh' content='0; url=release-of-other-legal-documents.php?act=adddetail&id=$CT_Code'>";
 		}

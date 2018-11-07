@@ -61,6 +61,7 @@ function mail_release_doc($relCode,$reminder=0){
 	}else{
 		$mail->Subject  =''.$testing.' Persetujuan Pengeluaran Dokumen '.$relCode.'';
 	}
+	$mail->AddBcc('arief.fahrizon@tap-agri.co.id');
 	$mail->AddBcc('system.administrator@tap-agri.com');
 	//$mail->AddAttachment("images/icon_addrow.png", "icon_addrow.png");  // optional name
 
@@ -221,6 +222,7 @@ function mail_notif_release_doc($relCode, $User_ID, $status){
 	if ($status=='4'){
 		$mail->Subject  =''.$testing.' Pengeluaran Dokumen '.$relCode.' Ditolak';
 	}
+	$mail->AddBcc('arief.fahrizon@tap-agri.co.id');
 	$mail->AddBcc('system.administrator@tap-agri.com');
 	//$mail->AddAttachment("images/icon_addrow.png", "icon_addrow.png");  // optional name
 
@@ -408,13 +410,15 @@ function mail_notif_reception_release_doc($relCode, $User_ID, $status,$acceptor=
 	if ($status=='4'){
 		$mail->Subject  =''.$testing.' Pengeluaran Dokumen '.$relCode.' Ditolak';
 	}
+	$mail->AddBcc('arief.fahrizon@tap-agri.co.id');
 	$mail->AddBcc('system.administrator@tap-agri.com');
 	//$mail->AddAttachment("images/icon_addrow.png", "icon_addrow.png");  // optional name
 
    		$ed_query="	SELECT DISTINCT TDLOLAD_ID,Company_Name,DLA_Phase,DLA_Period,
 									DLA_Village,DLA_Block,DLA_Owner,User_FullName,
 									DLA_AreaStatement,DLA_PlantTotalPrice,DLA_GrandTotal,DLA_DocDate,
-									THLOLAD_UserID,THRLOLAD_Reason,THRLOLAD_Information
+									THLOLAD_UserID,THRLOLAD_Reason,THRLOLAD_Information,
+									THLOLAD_DocumentType, THRLOLAD_ReasonOfDocumentCancel
 					FROM TH_ReleaseOfLandAcquisitionDocument
 					LEFT JOIN TD_ReleaseOfLandAcquisitionDocument
 						ON TDRLOLAD_THRLOLAD_ID=THRLOLAD_ID
@@ -453,9 +457,16 @@ function mail_notif_reception_release_doc($relCode, $User_ID, $status,$acceptor=
 			$edNum=$edNum+1;
 			$edNum=$edNum+1;
 			$info=$ed_arr->THRLOLAD_Information;
+			$docType=$ed_arr->THLOLAD_DocumentType;
+			if($docType == "ORIGINAL"){
+				$docType = "Asli";
+			}else{
+				$docType = ucwords(strtolower($docType));
+			}
 			$reason=$ed_arr->THRLOLAD_Reason;
 			$regUser=$ed_arr->THLOLAD_UserID;
 			$requester=$ed_arr->User_FullName;
+			$reasonCancelAcceptDoc = $edd_arr->THRLOLAD_ReasonOfDocumentCancel;
 		}
 
 		$bodyHeader .= '
@@ -471,7 +482,7 @@ function mail_notif_reception_release_doc($relCode, $User_ID, $status,$acceptor=
 	<td width="458" align="justify" valign="top" style="font-size: 12px; font-family: \'lucida grande\',tahoma,verdana,arial,sans-serif;"><div style="margin-bottom: 15px; font-size: 13px">Yth '.$row->User_FullName.',</div>
 	<div style="margin-bottom: 15px">';
 	if($acceptor){
-		$bodyHeader .= '<p><span style="margin-bottom: 15px; font-size: 13px; font-family: \'lucida grande\',tahoma,verdana,arial,sans-serif;">Bersama ini disampaikan bahwa pengeluaran dokumen (berdasarkan permintaan '.$requester.' untuk tujuan '.$info.') dengan detail permintaan dokumen sebagai berikut :</span></p>';
+		$bodyHeader .= '<p><span style="margin-bottom: 15px; font-size: 13px; font-family: \'lucida grande\',tahoma,verdana,arial,sans-serif;">Bersama ini disampaikan bahwa pengeluaran dokumen '.$docType.' (berdasarkan permintaan '.$requester.' untuk tujuan '.$info.') dengan detail permintaan dokumen sebagai berikut :</span></p>';
 	}
 	else{
 		$bodyHeader .= '<p><span style="margin-bottom: 15px; font-size: 13px; font-family: \'lucida grande\',tahoma,verdana,arial,sans-serif;">Bersama ini disampaikan bahwa dokumen (berdasarkan permintaan '.$requester.' untuk tujuan '.$info.') dengan detail permintaan dokumen sebagai berikut :</span></p>';
@@ -482,7 +493,7 @@ function mail_notif_reception_release_doc($relCode, $User_ID, $status,$acceptor=
 			<TD width="10%"  style="font-size: 13px"><strong>No.</strong></TD>
 			<TD width="90%"  style="font-size: 13px"><strong>Keterangan Dokumen</strong></TD>
 		</TR>';
-	if($acceptor){
+	if($status == 3 && (empty($acceptor) || $acceptor == 0)){
 		$bodyFooter .= '
 				</TABLE>
 			</p>
@@ -493,13 +504,37 @@ function mail_notif_reception_release_doc($relCode, $User_ID, $status,$acceptor=
 			</p>
 			</div>';
 	}
-	else{
+	if($status == 3 && (!empty($acceptor) || $acceptor != 0)){
 		$bodyFooter .= '
 				</TABLE>
 			</p>
 			<p>
 				<span style="margin-bottom: 15px; font-size: 13px;font-family: \'lucida grande\',tahoma,verdana,arial,sans-serif;">
 					Telah diterima lengkap dan sesuai. Terima kasih.
+				</span><br />
+			</p>
+			</div>';
+	}
+	if($status == 4 && (empty($acceptor) || $acceptor == 0)){
+		$bodyFooter .= '
+				</TABLE>
+			</p>
+			<p>
+				<span style="margin-bottom: 15px; font-size: 13px;font-family: \'lucida grande\',tahoma,verdana,arial,sans-serif;">
+					Telah batal menerima dokumen, dengan alasan :<br>
+					'.$reasonCancelAcceptDoc.'
+				</span><br />
+			</p>
+			</div>';
+	}
+	if($status == 4 && (!empty($acceptor) || $acceptor != 0)){
+		$bodyFooter .= '
+				</TABLE>
+			</p>
+			<p>
+				<span style="margin-bottom: 15px; font-size: 13px;font-family: \'lucida grande\',tahoma,verdana,arial,sans-serif;">
+					Anda telah batal menerima dokumen, dengan alasan :<br>
+					'.$reasonCancelAcceptDoc.'
 				</span><br />
 			</p>
 			</div>';

@@ -287,7 +287,7 @@ if(isset($_GET["act"]))
 					<select name='optTHROLD_CompanyID' id='optTHROLD_CompanyID' style='width:350px'>
 						<option value='0'>--- Pilih Perusahan ---</option>";
 
-					$query = "SELECT *
+					$query = "SELECT Company_ID, Company_Name
 							  FROM M_Company
 							  WHERE Company_Delete_Time is NULL
 							  ORDER BY Company_Name ASC";

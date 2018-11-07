@@ -116,27 +116,6 @@ function mail_loan_doc($loanCode,$reminder=0){
 			$requester_dept=ucwords(strtolower($ed_arr->Employee_Department));
 			$requester_div=ucwords(strtolower($ed_arr->Employee_Division));
 		}
-		$cap_atau_watermark = "Cap/Watermark";
-		if($row->THLOONLD_DocumentType == "ORIGINAL" ){
-			$tipe_dokumen = "Asli";
-		}elseif($row->THLOONLD_DocumentType == "SOFTCOPY"){
-			$tipe_dokumen = ucfirst(strtolower($row->THLOONLD_DocumentType));
-			$cap_atau_watermark = "Cap";
-		}elseif($row->THLOONLD_DocumentType == "HARDCOPY"){
-			$tipe_dokumen = ucfirst(strtolower($row->THLOONLD_DocumentType));
-			$cap_atau_watermark = "Watermark";
-		}else{
-			if( $row->THLOONLD_LoanCategoryID != '3') $tipe_dokumen .= "Asli";
-			else $tipe_dokumen .= "";
-		}
-		if( $row->THLOONLD_DocumentWithWatermarkOrNot == "1" ){
-			$dengan_cap = " dengan ".$cap_atau_watermark;
-		}elseif( $row->THLOONLD_DocumentWithWatermarkOrNot == "2" ){
-			$dengan_cap = " tanpa ".$cap_atau_watermark;
-		}else{
-			$dengan_cap = "";
-		}
-		//$asli = ($row->THLOONLD_LoanCategoryID != '3') ? ' Asli ' : '';
 		$keteranganPermintaan = "";
 		if( $row->THLOONLD_Information != null or $row->THLOONLD_Information != "" ){
 			$keteranganPermintaan = "(tujuan permintaan dokumen adalah ".$row->THLOONLD_Information.")";
@@ -154,7 +133,7 @@ function mail_loan_doc($loanCode,$reminder=0){
 	<td width="458" align="justify" valign="top" style="font-size: 12px; font-family: \'lucida grande\',tahoma,verdana,arial,sans-serif;"><div style="margin-bottom: 15px; font-size: 13px">Yth '.$row->User_FullName.',</div>
 	<div style="margin-bottom: 15px">
 	<p><span style="margin-bottom: 15px; font-size: 13px; font-family: \'lucida grande\',tahoma,verdana,arial,sans-serif;">
-		Bersama ini disampaikan bahwa permintaan dokumen '.$tipe_dokumen.''.$dengan_cap.' <b>('.$row->LoanCategory_Name.')</b>
+		Bersama ini disampaikan bahwa permintaan dokumen Asli <b>('.$row->LoanCategory_Name.')</b>
 		oleh <b>'.$requester.' / Dept : '.$requester_dept.' / Divisi : '.$requester_div.'</b> '.$keteranganPermintaan.' dengan detail permintaan sebagai berikut, membutuhkan persetujuan Bapak/Ibu :
 	</span></p>
 	<p>
@@ -169,8 +148,8 @@ function mail_loan_doc($loanCode,$reminder=0){
 				</p>
 				<p><span style="margin-bottom: 15px; font-size: 13px;font-family: \'lucida grande\',tahoma,verdana,arial,sans-serif;">Untuk itu dimohon Bapak/Ibu dapat memberikan persetujuan permintaan dokumen di atas. Terima kasih.  </span><br />
 				</p>
-				<p align=center><span style="border: 1px solid green;padding: 5px;margin-bottom: 15px; font-size: 13px;font-family: \'lucida grande\',tahoma,verdana,arial,sans-serif;background-color: rgb(196, 223, 155);color: white;float: left;margin-left: 15%;width: 20%;border-radius: 10px;"><a target="_BLANK" style="color: white;" href="http://'.$_SERVER['HTTP_HOST'].'/custodian/act.mail.lodoconl.php?cfm='.$decrp->encrypt('accept').'&ati='.$decrp->encrypt($row->ARC_AID).'&rdm='.$decrp->encrypt($row->ARC_RandomCode).'">Setuju</a></span>
-				<span style="border: 1px solid green;padding: 5px;margin-bottom: 15px; font-size: 13px;font-family: \'lucida grande\',tahoma,verdana,arial,sans-serif;background-color: rgb(196, 223, 155);color: white;float: right;margin-right: 15%;width: 20%;border-radius: 10px;"><a target="_BLANK" style="color: white;" href="http://'.$_SERVER['HTTP_HOST'].'/custodian/act.mail.lodoconl.php?act='.$decrp->encrypt('reject').'&ati='.$decrp->encrypt($row->ARC_AID).'&rdm='.$decrp->encrypt($row->ARC_RandomCode).'">Tolak</a></span><br />
+				<p align=center><span style="border: 1px solid green;padding: 5px;margin-bottom: 15px; font-size: 13px;font-family: \'lucida grande\',tahoma,verdana,arial,sans-serif;background-color: rgb(196, 223, 155);color: white;float: left;margin-left: 15%;width: 20%;border-radius: 10px;"><a target="_BLANK" style="color: white;" href="http://'.$_SERVER['HTTP_HOST'].'/act.mail.lodoconl.php?cfm='.$decrp->encrypt('accept').'&ati='.$decrp->encrypt($row->ARC_AID).'&rdm='.$decrp->encrypt($row->ARC_RandomCode).'">Setuju</a></span>
+				<span style="border: 1px solid green;padding: 5px;margin-bottom: 15px; font-size: 13px;font-family: \'lucida grande\',tahoma,verdana,arial,sans-serif;background-color: rgb(196, 223, 155);color: white;float: right;margin-right: 15%;width: 20%;border-radius: 10px;"><a target="_BLANK" style="color: white;" href="http://'.$_SERVER['HTTP_HOST'].'/act.mail.lodoconl.php?act='.$decrp->encrypt('reject').'&ati='.$decrp->encrypt($row->ARC_AID).'&rdm='.$decrp->encrypt($row->ARC_RandomCode).'">Tolak</a></span><br />
 				</p>
 				</div>';
 
@@ -305,7 +284,7 @@ function mail_loan_doc($loanCode,$reminder=0){
 	<td width="458" align="justify" valign="top" style="font-size: 12px; font-family: \'lucida grande\',tahoma,verdana,arial,sans-serif;"><div style="margin-bottom: 15px; font-size: 13px">Yth '.$obj_pararel->User_FullName.',</div>
 	<div style="margin-bottom: 15px">
 	<p><span style="margin-bottom: 15px; font-size: 13px; font-family: \'lucida grande\',tahoma,verdana,arial,sans-serif;">
-		Bersama ini disampaikan bahwa permintaan dokumen '.$tipe_dokumen.''.$dengan_cap.' <b>('.$row->LoanCategory_Name.')</b>
+		Bersama ini disampaikan bahwa permintaan dokumen Asli <b>('.$row->LoanCategory_Name.')</b>
 		oleh <b>'.$requester.' / Dept : '.$requester_dept.' / Divisi : '.$requester_div.'</b> '.$keteranganPermintaan.' dengan detail permintaan sebagai berikut, membutuhkan persetujuan Bapak/Ibu :
 	</span></p>
 	<p>
@@ -457,21 +436,7 @@ function mail_notif_loan_doc($loanCode, $User_ID, $status, $attr){
 			$info=$ed_arr->THLOONLD_Information;
 			$loanName = $ed_arr->LoanCategory_Name;
 			//$asli = ($ed_arr->THLOONLD_LoanCategoryID != '3') ? ' Asli ' : '';
-			if($ed_arr->THLOONLD_DocumentType == "ORIGINAL" ){
-				$tipe_dokumen = "Asli";
-			}elseif($ed_arr->THLOONLD_DocumentType == "HARDCOPY" or $ed_arr->THLOONLD_DocumentType == "SOFTCOPY"){
-				$tipe_dokumen = ucfirst(strtolower($ed_arr->THLOONLD_DocumentType));
-			}else{
-				if( $ed_arr->THLOONLD_LoanCategoryID != '3') $tipe_dokumen .= "Asli";
-				else $tipe_dokumen .= "";
-			}
-			if( $ed_arr->THLOONLD_DocumentWithWatermarkOrNot == "1" ){
-				$dengan_cap = " dengan Watermark";
-			}elseif( $ed_arr->THLOONLD_DocumentWithWatermarkOrNot == "2" ){
-				$dengan_cap = " tanpa Watermark";
-			}else{
-				$dengan_cap = "";
-			}
+
 			$keteranganPermintaan = "";
 			if( $ed_arr->THLOONLD_Information != null or $ed_arr->THLOONLD_Information != "" ){
 				$keteranganPermintaan = "(tujuan permintaan dokumen adalah ".$info.")";
@@ -603,7 +568,7 @@ function mail_notif_loan_doc($loanCode, $User_ID, $status, $attr){
 	<td width="458" align="justify" valign="top" style="font-size: 12px; font-family: \'lucida grande\',tahoma,verdana,arial,sans-serif;"><div style="margin-bottom: 15px; font-size: 13px">Yth '.$row->User_FullName.',</div>
 	<div style="margin-bottom: 15px">
 	<p><span style="margin-bottom: 15px; font-size: 13px; font-family: \'lucida grande\',tahoma,verdana,arial,sans-serif;">
-		Bersama ini disampaikan bahwa permintaan dokumen '.$tipe_dokumen.''.$dengan_cap.' <b>('.$loanName.')</b>
+		Bersama ini disampaikan bahwa permintaan dokumen Asli <b>('.$loanName.')</b>
 		oleh '.$requester.' '.$keteranganPermintaan.' dengan detail permintaan sebagai berikut :
 	</span></p>
 	<p>

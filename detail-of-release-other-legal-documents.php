@@ -69,7 +69,7 @@ $DocID=$_GET["id"];
 $query = "SELECT DISTINCT throold.THROOLD_ID, throold.THROOLD_ReleaseCode, throold.THROOLD_ReleaseDate, u.User_ID,
           u.User_FullName, c.Company_Name, throold.THROOLD_Status, throold.THROOLD_Information, thloold.THLOOLD_UserID,
 		  dg.DocumentGroup_Name, dg.DocumentGroup_ID, throold.THROOLD_Reason,c.Company_ID,thloold.THLOOLD_LoanCategoryID,
-		  throold.THROOLD_DocumentReceived
+		  throold.THROOLD_DocumentReceived, throold.THROOLD_ReasonOfDocumentCancel
 		  	FROM TH_ReleaseOfOtherLegalDocuments throold, M_User u, M_Company c, M_Approval dra,
 				 M_DocumentGroup dg, TH_LoanOfOtherLegalDocuments thloold, TD_LoanOfOtherLegalDocuments tdloold
 			WHERE throold.THROOLD_Delete_Time is NULL
@@ -85,7 +85,7 @@ $query = "SELECT DISTINCT throold.THROOLD_ID, throold.THROOLD_ReleaseCode, throo
 $query = "SELECT DISTINCT throold.THROOLD_ID, throold.THROOLD_ReleaseCode, throold.THROOLD_ReleaseDate, u.User_ID,
           u.User_FullName, c.Company_Name, throold.THROOLD_Status, throold.THROOLD_Information, thloold.THLOOLD_UserID,
 		  dg.DocumentGroup_Name, dg.DocumentGroup_ID, throold.THROOLD_Reason,c.Company_ID,thloold.THLOOLD_LoanCategoryID,
-		  throold.THROOLD_DocumentReceived
+		  throold.THROOLD_DocumentReceived, throold.THROOLD_ReasonOfDocumentCancel
 		  	FROM TH_ReleaseOfOtherLegalDocuments throold, M_User u, M_Company c, M_Approval dra,
 				 M_DocumentGroup dg, TH_LoanOfOtherLegalDocuments thloold, TD_LoanOfOtherLegalDocuments tdloold
 			WHERE throold.THROOLD_Delete_Time is NULL
@@ -94,6 +94,7 @@ $query = "SELECT DISTINCT throold.THROOLD_ID, throold.THROOLD_ReleaseCode, throo
 			AND throold.THROOLD_UserID=u.User_ID
 			AND dra.A_TransactionCode=throold.THROOLD_ReleaseCode
 			AND throold.THROOLD_ID='$DocID'
+			AND thloold.THLOOLD_UserID='$_SESSION[User_ID]'
 			AND dg.DocumentGroup_ID='5'";
 	}
 
@@ -101,7 +102,7 @@ $sql = mysql_query($query);
 $arr = mysql_fetch_array($sql);
 
 $showFormKonfirmasiPenerimaanDokumen = 0;
-if( $arr['THROOLD_DocumentReceived'] != 1 && $arr['THROOLD_Status']=="accept" && ($arr['User_ID'] == $_SESSION['User_ID'])){ //Arief F - 21092018
+if( $arr['THROOLD_DocumentReceived'] == NULL && $arr['THROOLD_Status']=="accept" && ($arr['User_ID'] == $_SESSION['User_ID'])){ //Arief F - 21092018
 	//Jika user adalah pengaju (untuk mengonfirmasi dokumen sudah diterima atau tidak)
 	$showFormKonfirmasiPenerimaanDokumen = 1;
 } //Arief F - 21092018
@@ -140,7 +141,7 @@ $MainContent .="
 			$arr[THROOLD_ReleaseCode]
 		</td>
 		<td width='3%'>
-			<a href='print-release-of-asset-ownership-document.php?id=$arr[THROOLD_ReleaseCode]' target='_blank'><img src='./images/icon-print.png'></a>
+			<a href='print-release-of-other-legal-documents.php?id=$arr[THROOLD_ReleaseCode]' target='_blank'><img src='./images/icon-print.png'></a>
 		</td>";
 }
 else {
@@ -207,9 +208,8 @@ $MainContent .="
 		</td>
 	</tr>
 ";
-	}
-	else {
-/*$MainContent .="
+	}else {
+$MainContent .="
 	<tr>
 		<td>Status Dokumen</td>
 ";
@@ -239,11 +239,19 @@ $MainContent .="
 			<td>Dokumen sudah diterima</td>
 			<td colspan='2'>
 				<select name='optTHROOLD_DocumentReceived' id='optTHROOLD_DocumentReceived'>
-					<option value='0'>--- Belum ---</option>
+					<option value='0'>--- Menungu Konfirmasi ---</option>
 					<option value='1'>Sudah</option>
+					<option value='2'>Batal</option>
 				</select>
 			</td>
-		</tr>"; //Arief F - 21092018
+		</tr>
+		<tr>
+			<td>Ket. Batal Terima Dokumen</td>
+			<td colspan='2'>
+				<textarea name='txtTHROOLD_ReasonOfDocumentCancel' id='txtTHROOLD_ReasonOfDocumentCancel' cols='50' rows='2'>$arr[THROOLD_ReasonOfDocumentCancel]</textarea>
+				<br>*Wajib Diisi Apabila Dokumen Batal Diterima.
+			</td>
+		</tr>";
 		} //Arief F - 21092018
 
 		if($arr['THROOLD_DocumentReceived'] == 1){ //Arief F - 21092018
@@ -253,7 +261,21 @@ $MainContent .="
 				<td colspan='2'>
 					Sudah
 				</td>
-			</tr>"; //Arief F - 21092018
+			</tr>";
+		}elseif($arr['THROOLD_DocumentReceived'] == 2){ //Arief F - 21092018
+			$MainContent .="
+			<tr>
+				<td>Dokumen sudah diterima</td>
+				<td colspan='2'>
+					Batal
+				</td>
+			</tr>
+			<tr>
+				<td>Ket. Batal Terima Dokumen</td>
+				<td colspan='2'>
+					$arr[THROOLD_ReasonOfDocumentCancel]
+				</td>
+			</tr>";
 		} //Arief F - 21092018
 	}
 	else if($arr[THROOLD_Status]=="reject") {
@@ -269,8 +291,8 @@ $MainContent .="
 	else {
 $MainContent .="
 		<td colspan='2'>Draft</td></tr>";
-	}*/
 	}
+}
 
 $MainContent .="
 	</table>";
@@ -307,7 +329,7 @@ $MainContent .="
 	$sql = mysql_query($query);
 	$no=1;
 	while ($arr = mysql_fetch_array($sql)) {
-		if (($arr['TDROOLD_LeadTime']=="0000-00-00 00:00:00")||($arr['TDROOLD_LeadTime']=="1970-01-01 01:00:00")){
+		if ( (strpos($arr['TDROOLD_LeadTime'], '0000-00-00') !== false ) || ( strpos($arr['TDROOLD_LeadTime'], '1970-01-01') !== false ) ){
 			$fLeadTime="-";
 		}
 		else {
@@ -370,13 +392,17 @@ if(isset($_POST['konfirmasi_penerimaandokumen'])){
 	$optTHROOLD_DocumentReceived=$_POST['optTHROOLD_DocumentReceived'];
 
 	$query = "UPDATE TH_ReleaseOfOtherLegalDocuments
-				SET THROOLD_DocumentReceived='$optTHROOLD_DocumentReceived', THROOLD_Update_UserID='$_SESSION[User_ID]', THROOLD_Update_Time=sysdate()
+				SET THROOLD_DocumentReceived='$optTHROOLD_DocumentReceived',
+				THROOLD_ReasonOfDocumentCancel='$_POST[txtTHROOLD_ReasonOfDocumentCancel]',
+				THROOLD_Update_UserID='$_SESSION[User_ID]', THROOLD_Update_Time=sysdate()
 				WHERE THROOLD_ID='$txtTHROOLD_ID'
 				AND THROOLD_Delete_Time IS NULL";
 	$sql = mysql_query($query);
 	if($sql){
-		mail_notif_reception_release_doc($_POST['txtA_TransactionCode'], $_SESSION['User_ID'], 3,1);
-		mail_notif_reception_release_doc($_POST['txtA_TransactionCode'], "cust0002", 3 );
+		if($optTHROOLD_DocumentReceived == "1" ) $status = 3;//Sudah Diterima
+		elseif($optTHROOLD_DocumentReceived == "2" ) $status = 4;
+		mail_notif_reception_release_doc($_POST['txtA_TransactionCode'], $_SESSION['User_ID'], $status,1);
+		mail_notif_reception_release_doc($_POST['txtA_TransactionCode'], "cust0002", $status );
 		echo "<meta http-equiv='refresh' content='0; url=detail-of-release-other-legal-documents.php?id=$txtTHROOLD_ID'>";
 	}else{
 		$ActionContent .="<div class='warning'>Konfirmasi Penerimaan Dokumen Gagal. Terjadi kesalahan</div>";
