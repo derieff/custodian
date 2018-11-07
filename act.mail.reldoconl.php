@@ -14,6 +14,7 @@
 include ("./config/config_db.php");
 include ("./include/function.mail.reldoconl.php");
 $decrp = new custodian_encryp;
+$PHP_SELF=$_SERVER['PHP_SELF'];
 
 if( !empty($_GET['cfm']) && !empty($_GET['ati']) && !empty($_GET['rdm']) ) {
 	$A_Status="3";
@@ -296,8 +297,9 @@ if(isset($_GET['act'])) {
 		}
 	}
 	else if ($act=='reject'){
-		$A_ID=$decrp->decrypt($_GET['ati']);
-		$ARC_RandomCode=$decrp->decrypt($_GET['rdm']);
+		$userID=$decrp->decrypt($_GET['user']);
+		$docID=$decrp->decrypt($_GET['doc']);
+		$relCode=$decrp->decrypt($_GET['rel']);
 
 		echo "
 		<form name='reason' method='post' action='$PHP_SELF'>
@@ -307,9 +309,11 @@ if(isset($_GET['act'])) {
 			<td style='text-align:left !important'; class='header'>Custodian System</td>
 		</tr>
 		<tr>
-			<td><input type='hidden' name='A_ID' value='$A_ID'>
-				<input type='hidden' name='ARC_RandomCode' value='$ARC_RandomCode'>
-				<textarea name='txtTHROONLD_Reason' id='txtTHROONLD_Reason' rows='3'>$arr[THROONLD_Reason]</textarea>
+			<td>
+				<input type='hidden' name='user_id' value='$userID'>
+				<input type='hidden' name='doc_id' value='$docID'>
+				<input type='hidden' name='rel_code' value='$relCode'>
+				<textarea name='reject_reason' id='reject_reason' rows='3'></textarea>
 				<br>*Wajib Diisi Apabila Anda Tidak Menyetujui Pengeluaran Dokumen.<br>
 			</td>
 		</tr>
@@ -328,144 +332,29 @@ if(isset($_GET['act'])) {
 }
 
 if(isset($_POST['reject'])) {
-	$A_Status='4';
-	$A_ID=$_POST['A_ID'];
-	$ARC_RandomCode=$_POST['ARC_RandomCode'];
+	$rejectedFlag='2';
+	$userID=$_POST['user_id'];
+	$docID=$_POST['doc_id'];
+	$relCode=$_POST['rel_code'];
 
-	if (str_replace(" ", "", $_POST['txtTHROONLD_Reason'])==NULL){
-		echo "<meta http-equiv='refresh' content='0; url=act.mail.reldoconl.php?act=".$decrp->encrypt('reject').">";
+	if (str_replace(" ", "", $_POST['reject_reason'])==NULL){
+		echo "<meta http-equiv='refresh' content='0; url=act.mail.reldoconl.php?act=".$decrp->encrypt('reject').
+		"&user=".$decrp->encrypt($userID)."&doc=".$decrp->encrypt($docID)."&rel=".$decrp->encrypt($relCode).">";
 	}
 	else {
-		$THROONLD_Reason=str_replace("<br>", "\n",$_POST['txtTHROONLD_Reason']);
-		$query = "SELECT *
-				  FROM L_ApprovalRandomCode
-				  WHERE ARC_AID='$A_ID'
-				  AND ARC_RandomCode='$ARC_RandomCode'";
+		$rejectReason=str_replace("<br>", "\n",$_POST['reject_reason']);
+		
+		$query = "UPDATE TH_ReleaseOfOtherNonLegalDocuments
+					SET THROONLD_DocumentReceived='$rejectedFlag',THROONLD_ReasonOfDocumentCancel='$rejectReason', THROONLD_Update_UserID='$userID', THROONLD_Update_Time=sysdate()
+					WHERE THROONLD_ID='$docID'
+					AND THROONLD_Delete_Time IS NULL";
 		$sql = mysql_query($query);
-		$num = mysql_num_rows($sql);
-
-		if ($num==1) {
-
-			$query = "SELECT *
-				  	  FROM M_Approval
-				  	  WHERE A_ID='$A_ID'";
-			$sql = mysql_query($query);
-			$arr = mysql_fetch_array($sql);
-			$step=$arr['A_Step'];
-			$AppDate=$arr['A_ApprovalDate'];
-			$A_TransactionCode=$arr['A_TransactionCode'];
-			$A_ApproverID=$arr['A_ApproverID'];
-
-			if ($AppDate==NULL) {
-
-				$h_query="SELECT *
-						  FROM TH_ReleaseOfOtherNonLegalDocuments throonld,TH_LoanOfOtherNonLegalDocuments thloonld
-						  WHERE throonld.THROONLD_ReleaseCode='$A_TransactionCode'
-						  AND throonld.THROONLD_Delete_Time IS NULL";
-				$h_sql=mysql_query($h_query);
-				$h_arr=mysql_fetch_array($h_sql);
-
-				$query1="UPDATE TH_ReleaseOfOtherNonLegalDocuments
-						 SET THROONLD_Status='reject', THROONLD_Reason='$THROONLD_Reason',
-						  	 THROONLD_Update_Time=sysdate(), THROONLD_Update_UserID='$A_ApproverID'
-						 WHERE THROONLD_ReleaseCode='$A_TransactionCode'";
-
-				// UPDATE APPROVAL
-				$query2="UPDATE M_Approval
-						 SET A_Status='$A_Status', A_ApprovalDate=sysdate(), A_Update_UserID='$A_ApproverID',
-							 A_Update_Time=sysdate()
-						 WHERE A_ID='$A_ID'";
-
-				$query3="UPDATE M_Approval
-						 SET A_Update_Time=sysdate(), A_Update_UserID='$A_ApproverID',
-						     A_Delete_Time=sysdate(), A_Delete_UserID='$A_ApproverID',
-							 A_Status='$A_Status'
-						 WHERE A_TransactionCode='$A_TransactionCode'
-						 AND A_Step>='$step'";
-				$mysqli->query($query1);
-				$mysqli->query($query2);
-				$mysqli->query($query3);
-
-				$d_query="SELECT *
-						  FROM TD_ReleaseOfOtherNonLegalDocuments tdroonld, TD_LoanOfOtherNonLegalDocuments tdloonld
-						  WHERE tdroonld.TDROONLD_THROONLD_ID='$h_arr[THROONLD_ID]'
-						  AND tdroonld.TDROONLD_Delete_Time IS NULL
-						  AND tdroonld.TDROONLD_TDLOONLD_ID=tdloonld.TDLOONLD_ID";
-				$d_sql=mysql_query($d_query);
-				while($d_arr=mysql_fetch_array($d_sql)){
-					$query="UPDATE M_DocumentsOtherNonLegal
-						    SET DONL_Status='1', DONL_Update_UserID='$A_ApproverID', DONL_Update_Time=sysdate()
-						    WHERE DONL_Code='$d_arr[TDLOONLD_DocCode]'";
-					$mysqli->query($query);
-				}
-				mail_notif_release_doc($A_TransactionCode, $h_arr['THLOONLD_UserID'], 4 );
-				mail_notif_release_doc($A_TransactionCode, $h_arr['THROONLD_UserID'], 4 );
-				echo "
-				<table border='0' align='center' cellpadding='0' cellspacing='0'>
-				<tbody>
-				<tr>
-					<td class='header'>Persetujuan Berhasil</td>
-				</tr>
-				<tr>
-					<td>
-						Persetujuan Anda Telah Disimpan.<br>
-						Terima kasih.<br><br>
-						Hormat Kami,<br />Departemen Custodian<br />
-						PT Triputra Agro Persada
-					</td>
-				</tr>
-				<tr>
-					<td class='footer'>Powered By Custodian System </td>
-				</tr>
-				</tbody>
-				</table>";
-			}
-			else {
-				echo "
-			<table border='0' align='center' cellpadding='0' cellspacing='0'>
-			<tbody>
-			<tr>
-				<td class='header'>Persetujuan Gagal</td>
-			</tr>
-			<tr>
-				<td>
-					Anda tidak dapat melakukan persetujuan ini<br>
-					karena Anda telah melakukan persetujuan sebelumnya.<br>
-					Terima kasih.<br><br>
-					Hormat Kami,<br />Departemen Custodian<br />
-					PT Triputra Agro Persada
-				</td>
-			</tr>
-			<tr>
-				<td class='footer'>
-				Powered By Custodian System </td>
-			</tr>
-			</tbody>
-			</table>";
-			}
-		}
-		else {
-						echo "
-		<table border='0' align='center' cellpadding='0' cellspacing='0'>
-		<tbody>
-		<tr>
-			<td class='header'>Persetujuan Gagal</td>
-		</tr>
-		<tr>
-			<td>
-				Anda tidak dapat melakukan persetujuan ini<br>
-				karena Anda tidak memiliki hak persetujuan untuk transaksi ini.<br>
-				Terima kasih.<br><br>
-				Hormat Kami,<br />Departemen Custodian<br />
-				PT Triputra Agro Persada
-			</td>
-		</tr>
-		<tr>
-			<td class='footer'>
-			Powered By Custodian System </td>
-		</tr>
-		</tbody>
-		</table>";
+		if($sql){
+			mail_notif_reception_release_doc($relCode, $userID, 4 ,1);
+			mail_notif_reception_release_doc($relCode, "cust0002", 4 );
+			echo "<meta http-equiv='refresh' content='0; url=detail-of-release-other-non-legal-documents.php?id=$docID'>";
+		}else{
+			$ActionContent .="<div class='warning'>Konfirmasi Penerimaan Dokumen Gagal. Terjadi kesalahan</div>";
 		}
 	}
 }

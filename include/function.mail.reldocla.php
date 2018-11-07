@@ -314,7 +314,7 @@ function mail_notif_release_doc($relCode, $User_ID, $status){
 						<a target="_BLANK" style="color: white;" href="http://'.$_SERVER['HTTP_HOST'].'/custodian/act.mail.reldocla.php?act='.$decrp->encrypt('confirm').'&user='.$decrp->encrypt($regUser).'&doc='.$decrp->encrypt($docID).'&rel='.$decrp->encrypt($relCode).'">Sudah Diterima</a>
 					</span>
 					<span style="border: 1px solid green;padding: 5px;margin-bottom: 15px; font-size: 13px;font-family: \'lucida grande\',tahoma,verdana,arial,sans-serif;background-color: rgb(196, 223, 155);color: white;float: right;margin-right: 15%;width: 20%;border-radius: 10px;">
-						<a target="_BLANK" style="color: white;" href="http://'.$_SERVER['HTTP_HOST'].'/custodian/act.mail.reldocla.php?act='.$decrp->encrypt('reject').'&ati='.$decrp->encrypt($accept_row->ARC_AID).'&rdm='.$decrp->encrypt($accept_row->ARC_RandomCode).'">Belum Diterima</a>
+						<a target="_BLANK" style="color: white;" href="http://'.$_SERVER['HTTP_HOST'].'/custodian/act.mail.reldocla.php?act='.$decrp->encrypt('reject').'&user='.$decrp->encrypt($regUser).'&doc='.$decrp->encrypt($docID).'&rel='.$decrp->encrypt($relCode).'">Batal</a>
 					</span><br />
 				</p>
 				</div>';
@@ -466,7 +466,7 @@ function mail_notif_reception_release_doc($relCode, $User_ID, $status,$acceptor=
 			$reason=$ed_arr->THRLOLAD_Reason;
 			$regUser=$ed_arr->THLOLAD_UserID;
 			$requester=$ed_arr->User_FullName;
-			$reasonCancelAcceptDoc = $edd_arr->THRLOLAD_ReasonOfDocumentCancel;
+			$reasonCancelAcceptDoc = $ed_arr->THRLOLAD_ReasonOfDocumentCancel;
 		}
 
 		$bodyHeader .= '
